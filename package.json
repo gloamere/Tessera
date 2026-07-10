@@ -1,0 +1,23 @@
+{
+  "name": "workflow-os",
+  "version": "0.1.0",
+  "description": "Composable, AI-friendly project workflows",
+  "files": [
+    "bin",
+    "src",
+    "templates",
+    "README.md"
+  ],
+  "bin": {
+    "workflow-os": "bin/workflow-os.mjs"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
+  }
+}
