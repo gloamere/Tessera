@@ -15,7 +15,7 @@
 7. 交付前运行 `workflow-os validate`；需要从零恢复索引时运行 `workflow-os rebuild --render-now`。
 8. 每轮子 agent 工作后运行 `workflow-os guard <work-id> --outcome progress|no-progress [--error <signature>]`；若返回 `stop`，停止派遣并汇总证据、进入澄清或诊断，不得继续重试。
 
-可用的只读查询包括 `workflow-os status [--json]` 与 `workflow-os context <work-id> [--json]`。用 `workflow-os work create "<名称>"` 和 `workflow-os decision create "<名称>" --work-item <work-id>` 创建对应 Markdown 记录。
+只读查询为 `workflow-os status [--json]`、`workflow-os context <work-id> [--json]` 与 `workflow-os validate [--json]`。它们不持有索引写锁，多个子 agent 可以并发运行；当另一个进程正在 `sync` 时，它们读取现有索引而不是报错。加 `--no-sync` 可跳过刷新、纯读当前索引。用 `workflow-os work create "<名称>"` 和 `workflow-os decision create "<名称>" --work-item <work-id>` 创建对应 Markdown 记录。
 
 ## 调研与搜索
 

@@ -13,8 +13,10 @@ import { constants } from 'node:fs';
 import { access } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import {
   openIndex,
+  openIndexForRead,
   queryContext,
   queryDocumentHashes,
   queryResearchContext,
@@ -41,6 +43,7 @@ import {
   pathExists,
   readProjectMarkdown,
   withIndexLock,
+  withOptionalIndexLock,
   writeNowSummary,
 } from '../src/project.mjs';
 import { approveResearch, buildDispatchPlan, createResearch, saveDispatchPlan } from '../src/research.mjs';
@@ -63,9 +66,9 @@ Usage:
   workflow-os research validate [research-id] [--json]
   workflow-os research approve <research-id>
   workflow-os sync [${AUTO_RENDER_FLAG}]
-  workflow-os status [--json]
-  workflow-os context <work-id> [--json]
-  workflow-os validate [--json]
+  workflow-os status [--json] [--no-sync]
+  workflow-os context <work-id> [--json] [--no-sync]
+  workflow-os validate [--json] [--no-sync]
   workflow-os rebuild [${AUTO_RENDER_FLAG}]
   workflow-os upgrade [--check|--plan] [--apply] [--json]
   workflow-os adapter status [<adapter-id>] [--json]
@@ -91,34 +94,64 @@ async function exists(path) {
   }
 }
 
-function parseOptions(tokens) {
-  const positionals = [];
-  const options = new Map();
-  for (let index = 0; index < tokens.length; index += 1) {
-    const token = tokens[index];
-    if (!token.startsWith('--')) {
-      positionals.push(token);
-      continue;
-    }
-    const [rawName, inlineValue] = token.slice(2).split('=', 2);
-    if (inlineValue !== undefined) {
-      options.set(rawName, inlineValue);
-      continue;
-    }
-    const next = tokens[index + 1];
-    if (next && !next.startsWith('--')) {
-      options.set(rawName, next);
-      index += 1;
-    } else {
-      options.set(rawName, true);
-    }
+const BOOLEAN_OPTIONS = [
+  'apply',
+  'authorized',
+  'check',
+  'codex',
+  'dry-run',
+  'help',
+  'json',
+  'no-sync',
+  'obsidian',
+  'plan',
+  'render-now',
+];
+const STRING_OPTIONS = [
+  'approval-state',
+  'error',
+  'id',
+  'mode',
+  'outcome',
+  'priority',
+  'recency',
+  'release-url',
+  'research',
+  'scope',
+  'slug',
+  'title',
+  'type',
+  'version',
+  'work-item',
+];
+const OPTION_CONFIG = Object.fromEntries([
+  ...BOOLEAN_OPTIONS.map((name) => [name, { type: 'boolean' }]),
+  ...STRING_OPTIONS.map((name) => [name, { type: 'string' }]),
+]);
+
+/**
+ * Parse one command's arguments.  Strict mode rejects unknown options, and
+ * `parseArgs` refuses a value-taking option whose value looks like another
+ * flag, so `--outcome --error x` fails instead of quietly setting
+ * `outcome="--error"`.  A value that really starts with a dash uses `--error=-5`.
+ */
+function parseCli(tokens) {
+  try {
+    const { positionals, values } = parseArgs({
+      args: tokens,
+      options: OPTION_CONFIG,
+      allowPositionals: true,
+      strict: true,
+    });
+    return { positionals, options: new Map(Object.entries(values)) };
+  } catch (error) {
+    throw new Error(`参数解析失败：${error.message}`);
   }
-  return { positionals, options };
 }
 
 function optionValue(options, name) {
   const value = options.get(name);
-  return value === true ? null : value;
+  return value === true || value === undefined ? null : value;
 }
 
 function enumOption(options, name, fallback, values) {
@@ -224,9 +257,9 @@ function indexParsedDocuments(db, documents, { force = false } = {}) {
   return { indexedCount, removed };
 }
 
-async function syncProject(root, { renderNow = false } = {}) {
+async function syncProject(root, { renderNow = false, optional = false } = {}) {
   await requireInstalled(root);
-  return withIndexLock(root, async () => {
+  const refresh = async () => {
     const documents = parseProjectDocuments(await readProjectMarkdown(root));
     const db = openIndex(indexPath(root));
     try {
@@ -238,7 +271,25 @@ async function syncProject(root, { renderNow = false } = {}) {
     } finally {
       db.close();
     }
-  });
+  };
+  if (!optional) return withIndexLock(root, refresh);
+  const { ran, value } = await withOptionalIndexLock(root, refresh);
+  return ran ? value : null;
+}
+
+/**
+ * Open the index for a read-only command.
+ *
+ * The refresh is best effort: when another process already holds the index
+ * lock it is skipped, because that process is refreshing the very index this
+ * caller is about to read.  A query therefore never fails just because agents
+ * run concurrently.  `--no-sync` skips the refresh outright for a pure read.
+ */
+async function openForQuery(root, { noSync = false } = {}) {
+  await requireInstalled(root);
+  if (!(await exists(indexPath(root)))) await syncProject(root);
+  else if (!noSync) await syncProject(root, { optional: true });
+  return openIndexForRead(indexPath(root));
 }
 
 async function rebuildProject(root, { renderNow = false } = {}) {
@@ -361,8 +412,9 @@ async function run() {
     return;
   }
 
+  const { positionals, options } = parseCli(rest);
+
   if (command === 'init') {
-    const { options } = parseOptions(rest);
     const result = await install(root, options, await packageVersion());
     console.log(`${result.dryRun ? '预览安装' : '已安装'}：${resolve(root)}`);
     for (const change of result.changes) console.log(change);
@@ -376,11 +428,10 @@ async function run() {
   }
 
   if (command === 'work' || command === 'decision') {
-    const [subcommand, ...tokens] = rest;
+    const [subcommand, ...titleWords] = positionals;
     if (subcommand !== 'create') throw new Error(`${command} 仅支持 create。`);
     await requireInstalled(root);
-    const { positionals, options } = parseOptions(tokens);
-    const title = positionals.join(' ').trim();
+    const title = titleWords.join(' ').trim();
     if (!title) throw new Error('请提供记录标题。');
     const workItemId = optionValue(options, 'work-item');
     if (command === 'decision' && !workItemId) throw new Error('decision create 需要 --work-item <work-id>。');
@@ -406,10 +457,9 @@ async function run() {
 
   if (command === 'research') {
     await requireInstalled(root);
-    const [subcommand, ...tokens] = rest;
-    const { positionals, options } = parseOptions(tokens);
+    const [subcommand, ...researchArgs] = positionals;
     if (subcommand === 'create') {
-      const title = positionals.join(' ').trim();
+      const title = researchArgs.join(' ').trim();
       if (!title) throw new Error('research create 需要研究问题。');
       const record = await createResearch(root, {
         title,
@@ -424,10 +474,13 @@ async function run() {
       console.log(`已创建 ${record.path} [${record.id}]。`);
       return;
     }
-    const researchId = positionals[0];
+    const researchId = researchArgs[0];
     if (!researchId && subcommand !== 'validate') throw new Error(`research ${subcommand ?? ''} 需要 <research-id>。`);
-    await syncProject(root);
-    const db = openIndex(indexPath(root));
+
+    // Read first, then release the connection.  `plan` and `approve` rewrite
+    // Markdown afterwards and re-sync, which must not nest inside an open handle.
+    const db = await openForQuery(root, { noSync: options.has('no-sync') });
+    let context;
     try {
       if (subcommand === 'validate') {
         const validation = queryValidation(db);
@@ -436,35 +489,35 @@ async function run() {
         if (!validation.valid) process.exitCode = 1;
         return;
       }
-      const context = queryResearchContext(db, researchId);
-      if (context.error) throw new Error(context.error.message);
-      if (subcommand === 'context') {
-        if (options.has('json')) console.log(JSON.stringify(context, null, 2));
-        else console.log(`# ${context.researchItem.title}\n研究：${context.researchItem.id}\n状态：${context.researchItem.status}\n模式：${context.researchItem.mode}\n下一步：${context.researchItem.nextAction ?? '未填写'}\n档案：${context.researchItem.path}`);
-        return;
-      }
-      if (subcommand === 'plan') {
-        const plan = buildDispatchPlan(context.researchItem);
-        await saveDispatchPlan(root, context.researchItem.path, plan);
-        await syncProject(root);
-        if (options.has('json')) console.log(JSON.stringify(plan, null, 2));
-        else console.log(plan.executable ? 'Dispatch Review 已生成，可由总指挥派遣。' : 'Deep 研究计划已生成，等待负责人确认。');
-        return;
-      }
-      if (subcommand === 'approve') {
-        if (context.researchItem.mode !== 'deep') throw new Error('只有 deep 研究需要确认。');
-        await approveResearch(root, context.researchItem.path);
-        await syncProject(root);
-        console.log('已记录负责人确认；现在可运行 research plan。');
-        return;
-      }
-      throw new Error(`research 不支持 ${subcommand}。`);
+      context = queryResearchContext(db, researchId);
     } finally {
       db.close();
     }
+    if (context.error) throw new Error(context.error.message);
+
+    if (subcommand === 'context') {
+      if (options.has('json')) console.log(JSON.stringify(context, null, 2));
+      else console.log(`# ${context.researchItem.title}\n研究：${context.researchItem.id}\n状态：${context.researchItem.status}\n模式：${context.researchItem.mode}\n下一步：${context.researchItem.nextAction ?? '未填写'}\n档案：${context.researchItem.path}`);
+      return;
+    }
+    if (subcommand === 'plan') {
+      const plan = buildDispatchPlan(context.researchItem);
+      await saveDispatchPlan(root, context.researchItem.path, plan);
+      await syncProject(root);
+      if (options.has('json')) console.log(JSON.stringify(plan, null, 2));
+      else console.log(plan.executable ? 'Dispatch Review 已生成，可由总指挥派遣。' : 'Deep 研究计划已生成，等待负责人确认。');
+      return;
+    }
+    if (subcommand === 'approve') {
+      if (context.researchItem.mode !== 'deep') throw new Error('只有 deep 研究需要确认。');
+      await approveResearch(root, context.researchItem.path);
+      await syncProject(root);
+      console.log('已记录负责人确认；现在可运行 research plan。');
+      return;
+    }
+    throw new Error(`research 不支持 ${subcommand}。`);
   }
 
-  const { positionals, options } = parseOptions(rest);
   if (command === 'sync') {
     const result = await syncProject(root, { renderNow: options.has('render-now') });
     console.log(`同步完成：更新 ${result.indexedCount} 个文件，移除 ${result.removed.removedCount} 个索引记录。`);
@@ -480,17 +533,21 @@ async function run() {
   }
 
   if (command === 'status') {
-    const result = await syncProject(root);
-    if (options.has('json')) console.log(JSON.stringify(result.status, null, 2));
-    else printStatus(result.status);
+    const db = await openForQuery(root, { noSync: options.has('no-sync') });
+    try {
+      const status = queryStatus(db);
+      if (options.has('json')) console.log(JSON.stringify(status, null, 2));
+      else printStatus(status);
+    } finally {
+      db.close();
+    }
     return;
   }
 
   if (command === 'context') {
     const workItemId = positionals[0];
     if (!workItemId) throw new Error('context 需要 <work-id>。');
-    await syncProject(root);
-    const db = openIndex(indexPath(root));
+    const db = await openForQuery(root, { noSync: options.has('no-sync') });
     try {
       const context = queryContext(db, workItemId);
       if (options.has('json')) console.log(JSON.stringify(context, null, 2));
@@ -503,10 +560,15 @@ async function run() {
   }
 
   if (command === 'validate') {
-    const result = await syncProject(root);
-    if (options.has('json')) console.log(JSON.stringify(result.validation, null, 2));
-    else printValidation(result.validation);
-    if (!result.validation.valid) process.exitCode = 1;
+    const db = await openForQuery(root, { noSync: options.has('no-sync') });
+    try {
+      const validation = queryValidation(db);
+      if (options.has('json')) console.log(JSON.stringify(validation, null, 2));
+      else printValidation(validation);
+      if (!validation.valid) process.exitCode = 1;
+    } finally {
+      db.close();
+    }
     return;
   }
 
@@ -531,10 +593,9 @@ async function run() {
 
   if (command === 'adapter') {
     await requireInstalled(root);
-    const [subcommand, ...tokens] = rest;
-    const { positionals, options } = parseOptions(tokens);
+    const [subcommand, adapterId] = positionals;
     if (subcommand === 'status') {
-      const result = await adapterStatus(root, positionals[0] ?? null);
+      const result = await adapterStatus(root, adapterId ?? null);
       if (options.has('json')) console.log(JSON.stringify(result, null, 2));
       else for (const adapter of result.adapters) {
         const state = adapter.state?.available_version ? `；发现版本：${adapter.state.available_version}（等待确认）` : '';
@@ -549,7 +610,6 @@ async function run() {
       return;
     }
     if (subcommand === 'check') {
-      const adapterId = positionals[0];
       if (!adapterId) throw new Error('adapter check 需要 <adapter-id>。');
       const result = await recordAdapterCheck(root, adapterId, {
         version: optionValue(options, 'version'),
@@ -560,9 +620,11 @@ async function run() {
       return;
     }
     if (subcommand === 'install') {
-      const adapterId = positionals[0];
       if (!adapterId) throw new Error('adapter install 需要 <adapter-id>。');
-      const result = await installAdapter(root, adapterId, { authorized: options.has('authorized') });
+      const result = await installAdapter(root, adapterId, {
+        authorized: options.has('authorized'),
+        log: options.has('json') ? () => {} : console.log,
+      });
       if (options.has('json')) console.log(JSON.stringify(result, null, 2));
       else if (result.manual) console.log(`${adapterId} 需手动安装：${result.instruction}`);
       else console.log(result.installed ? `${adapterId} 已安装并通过检测。` : `${adapterId} 安装命令已完成，但尚未通过检测。`);
@@ -573,7 +635,6 @@ async function run() {
 
   if (command === 'ingest') {
     await requireInstalled(root);
-    const { positionals, options } = parseOptions(rest);
     const sourcePath = positionals[0];
     if (!sourcePath) throw new Error('ingest 需要 <local-file>。');
     const result = await ingestWithMarkItDown(root, sourcePath, {

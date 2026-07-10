@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { mkdtempSync, existsSync, readFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdtempSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { trustedInstallPackage } from '../src/maintenance.mjs';
 
 test('init preview does not write files', () => {
   const dir = mkdtempSync(join(tmpdir(), 'workflow-os-'));
@@ -32,6 +33,38 @@ test('Superpowers adapter records an update candidate without installing or chan
   assert.equal(status.adapters[0].state.action, 'awaiting_user_confirmation');
   assert.equal(existsSync(join(dir, '.workflow', 'extensions', 'superpowers', 'README.md')), true);
   assert.match(readFileSync(join(dir, '.workflow', 'manifest.yaml'), 'utf8'), /superpowers/);
+});
+
+test('the pip allowlist only accepts the exact package it declares', () => {
+  assert.equal(trustedInstallPackage('markitdown', 'markitdown[pdf,docx,pptx]'), 'markitdown[pdf,docx,pptx]');
+  assert.throws(() => trustedInstallPackage('markitdown', 'evil-package'), /已拒绝安装/);
+  assert.throws(() => trustedInstallPackage('markitdown', '--index-url=https://evil.example/simple'), /已拒绝安装/);
+  assert.throws(() => trustedInstallPackage('markitdown', undefined), /已拒绝安装/);
+  assert.throws(() => trustedInstallPackage('superpowers', 'anything'), /不在 pip 安装白名单内/);
+});
+
+test('adapter install refuses a package name swapped into the project registry', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'workflow-os-'));
+  const cli = join(process.cwd(), 'bin', 'workflow-os.mjs');
+  execFileSync(process.execPath, [cli, 'init'], { cwd: dir });
+
+  const registry = join(dir, '.workflow', 'adapters.yaml');
+  writeFileSync(registry, readFileSync(registry, 'utf8').replace('package: markitdown[pdf,docx,pptx]', 'package: evil-package'), 'utf8');
+
+  const result = spawnSync(process.execPath, [cli, 'adapter', 'install', 'markitdown', '--authorized'], { cwd: dir, encoding: 'utf8' });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /已拒绝安装/);
+  assert.doesNotMatch(result.stdout, /pip install/, 'a rejected install must never announce or run pip');
+});
+
+test('adapter install still requires explicit authorization', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'workflow-os-'));
+  const cli = join(process.cwd(), 'bin', 'workflow-os.mjs');
+  execFileSync(process.execPath, [cli, 'init'], { cwd: dir });
+
+  const result = spawnSync(process.execPath, [cli, 'adapter', 'install', 'markitdown'], { cwd: dir, encoding: 'utf8' });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /--authorized/);
 });
 
 test('adapter doctor detects tools without downloading or installing them', () => {

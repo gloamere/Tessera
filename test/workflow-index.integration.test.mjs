@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   statSync,
   utimesSync,
@@ -331,4 +332,116 @@ test('a fresh index lock causes an actionable busy failure instead of concurrent
 
   const result = run(root, ['sync'], 1);
   assert.match(`${result.stdout}\n${result.stderr}`, /索引繁忙/);
+});
+
+function writeStaleLock(root) {
+  const lockPath = join(root, '.workflow', 'index.lock');
+  mkdirSync(dirname(lockPath), { recursive: true });
+  writeFileSync(lockPath, '{"pid":12345,"createdAt":"2020-01-01T00:00:00.000Z"}\n', 'utf8');
+  const stale = new Date(Date.now() - 60 * 60 * 1000);
+  utimesSync(lockPath, stale, stale);
+  return lockPath;
+}
+
+test('a lock left behind by a crashed process is reclaimed', (t) => {
+  const root = initializedProject(t);
+  const lockPath = writeStaleLock(root);
+
+  run(root, ['sync']);
+  assert.equal(existsSync(lockPath), false, 'the reclaimed lock must be released again');
+});
+
+test('racing writers over a stale lock leave no debris and never both proceed', async (t) => {
+  const root = initializedProject(t);
+  run(root, ['work', 'create', 'Ship weekend event', '--slug', 'weekend-event']);
+  writeStaleLock(root);
+
+  const results = await Promise.all(Array.from({ length: 3 }, () => new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [cli, 'sync'], { cwd: root });
+    let stderr = '';
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('error', reject);
+    child.on('close', (code) => resolve({ code, stderr }));
+  })));
+
+  assert.ok(results.some((result) => result.code === 0), 'at least one writer must reclaim the stale lock');
+  for (const result of results) {
+    if (result.code !== 0) assert.match(result.stderr, /索引繁忙/, `unexpected failure:\n${result.stderr}`);
+  }
+
+  const leftovers = readdirSync(join(root, '.workflow')).filter((name) => name.includes('.stale-'));
+  assert.deepEqual(leftovers, [], 'lock reclamation must not leave temporary files behind');
+  assert.equal(existsSync(join(root, '.workflow', 'index.lock')), false);
+  assert.equal(runJson(root, ['validate', '--json']).valid, true);
+});
+
+test('read-only queries succeed while another process holds the index lock', (t) => {
+  const root = initializedProject(t);
+  run(root, ['work', 'create', 'Ship weekend event', '--slug', 'weekend-event']);
+  const workId = runJson(root, ['status', '--json']).workItems[0].id;
+
+  const lockPath = join(root, '.workflow', 'index.lock');
+  mkdirSync(dirname(lockPath), { recursive: true });
+  writeFileSync(lockPath, '{"pid":12345}\n', 'utf8');
+
+  assert.equal(runJson(root, ['status', '--json']).totals.workItems, 1);
+  assert.equal(runJson(root, ['context', workId, '--json']).workItem.id, workId);
+  assert.equal(runJson(root, ['validate', '--json']).valid, true);
+  assert.ok(existsSync(lockPath), 'a reader must not remove the writer lock');
+});
+
+test('concurrent read-only queries never report the index as busy', async (t) => {
+  const root = initializedProject(t);
+  run(root, ['work', 'create', 'Ship weekend event', '--slug', 'weekend-event']);
+
+  const results = await Promise.all(Array.from({ length: 4 }, () => new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [cli, 'status', '--json'], { cwd: root });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk; });
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('error', reject);
+    child.on('close', (code) => resolve({ code, stdout, stderr }));
+  })));
+
+  for (const result of results) {
+    assert.doesNotMatch(result.stderr, /索引繁忙/);
+    assert.equal(result.code, 0, `status failed:\n${result.stderr}`);
+    assert.equal(JSON.parse(result.stdout).totals.workItems, 1);
+  }
+});
+
+test('options may precede positionals, and a malformed option never parses silently', (t) => {
+  const root = initializedProject(t);
+  run(root, ['work', 'create', 'Ship weekend event', '--slug', 'weekend-event']);
+  const workId = runJson(root, ['status', '--json']).workItems[0].id;
+
+  // `--json` must not swallow the work id that follows it.
+  assert.equal(runJson(root, ['context', '--json', workId]).workItem.id, workId);
+
+  // A string option must not swallow the next flag as its value.
+  const ambiguous = run(root, ['guard', workId, '--outcome', '--error', 'boom'], 1);
+  assert.match(ambiguous.stderr, /参数解析失败/);
+
+  // A misspelled option must fail loudly rather than be ignored.
+  const unknown = run(root, ['status', '--jsonn'], 1);
+  assert.match(unknown.stderr, /参数解析失败/);
+
+  // A value that genuinely starts with a dash still has an escape hatch.
+  run(root, ['guard', workId, '--outcome', 'no-progress', '--error=--weird-signature']);
+});
+
+test('--no-sync reads the existing index without touching the lock', (t) => {
+  const root = initializedProject(t);
+  run(root, ['work', 'create', 'Ship weekend event', '--slug', 'weekend-event']);
+
+  // A Markdown edit that has not been synced must stay invisible to a pure read.
+  const file = workPath(root, 'weekend-event');
+  writeFileSync(file, readFileSync(file, 'utf8').replace('status: planned', 'status: in_progress'), 'utf8');
+
+  const stale = runJson(root, ['status', '--json', '--no-sync']);
+  assert.equal(stale.workItems[0].status, 'planned');
+
+  const fresh = runJson(root, ['status', '--json']);
+  assert.equal(fresh.workItems[0].status, 'in_progress');
 });

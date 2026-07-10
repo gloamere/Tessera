@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    # Lock reclamation and adapter detection take different branches per OS,
+    # so both are exercised.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # node:sqlite requires Node 24; the package refuses to run below it.
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test

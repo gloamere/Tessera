@@ -1,7 +1,7 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse, stringify } from 'yaml';
-import { makeStableId, pathExists, toProjectPath } from './project.mjs';
+import { makeStableId, pathExists, safeFilePart, toProjectPath } from './project.mjs';
 
 const MODES = new Set(['quick', 'standard', 'deep']);
 const DISPATCH_START = '<!-- workflow-os:dispatch:start -->';
@@ -18,10 +18,9 @@ export function researchMarkdown({ id, title, mode, scope, recency, workItemId }
 export async function createResearch(root, options) {
   if (!MODES.has(options.mode)) throw new Error('--mode 必须为 quick、standard 或 deep。');
   const id = options.id ?? makeStableId('research');
-  const filename = `${(options.slug ?? id).trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || id}.md`;
+  const filename = `${safeFilePart(options.slug ?? id) || id}.md`;
   const target = join(root, 'docs', 'research', filename);
   if (await pathExists(target)) throw new Error(`目标文件已存在：${toProjectPath(root, target)}`);
-  const { mkdir } = await import('node:fs/promises');
   await mkdir(join(root, 'docs', 'research'), { recursive: true });
   const content = researchMarkdown({ id, title: options.title, mode: options.mode, scope: options.scope, recency: options.recency, workItemId: options.workItemId });
   await writeFile(target, content, 'utf8');

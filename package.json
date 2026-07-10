@@ -2,6 +2,11 @@
   "name": "workflow-os",
   "version": "0.1.0",
   "description": "Composable, AI-friendly project workflows",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gloamere/workflow-os.git"
+  },
   "files": [
     "bin",
     "src",

@@ -5,6 +5,7 @@ import {
   open,
   readFile,
   readdir,
+  rename,
   stat,
   unlink,
   writeFile,
@@ -15,6 +16,7 @@ import { dirname, join, relative } from 'node:path';
 const AUTO_START = '<!-- workflow-os:auto:start -->';
 const AUTO_END = '<!-- workflow-os:auto:end -->';
 const LOCK_MAX_AGE_MS = 5 * 60 * 1000;
+const LOCK_CLAIM_ATTEMPTS = 3;
 
 export function toProjectPath(root, absolutePath) {
   return relative(root, absolutePath).replaceAll('\\', '/');
@@ -51,31 +53,88 @@ export async function readProjectMarkdown(root) {
   return documents.sort((left, right) => left.path.localeCompare(right.path));
 }
 
+/**
+ * Reclaim a lock left behind by a crashed process.
+ *
+ * The removal is a claim, not a delete: renaming the lock aside can only
+ * succeed for one racer, so two processes that both judge the lock stale can
+ * never delete each other's fresh lock.  The loser sees `ENOENT` and retries.
+ *
+ * @returns {Promise<boolean>} whether acquiring the lock is worth retrying
+ */
+async function discardStaleLock(lockPath) {
+  let observed;
+  let ageMs;
+  try {
+    observed = await readFile(lockPath, 'utf8');
+    ageMs = Date.now() - (await stat(lockPath)).mtimeMs;
+  } catch (error) {
+    if (error.code === 'ENOENT') return true;
+    throw error;
+  }
+  if (ageMs <= LOCK_MAX_AGE_MS) return false;
+
+  const claimed = `${lockPath}.stale-${process.pid}-${randomUUID().slice(0, 8)}`;
+  try {
+    await rename(lockPath, claimed);
+  } catch (error) {
+    // ENOENT: another racer reclaimed it first, so retrying is worthwhile.
+    // EBUSY/EPERM: the holder still has the file open, so it is not stale.
+    return error.code === 'ENOENT';
+  }
+
+  if ((await readFile(claimed, 'utf8').catch(() => '')) !== observed) {
+    // A new holder replaced the lock between our inspection and our claim.
+    // Hand it back rather than silently stealing a live lock.
+    await rename(claimed, lockPath).catch(() => unlink(claimed).catch(() => undefined));
+    return false;
+  }
+  await unlink(claimed).catch(() => undefined);
+  return true;
+}
+
+async function acquireIndexLock(lockPath) {
+  for (let attempt = 0; attempt < LOCK_CLAIM_ATTEMPTS; attempt += 1) {
+    try {
+      return await open(lockPath, 'wx');
+    } catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+    }
+    if (!(await discardStaleLock(lockPath))) break;
+  }
+  const busy = new Error('索引繁忙：请等待总指挥完成同步后重试。');
+  busy.code = 'WORKFLOW_INDEX_BUSY';
+  throw busy;
+}
+
 export async function withIndexLock(root, action) {
   const lockPath = join(root, '.workflow', 'index.lock');
   await mkdir(dirname(lockPath), { recursive: true });
 
-  let handle;
-  try {
-    handle = await open(lockPath, 'wx');
-  } catch (error) {
-    if (error.code !== 'EEXIST') throw error;
-    const age = Date.now() - (await stat(lockPath)).mtimeMs;
-    if (age > LOCK_MAX_AGE_MS) {
-      await unlink(lockPath);
-      return withIndexLock(root, action);
-    }
-    const busy = new Error('索引繁忙：请等待总指挥完成同步后重试。');
-    busy.code = 'WORKFLOW_INDEX_BUSY';
-    throw busy;
-  }
-
+  const handle = await acquireIndexLock(lockPath);
   try {
     await handle.writeFile(`${JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() })}\n`);
     return await action();
   } finally {
     await handle.close();
     await unlink(lockPath).catch(() => undefined);
+  }
+}
+
+/**
+ * Run `action` under the index lock, or skip it entirely when another process
+ * already holds the lock.  Read-only commands use this so that a concurrent
+ * writer never turns a query into a failure: whoever holds the lock is already
+ * refreshing the index that this caller is about to read.
+ *
+ * @returns {Promise<{ran: true, value: unknown} | {ran: false, value: null}>}
+ */
+export async function withOptionalIndexLock(root, action) {
+  try {
+    return { ran: true, value: await withIndexLock(root, action) };
+  } catch (error) {
+    if (error.code === 'WORKFLOW_INDEX_BUSY') return { ran: false, value: null };
+    throw error;
   }
 }
 
@@ -132,7 +191,7 @@ export async function writeNowSummary(root, status) {
   await writeFile(nowPath, next, 'utf8');
 }
 
-function safeFilePart(value) {
+export function safeFilePart(value) {
   return value
     .trim()
     .toLowerCase()

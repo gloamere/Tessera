@@ -15,6 +15,19 @@ const DEFAULT_BUDGET = {
   no_progress_limit: 2,
   default_reasoning: 'medium',
 };
+/**
+ * The only pip packages workflow-os will ever install, keyed by adapter id.
+ *
+ * `.workflow/adapters.yaml` lives inside the project, so an agent or a pull
+ * request can edit it.  It may point at an entry below, but it can never widen
+ * this list: `--authorized` records the owner's intent to install a *named*
+ * adapter, not consent to run pip with whatever string the file happens to
+ * hold at that moment.
+ */
+const TRUSTED_INSTALL_PACKAGES = {
+  markitdown: 'markitdown[pdf,docx,pptx]',
+};
+
 const DEFAULT_ADAPTERS = {
   'taste-skill': {
     source: 'Leonxlnx/taste-skill',
@@ -257,7 +270,25 @@ export async function recordAdapterCheck(root, adapterId, { version, releaseUrl 
   return { id: adapterId, ...adapter, state: current[adapterId] };
 }
 
-export async function installAdapter(root, adapterId, { authorized = false } = {}) {
+/**
+ * Resolve the pip package for an adapter against the in-code allowlist.
+ * Throws unless the project registry names exactly the trusted package.
+ */
+export function trustedInstallPackage(adapterId, requested) {
+  const trusted = TRUSTED_INSTALL_PACKAGES[adapterId];
+  if (!trusted) {
+    throw new Error(`${adapterId} 不在 pip 安装白名单内；workflow-os 不会为它执行安装命令。`);
+  }
+  if (requested !== trusted) {
+    throw new Error(
+      `.workflow/adapters.yaml 为 ${adapterId} 声明的安装包与白名单不符，已拒绝安装。\n`
+      + `  白名单：${trusted}\n  文件中：${requested ?? '(未声明)'}`,
+    );
+  }
+  return trusted;
+}
+
+export async function installAdapter(root, adapterId, { authorized = false, log = () => {} } = {}) {
   if (!authorized) throw new Error('安装外部适配器需要明确传入 --authorized。');
   const adapter = (await adapterDefinitions(root)).find((item) => item.id === adapterId);
   if (!adapter) throw new Error(`未知适配器：${adapterId}`);
@@ -269,7 +300,9 @@ export async function installAdapter(root, adapterId, { authorized = false } = {
       instruction: adapter.install?.instruction ?? '此适配器需要在对应宿主中手动安装。',
     };
   }
-  const result = spawnSync('python', ['-m', 'pip', 'install', adapter.install.package], {
+  const packageSpec = trustedInstallPackage(adapterId, adapter.install.package);
+  log(`即将执行：python -m pip install ${packageSpec}`);
+  const result = spawnSync('python', ['-m', 'pip', 'install', packageSpec], {
     encoding: 'utf8',
     maxBuffer: 16 * 1024 * 1024,
     windowsHide: true,

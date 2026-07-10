@@ -56,8 +56,11 @@ workflow-os decision create "确认商城视觉方向" --work-item <work-id>
 workflow-os sync --render-now
 
 # 查看当前推进、卡点、待拍板与下一步
+# status / context / validate 是只读命令：不持有写锁，可被多个 agent 并发调用。
+# 它们会尽力刷新索引；若写锁已被占用，则直接读取现有索引而不是失败。
 workflow-os status
 workflow-os status --json
+workflow-os status --no-sync   # 纯读，完全不写盘
 
 # 为一个工作包输出最小上下文包
 workflow-os context <work-id>
@@ -89,6 +92,8 @@ workflow-os guard <work-id> --outcome no-progress --error "同一失败特征"
 `init --codex` 会创建或无损注入 `AGENTS.md` 的 `workflow-os` 托管块。之后升级只替换这个标记区，不会覆盖项目原有规则。
 
 `.workflow/manifest.yaml` 保存已安装的模板哈希与适配器来源。`upgrade --plan` 只显示安全更新与本地覆盖；`upgrade --apply` 只更新未被本地修改的托管文件。它会把外部 skill（例如 Taste）标为 `external_check_required`，由总指挥调研更新内容后再向你提升级方案；项目升级命令绝不静默覆盖个人全局 skill。
+
+`adapter install` 只会安装代码内白名单里写死的包名。`.workflow/adapters.yaml` 是项目内文件，可以指向白名单里的条目，但不能扩充它：`--authorized` 授权的是「安装某个具名适配器」，不是「用该文件当时的任意字符串执行 pip」。包名不符时安装被拒绝，且不会调用 pip。
 
 `.workflow/agent-budget.yaml` 和 `guard` 限制工作轮次、并发、连续无进展与重复错误。它避免循环和上下文膨胀，但不声称能读取 Codex Desktop 的精确计费 token；精确平台用量属于账户或工作区层面的数据。
 
