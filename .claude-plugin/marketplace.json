@@ -3,7 +3,7 @@
   "owner": { "name": "van" },
   "metadata": { "description": "个人工作流操作系统:本地拼图市集", "version": "2.0.0" },
   "plugins": [
-    { "name": "tessera-core", "source": "./pieces/tessera-core", "description": "内核:路由兜底、安装引导、状态查看", "version": "0.1.2", "strict": true },
+    { "name": "tessera-core", "source": "./pieces/tessera-core", "description": "内核:路由兜底、安装引导、状态查看", "version": "0.1.3", "strict": true },
     { "name": "bd-tasks", "source": "./pieces/bd-tasks", "description": "任务追踪:bd CLI 路由", "version": "0.1.0", "strict": true }
   ]
 }
