@@ -1,4 +1,0 @@
-# Derived, local-only workflow index. Markdown in docs/ is the source of truth.
-index.sqlite*
-index.lock
-runtime/
