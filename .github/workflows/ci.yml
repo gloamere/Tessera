@@ -6,20 +6,31 @@ on:
   pull_request:
 
 jobs:
-  test:
-    # Lock reclamation and adapter detection take different branches per OS,
-    # so both are exercised.
+  go:
+    # Go 门/CLI 在三平台跑测试:填补本机(仅 Windows)无法验证 mac/linux 的空洞。
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - run: go vet ./...
+      - run: go test ./...
+      - run: go build ./...
+
+  gate-mjs:
+    # 过渡期:旧 mjs 门与初始化器的回归测试(零第三方依赖,无需 npm ci)。
+    # M4 后 tessera 上线、mjs 退休时,此 job 可随 tests/*.mjs 一并删除。
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          # node:sqlite requires Node 24; the package refuses to run below it.
           node-version: '24'
-          cache: npm
-      - run: npm ci
-      - run: npm test
+      - run: node --test "tests/*.test.mjs"

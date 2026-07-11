@@ -16,6 +16,7 @@ import (
 	"tessera/internal/initproject"
 	"tessera/internal/piece"
 	"tessera/internal/selftest"
+	"tessera/internal/setup"
 )
 
 // version 可在构建时用 -ldflags "-X main.version=vX" 覆盖。
@@ -41,8 +42,10 @@ func main() {
 		os.Exit(initproject.Run(rest, os.Stdout))
 	case "version", "--version", "-v":
 		fmt.Println("tessera " + version)
-	case "setup", "update":
-		fmt.Fprintln(os.Stderr, "tessera "+sub+":新机安装/升级流程属 M4,尚未实现。")
+	case "setup":
+		os.Exit(runSetup(rest))
+	case "update":
+		fmt.Fprintln(os.Stderr, "tessera update:升级流程尚未实现。")
 		os.Exit(2)
 	case "help", "--help", "-h":
 		printHelp()
@@ -62,8 +65,9 @@ func printHelp() {
   tessera doctor                                         仓库/安装环境体检
   tessera piece list                                     列出拼图与外部依赖
   tessera init --target <path> [--name <n>] [--dry-run]  为项目补齐骨架(只补缺)
+  tessera setup [--root <path>] [--register] [--codex]   新机六阶段安装(默认 dry-run)
   tessera version                                        打印版本
-  tessera setup | update                                 (M4 待实现)
+  tessera update                                         (待实现)
 `)
 }
 
@@ -195,6 +199,37 @@ func runDoctor() int {
 	}
 	fmt.Println("\n体检发现问题")
 	return 1
+}
+
+// ---- setup ----
+
+func runSetup(args []string) int {
+	opts := setup.Options{}
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--register":
+			opts.Register = true
+		case "--codex":
+			opts.Codex = true
+		case "--root":
+			if i+1 < len(args) {
+				opts.Root = args[i+1]
+				i++
+			}
+		default:
+			if r, ok := cutFlag(args[i], "--root="); ok {
+				opts.Root = r
+			}
+		}
+	}
+	return setup.Run(opts, os.Stdout)
+}
+
+func cutFlag(arg, prefix string) (string, bool) {
+	if strings.HasPrefix(arg, prefix) {
+		return strings.TrimPrefix(arg, prefix), true
+	}
+	return "", false
 }
 
 // ---- piece ----
