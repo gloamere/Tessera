@@ -1,6 +1,7 @@
 {
   "version": 1,
   "global_install_allowlist": ["npm install -g @beads/bd"],
+  "exempt_commands": [],
   "rules": [
     { "id": "recursive-delete-outside", "description": "递归强制删除项目外/盘符/家目录路径", "claude": "deny", "codex": "deny" },
     { "id": "recursive-delete-inside", "description": "项目内递归强制删除", "claude": "ask", "codex": "native" },

@@ -50,6 +50,13 @@ var matchCases = []struct {
 	{`sed -i s/a/b/ pieces/wfos-core/gate-rules.json`, "self-protect"},
 	{`cat trust.yaml`, ""},
 	{`ls -la`, ""},
+	// fd 重定向不应被 self-protect 误判为写受保护文件(仅提及/只读)
+	{`bd show gate-rules.json 2>&1`, ""},
+	{`cat gate-rules.json 2>/dev/null`, ""},
+	{`git log trust.yaml 1>&2`, ""},
+	// 真写入受保护文件仍应命中
+	{`echo x > gate-rules.json`, "self-protect"},
+	{`echo x &> gate-rules.json`, "self-protect"},
 }
 
 func TestMatchCommand(t *testing.T) {
@@ -65,6 +72,23 @@ func TestMatchCommand(t *testing.T) {
 				t.Errorf("MatchCommand(%q) = %q, want %q", tc.cmd, got, tc.want)
 			}
 		})
+	}
+}
+
+func TestExemptCommands(t *testing.T) {
+	rules := testRules(t)
+	// 未豁免时命中危险规则
+	if m := MatchCommand(`rm -rf C:\Go`, rules); m == nil || m.ID != "recursive-delete-outside" {
+		t.Fatalf("前置:rm -rf C:\\Go 应命中 recursive-delete-outside")
+	}
+	// 加入精确命令豁免后应完全放行
+	rules.ExemptCommands = []string{`rm -rf C:\Go`}
+	if m := MatchCommand(`rm  -rf   C:\Go`, rules); m != nil {
+		t.Errorf("豁免命令(规范化后一致)应放行,却命中 %s", m.ID)
+	}
+	// 非豁免的其它危险命令不受影响
+	if m := MatchCommand(`rm -rf C:\Windows`, rules); m == nil {
+		t.Errorf("未豁免的删除仍应命中")
 	}
 }
 

@@ -19,9 +19,11 @@ type Rule struct {
 
 // Rules 是 gate-rules.json 的整体结构。
 type Rules struct {
-	Version              int      `json:"version"`
-	GlobalInstallAllow   []string `json:"global_install_allowlist"`
-	Rules                []Rule   `json:"rules"`
+	Version            int      `json:"version"`
+	GlobalInstallAllow []string `json:"global_install_allowlist"`
+	// ExemptCommands 是精确规范化命令白名单:命中即旁路所有规则(逃生舱)。
+	ExemptCommands []string `json:"exempt_commands"`
+	Rules          []Rule   `json:"rules"`
 }
 
 // LoadRules 读取并解析规则数据文件。
@@ -59,6 +61,8 @@ var (
 	reWhitespace   = regexp.MustCompile(`\s+`)
 	reSelfTarget   = regexp.MustCompile(`(?i)(trust\.yaml|gate-rules\.json)`)
 	reSelfWrite    = regexp.MustCompile(`(?i)(>>?|\bset-content\b|\bout-file\b|\bsed\s+-i\b|\btee\b|\brm\b|\bremove-item\b|\bdel\b|\bmv\b|\bmove\b)`)
+	// reFdNoise 匹配 fd 重定向/丢弃(2>&1、1>&2、2>/dev/null 等),不是写具名文件。
+	reFdNoise = regexp.MustCompile(`(?i)\d*>&\d*|\d+>\s*(/dev/null|nul|\$null)\b`)
 )
 
 // words 复刻 gate.mjs 的分词:去首尾空白、按空白切分、剥去首尾一层引号。
@@ -193,7 +197,9 @@ func matchSelfProtect(cmd string) string {
 	if !reSelfTarget.MatchString(cmd) {
 		return ""
 	}
-	if reSelfWrite.MatchString(cmd) {
+	// 先剥掉 fd 重定向噪声,避免把 `2>&1` 之类误当成写受保护文件。
+	cleaned := reFdNoise.ReplaceAllString(cmd, " ")
+	if reSelfWrite.MatchString(cleaned) {
 		return "self-protect"
 	}
 	return ""
@@ -203,6 +209,13 @@ func matchSelfProtect(cmd string) string {
 func MatchCommand(command string, rules *Rules) *Rule {
 	if command == "" || rules == nil {
 		return nil
+	}
+	// 逃生舱:精确规范化命令白名单命中则完全放行。
+	normalized := reWhitespace.ReplaceAllString(strings.TrimSpace(command), " ")
+	for _, e := range rules.ExemptCommands {
+		if e == normalized {
+			return nil
+		}
 	}
 	allow := rules.GlobalInstallAllow
 	id := firstNonEmpty(

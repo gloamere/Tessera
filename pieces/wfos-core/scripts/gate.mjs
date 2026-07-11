@@ -59,14 +59,21 @@ function matchGlobalInstall(cmd, allowlist) {
   return 'untrusted-global-install';
 }
 
+// fd 重定向/丢弃(2>&1、1>&2、2>/dev/null 等)不是写具名文件,先剥掉再判。
+const FD_NOISE = /\d*>&\d*|\d+>\s*(\/dev\/null|nul|\$null)\b/gi;
+
 function matchSelfProtect(cmd) {
   if (!/(trust\.yaml|gate-rules\.json)/i.test(cmd)) return null;
-  if (/(>>?|\bset-content\b|\bout-file\b|\bsed\s+-i\b|\btee\b|\brm\b|\bremove-item\b|\bdel\b|\bmv\b|\bmove\b)/i.test(cmd)) return 'self-protect';
+  const cleaned = cmd.replace(FD_NOISE, ' ');
+  if (/(>>?|\bset-content\b|\bout-file\b|\bsed\s+-i\b|\btee\b|\brm\b|\bremove-item\b|\bdel\b|\bmv\b|\bmove\b)/i.test(cleaned)) return 'self-protect';
   return null;
 }
 
 export function matchCommand(command, rules) {
   if (!command || typeof command !== 'string') return null;
+  // 逃生舱:精确规范化命令白名单命中则完全放行。
+  const normalized = command.trim().replace(/\s+/g, ' ');
+  if ((rules.exempt_commands ?? []).includes(normalized)) return null;
   const allow = rules.global_install_allowlist ?? [];
   const id = matchRecursiveDelete(command) ?? matchForcePush(command)
     ?? matchDiscardChanges(command) ?? matchGlobalInstall(command, allow) ?? matchSelfProtect(command);

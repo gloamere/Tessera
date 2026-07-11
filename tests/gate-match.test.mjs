@@ -38,6 +38,11 @@ const CASES = [
   ['sed -i s/a/b/ pieces/wfos-core/gate-rules.json', 'self-protect'],
   ['cat trust.yaml', null],                     // 只读不拦
   ['ls -la', null],
+  ['bd show gate-rules.json 2>&1', null],       // fd 重定向 ≠ 写受保护文件
+  ['cat gate-rules.json 2>/dev/null', null],
+  ['git log trust.yaml 1>&2', null],
+  ['echo x > gate-rules.json', 'self-protect'], // 真写入仍拦
+  ['echo x &> gate-rules.json', 'self-protect'],
 ];
 
 for (const [cmd, expected] of CASES) {
@@ -46,6 +51,12 @@ for (const [cmd, expected] of CASES) {
     assert.equal(m ? m.id : null, expected);
   });
 }
+
+test('exempt_commands: 精确命令(规范化后)完全放行', () => {
+  const exempt = { ...rules, exempt_commands: ['rm -rf C:\\Go'] };
+  assert.equal(matchCommand('rm  -rf   C:\\Go', exempt), null);           // 规范化后一致 → 放行
+  assert.equal(matchCommand('rm -rf C:\\Windows', exempt).id, 'recursive-delete-outside'); // 未豁免仍拦
+});
 
 test('extractCommand: Claude PreToolUse payload', () => {
   assert.equal(extractCommand({ tool_name: 'Bash', tool_input: { command: 'git status' } }), 'git status');
