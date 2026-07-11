@@ -14,10 +14,10 @@ description: 当用户提出一项工作但不明确用什么工具、涉及多�
 | 游戏策划、方案策划 | planner | Skill 工具调用(孵化中,未装则先走 brainstorming) |
 | 拼图状态/安装/升级 | tessera-core 自身 | /tessera-status、tessera-setup skill |
 
-## 门规则(必须遵守)
+## 硬规则(必须遵守)
 
-1. **方向性拍板门**:设计方向、策划方案、UI 风格、技术选型属负责人拍板范围。执行会固化方向的实现前,检查 `docs/decisions/` 下关联决策文件 frontmatter——`status: approved` 才能动工;没有决策文件就先创建(status: pending)并用 AskUserQuestion 请负责人拍板。decisions 文件状态是唯一权威。
-2. **不可逆操作**(强推、递归删除、丢弃改动、全局安装)已由 hook 拦截弹确认;被拦时向用户说明原因,不要绕过。
+1. **方向性拍板**:设计方向、策划方案、UI 风格、技术选型属负责人拍板范围。执行会固化方向的实现前,检查 `docs/decisions/` 下关联决策文件 frontmatter——`status: approved` 才能动工;没有决策文件就先创建(status: pending)并用 AskUserQuestion 请负责人拍板。decisions 文件状态是唯一权威。
+2. **不可逆操作**(强推、递归删除、丢弃改动、全局安装)执行前先向用户说明并确认;不可逆命令仍受 Codex/Claude 原生权限约束。
 
 ## 多意图命中
 

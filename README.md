@@ -3,7 +3,7 @@
 # 🧩 Tessera
 
 **面向个人项目的能力操作系统**
-一个 Git 仓库,把 Claude Code / Codex 的可复用能力组织成「能力拼图」,并守好一道不可逆操作安全门。
+一个 Git 仓库,把 Claude Code / Codex 的可复用能力组织成「能力拼图」,按需拼装。
 
 [![CI](https://github.com/gloamere/Tessera/actions/workflows/ci.yml/badge.svg)](https://github.com/gloamere/Tessera/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/gloamere/Tessera?include_prereleases&label=release)](https://github.com/gloamere/Tessera/releases)
@@ -18,14 +18,14 @@
 
 > **Tessera** —— 马赛克镶嵌块。每一块能力是一片 tessera,按需拼装成你的工作流,不要求每个项目都走完整流程。适合软件开发、游戏私服、策划、调研与 UI 协作。
 
-核心是一个**零第三方依赖的 Go 单二进制** `tessera`:它是危险命令的门、是新机安装器、是项目初始化器、是状态体检工具——全部收在一个可执行文件里。项目的事实、决策与研究仍留在项目自己的 Markdown 里;插件和 hooks 只负责协作与执行辅助。
+核心是一个**零第三方依赖的 Go 单二进制** `tessera`:能力市集安装器、项目脚手架、状态体检工具,全部收在一个可执行文件里。项目的事实、决策与研究仍留在项目自己的 Markdown 里;拼图只负责组织与执行辅助。
 
 ## ✨ 特性
 
 | | |
 |---|---|
-| 🛡️ **不可逆操作门** | 每次工具调用前拦截危险命令——强推保护分支、项目外递归删除、丢弃未提交改动、白名单外全局安装、改写门自身。**按命令段精确匹配**,几乎无跨段误伤;是 fail-open 护栏而非最终安全边界。 |
 | 🧩 **能力拼图** | skills / 插件 / 安装规则组织成可按需拼装的 piece;同一仓库即 Claude 与 Codex **双市集**。 |
+| 🗂️ **项目脚手架** | `tessera init` 只补缺地为项目建立 `docs/`、`decisions/`、`AGENTS.md` 托管区,不覆盖已有内容。 |
 | ⚡ **单二进制 · 零依赖** | 纯 Go,冷启动毫秒级;目标机**无需 Node、无需构建**。 |
 | 🌍 **跨平台** | Windows / macOS / Linux × amd64 / arm64,CI 三平台持续验证。 |
 | 📦 **一条命令分发** | GitHub Releases 发布,`tessera update` 下载 + `sha256` 校验 + 原子替换。 |
@@ -42,7 +42,7 @@ Invoke-WebRequest https://github.com/gloamere/Tessera/releases/download/v2.0.0-b
 powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```
 
-macOS / Linux 用 [`scripts/bootstrap-machine.sh`](scripts/bootstrap-machine.sh)。脚本会 clone 固定 tag、构建/取得门二进制、跑测试,并以 `tessera setup`(dry-run)展示六阶段计划与**信任复核**,审阅无误后再 `--register` 注册市集。它拒绝覆盖已有非空目录。
+macOS / Linux 用 [`scripts/bootstrap-machine.sh`](scripts/bootstrap-machine.sh)。脚本会 clone 固定 tag、构建/取得二进制、跑测试,并以 `tessera setup`(dry-run)展示安装计划,审阅无误后再 `--register` 注册市集。它拒绝覆盖已有非空目录。
 
 ### 新项目初始化(只补缺,不覆盖)
 
@@ -60,36 +60,14 @@ my-game/
    └─ research/    可追溯的研究资料
 ```
 
-## 🛡️ 门:不可逆操作护栏
-
-门在 hook 的 `PreToolUse` 阶段读命令,按分隔符(`; && || |` 换行)**切段逐段匹配**,命中即按平台裁决:
-
-| 规则 | 触发 | Claude | Codex |
-|---|---|:---:|:---:|
-| `force-push-protected` | 强推 `main` / `master` | 🚫 deny | 🚫 deny |
-| `force-push-other` | 强推其它分支 | ⚠️ ask | 原生 |
-| `recursive-delete-outside` | 递归删除项目外 / 盘符 / 家目录 | 🚫 deny | 🚫 deny |
-| `recursive-delete-inside` | 项目内递归强制删除 | ⚠️ ask | 原生 |
-| `discard-changes` | `reset --hard` / `checkout --` / `clean -f` | ⚠️ ask | 原生 |
-| `untrusted-global-install` | 白名单外 `npm -g` / `pip install` | ⚠️ ask | 原生 |
-| `self-protect` | 改写门配置 / 白名单自身 | 🚫 deny | 🚫 deny |
-
-- **切段匹配**消除了跨段误伤:另一段 `echo` 里的 `main` 不再触发强推保护;一段提及受保护文件、另一段有写操作也不会被合并误判。
-- **fail-open**:解析失败或异常时不阻塞工具——门是护栏,不是安全边界。
-- **逃生舱**:`gate-rules.json` 的 `exempt_commands` 可精确放行特定命令;规则为数据,加规则不改代码。
-
-> ⚠️ 门是启发式 guardrail,不能替代真正的安全边界。请同时为 GitHub `main` 启用禁止 force-push 的 ruleset。
-
 ## 🧰 CLI
 
 ```text
-tessera gate --platform=claude|codex [--event=NAME]   hook 入口(读 stdin,输出裁决)
-tessera setup [--root .] [--register] [--codex]       新机六阶段安装(默认 dry-run)
-tessera init  --target <path> [--name <n>] [--dry-run] 为项目补齐骨架
-tessera update [--version <tag>]                       下载 + 校验 + 替换门二进制
+tessera init  --target <path> [--name <n>] [--dry-run]   为项目补齐骨架
+tessera setup [--root .] [--register] [--codex]          注册能力市集(默认 dry-run)
+tessera update [--version <tag>]                         下载 + 校验 + 替换二进制
 tessera doctor        仓库 / 安装环境体检
 tessera piece list    列出拼图与外部依赖
-tessera selftest      门内置断言自检
 tessera version
 ```
 
@@ -97,7 +75,7 @@ tessera version
 
 | Piece | 说明 | 状态 |
 |---|---|---|
-| `tessera-core` | 内核:意图路由兜底、安装引导、状态查看、不可逆操作门 | ✅ 可用 |
+| `tessera-core` | 内核:意图路由兜底、安装引导、状态查看 | ✅ 可用 |
 | `bd-tasks` | 任务追踪:管理现有 [Beads](https://github.com/gastownhall/beads) CLI | ✅ 可用 |
 | `planner` · `taste` · `knowledge-base` | 规划 / 审美 / 知识库 | 🚧 规划中 |
 
@@ -112,10 +90,10 @@ tessera version
 ## 🛠️ 开发
 
 ```bash
-go test ./...                          # 门 / CLI / 仓库校验,全 Go
+go test ./...                          # CLI / 仓库校验,全 Go
 make build                             # 构建本机二进制到 pieces/tessera-core/bin/
 make dist                              # 交叉编译全平台 → dist/ + checksums
-# Windows 无 make:scripts/build-gate.ps1 [-All]
+# Windows 无 make:scripts/build.ps1 [-All]
 ```
 
 发布:推 `v*` tag → GitHub Actions 服务器端交叉编译六平台、生成 checksums、发布 Release。

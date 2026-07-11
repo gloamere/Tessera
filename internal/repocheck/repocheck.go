@@ -1,5 +1,5 @@
 // Package repocheck 提供仓库卫生/配置一致性校验。
-// 从 tests/repo-hygiene.test.mjs 与 tests/codex-hooks.test.mjs 移植;
+// 从 tests/repo-hygiene.test.mjs 移植;
 // 函数可被测试与 `tessera doctor` 复用。
 package repocheck
 
@@ -62,48 +62,6 @@ func CheckBootstrap(root string) error {
 	}
 	if regexp.MustCompile(`(?i)Invoke-Expression|\biex\b`).MatchString(s) {
 		return fmt.Errorf("bootstrap 不应包含 Invoke-Expression/iex")
-	}
-	return nil
-}
-
-type hookFile struct {
-	Hooks map[string][]struct {
-		Matcher string `json:"matcher"`
-		Hooks   []struct {
-			Command        string `json:"command"`
-			CommandWindows string `json:"commandWindows"`
-		} `json:"hooks"`
-	} `json:"hooks"`
-}
-
-// CheckCodexHooks 校验 Codex hook:Bash 匹配、含 PLUGIN_ROOT 与对应 --event。
-func CheckCodexHooks(root string) error {
-	b, err := os.ReadFile(filepath.Join(root, "pieces", "tessera-core", "hooks", "codex.hooks.json"))
-	if err != nil {
-		return err
-	}
-	var hf hookFile
-	if err := json.Unmarshal(b, &hf); err != nil {
-		return err
-	}
-	for _, event := range []string{"PreToolUse", "PermissionRequest"} {
-		entries, ok := hf.Hooks[event]
-		if !ok || len(entries) == 0 {
-			return fmt.Errorf("codex hooks 缺 %s", event)
-		}
-		if entries[0].Matcher != "^Bash$" {
-			return fmt.Errorf("%s matcher = %q, 期望 ^Bash$", event, entries[0].Matcher)
-		}
-		if len(entries[0].Hooks) == 0 {
-			return fmt.Errorf("%s 无 handler", event)
-		}
-		h := entries[0].Hooks[0]
-		if !strings.Contains(h.Command, "${PLUGIN_ROOT}") || !strings.Contains(h.Command, "--event="+event) {
-			return fmt.Errorf("%s command 不含 ${PLUGIN_ROOT} 或 --event=%s:%q", event, event, h.Command)
-		}
-		if !strings.Contains(h.CommandWindows, "$env:PLUGIN_ROOT") || !strings.Contains(h.CommandWindows, "--event="+event) {
-			return fmt.Errorf("%s commandWindows 不含 $env:PLUGIN_ROOT 或 --event=%s:%q", event, event, h.CommandWindows)
-		}
 	}
 	return nil
 }

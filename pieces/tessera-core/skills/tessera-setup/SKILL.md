@@ -15,7 +15,7 @@ description: 当用户要"初始化工作流""安装拼图""装 Tessera""setup �
    - 本地拼图(Codex):`codex plugin add <id>@tessera`
    - template-pack 类:按「只补缺」复制模板到项目 `docs/`(文件已存在一律跳过)
    - 外部 CLI:先跑 piece.yaml 的 version_check 探测;缺失才装;**install 命令必须与仓库根 trust.yaml 对应条目的模板逐词一致(全匹配,含未知 flag 即拒),不一致则拒绝执行并打印命令原文让用户手动判断**
-5. 输出安装报告:装了什么、跳过什么、哪些需重启会话、哪些需在 Codex 首次运行时确认 hook 信任。
+5. 输出安装报告:装了什么、跳过什么、哪些需重启会话生效。
 
 ## 硬规则
 

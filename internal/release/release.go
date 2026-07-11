@@ -1,5 +1,5 @@
 // Package release 从 GitHub Releases(或任意兼容 base)下载指定版本、
-// 当前平台的门二进制并做 sha256 校验。零第三方依赖。
+// 当前平台的二进制并做 sha256 校验。零第三方依赖。
 package release
 
 import (

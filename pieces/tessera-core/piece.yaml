@@ -1,6 +1,6 @@
 id: tessera-core
 kind: skill
-summary: Tessera 内核:意图路由兜底、安装引导、状态查看与不可逆操作门。
+summary: Tessera 内核:意图路由兜底、安装引导与状态查看。
 when_to_use:
   - 复合/模糊意图,不确定用哪块拼图 → piece-router
   - 初始化工作流、安装拼图 → tessera-setup

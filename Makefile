@@ -1,4 +1,4 @@
-# Tessera 门二进制构建(mac/linux/CI 用;Windows 用 scripts/build-gate.ps1)。
+# Tessera 二进制构建(mac/linux/CI 用;Windows 用 scripts/build.ps1)。
 # 零 CGO,纯 Go 交叉编译。
 
 BINARY   := tessera

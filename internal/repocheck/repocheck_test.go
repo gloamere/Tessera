@@ -32,9 +32,3 @@ func TestMarketplaces(t *testing.T) {
 	}
 }
 
-// 对应 tests/codex-hooks.test.mjs。
-func TestCodexHooks(t *testing.T) {
-	if err := CheckCodexHooks(root()); err != nil {
-		t.Error(err)
-	}
-}

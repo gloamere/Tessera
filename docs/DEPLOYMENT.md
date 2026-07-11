@@ -4,7 +4,7 @@ Tessera 分为两步：机器安装一次，项目初始化一次。插件提供
 
 ## 1. 新机器：安装能力市场
 
-推荐使用固定版本的 bootstrap。它不会覆盖现有目录，默认 clone、构建门二进制、运行测试并跑 `tessera setup`（dry-run）展示六阶段计划；注册市场需你审阅信任复核后手动执行 `--register`。需要 Git 与 Go。
+推荐使用固定版本的 bootstrap。它不会覆盖现有目录，默认 clone、构建二进制、运行测试并跑 `tessera setup`（dry-run）展示安装计划；注册市场需你审阅后手动执行 `--register`。需要 Git 与 Go。
 
 ```powershell
 $script = Join-Path $env:TEMP 'tessera-bootstrap.ps1'
@@ -23,12 +23,12 @@ git clone --branch v2.0.0-beta.1 --depth 1 https://github.com/gloamere/Tessera.g
 cd $HOME\tessera
 go build -o pieces\tessera-core\bin\tessera.exe .\cmd\tessera
 go test ./...
-& .\pieces\tessera-core\bin\tessera.exe setup --root . --codex            # 审阅六阶段计划与信任复核
+& .\pieces\tessera-core\bin\tessera.exe setup --root . --codex            # 审阅安装计划
 & .\pieces\tessera-core\bin\tessera.exe setup --root . --register --codex # 审阅无误后注册市场
 codex plugin add tessera-core@tessera
 ```
 
-在 Codex Desktop 中重启或新开会话，启用 `tessera-core`，并审阅其 hook 定义后明确选择是否信任。hooks 不是完整安全边界；为 GitHub 的 `main` 配置禁止 force push 的 ruleset。
+在 Codex Desktop 中重启或新开会话，启用 `tessera-core`。建议为 GitHub 的 `main` 配置禁止 force push 的 ruleset。
 
 Claude 的安装使用同一仓库中的 `.claude-plugin/marketplace.json`，但 Claude 和 Codex 的插件安装命令必须各自执行，不能互相替代。
 
@@ -60,4 +60,4 @@ my-game/
 
 ## 升级与回退
 
-更新时下载新的已发布 tag 到新目录并先运行测试，再在 Codex 中升级/重装插件并开新会话。若插件或 hooks 行为异常，先在 Codex 中禁用该插件；项目 Markdown 不受影响。保留旧 checkout 即可回退。
+更新时下载新的已发布 tag 到新目录并先运行测试，再在 Codex 中升级/重装插件并开新会话。若插件行为异常，先在 Codex 中禁用该插件；项目 Markdown 不受影响。保留旧 checkout 即可回退。

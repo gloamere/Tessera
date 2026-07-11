@@ -66,7 +66,7 @@ func managedGuidance() string {
 
 - 方向性 UI、数值、活动与技术选型先写入 ` + "`docs/decisions/`" + `,负责人确认后才能实施。
 - 调研、策划和实现可并行;同一文件或存在依赖的任务不可并行修改。
-- 使用已安装的 ` + "`tessera-core`" + ` skill 路由能力;不可逆命令仍受 Codex/Claude 原生权限与项目 hook 约束。
+- 使用已安装的 ` + "`tessera-core`" + ` skill 路由能力;不可逆命令仍受 Codex/Claude 原生权限约束。
 - 运行 ` + "`tessera init`" + ` 只补缺,不覆盖此项目的人类规则。
 ` + end + "\n"
 }

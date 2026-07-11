@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// ExternalDep 是一条外部依赖声明(仅取门/状态需要的字段)。
+// ExternalDep 是一条外部依赖声明(仅取状态需要的字段)。
 type ExternalDep struct {
 	Name         string
 	VersionCheck string
