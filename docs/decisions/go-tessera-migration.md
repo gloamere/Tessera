@@ -39,6 +39,14 @@ v2 现状:门(`gate.mjs`)与初始化器(`init-project.mjs`)为零依赖 Node ES
 - **M5** 品牌改名 Tessera —— `df6.5`
 - **M6** 切 hooks 到二进制 + 弃用旧脚本 —— `df6.6`
 
+## M6 hook 接线实测结论(2026-07-11)
+Claude 端 hook 调二进制的关键事实(claude-code-guide + 本机 cmd 实测):
+- Claude `hooks.json` **无 `commandWindows`、无 OS 模板**,只有单个 `command`;非零退出 → 输出被忽略 → **fail-open(门静默失效)**。
+- **`sh` 不在 Windows 系统 PATH**(cmd 找不到)——agent 推荐的 `sh -c` 条件式在本机会失败 → fail-open,**不可用**。
+- **cmd 对显式路径自动补 `.exe`**:单条 `"${CLAUDE_PLUGIN_ROOT}/bin/tessera" gate --platform=claude` 在 Windows(解析到 tessera.exe)与 unix(直接 tessera)**都能跑**,安全→空/exit 0,危险→正确 deny。已实测。
+- 但一个安装目录只能放一个平台的 `tessera`;**二进制若缺失,cmd 找不到 → fail-open**。
+- **结论:M6 的 hook 切换硬依赖 M4**(安装时放置正确平台二进制);在此之前切换 shipped hook 会让新机 fail-open。已交付 `scripts/build-gate.ps1`(本机构建 + `-All` 全平台交叉编译 + checksums),shipped hook 暂留 `node gate.mjs`(安全)。
+
 ## 遗留 / 风险
 - **本机 github.com 出站被墙**(见 [bd-install-channel](bd-install-channel.md) 实测:`Connection timed out`)。本地 `go build` 因门零依赖不受影响(离线可编);但 **M3 的 release 分发与 M4 的下载流不能依赖 GitHub Releases**——需镜像或本地通道,M3 落地时再定。
 - 目标机 Node 版本偏低会让旧门静默 fail-open(`import.meta.main` 需 Node 24)——迁到二进制后此隐患消失,但过渡期两条门并存需保证只有一条生效。
