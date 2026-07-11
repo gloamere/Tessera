@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${PLUGIN_ROOT}/scripts/gate.mjs\" --platform=codex --event=PreToolUse",
-            "commandWindows": "node \"$env:PLUGIN_ROOT\\scripts\\gate.mjs\" --platform=codex --event=PreToolUse",
+            "command": "\"${PLUGIN_ROOT}/bin/tessera\" gate --platform=codex --event=PreToolUse",
+            "commandWindows": "& \"$env:PLUGIN_ROOT\\bin\\tessera.exe\" gate --platform=codex --event=PreToolUse",
             "timeout": 10
           }
         ]
@@ -19,8 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${PLUGIN_ROOT}/scripts/gate.mjs\" --platform=codex --event=PermissionRequest",
-            "commandWindows": "node \"$env:PLUGIN_ROOT\\scripts\\gate.mjs\" --platform=codex --event=PermissionRequest",
+            "command": "\"${PLUGIN_ROOT}/bin/tessera\" gate --platform=codex --event=PermissionRequest",
+            "commandWindows": "& \"$env:PLUGIN_ROOT\\bin\\tessera.exe\" gate --platform=codex --event=PermissionRequest",
             "timeout": 10
           }
         ]

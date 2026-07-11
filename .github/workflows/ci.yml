@@ -24,9 +24,9 @@ jobs:
       - run: go test ./...
       - run: go build ./...
 
-  gate-mjs:
-    # 过渡期:旧 mjs 门与初始化器的回归测试(零第三方依赖,无需 npm ci)。
-    # M4 后 tessera 上线、mjs 退休时,此 job 可随 tests/*.mjs 一并删除。
+  mjs-checks:
+    # 剩余 mjs 校验:codex hooks 配置 + 仓库卫生(BOM/市集一致性)。零第三方依赖。
+    # 门与初始化器已移植到 Go;这两个校验后续也可港成 Go 测试。
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

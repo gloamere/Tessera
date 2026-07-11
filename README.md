@@ -16,16 +16,16 @@ Invoke-WebRequest https://raw.githubusercontent.com/gloamere/workflow-os/v2.0.0-
 powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```
 
-脚本会检查 Git 与 Node.js 24+、clone 固定 tag、运行测试，并在显式传入 `-InstallCodexPlugin` 后注册 Codex 市场和安装 `wfos-core`。它拒绝覆盖已有非空目录。
+脚本会检查 Git 与 Go、clone 固定 tag、构建门二进制、运行测试，并跑 `tessera setup`（dry-run）展示六阶段计划与信任复核。它拒绝覆盖已有非空目录。传入 `-InstallCodexPlugin` 则计划里包含 Codex 注册命令。
 
-完成后在 Codex Desktop 新开会话，启用 `wfos-core`，并审阅 hooks 后决定是否信任。
+审阅信任复核无误后，执行注册（`--register`），再在 Codex/Claude 新开会话启用 `wfos-core`。
 
 ## 新项目初始化
 
 每个项目只需初始化一次：
 
 ```powershell
-node $HOME\workflow-os\scripts\init-project.mjs `
+& $HOME\workflow-os\pieces\wfos-core\bin\tessera.exe init `
   --target D:\Projects\my-game `
   --name "My Game"
 ```
@@ -68,5 +68,6 @@ my-game/
 ## 本地验证
 
 ```powershell
-npm.cmd test
+go test ./...              # 门/CLI 的 Go 测试
+node --test "tests/*.mjs"  # 剩余 hook/仓库校验(过渡期)
 ```

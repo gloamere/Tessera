@@ -4,7 +4,7 @@ workflow-os 分为两步：机器安装一次，项目初始化一次。插件�
 
 ## 1. 新机器：安装能力市场
 
-推荐使用固定版本的 bootstrap。它不会覆盖现有目录，默认只 clone 并运行测试；只有显式传入 `-InstallCodexPlugin` 才会注册市场和安装插件。
+推荐使用固定版本的 bootstrap。它不会覆盖现有目录，默认 clone、构建门二进制、运行测试并跑 `tessera setup`（dry-run）展示六阶段计划；注册市场需你审阅信任复核后手动执行 `--register`。需要 Git 与 Go。
 
 ```powershell
 $script = Join-Path $env:TEMP 'workflow-os-bootstrap.ps1'
@@ -19,8 +19,10 @@ powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```powershell
 git clone --branch v2.0.0-beta.1 --depth 1 https://github.com/gloamere/workflow-os.git $HOME\workflow-os
 cd $HOME\workflow-os
-npm.cmd test
-codex plugin marketplace add .
+go build -o pieces\wfos-core\bin\tessera.exe .\cmd\tessera
+go test ./...
+& .\pieces\wfos-core\bin\tessera.exe setup --root . --codex            # 审阅六阶段计划与信任复核
+& .\pieces\wfos-core\bin\tessera.exe setup --root . --register --codex # 审阅无误后注册市场
 codex plugin add wfos-core@workflow-os
 ```
 
@@ -31,10 +33,10 @@ Claude 的安装使用同一仓库中的 `.claude-plugin/marketplace.json`，但
 ## 2. 新项目：初始化项目知识库
 
 ```powershell
-node $HOME\workflow-os\scripts\init-project.mjs --target D:\Projects\my-game --name "My Game"
+& $HOME\workflow-os\pieces\wfos-core\bin\tessera.exe init --target D:\Projects\my-game --name "My Game"
 ```
 
-脚本只创建缺失文件，并在 `AGENTS.md` 写入一个带边界标记的托管区；现有人类规则、代码和文档不会被覆盖。先用 `--dry-run` 预览。
+`tessera init` 只创建缺失文件，并在 `AGENTS.md` 写入一个带边界标记的托管区；现有人类规则、代码和文档不会被覆盖。先用 `--dry-run` 预览。
 
 创建后结构如下：
 
