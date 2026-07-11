@@ -7,12 +7,14 @@ Tessera 分为两步：机器安装一次，项目初始化一次。插件提供
 推荐使用固定版本的 bootstrap。它不会覆盖现有目录，默认 clone、构建门二进制、运行测试并跑 `tessera setup`（dry-run）展示六阶段计划；注册市场需你审阅信任复核后手动执行 `--register`。需要 Git 与 Go。
 
 ```powershell
-$script = Join-Path $env:TEMP 'workflow-os-bootstrap.ps1'
-Invoke-WebRequest https://raw.githubusercontent.com/gloamere/workflow-os/v2.0.0-beta.1/scripts/bootstrap-machine.ps1 -OutFile $script
+$script = Join-Path $env:TEMP 'tessera-bootstrap.ps1'
+Invoke-WebRequest https://github.com/gloamere/workflow-os/releases/download/v2.0.0-beta.1/bootstrap-machine.ps1 -OutFile $script
 powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```
 
-不要使用 `Invoke-Expression` 或把远程内容直接 pipe 到 shell。先下载再执行，才能在执行前审阅脚本；`-Ref` 可用于固定其他已发布 tag。
+脚本从 GitHub Release 资产下载（`raw.githubusercontent.com` 在部分网络不可达）。不要使用 `Invoke-Expression` 或把远程内容直接 pipe 到 shell。先下载再执行，才能在执行前审阅脚本；`-Ref` 可用于固定其他已发布 tag。
+
+macOS/Linux 用 `scripts/bootstrap-machine.sh`（同样可从 Release 资产下载）。
 
 手动方式如下：
 

@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"tessera/internal/gate"
 	"tessera/internal/initproject"
 	"tessera/internal/piece"
+	"tessera/internal/release"
 	"tessera/internal/selftest"
 	"tessera/internal/setup"
 )
@@ -45,8 +47,7 @@ func main() {
 	case "setup":
 		os.Exit(runSetup(rest))
 	case "update":
-		fmt.Fprintln(os.Stderr, "tessera update:升级流程尚未实现。")
-		os.Exit(2)
+		os.Exit(runUpdate(rest))
 	case "help", "--help", "-h":
 		printHelp()
 	default:
@@ -66,8 +67,8 @@ func printHelp() {
   tessera piece list                                     列出拼图与外部依赖
   tessera init --target <path> [--name <n>] [--dry-run]  为项目补齐骨架(只补缺)
   tessera setup [--root <path>] [--register] [--codex]   新机六阶段安装(默认 dry-run)
+  tessera update [--version <tag>] [--root <path>]       下载校验并替换门二进制(默认 latest)
   tessera version                                        打印版本
-  tessera update                                         (待实现)
 `)
 }
 
@@ -230,6 +231,67 @@ func cutFlag(arg, prefix string) (string, bool) {
 		return strings.TrimPrefix(arg, prefix), true
 	}
 	return "", false
+}
+
+// ---- update ----
+
+func runUpdate(args []string) int {
+	version, root, base := "", "", release.DefaultBase
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--version":
+			if i+1 < len(args) {
+				version = args[i+1]
+				i++
+			}
+		case "--root":
+			if i+1 < len(args) {
+				root = args[i+1]
+				i++
+			}
+		case "--base":
+			if i+1 < len(args) {
+				base = args[i+1]
+				i++
+			}
+		default:
+			if v, ok := cutFlag(args[i], "--version="); ok {
+				version = v
+			}
+			if r, ok := cutFlag(args[i], "--root="); ok {
+				root = r
+			}
+			if b, ok := cutFlag(args[i], "--base="); ok {
+				base = b
+			}
+		}
+	}
+	if root == "" {
+		root = repoRoot()
+	}
+	if version == "" {
+		v, err := release.LatestVersion(release.DefaultAPIBase, release.Repo)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "tessera update:无法解析 latest(用 --version 指定):"+err.Error())
+			return 1
+		}
+		version = v
+	}
+	dest := filepath.Join(root, "pieces", "tessera-core", "bin", binaryName())
+	fmt.Printf("下载 %s(%s/%s)→ %s\n", version, runtime.GOOS, runtime.GOARCH, dest)
+	if err := release.Fetch(base, version, runtime.GOOS, runtime.GOARCH, dest); err != nil {
+		fmt.Fprintln(os.Stderr, "tessera update:"+err.Error())
+		return 1
+	}
+	fmt.Println("✓ 已下载、校验并替换门二进制")
+	return 0
+}
+
+func binaryName() string {
+	if runtime.GOOS == "windows" {
+		return "tessera.exe"
+	}
+	return "tessera"
 }
 
 // ---- piece ----

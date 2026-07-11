@@ -1,0 +1,45 @@
+name: Release
+
+# 推 v* tag 触发。GitHub 服务器端交叉编译并发布 release 资产——
+# 绕开本机被墙的 uploads.github.com(本机只需 git push tag)。
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: 交叉编译六平台
+        run: |
+          mkdir -p dist
+          for p in windows/amd64 windows/arm64 darwin/amd64 darwin/arm64 linux/amd64 linux/arm64; do
+            os=${p%/*}; arch=${p#*/}; ext=; [ "$os" = windows ] && ext=.exe
+            GOOS=$os GOARCH=$arch go build -ldflags "-X main.version=${GITHUB_REF_NAME}" \
+              -o "dist/tessera-$os-$arch$ext" ./cmd/tessera
+            echo "built $os/$arch"
+          done
+
+      - name: 生成 checksums
+        run: cd dist && sha256sum tessera-* > checksums.txt
+
+      - name: 附带引导脚本
+        run: cp scripts/bootstrap-machine.ps1 scripts/bootstrap-machine.sh dist/
+
+      - name: 发布 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --title "Tessera ${GITHUB_REF_NAME}" \
+            --notes "门二进制(win/mac/linux × amd64/arm64)+ checksums.txt + 引导脚本。下载后按 checksums 校验再用。"

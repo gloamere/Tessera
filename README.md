@@ -8,11 +8,11 @@
 
 ## 快速开始：新机器
 
-在联网 Windows 机器上，先下载固定版本脚本，再执行。不要把远程内容直接 pipe 到 shell。
+在联网 Windows 机器上，先下载固定版本脚本，再执行。不要把远程内容直接 pipe 到 shell。脚本从 GitHub Release 资产下载（`raw.githubusercontent.com` 在部分网络不可达，Release 资产可达）。
 
 ```powershell
-$script = Join-Path $env:TEMP 'workflow-os-bootstrap.ps1'
-Invoke-WebRequest https://raw.githubusercontent.com/gloamere/workflow-os/v2.0.0-beta.1/scripts/bootstrap-machine.ps1 -OutFile $script
+$script = Join-Path $env:TEMP 'tessera-bootstrap.ps1'
+Invoke-WebRequest https://github.com/gloamere/workflow-os/releases/download/v2.0.0-beta.1/bootstrap-machine.ps1 -OutFile $script
 powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```
 
