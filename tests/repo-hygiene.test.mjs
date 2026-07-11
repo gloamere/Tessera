@@ -8,7 +8,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 function* walk(dir) {
   for (const e of readdirSync(dir)) {
-    if (['node_modules', '.git', '.beads'].includes(e)) continue;
+    if (['node_modules', '.git', '.beads', '.superpowers'].includes(e)) continue;
     const p = join(dir, e);
     if (statSync(p).isDirectory()) yield* walk(p);
     else yield p;
@@ -32,5 +32,7 @@ test('两份市集清单的拼图名与版本和 plugin.json 一致', () => {
     assert.equal(manifest.version, entry.version, `${entry.name} 版本漂移`);
     const codexManifest = JSON.parse(readFileSync(join(root, entry.source, '.codex-plugin/plugin.json'), 'utf8'));
     assert.equal(codexManifest.version, entry.version, `${entry.name} codex manifest 版本漂移`);
+    const codexEntry = codex.plugins.find((p) => p.name === entry.name);
+    assert.equal(codexEntry.source.path, entry.source, `${entry.name} 两市集 source 路径漂移`);
   }
 });
