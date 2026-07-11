@@ -1,10 +1,28 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/scripts/gate.mjs\" --platform=codex --event=PreToolUse",
+            "commandWindows": "node \"$env:PLUGIN_ROOT\\scripts\\gate.mjs\" --platform=codex --event=PreToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "PermissionRequest": [
       {
-        "matcher": "*",
+        "matcher": "^Bash$",
         "hooks": [
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gate.mjs\" --platform=codex", "timeout": 10 }
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/scripts/gate.mjs\" --platform=codex --event=PermissionRequest",
+            "commandWindows": "node \"$env:PLUGIN_ROOT\\scripts\\gate.mjs\" --platform=codex --event=PermissionRequest",
+            "timeout": 10
+          }
         ]
       }
     ]

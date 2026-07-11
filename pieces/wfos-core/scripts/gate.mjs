@@ -101,6 +101,8 @@ if (isMain) {
   }
 
   const platform = process.argv.includes('--platform=codex') ? 'codex' : 'claude';
+  const event = process.argv.find((arg) => arg.startsWith('--event='))?.slice('--event='.length)
+    ?? (platform === 'codex' ? 'PreToolUse' : 'PreToolUse');
   let match = null;
   try {
     const payload = JSON.parse(raw);
@@ -116,8 +118,22 @@ if (isMain) {
         hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: action, permissionDecisionReason: reason },
       }));
     } else if (platform === 'codex' && action === 'deny') {
-      process.stderr.write(reason);
-      process.exitCode = 2;
+      if (event === 'PermissionRequest') {
+        process.stdout.write(JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: 'PermissionRequest',
+            decision: { behavior: 'deny', message: reason },
+          },
+        }));
+      } else {
+        process.stdout.write(JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: 'PreToolUse',
+            permissionDecision: 'deny',
+            permissionDecisionReason: reason,
+          },
+        }));
+      }
     }
     // codex 'native':不裁决 → 原生审批
   }
