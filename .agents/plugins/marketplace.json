@@ -1,0 +1,8 @@
+{
+  "name": "workflow-os",
+  "interface": { "displayName": "workflow-os" },
+  "plugins": [
+    { "name": "wfos-core", "source": { "source": "local", "path": "./pieces/wfos-core" }, "category": "workflow" },
+    { "name": "bd-tasks", "source": { "source": "local", "path": "./pieces/bd-tasks" }, "category": "workflow" }
+  ]
+}

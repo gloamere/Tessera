@@ -1,0 +1,15 @@
+version: 1
+external:
+  - id: superpowers
+    kind: plugin-ref
+    summary: 代码流程链(brainstorming/TDD/debugging/验证)
+    per_platform:
+      claude: "claude plugin install superpowers@superpowers-marketplace"
+      codex: "M3 择优:codex plugin marketplace add obra/superpowers-marketplace 或 skills symlink 到 ~/.agents/skills"
+    trust_ref: superpowers
+  - id: agent-reach
+    kind: plugin-ref
+    summary: 全网搜索调研(17 平台);含机器级 CLI 生态,不收编
+    per_platform:
+      claude: "已装于 ~/.claude/skills/agent-reach(散装)"
+      codex: "M3 评估 symlink 到 ~/.agents/skills"
