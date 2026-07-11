@@ -13,6 +13,7 @@ import (
 
 	"tessera/internal/doctor"
 	"tessera/internal/gate"
+	"tessera/internal/initproject"
 	"tessera/internal/piece"
 	"tessera/internal/selftest"
 )
@@ -36,6 +37,8 @@ func main() {
 		os.Exit(runDoctor())
 	case "piece":
 		os.Exit(runPiece(rest))
+	case "init":
+		os.Exit(initproject.Run(rest, os.Stdout))
 	case "version", "--version", "-v":
 		fmt.Println("tessera " + version)
 	case "setup", "update":
@@ -58,6 +61,7 @@ func printHelp() {
   tessera selftest                                       跑内置门断言
   tessera doctor                                         仓库/安装环境体检
   tessera piece list                                     列出拼图与外部依赖
+  tessera init --target <path> [--name <n>] [--dry-run]  为项目补齐骨架(只补缺)
   tessera version                                        打印版本
   tessera setup | update                                 (M4 待实现)
 `)
