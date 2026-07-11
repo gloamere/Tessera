@@ -33,6 +33,9 @@ test('两份市集清单的拼图名与版本和 plugin.json 一致', () => {
     const codexManifest = JSON.parse(readFileSync(join(root, entry.source, '.codex-plugin/plugin.json'), 'utf8'));
     assert.equal(codexManifest.version, entry.version, `${entry.name} codex manifest 版本漂移`);
     const codexEntry = codex.plugins.find((p) => p.name === entry.name);
+    assert.equal(codexEntry.policy?.installation, 'AVAILABLE');
+    assert.equal(codexEntry.policy?.authentication, 'ON_INSTALL');
+    assert.ok(typeof codexEntry.category === 'string' && codexEntry.category !== '');
     assert.equal(codexEntry.source.path, entry.source, `${entry.name} 两市集 source 路径漂移`);
   }
 });
