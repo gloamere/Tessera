@@ -50,4 +50,6 @@
 ## 遗留
 
 - bd 升级 1.0.2→1.1.0 因 github.com 不可达暂缓(升级链 M2 落地后经 /wfos-upgrade 补)。
-- Codex `[features] codex_hooks` 是否需要显式开启:若冒烟④未触发再查(现 config.toml 无该项)。
+- Codex `codex features list`:`hooks stable true` 但 **`plugin_hooks removed false`**——插件内嵌 hooks 疑似在该版本被运行时禁用(全局 hooks 不受影响),与 spec 附录 A 疑点吻合;若 Codex 会话实测门未触发,按计划走全局 `~/.codex/hooks.json` 回退(脚本指向仓库源路径而非版本化缓存)。
+- Claude 端首轮门测试(用户新会话)显示 PreToolUse 未触发;官方文档确认:无 hooks 同意步骤、无需重启应用、Desktop 支持 PreToolUse。诊断路径:会话内 `/hooks` 看 wfos 是否注册(来源 Plugin)→ 未注册则 `/reload-plugins` 后复查 → 再跑门测试。`claude plugin details` 子命令在本机 2.1.132 尚不存在。
+- 首轮「Codex 冒烟」误跑在 Claude 会话内(结果对 Codex 无效,但作为 Claude 阴性结果触发了上述诊断)。
