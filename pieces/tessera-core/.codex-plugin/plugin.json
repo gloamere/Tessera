@@ -1,0 +1,7 @@
+{
+  "name": "tessera-core",
+  "description": "Tessera 内核:路由兜底、安装引导、状态查看、不可逆操作门",
+  "version": "0.1.1",
+  "skills": "./skills/",
+  "hooks": "./hooks/codex.hooks.json"
+}

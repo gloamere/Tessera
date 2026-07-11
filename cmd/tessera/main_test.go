@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 		panic("go build failed: " + err.Error())
 	}
 
-	abs, err := filepath.Abs(filepath.Join("..", "..", "pieces", "wfos-core", "gate-rules.json"))
+	abs, err := filepath.Abs(filepath.Join("..", "..", "pieces", "tessera-core", "gate-rules.json"))
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +46,7 @@ func runGateBin(t *testing.T, stdin string, args ...string) (string, string, int
 	t.Helper()
 	cmd := exec.Command(binPath, args...)
 	cmd.Stdin = strings.NewReader(stdin)
-	cmd.Env = append(os.Environ(), "WFOS_GATE_RULES="+rulesAbs)
+	cmd.Env = append(os.Environ(), "TESSERA_GATE_RULES="+rulesAbs)
 	var out, errb strings.Builder
 	cmd.Stdout = &out
 	cmd.Stderr = &errb

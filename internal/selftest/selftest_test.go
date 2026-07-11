@@ -8,7 +8,7 @@ import (
 )
 
 func TestRunAllPass(t *testing.T) {
-	rules, err := gate.LoadRules(filepath.Join("..", "..", "pieces", "wfos-core", "gate-rules.json"))
+	rules, err := gate.LoadRules(filepath.Join("..", "..", "pieces", "tessera-core", "gate-rules.json"))
 	if err != nil {
 		t.Fatalf("LoadRules: %v", err)
 	}

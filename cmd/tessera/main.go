@@ -1,4 +1,4 @@
-// Command tessera 是 workflow-os(改名中:Tessera)的单二进制 CLI。
+// Command tessera 是 Tessera 的单二进制 CLI。
 // 子命令:gate(hook 入口)、selftest、doctor、piece、version。
 package main
 
@@ -76,9 +76,9 @@ func printHelp() {
 func runGate(args []string) int {
 	raw, _ := io.ReadAll(os.Stdin)
 
-	if os.Getenv("WFOS_GATE_DEBUG") == "1" {
+	if os.Getenv("TESSERA_GATE_DEBUG") == "1" {
 		if home, err := os.UserHomeDir(); err == nil {
-			dir := filepath.Join(home, ".workflow-os")
+			dir := filepath.Join(home, ".tessera")
 			if os.MkdirAll(dir, 0o755) == nil {
 				line := time.Now().UTC().Format(time.RFC3339) + " " + string(raw) + "\n"
 				if f, err := os.OpenFile(filepath.Join(dir, "gate-debug.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644); err == nil {
@@ -120,7 +120,7 @@ func runGate(args []string) int {
 
 // rulesPath:env 覆盖 > 二进制同目录 > 二进制上级目录。
 func rulesPath() string {
-	if p := os.Getenv("WFOS_GATE_RULES"); p != "" {
+	if p := os.Getenv("TESSERA_GATE_RULES"); p != "" {
 		return p
 	}
 	exe, err := os.Executable()
@@ -264,7 +264,7 @@ func runPiece(args []string) int {
 // ---- 根目录解析 ----
 
 func repoRoot() string {
-	if p := os.Getenv("WFOS_ROOT"); p != "" {
+	if p := os.Getenv("TESSERA_ROOT"); p != "" {
 		return p
 	}
 	wd, err := os.Getwd()
@@ -275,8 +275,8 @@ func repoRoot() string {
 }
 
 func repoRulesPath() string {
-	if p := os.Getenv("WFOS_GATE_RULES"); p != "" {
+	if p := os.Getenv("TESSERA_GATE_RULES"); p != "" {
 		return p
 	}
-	return filepath.Join(repoRoot(), "pieces", "wfos-core", "gate-rules.json")
+	return filepath.Join(repoRoot(), "pieces", "tessera-core", "gate-rules.json")
 }

@@ -1,6 +1,6 @@
-# workflow-os
+# Tessera
 
-`workflow-os` 是面向个人项目的能力操作系统：用一个 Git 仓库组织 Codex / Claude 可复用的 skills、插件、安装规则和安全门。
+`Tessera` 是面向个人项目的能力操作系统：用一个 Git 仓库组织 Codex / Claude 可复用的 skills、插件、安装规则和安全门。
 
 它适合软件开发、游戏私服、策划、调研和 UI 协作。能力可以按需安装，不要求每个项目走完整流程。
 
@@ -18,14 +18,14 @@ powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 
 脚本会检查 Git 与 Go、clone 固定 tag、构建门二进制、运行测试，并跑 `tessera setup`（dry-run）展示六阶段计划与信任复核。它拒绝覆盖已有非空目录。传入 `-InstallCodexPlugin` 则计划里包含 Codex 注册命令。
 
-审阅信任复核无误后，执行注册（`--register`），再在 Codex/Claude 新开会话启用 `wfos-core`。
+审阅信任复核无误后，执行注册（`--register`），再在 Codex/Claude 新开会话启用 `tessera-core`。
 
 ## 新项目初始化
 
 每个项目只需初始化一次：
 
 ```powershell
-& $HOME\workflow-os\pieces\wfos-core\bin\tessera.exe init `
+& $HOME\workflow-os\pieces\tessera-core\bin\tessera.exe init `
   --target D:\Projects\my-game `
   --name "My Game"
 ```
@@ -37,7 +37,7 @@ powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```text
 my-game/
   AGENTS.md
-  .workflow-os/project.yaml
+  .tessera/project.yaml
   docs/
     PROJECT.md       # 目标与约束
     NOW.md           # 当前状态
@@ -48,7 +48,7 @@ my-game/
 
 ## 能力拼图
 
-- `wfos-core`：路由、安装引导、状态入口与不可逆命令门。
+- `tessera-core`：路由、安装引导、状态入口与不可逆命令门。
 - `bd-tasks`：基于 Beads CLI 的任务追踪能力。
 - `registry.yaml`：外部能力引用，例如 Superpowers、agent-reach、Taste；它们不会被静默安装。
 

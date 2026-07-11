@@ -1,6 +1,6 @@
-# workflow-os v2 部署手册
+# Tessera v2 部署手册
 
-workflow-os 分为两步：机器安装一次，项目初始化一次。插件提供可复用能力；项目目录保存该项目的目标、决策、研究和人类规则。
+Tessera 分为两步：机器安装一次，项目初始化一次。插件提供可复用能力；项目目录保存该项目的目标、决策、研究和人类规则。
 
 ## 1. 新机器：安装能力市场
 
@@ -19,21 +19,21 @@ powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```powershell
 git clone --branch v2.0.0-beta.1 --depth 1 https://github.com/gloamere/workflow-os.git $HOME\workflow-os
 cd $HOME\workflow-os
-go build -o pieces\wfos-core\bin\tessera.exe .\cmd\tessera
+go build -o pieces\tessera-core\bin\tessera.exe .\cmd\tessera
 go test ./...
-& .\pieces\wfos-core\bin\tessera.exe setup --root . --codex            # 审阅六阶段计划与信任复核
-& .\pieces\wfos-core\bin\tessera.exe setup --root . --register --codex # 审阅无误后注册市场
-codex plugin add wfos-core@workflow-os
+& .\pieces\tessera-core\bin\tessera.exe setup --root . --codex            # 审阅六阶段计划与信任复核
+& .\pieces\tessera-core\bin\tessera.exe setup --root . --register --codex # 审阅无误后注册市场
+codex plugin add tessera-core@tessera
 ```
 
-在 Codex Desktop 中重启或新开会话，启用 `wfos-core`，并审阅其 hook 定义后明确选择是否信任。hooks 不是完整安全边界；为 GitHub 的 `main` 配置禁止 force push 的 ruleset。
+在 Codex Desktop 中重启或新开会话，启用 `tessera-core`，并审阅其 hook 定义后明确选择是否信任。hooks 不是完整安全边界；为 GitHub 的 `main` 配置禁止 force push 的 ruleset。
 
 Claude 的安装使用同一仓库中的 `.claude-plugin/marketplace.json`，但 Claude 和 Codex 的插件安装命令必须各自执行，不能互相替代。
 
 ## 2. 新项目：初始化项目知识库
 
 ```powershell
-& $HOME\workflow-os\pieces\wfos-core\bin\tessera.exe init --target D:\Projects\my-game --name "My Game"
+& $HOME\workflow-os\pieces\tessera-core\bin\tessera.exe init --target D:\Projects\my-game --name "My Game"
 ```
 
 `tessera init` 只创建缺失文件，并在 `AGENTS.md` 写入一个带边界标记的托管区；现有人类规则、代码和文档不会被覆盖。先用 `--dry-run` 预览。
@@ -43,7 +43,7 @@ Claude 的安装使用同一仓库中的 `.claude-plugin/marketplace.json`，但
 ```text
 my-game/
   AGENTS.md
-  .workflow-os/project.yaml
+  .tessera/project.yaml
   docs/
     PROJECT.md
     NOW.md

@@ -78,7 +78,7 @@ type hookFile struct {
 
 // CheckCodexHooks 校验 Codex hook:Bash 匹配、含 PLUGIN_ROOT 与对应 --event。
 func CheckCodexHooks(root string) error {
-	b, err := os.ReadFile(filepath.Join(root, "pieces", "wfos-core", "hooks", "codex.hooks.json"))
+	b, err := os.ReadFile(filepath.Join(root, "pieces", "tessera-core", "hooks", "codex.hooks.json"))
 	if err != nil {
 		return err
 	}

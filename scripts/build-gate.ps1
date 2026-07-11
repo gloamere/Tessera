@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  构建 tessera 门二进制。默认只构建当前平台并放入 pieces/wfos-core/bin/;
+  构建 tessera 门二进制。默认只构建当前平台并放入 pieces/tessera-core/bin/;
   -All 交叉编译全平台到 dist/ 并生成 checksums(M3 release 用)。
 .NOTES
   零 CGO,纯 Go 交叉编译。需要 Go(见 machine-go-toolchain memory:本机在 C:\Go)。
@@ -23,7 +23,7 @@ Push-Location $repo
 try {
   if (-not $All) {
     # 当前平台 → piece 的 bin/(供本机 hook 直接调用)
-    $bin = Join-Path $repo 'pieces/wfos-core/bin'
+    $bin = Join-Path $repo 'pieces/tessera-core/bin'
     New-Item -ItemType Directory -Force -Path $bin | Out-Null
     $name = if ($IsWindows -or $env:OS -eq 'Windows_NT') { 'tessera.exe' } else { 'tessera' }
     & $go build -o (Join-Path $bin $name) $pkg

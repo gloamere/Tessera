@@ -1,6 +1,6 @@
 ---
 name: piece-router
-description: 当用户提出一项工作但不明确用什么工具、涉及多种能力、或说"新项目""帮我规划""不知道怎么开始"时使用。本 skill 是 workflow-os 的兜底路由表:把意图派发到正确的能力拼图。
+description: 当用户提出一项工作但不明确用什么工具、涉及多种能力、或说"新项目""帮我规划""不知道怎么开始"时使用。本 skill 是 Tessera 的兜底路由表:把意图派发到正确的能力拼图。
 ---
 
 # 拼图派发表
@@ -8,11 +8,11 @@ description: 当用户提出一项工作但不明确用什么工具、涉及多�
 | 意图 | 拼图 | 调用方式 |
 |---|---|---|
 | 搜索、调研、查资料、读 URL、看某平台讨论 | agent-reach | Skill 工具调用 agent-reach,二级路由看其 SKILL.md |
-| UI/视觉设计评审、审美判断 | taste | Skill 工具调用(未安装则提示 /wfos-setup) |
+| UI/视觉设计评审、审美判断 | taste | Skill 工具调用(未安装则提示 /tessera-setup) |
 | 写代码、改功能、修 bug | superpowers 流程链 | brainstorming → writing-plans → 实现 → verification |
 | 任务/待办/拆解/追踪 | bd-tasks | 直接执行 bd 命令(见 bd-tasks skill) |
 | 游戏策划、方案策划 | planner | Skill 工具调用(孵化中,未装则先走 brainstorming) |
-| 拼图状态/安装/升级 | wfos-core 自身 | /wfos-status、wfos-setup skill |
+| 拼图状态/安装/升级 | tessera-core 自身 | /tessera-status、tessera-setup skill |
 
 ## 门规则(必须遵守)
 

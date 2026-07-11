@@ -16,8 +16,8 @@ func TestListRealPieces(t *testing.T) {
 	for _, p := range pieces {
 		byID[p.ID] = p
 	}
-	if _, ok := byID["wfos-core"]; !ok {
-		t.Errorf("缺 wfos-core,得到 %v", keys(byID))
+	if _, ok := byID["tessera-core"]; !ok {
+		t.Errorf("缺 tessera-core,得到 %v", keys(byID))
 	}
 	bd, ok := byID["bd-tasks"]
 	if !ok {

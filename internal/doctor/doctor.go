@@ -24,7 +24,7 @@ type Check struct {
 func Run(root string) []Check {
 	var checks []Check
 
-	rulesPath := filepath.Join(root, "pieces", "wfos-core", "gate-rules.json")
+	rulesPath := filepath.Join(root, "pieces", "tessera-core", "gate-rules.json")
 	rules, err := gate.LoadRules(rulesPath)
 	if err != nil {
 		checks = append(checks, Check{"规则数据文件", false, "无法读取/解析 " + rulesPath + ": " + err.Error()})
@@ -40,8 +40,8 @@ func Run(root string) []Check {
 	}
 
 	for _, hf := range []struct{ name, rel string }{
-		{"Claude hooks 配置", filepath.Join("pieces", "wfos-core", "hooks", "hooks.json")},
-		{"Codex hooks 配置", filepath.Join("pieces", "wfos-core", "hooks", "codex.hooks.json")},
+		{"Claude hooks 配置", filepath.Join("pieces", "tessera-core", "hooks", "hooks.json")},
+		{"Codex hooks 配置", filepath.Join("pieces", "tessera-core", "hooks", "codex.hooks.json")},
 	} {
 		p := filepath.Join(root, hf.rel)
 		if _, err := os.Stat(p); err != nil {

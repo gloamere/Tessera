@@ -7,7 +7,7 @@ import (
 
 func testRules(t *testing.T) *Rules {
 	t.Helper()
-	r, err := LoadRules(filepath.Join("..", "..", "pieces", "wfos-core", "gate-rules.json"))
+	r, err := LoadRules(filepath.Join("..", "..", "pieces", "tessera-core", "gate-rules.json"))
 	if err != nil {
 		t.Fatalf("LoadRules: %v", err)
 	}
@@ -47,7 +47,7 @@ var matchCases = []struct {
 	{`npm install typescript`, ""},
 	{`echo hi > trust.yaml`, "self-protect"},
 	{`Set-Content gate-rules.json x`, "self-protect"},
-	{`sed -i s/a/b/ pieces/wfos-core/gate-rules.json`, "self-protect"},
+	{`sed -i s/a/b/ pieces/tessera-core/gate-rules.json`, "self-protect"},
 	{`cat trust.yaml`, ""},
 	{`ls -la`, ""},
 	// fd 重定向不应被 self-protect 误判为写受保护文件(仅提及/只读)

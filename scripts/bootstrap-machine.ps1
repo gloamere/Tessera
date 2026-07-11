@@ -37,26 +37,26 @@ git clone --branch $Ref --depth 1 --single-branch $Repository $InstallRoot
 Push-Location $InstallRoot
 try {
   $resolved = (git rev-parse --verify HEAD).Trim()
-  Write-Host "workflow-os installed at $InstallRoot ($resolved)"
+  Write-Host "Tessera installed at $InstallRoot ($resolved)"
 
   # 构建当前平台门二进制(零依赖、离线可编)
   $env:GOTOOLCHAIN = 'local'
-  go build -o 'pieces/wfos-core/bin/tessera.exe' ./cmd/tessera
-  Write-Host 'built tessera -> pieces/wfos-core/bin/tessera.exe'
+  go build -o 'pieces/tessera-core/bin/tessera.exe' ./cmd/tessera
+  Write-Host 'built tessera -> pieces/tessera-core/bin/tessera.exe'
 
   if (-not $SkipTests) { go test ./... }
 
   # 展示六阶段计划 + 信任复核(dry-run,不注册)
   $codexArg = @()
   if ($InstallCodexPlugin) { $codexArg = @('--codex') }
-  & 'pieces/wfos-core/bin/tessera.exe' setup --root . @codexArg
+  & 'pieces/tessera-core/bin/tessera.exe' setup --root . @codexArg
 
   Write-Host ''
   Write-Host '下一步:'
   Write-Host '  审阅上面的信任复核后,注册市集:'
-  Write-Host "    & `"$InstallRoot\pieces\wfos-core\bin\tessera.exe`" setup --root `"$InstallRoot`" --register $($codexArg -join ' ')"
+  Write-Host "    & `"$InstallRoot\pieces\tessera-core\bin\tessera.exe`" setup --root `"$InstallRoot`" --register $($codexArg -join ' ')"
   Write-Host '  新建项目:'
-  Write-Host "    & `"$InstallRoot\pieces\wfos-core\bin\tessera.exe`" init --target <project-path> --name `"Project Name`""
+  Write-Host "    & `"$InstallRoot\pieces\tessera-core\bin\tessera.exe`" init --target <project-path> --name `"Project Name`""
 } finally {
   Pop-Location
 }

@@ -1,4 +1,4 @@
-// Package initproject 实现 `tessera init`:为项目补齐 workflow-os 骨架文件,
+// Package initproject 实现 `tessera init`:为项目补齐 Tessera 骨架文件,
 // 只补缺、不覆盖已有内容。从 scripts/init-project.mjs 移植。
 package initproject
 
@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	start = "<!-- workflow-os:v2:start -->"
-	end   = "<!-- workflow-os:v2:end -->"
+	start = "<!-- tessera:v2:start -->"
+	end   = "<!-- tessera:v2:end -->"
 )
 
 // Options 是 init 的解析后参数。
@@ -62,11 +62,11 @@ func Parse(args []string) Options {
 
 func managedGuidance() string {
 	return start + `
-# workflow-os v2
+# Tessera v2
 
 - 方向性 UI、数值、活动与技术选型先写入 ` + "`docs/decisions/`" + `,负责人确认后才能实施。
 - 调研、策划和实现可并行;同一文件或存在依赖的任务不可并行修改。
-- 使用已安装的 ` + "`wfos-core`" + ` skill 路由能力;不可逆命令仍受 Codex/Claude 原生权限与项目 hook 约束。
+- 使用已安装的 ` + "`tessera-core`" + ` skill 路由能力;不可逆命令仍受 Codex/Claude 原生权限与项目 hook 约束。
 - 运行 ` + "`tessera init`" + ` 只补缺,不覆盖此项目的人类规则。
 ` + end + "\n"
 }
@@ -155,7 +155,7 @@ func Run(args []string, out io.Writer) int {
 
 	var changes []string
 	files := []struct{ rel, content string }{
-		{".workflow-os/project.yaml", fmt.Sprintf("schema: workflow-os/project@2\nname: %s\ninitialized_at: %q\n", nameJSON, stamp)},
+		{".tessera/project.yaml", fmt.Sprintf("schema: tessera/project@2\nname: %s\ninitialized_at: %q\n", nameJSON, stamp)},
 		{"docs/PROJECT.md", fmt.Sprintf("# %s\n\n## 目标\n\n- \n\n## 约束\n\n- \n", name)},
 		{"docs/NOW.md", "# 当前状态\n\n- \n"},
 		{"docs/INBOX.md", "# 收集箱\n\n- \n"},
@@ -177,7 +177,7 @@ func Run(args []string, out io.Writer) int {
 	if o.DryRun {
 		verb = "Preview"
 	}
-	fmt.Fprintf(out, "%s workflow-os project: %s\n", verb, root)
+	fmt.Fprintf(out, "%s Tessera project: %s\n", verb, root)
 	for _, c := range changes {
 		fmt.Fprintln(out, c)
 	}

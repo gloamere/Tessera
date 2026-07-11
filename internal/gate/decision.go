@@ -7,7 +7,7 @@ import (
 
 // Reason 复刻 gate.mjs 的裁决文案(逐字节等价:半角括号、全角句号)。
 func Reason(r *Rule) string {
-	return "[wfos 门] " + r.Description + "(规则 " + r.ID + ")。请确认后再执行。"
+	return "[Tessera 门] " + r.Description + "(规则 " + r.ID + ")。请确认后再执行。"
 }
 
 // Decide 依据平台与事件类型渲染 hook 输出。

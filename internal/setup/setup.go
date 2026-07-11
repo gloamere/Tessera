@@ -63,11 +63,11 @@ func BuildPlan(opts Options) (Plan, error) {
 
 	p := Plan{OS: runtime.GOOS, Arch: runtime.GOARCH, Root: root}
 
-	p.BinaryPath = filepath.Join(root, "pieces", "wfos-core", "bin", binaryName())
+	p.BinaryPath = filepath.Join(root, "pieces", "tessera-core", "bin", binaryName())
 	_, err = os.Stat(p.BinaryPath)
 	p.BinaryPresent = err == nil
 
-	if rules, err := gate.LoadRules(filepath.Join(root, "pieces", "wfos-core", "gate-rules.json")); err == nil {
+	if rules, err := gate.LoadRules(filepath.Join(root, "pieces", "tessera-core", "gate-rules.json")); err == nil {
 		p.Selftest = selftest.Run(rules)
 		p.SelftestOK = selftest.AllPass(p.Selftest)
 	}
@@ -93,8 +93,8 @@ type hookFile struct {
 func readHookCommands(root string) []string {
 	var cmds []string
 	for _, rel := range []string{
-		filepath.Join("pieces", "wfos-core", "hooks", "hooks.json"),
-		filepath.Join("pieces", "wfos-core", "hooks", "codex.hooks.json"),
+		filepath.Join("pieces", "tessera-core", "hooks", "hooks.json"),
+		filepath.Join("pieces", "tessera-core", "hooks", "codex.hooks.json"),
 	} {
 		data, err := os.ReadFile(filepath.Join(root, rel))
 		if err != nil {

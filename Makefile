@@ -3,7 +3,7 @@
 
 BINARY   := tessera
 PKG      := ./cmd/tessera
-PIECEBIN := pieces/wfos-core/bin
+PIECEBIN := pieces/tessera-core/bin
 DIST     := dist
 VERSION  ?= 2.0.0-beta.1
 LDFLAGS  := -ldflags "-X main.version=$(VERSION)"
@@ -13,7 +13,7 @@ PLATFORMS := windows/amd64 windows/arm64 darwin/amd64 darwin/arm64 linux/amd64 l
 
 .PHONY: build test vet dist checksums clean
 
-## build: 构建本机二进制到 pieces/wfos-core/bin/
+## build: 构建本机二进制到 pieces/tessera-core/bin/
 build:
 	@mkdir -p $(PIECEBIN)
 	go build $(LDFLAGS) -o $(PIECEBIN)/$(BINARY) $(PKG)

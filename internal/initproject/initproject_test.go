@@ -32,7 +32,7 @@ func TestInitCreatesOnlyMissing(t *testing.T) {
 		t.Errorf("PROJECT.md 被改动:%q", string(got))
 	}
 	// 缺失文件被补齐
-	if !exists(filepath.Join(root, ".workflow-os", "project.yaml")) {
+	if !exists(filepath.Join(root, ".tessera", "project.yaml")) {
 		t.Error("project.yaml 未创建")
 	}
 	if !exists(filepath.Join(root, "docs", "research", "README.md")) {
@@ -43,7 +43,7 @@ func TestInitCreatesOnlyMissing(t *testing.T) {
 	if !strings.Contains(string(guidance), "# Human rules") {
 		t.Error("人类规则被抹掉")
 	}
-	if !strings.Contains(string(guidance), "workflow-os:v2:start") {
+	if !strings.Contains(string(guidance), "tessera:v2:start") {
 		t.Error("托管块标记缺失")
 	}
 
@@ -72,7 +72,7 @@ func TestInitDryRun(t *testing.T) {
 func TestInitManagedBlockGuard(t *testing.T) {
 	root := t.TempDir()
 	// 只有 start 无 end → 损坏 → 报错(退出码 1)
-	if err := os.WriteFile(filepath.Join(root, "AGENTS.md"), []byte("x\n<!-- workflow-os:v2:start -->\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "AGENTS.md"), []byte("x\n<!-- tessera:v2:start -->\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	var out bytes.Buffer
