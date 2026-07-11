@@ -111,9 +111,9 @@ if (isMain) {
   if (match) {
     const reason = `[wfos 门] ${match.description}(规则 ${match.id})。请确认后再执行。`;
     const action = match[platform];
-    if (platform === 'claude' && action === 'ask') {
+    if (platform === 'claude' && (action === 'ask' || action === 'deny')) {
       process.stdout.write(JSON.stringify({
-        hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'ask', permissionDecisionReason: reason },
+        hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: action, permissionDecisionReason: reason },
       }));
     } else if (platform === 'codex' && action === 'deny') {
       process.stderr.write(reason);

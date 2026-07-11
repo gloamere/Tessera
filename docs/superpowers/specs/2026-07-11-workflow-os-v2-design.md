@@ -157,15 +157,15 @@ allowed_installs:
 
 | # | 模式(Bash 与 PowerShell 双语法) | Claude | Codex |
 |---|---|---|---|
-| 1 | 递归强制删除,目标在项目根之外/盘符/家目录(`rm -rf`、`Remove-Item -Recurse -Force`) | ask | **deny** |
+| 1 | 递归强制删除,目标在项目根之外/盘符/家目录(`rm -rf`、`Remove-Item -Recurse -Force`) | **deny** | **deny** |
 | 2 | 项目内递归强制删除 | ask | 原生审批 |
-| 3 | `git push --force/-f` 到 main/master | ask | **deny** |
+| 3 | `git push --force/-f` 到 main/master | **deny** | **deny** |
 | 4 | `git push --force/-f` 其他分支 | ask | 原生审批 |
 | 5 | `git reset --hard` / `git checkout -- .` / `git clean -fd`(丢弃未提交改动) | ask | 原生审批 |
 | 6 | 白名单外全局安装(`npm i -g`、`pip install` 等非 trust 条目) | ask | 原生审批 |
-| 7 | 改写 trust.yaml / gate-rules.yaml 自身 | ask | **deny** |
+| 7 | 改写 trust.yaml / gate-rules.yaml 自身 | **deny** | **deny** |
 
-平台语义:Claude PreToolUse → `permissionDecision:"ask"`(matcher `Bash|PowerShell`);Codex PermissionRequest → 表中 deny 项输出 deny(带 reason),其余不裁决→走原生审批弹窗。**Codex PreToolUse 的 `permissionDecision:"ask"` fail-open(标失败后继续),严禁使用。** 如实定性:hooks 是 guardrail 而非完整安全边界(官方原话;存在绕过路径),硬约束依赖各平台原生 sandbox/permissions;能用原生 permissions 规则表达的优先生成原生规则。
+平台语义:Claude PreToolUse → 硬止损规则(1/3/7)输出 deny,其余输出 ask(matcher `Bash|PowerShell`);Codex PermissionRequest → 表中 deny 项输出 deny(带 reason),其余不裁决→走原生审批弹窗。**Codex PreToolUse 的 `permissionDecision:"ask"` fail-open(标失败后继续),严禁使用。** 实测依据:Desktop 自治 agent 会话实测(2026-07-11):ask 被静默放行,deny 阻断并将理由回给模型,由模型向负责人确认;ask 保留给其余规则,在有真人交互的 harness 中仍弹确认。如实定性:hooks 是 guardrail 而非完整安全边界(官方原话;存在绕过路径),硬约束依赖各平台原生 sandbox/permissions;能用原生 permissions 规则表达的优先生成原生规则。
 
 ## 8. 安装
 

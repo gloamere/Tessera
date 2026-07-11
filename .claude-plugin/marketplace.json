@@ -3,7 +3,7 @@
   "owner": { "name": "van" },
   "metadata": { "description": "个人工作流操作系统:本地拼图市集", "version": "2.0.0" },
   "plugins": [
-    { "name": "wfos-core", "source": "./pieces/wfos-core", "description": "内核:路由兜底、安装、状态、不可逆操作门", "version": "0.1.0", "strict": true },
+    { "name": "wfos-core", "source": "./pieces/wfos-core", "description": "内核:路由兜底、安装、状态、不可逆操作门", "version": "0.1.1", "strict": true },
     { "name": "bd-tasks", "source": "./pieces/bd-tasks", "description": "任务追踪:bd CLI 路由", "version": "0.1.0", "strict": true }
   ]
 }

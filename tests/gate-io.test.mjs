@@ -14,11 +14,20 @@ function run(platform, payload) {
 const bash = (command) => ({ tool_name: 'Bash', tool_input: { command } });
 
 test('claude: 命中 ask 规则 → stdout JSON + exit 0', () => {
-  const r = run('claude', bash('git push --force origin main'));
+  const r = run('claude', bash('git reset --hard HEAD~1'));
   assert.equal(r.status, 0);
   const out = JSON.parse(r.stdout);
   assert.equal(out.hookSpecificOutput.hookEventName, 'PreToolUse');
   assert.equal(out.hookSpecificOutput.permissionDecision, 'ask');
+  assert.match(out.hookSpecificOutput.permissionDecisionReason, /discard-changes/);
+});
+
+test('claude: deny 规则 → stdout JSON(permissionDecision deny)+ exit 0', () => {
+  const r = run('claude', bash('git push --force origin main'));
+  assert.equal(r.status, 0);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.hookSpecificOutput.hookEventName, 'PreToolUse');
+  assert.equal(out.hookSpecificOutput.permissionDecision, 'deny');
   assert.match(out.hookSpecificOutput.permissionDecisionReason, /force-push-protected/);
 });
 
