@@ -16,12 +16,12 @@ import (
 )
 
 // DefaultBase 是 GitHub Releases 资产下载基址(本机实测 objects.githubusercontent.com 可达)。
-const DefaultBase = "https://github.com/gloamere/workflow-os/releases/download"
+const DefaultBase = "https://github.com/gloamere/Tessera/releases/download"
 
 // DefaultAPIBase / Repo 用于解析 latest 版本(本机实测 api.github.com 可达)。
 const (
 	DefaultAPIBase = "https://api.github.com"
-	Repo           = "gloamere/workflow-os"
+	Repo           = "gloamere/Tessera"
 )
 
 // LatestVersion 查询最新 release 的 tag_name。

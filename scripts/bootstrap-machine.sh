@@ -4,8 +4,8 @@
 # 重活在 Go 的 `tessera setup` 里(跨平台)。
 set -eu
 
-INSTALL_ROOT="${INSTALL_ROOT:-$HOME/workflow-os}"
-REPO="${REPO:-https://github.com/gloamere/workflow-os.git}"
+INSTALL_ROOT="${INSTALL_ROOT:-$HOME/tessera}"
+REPO="${REPO:-https://github.com/gloamere/Tessera.git}"
 REF="${REF:-v2.0.0-beta.1}"
 INSTALL_CODEX=0
 SKIP_TESTS=0

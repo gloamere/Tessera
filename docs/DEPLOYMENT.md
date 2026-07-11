@@ -8,7 +8,7 @@ Tessera 分为两步：机器安装一次，项目初始化一次。插件提供
 
 ```powershell
 $script = Join-Path $env:TEMP 'tessera-bootstrap.ps1'
-Invoke-WebRequest https://github.com/gloamere/workflow-os/releases/download/v2.0.0-beta.1/bootstrap-machine.ps1 -OutFile $script
+Invoke-WebRequest https://github.com/gloamere/Tessera/releases/download/v2.0.0-beta.1/bootstrap-machine.ps1 -OutFile $script
 powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```
 
@@ -19,8 +19,8 @@ macOS/Linux 用 `scripts/bootstrap-machine.sh`（同样可从 Release 资产下�
 手动方式如下：
 
 ```powershell
-git clone --branch v2.0.0-beta.1 --depth 1 https://github.com/gloamere/workflow-os.git $HOME\workflow-os
-cd $HOME\workflow-os
+git clone --branch v2.0.0-beta.1 --depth 1 https://github.com/gloamere/Tessera.git $HOME\tessera
+cd $HOME\tessera
 go build -o pieces\tessera-core\bin\tessera.exe .\cmd\tessera
 go test ./...
 & .\pieces\tessera-core\bin\tessera.exe setup --root . --codex            # 审阅六阶段计划与信任复核
@@ -35,7 +35,7 @@ Claude 的安装使用同一仓库中的 `.claude-plugin/marketplace.json`，但
 ## 2. 新项目：初始化项目知识库
 
 ```powershell
-& $HOME\workflow-os\pieces\tessera-core\bin\tessera.exe init --target D:\Projects\my-game --name "My Game"
+& $HOME\tessera\pieces\tessera-core\bin\tessera.exe init --target D:\Projects\my-game --name "My Game"
 ```
 
 `tessera init` 只创建缺失文件，并在 `AGENTS.md` 写入一个带边界标记的托管区；现有人类规则、代码和文档不会被覆盖。先用 `--dry-run` 预览。

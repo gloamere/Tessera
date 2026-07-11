@@ -62,14 +62,14 @@ func TestFetchVerifiesAndWrites(t *testing.T) {
 
 func TestLatestVersion(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/repos/gloamere/workflow-os/releases/latest" {
+		if r.URL.Path == "/repos/gloamere/Tessera/releases/latest" {
 			_, _ = w.Write([]byte(`{"tag_name":"v2.0.0-beta.9","name":"x"}`))
 			return
 		}
 		w.WriteHeader(404)
 	}))
 	defer srv.Close()
-	v, err := LatestVersion(srv.URL, "gloamere/workflow-os")
+	v, err := LatestVersion(srv.URL, "gloamere/Tessera")
 	if err != nil {
 		t.Fatalf("LatestVersion: %v", err)
 	}

@@ -5,8 +5,8 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$InstallRoot = (Join-Path $HOME 'workflow-os'),
-  [string]$Repository = 'https://github.com/gloamere/workflow-os.git',
+  [string]$InstallRoot = (Join-Path $HOME 'tessera'),
+  [string]$Repository = 'https://github.com/gloamere/Tessera.git',
   [string]$Ref = 'v2.0.0-beta.1',
   [switch]$InstallCodexPlugin,
   [switch]$SkipTests

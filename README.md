@@ -12,7 +12,7 @@
 
 ```powershell
 $script = Join-Path $env:TEMP 'tessera-bootstrap.ps1'
-Invoke-WebRequest https://github.com/gloamere/workflow-os/releases/download/v2.0.0-beta.1/bootstrap-machine.ps1 -OutFile $script
+Invoke-WebRequest https://github.com/gloamere/Tessera/releases/download/v2.0.0-beta.1/bootstrap-machine.ps1 -OutFile $script
 powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```
 
@@ -25,7 +25,7 @@ powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 每个项目只需初始化一次：
 
 ```powershell
-& $HOME\workflow-os\pieces\tessera-core\bin\tessera.exe init `
+& $HOME\tessera\pieces\tessera-core\bin\tessera.exe init `
   --target D:\Projects\my-game `
   --name "My Game"
 ```
