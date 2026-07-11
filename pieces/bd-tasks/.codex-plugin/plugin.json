@@ -1,0 +1,6 @@
+{
+  "name": "bd-tasks",
+  "description": "任务追踪拼图:路由到 bd (beads) CLI,替代 TodoWrite",
+  "version": "0.1.0",
+  "skills": "./skills/"
+}
