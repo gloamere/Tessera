@@ -10,13 +10,13 @@ description: 任何"记任务、拆任务、领任务、关任务、查任务、
 | 意图 | 命令 |
 |---|---|
 | 快速记一条 | `bd q "描述"`(只回 id) |
-| 新建任务 | `bd create "描述"`(加 `-p 0..3` 定优先级) |
+| 新建任务 | `bd create "描述"`(加 `-p 0..4` 定优先级(0 最高)) |
 | 找可开工任务 | `bd ready` |
 | 查看详情 | `bd show <id>` |
 | 领取 | `bd update <id> --claim` |
 | 完成 | `bd close <id>` |
 | 追加备注 | `bd note <id> "内容"` |
-| 大活拆解 | `bd epic create` + `bd dep add <child> <parent>` |
+| 大活拆解 | `bd create "标题" --type epic` + `bd dep add <child> <parent>` |
 | 需负责人异步确认 | `bd gate`(仅作通知载体;权威状态是 docs/decisions/ 文件的 frontmatter status) |
 
 ## 规则

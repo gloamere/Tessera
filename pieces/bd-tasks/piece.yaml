@@ -4,7 +4,7 @@ summary: 任务追踪。管理现有 bd (beads) CLI,不重新实现任务系统�
 when_to_use:
   - 新任务/待办/需求拆解 → bd create / bd q
   - 会话开始找活干 → bd ready
-  - 多步骤工作 → bd epic + bd dep
+  - 多步骤工作 → bd create --type epic + bd dep
   - 需要负责人异步确认的节点 → bd gate(仅作异步通知载体;权威状态是 decisions 文件,见 §7)
   - 禁止:TodoWrite、markdown TODO 列表
 avoid_when: 纯问答、无需跟踪的一次性小操作
