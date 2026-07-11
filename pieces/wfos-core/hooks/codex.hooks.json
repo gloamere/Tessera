@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gate.mjs\" --platform=codex", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}
