@@ -86,7 +86,7 @@ export function extractCommand(payload) {
 }
 
 // ---- CLI 入口(hook 调用) ----
-const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+const isMain = import.meta.main;
 if (isMain) {
   let raw = '';
   process.stdin.setEncoding('utf8');
