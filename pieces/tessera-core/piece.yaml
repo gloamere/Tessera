@@ -4,7 +4,7 @@ summary: Tessera 内核:意图路由兜底、安装引导与状态查看。
 when_to_use:
   - 复合/模糊意图,不确定用哪块拼图 → piece-router
   - 初始化工作流、安装拼图 → tessera-setup
-  - 查看拼图与依赖状态 → /tessera-status
+  - 查看拼图与依赖状态 → tessera-status(skill;Claude 也可用 /tessera-status 命令)
 avoid_when: 已有明确单一工具触发的任务
 platforms: { claude: native, codex: native, gemini: snippet, domestic: snippet }
 external_deps: []

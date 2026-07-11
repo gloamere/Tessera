@@ -12,7 +12,7 @@ description: 当用户提出一项工作但不明确用什么工具、涉及多�
 | 写代码、改功能、修 bug | superpowers 流程链 | brainstorming → writing-plans → 实现 → verification |
 | 任务/待办/拆解/追踪 | bd-tasks | 直接执行 bd 命令(见 bd-tasks skill) |
 | 游戏策划、方案策划 | planner | Skill 工具调用(孵化中,未装则先走 brainstorming) |
-| 拼图状态/安装/升级 | tessera-core 自身 | /tessera-status、tessera-setup skill |
+| 拼图状态/安装/升级 | tessera-core 自身 | tessera-status、tessera-setup skill |
 
 ## 硬规则(必须遵守)
 
