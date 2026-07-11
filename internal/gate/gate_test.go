@@ -57,6 +57,13 @@ var matchCases = []struct {
 	// 真写入受保护文件仍应命中
 	{`echo x > gate-rules.json`, "self-protect"},
 	{`echo x &> gate-rules.json`, "self-protect"},
+	// 跨段误伤:另一段的 "main"/受保护文件不该污染本段判定
+	{`echo "移到 main" ; git push origin v2.0.0-beta.1 --force`, "force-push-other"},
+	{`cat gate-rules.json ; echo x > other.txt`, ""},
+	{`git log trust.yaml ; go test ./...`, ""},
+	// 但真危险落在某一段内仍要拦
+	{`cd /tmp && rm -rf $HOME/data`, "recursive-delete-outside"},
+	{`npm ci && git push --force origin main`, "force-push-protected"},
 }
 
 func TestMatchCommand(t *testing.T) {

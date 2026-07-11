@@ -63,6 +63,8 @@ var (
 	reSelfWrite    = regexp.MustCompile(`(?i)(>>?|\bset-content\b|\bout-file\b|\bsed\s+-i\b|\btee\b|\brm\b|\bremove-item\b|\bdel\b|\bmv\b|\bmove\b)`)
 	// reFdNoise 匹配 fd 重定向/丢弃(2>&1、1>&2、2>/dev/null 等),不是写具名文件。
 	reFdNoise = regexp.MustCompile(`(?i)\d*>&\d*|\d+>\s*(/dev/null|nul|\$null)\b`)
+	// reSegment 按命令分隔符切段(; && || | 换行);单个 & 不切,避免拆散 2>&1。
+	reSegment = regexp.MustCompile(`&&|\|\||[;\n|]`)
 )
 
 // words 复刻 gate.mjs 的分词:去首尾空白、按空白切分、剥去首尾一层引号。
@@ -205,7 +207,9 @@ func matchSelfProtect(cmd string) string {
 	return ""
 }
 
-// MatchCommand 依次跑各匹配器,命中即返回对应规则;未命中返回 nil。
+// MatchCommand 逐"命令段"匹配:先按分隔符切段,再对每段跑匹配器。
+// 真正危险的命令都落在单段内,切段能消除跨段误伤(如另一段 echo "main" 触发强推保护),
+// 而不削弱防护。命中即返回对应规则;未命中返回 nil。
 func MatchCommand(command string, rules *Rules) *Rule {
 	if command == "" || rules == nil {
 		return nil
@@ -218,19 +222,25 @@ func MatchCommand(command string, rules *Rules) *Rule {
 		}
 	}
 	allow := rules.GlobalInstallAllow
-	id := firstNonEmpty(
-		matchRecursiveDelete(command),
-		matchForcePush(command),
-		matchDiscardChanges(command),
-		matchGlobalInstall(command, allow),
-		matchSelfProtect(command),
-	)
-	if id == "" {
-		return nil
-	}
-	for i := range rules.Rules {
-		if rules.Rules[i].ID == id {
-			return &rules.Rules[i]
+	for _, seg := range reSegment.Split(command, -1) {
+		seg = strings.TrimSpace(seg)
+		if seg == "" {
+			continue
+		}
+		id := firstNonEmpty(
+			matchRecursiveDelete(seg),
+			matchForcePush(seg),
+			matchDiscardChanges(seg),
+			matchGlobalInstall(seg, allow),
+			matchSelfProtect(seg),
+		)
+		if id == "" {
+			continue
+		}
+		for i := range rules.Rules {
+			if rules.Rules[i].ID == id {
+				return &rules.Rules[i]
+			}
 		}
 	}
 	return nil
