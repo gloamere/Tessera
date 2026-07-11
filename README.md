@@ -1,31 +1,72 @@
-# workflow-os v2 — 个人能力操作系统(拼图市集)
+# workflow-os
 
-本仓库同时是 Claude Code 与 Codex 的本地插件市集:注册、路由、安装、升级你的能力拼图(bd、agent-reach、taste、superpowers…)。
+`workflow-os` 是面向个人项目的能力操作系统：用一个 Git 仓库组织 Codex / Claude 可复用的 skills、插件、安装规则和安全门。
 
-## 安装(机器级,一次)
+它适合软件开发、游戏私服、策划、调研和 UI 协作。能力可以按需安装，不要求每个项目走完整流程。
 
-```text
-Claude:claude plugin marketplace add <本仓库路径>
-        claude plugin install wfos-core@workflow-os --scope user
-Codex: codex plugin marketplace add <本仓库路径>
-        codex plugin add wfos-core@workflow-os
-```
+> 当前版本：`v2.0.0-beta.1`。项目事实、决策与研究资料仍保留在项目自己的 Markdown 中；插件和 hooks 只负责协作与执行辅助。
 
-重启会话后运行 `/wfos-setup` 按引导安装其余拼图。
+## 快速开始：新机器
 
-## Codex 门的边界
-
-`wfos-core` 在 Codex 使用两层 hook：`PreToolUse` 对明确禁止的 Bash 命令直接拒绝，`PermissionRequest` 仅在 Codex 本来准备请求权限时作为拒绝后备。它不会把普通命令强制变成审批弹窗；方向性决定仍必须通过工作流中的决策记录确认。GitHub 受保护分支规则才是阻止远端强推的最终边界。
-
-## 正式部署
-
-部署步骤已固定为“新机器安装市场一次 + 每个新项目初始化一次”。完整命令、hooks 信任与升级/回退说明见 [部署手册](docs/DEPLOYMENT.md)。新项目可直接运行：
+在联网 Windows 机器上，先下载固定版本脚本，再执行。不要把远程内容直接 pipe 到 shell。
 
 ```powershell
-node <workflow-os-repo>\scripts\init-project.mjs --target <project-path> --name "项目名"
+$script = Join-Path $env:TEMP 'workflow-os-bootstrap.ps1'
+Invoke-WebRequest https://raw.githubusercontent.com/gloamere/workflow-os/v2.0.0-beta.1/scripts/bootstrap-machine.ps1 -OutFile $script
+powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
 ```
 
-## 设计文档
+脚本会检查 Git 与 Node.js 24+、clone 固定 tag、运行测试，并在显式传入 `-InstallCodexPlugin` 后注册 Codex 市场和安装 `wfos-core`。它拒绝覆盖已有非空目录。
 
-- 设计 spec:`docs/superpowers/specs/2026-07-11-workflow-os-v2-design.md`
-- v1 已归档:见 `legacy/README.md`
+完成后在 Codex Desktop 新开会话，启用 `wfos-core`，并审阅 hooks 后决定是否信任。
+
+## 新项目初始化
+
+每个项目只需初始化一次：
+
+```powershell
+node $HOME\workflow-os\scripts\init-project.mjs `
+  --target D:\Projects\my-game `
+  --name "My Game"
+```
+
+先加 `--dry-run` 可预览。初始化器只补缺，不覆盖已有代码、文档或人工 `AGENTS.md` 规则。
+
+它会建立：
+
+```text
+my-game/
+  AGENTS.md
+  .workflow-os/project.yaml
+  docs/
+    PROJECT.md       # 目标与约束
+    NOW.md           # 当前状态
+    INBOX.md         # 临时想法与反馈
+    decisions/       # 需要负责人拍板的方向
+    research/        # 可追溯的研究资料
+```
+
+## 能力拼图
+
+- `wfos-core`：路由、安装引导、状态入口与不可逆命令门。
+- `bd-tasks`：基于 Beads CLI 的任务追踪能力。
+- `registry.yaml`：外部能力引用，例如 Superpowers、agent-reach、Taste；它们不会被静默安装。
+
+## 安全边界
+
+- 方向性 UI、数值、活动和技术选型必须先写入 `docs/decisions/`，负责人确认后再实施。
+- Codex 的 `PreToolUse` 会拒绝明确禁止的危险 Bash 命令；`PermissionRequest` 只是原生权限审批的后备，不能把普通命令强行变成弹窗。
+- hooks 是 guardrail，不是最终安全边界。对 GitHub `main` 启用禁止 force push 的 ruleset。
+- 外部 CLI、插件和 Python 包必须先说明来源与影响，并取得负责人授权。
+
+## 文档
+
+- [部署手册](docs/DEPLOYMENT.md)：机器安装、项目初始化、升级和回退。
+- [v2 设计规格](docs/superpowers/specs/2026-07-11-workflow-os-v2-design.md)
+- [v1 归档说明](legacy/README.md)
+
+## 本地验证
+
+```powershell
+npm.cmd test
+```
