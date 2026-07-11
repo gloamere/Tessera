@@ -1,6 +1,6 @@
 {
   "name": "workflow-os",
-  "version": "2.0.0-dev",
+  "version": "2.0.0-beta.1",
   "private": true,
   "description": "Personal capability OS: local plugin marketplace for Claude Code & Codex",
   "type": "module",

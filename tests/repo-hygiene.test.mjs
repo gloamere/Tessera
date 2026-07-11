@@ -23,6 +23,14 @@ test('所有 JSON/MD/YAML 无 BOM', () => {
   }
 });
 
+test('联网 bootstrap 固定版本且不使用远程 pipe 执行', () => {
+  const bootstrap = readFileSync(join(root, 'scripts', 'bootstrap-machine.ps1'), 'utf8');
+  assert.match(bootstrap, /v2\.0\.0-beta\.1/);
+  assert.match(bootstrap, /Refusing to overwrite/);
+  assert.doesNotMatch(bootstrap, /Invoke-Expression|\biex\b/i);
+  assert.match(bootstrap, /InstallCodexPlugin/);
+});
+
 test('两份市集清单的拼图名与版本和 plugin.json 一致', () => {
   const claude = JSON.parse(readFileSync(join(root, '.claude-plugin/marketplace.json'), 'utf8'));
   const codex = JSON.parse(readFileSync(join(root, '.agents/plugins/marketplace.json'), 'utf8'));

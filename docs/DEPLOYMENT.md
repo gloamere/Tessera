@@ -4,8 +4,20 @@ workflow-os 分为两步：机器安装一次，项目初始化一次。插件�
 
 ## 1. 新机器：安装能力市场
 
+推荐使用固定版本的 bootstrap。它不会覆盖现有目录，默认只 clone 并运行测试；只有显式传入 `-InstallCodexPlugin` 才会注册市场和安装插件。
+
 ```powershell
-git clone https://github.com/gloamere/workflow-os.git $HOME\workflow-os
+$script = Join-Path $env:TEMP 'workflow-os-bootstrap.ps1'
+Invoke-WebRequest https://raw.githubusercontent.com/gloamere/workflow-os/v2.0.0-beta.1/scripts/bootstrap-machine.ps1 -OutFile $script
+powershell -ExecutionPolicy Bypass -File $script -InstallCodexPlugin
+```
+
+不要使用 `Invoke-Expression` 或把远程内容直接 pipe 到 shell。先下载再执行，才能在执行前审阅脚本；`-Ref` 可用于固定其他已发布 tag。
+
+手动方式如下：
+
+```powershell
+git clone --branch v2.0.0-beta.1 --depth 1 https://github.com/gloamere/workflow-os.git $HOME\workflow-os
 cd $HOME\workflow-os
 npm.cmd test
 codex plugin marketplace add .
@@ -44,4 +56,4 @@ my-game/
 
 ## 升级与回退
 
-更新市场仓库后先运行 `npm.cmd test`，再在 Codex 中升级/重装插件并开新会话。若插件或 hooks 行为异常，先在 Codex 中禁用该插件；项目 Markdown 不受影响。
+更新时下载新的已发布 tag 到新目录并先运行测试，再在 Codex 中升级/重装插件并开新会话。若插件或 hooks 行为异常，先在 Codex 中禁用该插件；项目 Markdown 不受影响。保留旧 checkout 即可回退。
