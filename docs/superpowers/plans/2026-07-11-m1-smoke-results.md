@@ -13,13 +13,12 @@
 | **真实缓存路径端到端:claude ask** | ✅ `echo <force-push payload> \| node <cache>/scripts/gate.mjs --platform=claude` → 正确 ask JSON,exit 0 |
 | **WFOS_GATE_DEBUG 分支** | ✅ payload 落盘 `~/.workflow-os/gate-debug.log` |
 
-### 待人工(重启 Claude Code 后新会话)
-- [ ] skills 列表可见 wfos-core:piece-router / wfos-core:wfos-setup / bd-tasks(记录实际命名空间形式)
-- [ ] `/wfos-status`(或 `/wfos-core:wfos-status`)可执行,记录实际呼出名:______
-- [ ] 门:临时 git 仓库(无 remote)执行 `git push --force origin main` → 弹确认,理由含 force-push-protected
-- [ ] 门:`rm -rf C:\Users\Administrator\AppData\Local\Temp\wfos-gate-test`(先建目录)→ 弹确认(recursive-delete-outside)
-- [ ] 门:仓库根 `echo x >> trust.yaml` → 弹确认(self-protect)
-- [ ] 反例:`git status` → 不弹
+### 人工验收结果(2026-07-11,0.1.1)——**Claude 端:绿**
+- [x] skills 可见:Desktop agent 会话技能清单含 `wfos-core:piece-router`、`wfos-core:wfos-setup`、`wfos-core:wfos-status`、`bd-tasks:bd-tasks`(命名空间形式 `插件名:名称`;**commands/*.md 在 Desktop 以 skill 形态暴露**,显式调用走 Skill 工具)
+- [x] 门(deny 形态,负责人实测):`git push --force origin main` 被 **PreToolUse deny 在执行前拦截**(Bash 调用整体中止,git 从未运行——无 remote 的 fatal 都没出现),理由原文:`[wfos 门] 强推 main/master(规则 force-push-protected)。请确认后再执行。`
+- [x] 反例:`git status` 无拦截(首轮会话已证)
+- [ ] rm-rf 项目外 / trust.yaml 改写:与 force-push 同机制(deny),未单独复测,留待日常使用观察
+- 备注:门在 agent 会话的正确形态 = deny + 对话内确认(ask 会被静默放行,见「遗留」根因条目);终端 harness 中其余四条 ask 规则仍会弹窗
 
 ## Codex 端(Task 9)
 
