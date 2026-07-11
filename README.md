@@ -10,6 +10,7 @@
 ![Go](https://img.shields.io/badge/Go-1.23%2B-00ADD8?logo=go&logoColor=white)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20·%20macOS%20·%20Linux-8a8a8a)
 ![Deps](https://img.shields.io/badge/dependencies-zero-2ea44f)
+[![License](https://img.shields.io/github/license/gloamere/Tessera?color=blue)](LICENSE)
 
 </div>
 
@@ -124,5 +125,9 @@ make dist                              # 交叉编译全平台 → dist/ + check
 - [部署手册](docs/DEPLOYMENT.md) —— 机器安装、项目初始化、升级与回退
 - [迁移决策](docs/decisions/go-tessera-migration.md) —— 为什么是 Go 单二进制、改名 Tessera
 - [v1 归档](legacy/README.md)
+
+## 📄 许可
+
+[MIT](LICENSE) © 2026 gloamere
 
 <div align="center"><sub>个人能力操作系统 · 当前版本 <code>v2.0.0-beta.1</code></sub></div>
