@@ -3,9 +3,10 @@
  * 不可逆操作门(spec §7.2)。零 npm 依赖:运行于插件缓存快照内。
  * 匹配是启发式 guardrail,不是安全边界(spec 已如实定性)。
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, appendFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { homedir } from 'node:os';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -82,4 +83,42 @@ export function extractCommand(payload) {
   ];
   for (const c of candidates) if (typeof c === 'string' && c.trim()) return c;
   return null;
+}
+
+// ---- CLI 入口(hook 调用) ----
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isMain) {
+  let raw = '';
+  process.stdin.setEncoding('utf8');
+  for await (const chunk of process.stdin) raw += chunk;
+
+  if (process.env.WFOS_GATE_DEBUG === '1') {
+    try {
+      const dir = join(homedir(), '.workflow-os');
+      mkdirSync(dir, { recursive: true });
+      appendFileSync(join(dir, 'gate-debug.log'), `${new Date().toISOString()} ${raw}\n`, 'utf8');
+    } catch { /* 调试日志失败不影响裁决 */ }
+  }
+
+  const platform = process.argv.includes('--platform=codex') ? 'codex' : 'claude';
+  let match = null;
+  try {
+    const payload = JSON.parse(raw);
+    const command = extractCommand(payload);
+    if (command) match = matchCommand(command, loadRules());
+  } catch { /* fail-open:门是 guardrail,解析失败不阻塞工具 */ }
+
+  if (match) {
+    const reason = `[wfos 门] ${match.description}(规则 ${match.id})。请确认后再执行。`;
+    const action = match[platform];
+    if (platform === 'claude' && action === 'ask') {
+      process.stdout.write(JSON.stringify({
+        hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'ask', permissionDecisionReason: reason },
+      }));
+    } else if (platform === 'codex' && action === 'deny') {
+      process.stderr.write(reason);
+      process.exitCode = 2;
+    }
+    // codex 'native':不裁决 → 原生审批
+  }
 }
