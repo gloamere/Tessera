@@ -1,0 +1,53 @@
+# M1 冒烟结果(Task 8/9/10)
+
+日期:2026-07-11。自动化部分由 orchestrator 执行;「待人工」小节需负责人在新会话完成后回填。
+
+## Claude 端(Task 8)
+
+| 项 | 结果 |
+|---|---|
+| `claude plugin marketplace add G:/Claude/workflow-os` | ✅ Successfully added(user settings) |
+| `claude plugin install wfos-core@workflow-os --scope user` | ✅ 0.1.0, user scope |
+| `claude plugin install bd-tasks@workflow-os --scope user` | ✅ 0.1.0, user scope |
+| 缓存快照完整性 | ✅ `~/.claude/plugins/cache/workflow-os/wfos-core/0.1.0/` 含 commands/gate-rules.json/hooks(两份)/piece.yaml/scripts/skills |
+| **真实缓存路径端到端:claude ask** | ✅ `echo <force-push payload> \| node <cache>/scripts/gate.mjs --platform=claude` → 正确 ask JSON,exit 0 |
+| **WFOS_GATE_DEBUG 分支** | ✅ payload 落盘 `~/.workflow-os/gate-debug.log` |
+
+### 待人工(重启 Claude Code 后新会话)
+- [ ] skills 列表可见 wfos-core:piece-router / wfos-core:wfos-setup / bd-tasks(记录实际命名空间形式)
+- [ ] `/wfos-status`(或 `/wfos-core:wfos-status`)可执行,记录实际呼出名:______
+- [ ] 门:临时 git 仓库(无 remote)执行 `git push --force origin main` → 弹确认,理由含 force-push-protected
+- [ ] 门:`rm -rf C:\Users\Administrator\AppData\Local\Temp\wfos-gate-test`(先建目录)→ 弹确认(recursive-delete-outside)
+- [ ] 门:仓库根 `echo x >> trust.yaml` → 弹确认(self-protect)
+- [ ] 反例:`git status` → 不弹
+
+## Codex 端(Task 9)
+
+| 项 | 结果 |
+|---|---|
+| shim(M0 决策 A) | ✅ `~/.local/bin/codex.cmd` → codex-cli 0.138.0-alpha.7 |
+| `codex plugin marketplace add G:/Claude/workflow-os` | ✅ Installed marketplace root: G:\Claude\workflow-os(活引用) |
+| `codex plugin add wfos-core@workflow-os` / `bd-tasks@…` | ✅ 装入 `~/.codex/plugins/cache/workflow-os/<id>/0.1.0`(与 spec 附录 A 预测逐字一致) |
+| **skill 注入(冒烟②相关)** | ✅ `codex debug prompt-input` 的 skills 表含 `wfos-core:piece-router`、`wfos-core:wfos-setup`、`bd-tasks:bd-tasks`(带完整中文 description);plugins 表含两插件。Codex 端 skill 命名为 `插件名:skill名` |
+| **真实缓存路径端到端:codex deny** | ✅ `--platform=codex` force-push payload → stderr 理由,exit 2 |
+| commands/ 在 Codex 不生效 | 预期内(commands 为 Claude 专有;Codex 用 `$skill` 显式调用) |
+
+### 待人工(Codex Desktop 新会话)
+- [ ] 冒烟①:首次会话是否要求信任 wfos-core hooks?记录信任流程:______
+- [ ] 冒烟④:临时仓库执行 `git push --force origin main` → 应被拒绝且显示 `[wfos 门] 强推 main/master…`(若未触发→回报现象,走全局 `~/.codex/hooks.json` 回退,即冒烟②)
+- [ ] native 路径:有未提交改动时 `git reset --hard HEAD` → 应走 Codex 原生审批而非 wfos 拒绝
+
+## bd 路由验收(Task 10,待人工,任一端新会话)
+
+- [ ] 显式:`/wfos-status`(Claude)或 `$skill bd-tasks`(Codex)100% 生效
+- [ ] 隐式冒烟(记录命中,不设硬阈值):
+  1. 「记一下:回头把 README 安装节补上」→ 期望 bd q/create
+  2. 「有什么可以开工的任务?」→ 期望 bd ready
+  3. 「把这次重构拆成可跟踪的任务」→ 期望 bd create --type epic + bd dep
+  4. 「帮我看下任务 workflow-os-e3f 的详情」→ 期望 bd show
+  5. 「不知道从哪开始,帮我规划一下这个项目」→ 期望 piece-router 触发
+
+## 遗留
+
+- bd 升级 1.0.2→1.1.0 因 github.com 不可达暂缓(升级链 M2 落地后经 /wfos-upgrade 补)。
+- Codex `[features] codex_hooks` 是否需要显式开启:若冒烟④未触发再查(现 config.toml 无该项)。
