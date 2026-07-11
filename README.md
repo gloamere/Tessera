@@ -68,6 +68,5 @@ my-game/
 ## 本地验证
 
 ```powershell
-go test ./...              # 门/CLI 的 Go 测试
-node --test "tests/*.mjs"  # 剩余 hook/仓库校验(过渡期)
+go test ./...   # 门、CLI、仓库/hook 校验(全 Go)
 ```
