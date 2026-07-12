@@ -256,3 +256,71 @@ func insertRouterRow(root, id, intent string) error {
 	}
 	return os.WriteFile(path, []byte(strings.Join(out, "\n")), 0o644)
 }
+
+func Remove(root, id string, confirm bool) ([]string, error) {
+	if id == "tessera-core" {
+		return nil, fmt.Errorf("拒绝删除内核 tessera-core")
+	}
+	if !pieceRegistered(root, id) {
+		return nil, fmt.Errorf("拼图 %q 不存在", id)
+	}
+	actions := []string{
+		"删除目录 pieces/" + id + "/",
+		"从 .claude-plugin/marketplace.json 摘除 " + id,
+		"从 .agents/plugins/marketplace.json 摘除 " + id,
+		"从 piece-router 删除 " + id + " 路由行(若有)",
+	}
+	if !confirm {
+		return actions, nil
+	}
+	if err := os.RemoveAll(filepath.Join(root, "pieces", id)); err != nil {
+		return nil, err
+	}
+	cm, err := readClaudeMarket(root)
+	if err != nil {
+		return nil, err
+	}
+	kept := cm.Plugins[:0]
+	for _, p := range cm.Plugins {
+		if p.Name != id {
+			kept = append(kept, p)
+		}
+	}
+	cm.Plugins = kept
+	if err := writeClaudeMarket(root, cm); err != nil {
+		return nil, err
+	}
+	xm, err := readCodexMarket(root)
+	if err != nil {
+		return nil, err
+	}
+	xkept := xm.Plugins[:0]
+	for _, p := range xm.Plugins {
+		if p.Name != id {
+			xkept = append(xkept, p)
+		}
+	}
+	xm.Plugins = xkept
+	if err := writeCodexMarket(root, xm); err != nil {
+		return nil, err
+	}
+	return actions, removeRouterRow(root, id)
+}
+
+func removeRouterRow(root, id string) error {
+	path := routerPath(root)
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	needle := "| " + id + " |"
+	lines := strings.Split(string(b), "\n")
+	out := make([]string, 0, len(lines))
+	for _, ln := range lines {
+		if strings.Contains(ln, needle) {
+			continue
+		}
+		out = append(out, ln)
+	}
+	return os.WriteFile(path, []byte(strings.Join(out, "\n")), 0o644)
+}

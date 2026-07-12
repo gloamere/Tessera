@@ -197,3 +197,45 @@ func hasCodex(m *CodexMarket, id string) bool {
 	}
 	return false
 }
+
+func TestRemove(t *testing.T) {
+	root := tmpRepo(t)
+	New(root, NewOpts{ID: "demo", Intent: "演示意图", Desc: "演示拼图"})
+
+	// dry-run 不动文件
+	actions, err := Remove(root, "demo", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(actions) == 0 {
+		t.Fatal("dry-run 应返回动作清单")
+	}
+	if _, err := os.Stat(filepath.Join(root, "pieces", "demo")); err != nil {
+		t.Fatal("dry-run 不应删除目录")
+	}
+
+	// 确认删除,三处清干净
+	if _, err := Remove(root, "demo", true); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "pieces", "demo")); !os.IsNotExist(err) {
+		t.Fatal("目录应被删")
+	}
+	cm, _ := readClaudeMarket(root)
+	xm, _ := readCodexMarket(root)
+	if hasClaude(cm, "demo") || hasCodex(xm, "demo") {
+		t.Fatal("市集条目应被删")
+	}
+	router, _ := os.ReadFile(routerPath(root))
+	if strings.Contains(string(router), "| demo |") {
+		t.Fatal("路由行应被删")
+	}
+
+	// 保护内核 + 不存在报错
+	if _, err := Remove(root, "tessera-core", true); err == nil {
+		t.Fatal("应拒删 tessera-core")
+	}
+	if _, err := Remove(root, "nope", true); err == nil {
+		t.Fatal("不存在应报错")
+	}
+}
