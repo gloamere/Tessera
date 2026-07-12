@@ -7,13 +7,13 @@
 ```bash
 git fetch origin
 git checkout codex-dev
-git pull --ff-only origin codex-dev   # 开工前同步
+git reset --hard origin/codex-dev   # 开工前同步:Claude 摘取合并后会重置本分支,故用 reset 而非 pull
 # … 开发、提交 …
-git push origin codex-dev             # 只推到 codex-dev
+git push origin codex-dev           # 只推到 codex-dev
 ```
 
 - **不要**自己合并到 `main`。合并请求(把 `codex-dev` 合入 `main`)由 Claude 审查后统一处理。
-- `codex-dev` 落后 `main` 时(Claude 合并后会同步),`git pull` 跟上即可。
+- Claude 审查时可能**只摘取**部分改动进 `main`,再把 `codex-dev` **重置为最新 `main`**。因此 `codex-dev` 不是只进不退——开工前务必 `git reset --hard origin/codex-dev`,不要假定你上次推的提交还在。有未推的本地改动先备份再同步。
 
 ---
 
