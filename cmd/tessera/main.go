@@ -13,6 +13,7 @@ import (
 	"tessera/internal/initproject"
 	"tessera/internal/piece"
 	"tessera/internal/release"
+	"tessera/internal/repocheck"
 	"tessera/internal/setup"
 )
 
@@ -55,7 +56,10 @@ func printHelp() {
   tessera init --target <path> [--name <n>] [--dry-run]  为项目补齐骨架(只补缺)
   tessera setup [--root <path>] [--register] [--codex]   安装:注册能力市集(默认 dry-run)
   tessera doctor                                         仓库/安装环境体检
-  tessera piece list                                     列出拼图与外部依赖
+  tessera piece list                                    列出拼图与外部依赖
+  tessera piece new <id> [--skill n][--intent …][--desc …]  脚手架新拼图 + 登记两市集
+  tessera piece rm <id> [--yes]                         删拼图(默认 dry-run)
+  tessera piece bump <id> <version>                     同步升三处 version
   tessera update [--version <tag>] [--root <path>]       下载校验并替换二进制(默认 latest)
   tessera version                                        打印版本
 `)
@@ -176,11 +180,28 @@ func binaryName() string {
 // ---- piece ----
 
 func runPiece(args []string) int {
-	if len(args) == 0 || args[0] != "list" {
-		fmt.Fprintln(os.Stderr, "用法:tessera piece list")
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "用法:tessera piece list|new|rm|bump")
 		return 2
 	}
-	pieces, err := piece.List(repoRoot())
+	root := repoRoot()
+	switch args[0] {
+	case "list":
+		return runPieceList(root)
+	case "new":
+		return runPieceNew(root, args[1:])
+	case "rm":
+		return runPieceRm(root, args[1:])
+	case "bump":
+		return runPieceBump(root, args[1:])
+	default:
+		fmt.Fprintln(os.Stderr, "用法:tessera piece list|new|rm|bump")
+		return 2
+	}
+}
+
+func runPieceList(root string) int {
+	pieces, err := piece.List(root)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "piece list:"+err.Error())
 		return 1
@@ -200,6 +221,95 @@ func runPiece(args []string) int {
 		fmt.Println("(无拼图)")
 	}
 	return 0
+}
+
+// reportMarkets 打印 repocheck 结果,供 new/rm/bump 收尾复用。
+func reportMarkets(root string) int {
+	if err := repocheck.CheckMarketplaces(root); err != nil {
+		fmt.Fprintln(os.Stderr, "✗ 市集校验失败:"+err.Error())
+		return 1
+	}
+	fmt.Println("✓ 市集一致")
+	return 0
+}
+
+func runPieceNew(root string, args []string) int {
+	var o piece.NewOpts
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "用法:tessera piece new <id> [--skill <n>] [--intent \"…\"] [--desc \"…\"]")
+		return 2
+	}
+	o.ID = args[0]
+	for i := 1; i < len(args); i++ {
+		switch args[i] {
+		case "--skill":
+			if i+1 < len(args) {
+				o.Skill = args[i+1]
+				i++
+			}
+		case "--intent":
+			if i+1 < len(args) {
+				o.Intent = args[i+1]
+				i++
+			}
+		case "--desc":
+			if i+1 < len(args) {
+				o.Desc = args[i+1]
+				i++
+			}
+		}
+	}
+	added, err := piece.New(root, o)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "piece new:"+err.Error())
+		return 1
+	}
+	fmt.Printf("✓ 已创建拼图 %s(pieces/%s/)\n", o.ID, o.ID)
+	if !added {
+		fmt.Println("提醒:未加路由行——请手动在 piece-router 补一行,或重跑时带 --intent")
+	}
+	return reportMarkets(root)
+}
+
+func runPieceRm(root string, args []string) int {
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "用法:tessera piece rm <id> [--yes]")
+		return 2
+	}
+	id := args[0]
+	confirm := false
+	for _, a := range args[1:] {
+		if a == "--yes" {
+			confirm = true
+		}
+	}
+	actions, err := piece.Remove(root, id, confirm)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "piece rm:"+err.Error())
+		return 1
+	}
+	if !confirm {
+		fmt.Println("dry-run,将执行(加 --yes 生效):")
+		for _, a := range actions {
+			fmt.Println("  - " + a)
+		}
+		return 0
+	}
+	fmt.Printf("✓ 已删除拼图 %s\n", id)
+	return reportMarkets(root)
+}
+
+func runPieceBump(root string, args []string) int {
+	if len(args) < 2 {
+		fmt.Fprintln(os.Stderr, "用法:tessera piece bump <id> <version>")
+		return 2
+	}
+	if err := piece.Bump(root, args[0], args[1]); err != nil {
+		fmt.Fprintln(os.Stderr, "piece bump:"+err.Error())
+		return 1
+	}
+	fmt.Printf("✓ %s 版本 → %s\n", args[0], args[1])
+	return reportMarkets(root)
 }
 
 // ---- 根目录解析 ----
