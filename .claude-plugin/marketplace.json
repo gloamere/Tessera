@@ -12,14 +12,14 @@
       "name": "tessera-core",
       "source": "./pieces/tessera-core",
       "description": "内核:路由兜底、安装引导、状态查看",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "strict": true
     },
     {
       "name": "bd-tasks",
       "source": "./pieces/bd-tasks",
       "description": "任务追踪:bd CLI 路由",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "strict": true
     },
     {

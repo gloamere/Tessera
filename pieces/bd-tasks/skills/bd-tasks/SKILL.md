@@ -1,6 +1,6 @@
 ---
 name: bd-tasks
-description: 任何"记任务、拆任务、领任务、关任务、查任务、依赖、epic、待办、backlog、回头再做"类意图时使用。任务追踪一律走 bd (beads) CLI——禁止 TodoWrite、禁止 markdown TODO 列表。
+description: 用户明确要持久任务追踪、依赖图或跨会话协作时使用:路由到 bd (Beads) CLI。
 ---
 
 # bd 任务追踪
@@ -21,6 +21,7 @@ description: 任何"记任务、拆任务、领任务、关任务、查任务、
 
 ## 规则
 
-- 项目首次使用:先 `bd ready` 探测;报 "no beads database" 时问用户是否 `bd init`(依赖 Dolt)。
-- 会话产生的后续工作项必须落 bd,不留在对话里。
-- 提交代码前若任务完成,顺手 `bd close <id>`。
+- 会话内计划优先使用宿主 agent 的计划能力;不要为单一明确任务自动创建 bd issue。
+- 项目首次选择 Beads 时,先 `bd ready` 探测;报 "no beads database" 时问用户是否 `bd init`(依赖 Dolt)。
+- 用户明确要求追踪、任务跨会话、存在依赖图或需要协作时,才创建或更新 bd issue。
+- 若本次工作关联 bd issue,提交代码前更新或关闭它。
