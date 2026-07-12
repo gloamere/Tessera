@@ -1,6 +1,8 @@
 {
-  "name": "tessera-core",
+  "author": {
+    "name": "van"
+  },
   "description": "Tessera 内核:路由兜底、安装引导、状态查看",
-  "version": "0.1.3",
-  "author": { "name": "van" }
+  "name": "tessera-core",
+  "version": "0.1.4"
 }

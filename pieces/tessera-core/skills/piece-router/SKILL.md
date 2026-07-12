@@ -1,19 +1,38 @@
 ---
 name: piece-router
-description: 当用户提出一项工作但不明确用什么工具、涉及多种能力、或说"新项目""帮我规划""不知道怎么开始"时使用。本 skill 是 Tessera 的兜底路由表:把意图派发到正确的能力拼图。
+description: 复杂或不确定该用什么工具、涉及多种能力、或说"新项目""帮我规划""不知道怎么开始"时使用:Tessera 路由网关,选择下一块能力拼图。
 ---
 
 # 拼图派发表
 
 | 意图 | 拼图 | 调用方式 |
 |---|---|---|
-| 搜索、调研、查资料、读 URL、看某平台讨论 | agent-reach | Skill 工具调用 agent-reach,二级路由看其 SKILL.md |
-| UI/视觉设计评审、审美判断、反套路自检 | taste | Skill 工具调用 taste |
-| 写代码、改功能、修 bug | superpowers 流程链 | brainstorming → writing-plans → 实现 → verification |
+| 搜索、调研、查资料、读 URL、看某平台讨论 | agent-reach | 已装于 ~/.claude/skills;Codex 端安装未验证,不可用则如实说明,不假定可调用 |
+| UI/视觉设计评审、审美判断、反套路自检 | taste | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
+| 写代码、改功能、修 bug | superpowers 流程链 | brainstorming → writing-plans → 实现 → verification;不可用则如实说明 |
 | 任务/待办/拆解/追踪 | bd-tasks | 直接执行 bd 命令(见 bd-tasks skill) |
-| 记笔记、整理知识、建/查知识库 | knowledge-base | Skill 工具调用 knowledge-base |
-| 游戏/内容/产品方案策划(非写代码) | planner | Skill 工具调用 planner |
+| 记笔记、整理知识、建/查知识库 | knowledge-base | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
+| 游戏/内容/产品方案策划(非写代码) | planner | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
 | 拼图状态/安装/升级 | tessera-core 自身 | tessera-status、tessera-setup skill |
+
+**如实交代状态**:未安装、未验证或规划中的目标只能说明其状态,不能伪装成已安装、可直接调用的 skill/CLI。
+
+## 先选执行层级
+
+1. **单一、明确、低风险**:当前 agent 直接完成,不为小改动强制进入路由或专业拼图。
+2. **已安装且明显更专业的拼图更合适**:直接调用该拼图;仅当质量收益大于额外 token 与等待时间时才调。
+3. **模糊、复合或跨领域**:用本 skill 路由识别意图、选下一步。
+4. **可拆成独立子任务的复杂工作**:宿主支持时按下节「条件委派」委派,主 agent 汇总。
+
+## 条件委派子代理
+
+复杂 ≠ 自动多代理。仅当**当前宿主确实提供委派/子代理能力**且同时满足:
+
+1. 能拆成至少两个输入、输出、写入面相互独立的子任务;
+2. 并行节省的时间或专业收益,大于任务说明、汇总与上下文切换成本;
+3. 不涉及负责人拍板、外部安装、不可逆操作或同一文件并发修改。
+
+满足时:主 agent 先写清每个子任务的目标、范围、输入、验收与禁止修改项;最多并行 3 个;主 agent 负责汇总、冲突处理、验证与最终交付。任一条件不满足、宿主无委派能力或任务高度串行时,退回直接执行或调用已安装的专业 skill。
 
 ## 硬规则(必须遵守)
 
@@ -22,4 +41,4 @@ description: 当用户提出一项工作但不明确用什么工具、涉及多�
 
 ## 多意图命中
 
-命中多块拼图时,先用 AskUserQuestion 让用户选;零命中时正常工作,不硬套拼图。
+命中多块拼图时,先用 AskUserQuestion 让用户选;零命中时正常工作,不硬套拼图。路由决策以净收益为准:质量提升必须大于额外 token、调用延迟与上下文切换成本。
