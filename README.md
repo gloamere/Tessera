@@ -90,6 +90,44 @@ flowchart LR
 
 这张图表达的是当前行为，而非路线图承诺：候选后端或 MCP 只有在完成安装与验证后才会进入执行层；否则路由网关保留透明降级路径。
 
+## 🧩 默认拼图清单
+
+下列 6 块拼图默认出现在 Tessera 市集；“默认提供”不等于静默安装。除 `tessera-core` 外，其余拼图均按项目需要安装和启用。
+
+| 拼图 | 类型 | 解决什么问题 | Codex 状态 | 额外条件 |
+|---|---|---|---|---|
+| `tessera-core` | Skill | 模糊任务路由、安装引导、状态查看 | 原生支持 | 无 |
+| `bd-tasks` | CLI wrapper | 持久任务、依赖图、跨会话跟进 | 原生支持 | 仅明确需要时使用；需 `bd`/Beads |
+| `taste` | Skill | UI、视觉、排版与文案的审美评审 | 原生支持 | 无 |
+| `knowledge-base` | Skill | Markdown 笔记、双链、知识沉淀与索引 | 原生支持 | 无 |
+| `planner` | Skill | 游戏、内容与产品方案的策划和拍板材料 | 原生支持 | 无 |
+| `serena` | MCP server | 符号级检索、引用查找与跨文件重构 | MCP 支持 | 需 `uv`、Serena 安装及 MCP 注册 |
+
+外部候选如 `superpowers`、`agent-reach`、Playwright MCP、GitHub MCP 不属于默认拼图。它们只有在对应平台安装方式得到验证、并由用户确认后才会进入工作流。
+
+## 🛠️ 当前功能总览
+
+### 面向使用者
+
+| 功能 | 入口 | 行为 |
+|---|---|---|
+| 任务路由 | 自然语言提出复杂或跨领域任务 | `piece-router` 在直接执行、专业拼图、条件子代理与透明降级之间选择 |
+| 专业能力调用 | UI 评审、知识整理、方案策划、持久任务、语义代码理解 | 调用已安装且收益明显高于额外 token/等待成本的拼图 |
+| 条件子代理 | 可拆分的复杂任务 | 宿主支持时最多并行 3 个独立子任务；主 Agent 负责汇总、验证和交付 |
+| 拼图安装 | “安装拼图”或 `tessera setup` | 展示可选能力与依赖；外部安装必须经用户确认 |
+| 环境状态 | “tessera status” | 查看已安装拼图、版本和外部依赖状态 |
+| 项目初始化 | `tessera init --target <path>` | 只补缺地创建项目知识库与决策骨架，不覆盖已有文件 |
+
+### 面向维护者
+
+| 功能 | 命令 | 用途 |
+|---|---|---|
+| 市集注册与安装 | `codex plugin marketplace add ./`、`codex plugin add <piece>@tessera` | 让 Codex 读取本地 Tessera 拼图 |
+| 拼图清单 | `tessera piece list` | 查看本地拼图及其外部依赖声明 |
+| 环境体检 | `tessera doctor` | 检查仓库和安装环境 |
+| 安全门/自检 | `tessera gate`、`tessera selftest` | 兼容现有门策略与内置断言 |
+| 版本更新 | `tessera update` | 下载、校验并替换 CLI 二进制 |
+
 ## ✨ 特性
 
 | | |
