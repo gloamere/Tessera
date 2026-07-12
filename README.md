@@ -20,6 +20,76 @@
 
 核心是一个**零第三方依赖的 Go 单二进制** `tessera`:能力市集安装器、项目脚手架、状态体检工具,全部收在一个可执行文件里。项目的事实、决策与研究仍留在项目自己的 Markdown 里;拼图只负责组织与执行辅助。
 
+## 🗺️ 最新执行流程
+
+```mermaid
+flowchart LR
+    U(["用户任务"])
+
+    subgraph Intake["① 任务判断"]
+        D{"单一、明确、低风险？"}
+        R["Tessera 路由网关<br/>piece-router"]
+    end
+
+    subgraph Execution["② 选择执行层"]
+        Direct["主 Agent 直接完成"]
+        Skill["调用已安装的专业拼图<br/>taste · planner · knowledge-base · serena"]
+        Split{"可拆为独立子任务，<br/>且并行收益大于协调成本？"}
+        Parallel["最多并行 3 个子代理<br/>主 Agent 汇总、验证、交付"]
+        Serial["主 Agent 串行完成<br/>或调用单一专业 skill"]
+        Tasks["bd-tasks / Beads<br/>仅明确持久追踪、依赖或跨会话时"]
+    end
+
+    subgraph Capability["③ 拼图与能力状态"]
+        Core["tessera-core<br/>状态 · 安装 · 路由"]
+        Optional["本地可选拼图<br/>按需安装"]
+        External["外部 / MCP 候选<br/>先检查安装与验证状态"]
+        Honest["未安装、未验证或未集成<br/>如实说明，不伪装可调用"]
+    end
+
+    subgraph Guardrails["全程边界"]
+        Guard["负责人拍板 · 外部安装确认<br/>不可逆操作确认 · 写入面隔离"]
+    end
+
+    U --> D
+    D -- "是" --> Direct
+    D -- "否 / 跨领域 / 不确定" --> R
+    R --> Core
+    R --> Optional
+    R --> External
+    Optional --> Skill
+    External -- "已验证且已配置" --> Skill
+    External -- "未验证或未安装" --> Honest
+    R --> Split
+    Split -- "是" --> Parallel
+    Split -- "否" --> Serial
+    R -- "明确要求持久追踪" --> Tasks
+    Core -. "状态检查 / 安装引导" .-> Optional
+    Direct -.-> Guard
+    Skill -.-> Guard
+    Parallel -.-> Guard
+    Serial -.-> Guard
+    Tasks -.-> Guard
+
+    classDef entry fill:#1f6feb,color:#ffffff,stroke:#1f6feb,stroke-width:2px;
+    classDef decision fill:#fff8c5,color:#24292f,stroke:#bf8700,stroke-width:2px;
+    classDef core fill:#ddf4ff,color:#0a3069,stroke:#54aeff,stroke-width:2px;
+    classDef execute fill:#dafbe1,color:#116329,stroke:#4ac26b,stroke-width:2px;
+    classDef optional fill:#f6f8fa,color:#57606a,stroke:#8c959f,stroke-width:1px;
+    classDef warning fill:#ffebe9,color:#82071e,stroke:#ff8182,stroke-width:2px;
+    classDef guard fill:#fbefff,color:#6639ba,stroke:#d2a8ff,stroke-width:2px;
+
+    class U entry;
+    class D,Split decision;
+    class R,Core core;
+    class Direct,Skill,Parallel,Serial,Tasks execute;
+    class Optional,External optional;
+    class Honest warning;
+    class Guard guard;
+```
+
+这张图表达的是当前行为，而非路线图承诺：候选后端或 MCP 只有在完成安装与验证后才会进入执行层；否则路由网关保留透明降级路径。
+
 ## ✨ 特性
 
 | | |
