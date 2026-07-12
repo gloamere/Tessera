@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 type ClaudePlugin struct {
@@ -131,4 +132,127 @@ func setPluginVersion(root, id, sub, version string) error {
 	vb, _ := json.Marshal(version)
 	m["version"] = vb
 	return writeJSON(path, m)
+}
+
+type NewOpts struct {
+	ID     string
+	Skill  string
+	Intent string
+	Desc   string
+}
+
+func New(root string, o NewOpts) (bool, error) {
+	if o.ID == "" {
+		return false, fmt.Errorf("需要拼图 id")
+	}
+	if o.Skill == "" {
+		o.Skill = o.ID
+	}
+	if o.Desc == "" {
+		o.Desc = o.ID + " 拼图"
+	}
+	if pieceRegistered(root, o.ID) {
+		return false, fmt.Errorf("拼图 %q 已存在", o.ID)
+	}
+
+	pieceYAML := "id: " + o.ID + "\nkind: skill\nsummary: " + o.Desc + "\nwhen_to_use:\n  - <填写触发意图>\navoid_when: <填写不适用场景>\nplatforms: { claude: native, codex: native, gemini: snippet, domestic: snippet }\nexternal_deps: []\nupgrade_policy: notify-only\n"
+	claudePlugin := "{\n  \"name\": \"" + o.ID + "\",\n  \"description\": \"" + o.Desc + "\",\n  \"version\": \"0.1.0\",\n  \"author\": { \"name\": \"van\" }\n}\n"
+	codexPlugin := "{\n  \"name\": \"" + o.ID + "\",\n  \"description\": \"" + o.Desc + "\",\n  \"version\": \"0.1.0\",\n  \"skills\": \"./skills/\"\n}\n"
+	skillMD := "---\nname: " + o.Skill + "\ndescription: <一句话:何时触发本 skill,决定路由>\n---\n\n# " + o.Skill + "\n\n<方法论正文>\n"
+
+	writes := []struct{ rel, body string }{
+		{filepath.Join("pieces", o.ID, "piece.yaml"), pieceYAML},
+		{filepath.Join("pieces", o.ID, ".claude-plugin", "plugin.json"), claudePlugin},
+		{filepath.Join("pieces", o.ID, ".codex-plugin", "plugin.json"), codexPlugin},
+		{filepath.Join("pieces", o.ID, "skills", o.Skill, "SKILL.md"), skillMD},
+	}
+	for _, w := range writes {
+		p := filepath.Join(root, w.rel)
+		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+			return false, err
+		}
+		if err := os.WriteFile(p, []byte(w.body), 0o644); err != nil {
+			return false, err
+		}
+	}
+
+	cm, err := readClaudeMarket(root)
+	if err != nil {
+		return false, err
+	}
+	cm.Plugins = append(cm.Plugins, ClaudePlugin{
+		Name: o.ID, Source: "./pieces/" + o.ID, Description: o.Desc, Version: "0.1.0", Strict: true,
+	})
+	if err := writeClaudeMarket(root, cm); err != nil {
+		return false, err
+	}
+	xm, err := readCodexMarket(root)
+	if err != nil {
+		return false, err
+	}
+	xm.Plugins = append(xm.Plugins, CodexPlugin{
+		Name:     o.ID,
+		Source:   CodexSource{Source: "local", Path: "./pieces/" + o.ID},
+		Policy:   CodexPolicy{Installation: "AVAILABLE", Authentication: "ON_INSTALL"},
+		Category: "Productivity",
+	})
+	if err := writeCodexMarket(root, xm); err != nil {
+		return false, err
+	}
+
+	if o.Intent != "" {
+		if err := insertRouterRow(root, o.ID, o.Intent); err != nil {
+			return false, err
+		}
+		return true, nil
+	}
+	return false, nil
+}
+
+func pieceRegistered(root, id string) bool {
+	if _, err := os.Stat(filepath.Join(root, "pieces", id)); err == nil {
+		return true
+	}
+	if cm, err := readClaudeMarket(root); err == nil {
+		for _, p := range cm.Plugins {
+			if p.Name == id {
+				return true
+			}
+		}
+	}
+	if xm, err := readCodexMarket(root); err == nil {
+		for _, p := range xm.Plugins {
+			if p.Name == id {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func routerPath(root string) string {
+	return filepath.Join(root, "pieces", "tessera-core", "skills", "piece-router", "SKILL.md")
+}
+
+func insertRouterRow(root, id, intent string) error {
+	path := routerPath(root)
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	row := "| " + intent + " | " + id + " | Skill 工具调用 " + id + " |"
+	lines := strings.Split(string(b), "\n")
+	out := make([]string, 0, len(lines)+1)
+	inserted := false
+	for _, ln := range lines {
+		if !inserted && strings.Contains(ln, "tessera-core 自身") {
+			out = append(out, row)
+			inserted = true
+		}
+		out = append(out, ln)
+	}
+	if !inserted {
+		return fmt.Errorf("piece-router 未找到 tessera-core 自路由行,无法定位插入点")
+	}
+	return os.WriteFile(path, []byte(strings.Join(out, "\n")), 0o644)
 }

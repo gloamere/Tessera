@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -136,4 +137,63 @@ func TestBumpSyncsThreeVersions(t *testing.T) {
 	if err := Bump(root, "nope", "0.2.0"); err == nil {
 		t.Fatal("不存在的 id 应报错")
 	}
+}
+
+func TestNewScaffoldsAndRegisters(t *testing.T) {
+	root := tmpRepo(t)
+	added, err := New(root, NewOpts{ID: "demo", Intent: "演示意图", Desc: "演示拼图"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !added {
+		t.Fatal("给了 intent 应插路由行")
+	}
+	for _, rel := range []string{
+		"pieces/demo/piece.yaml",
+		"pieces/demo/.claude-plugin/plugin.json",
+		"pieces/demo/.codex-plugin/plugin.json",
+		"pieces/demo/skills/demo/SKILL.md",
+	} {
+		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel))); err != nil {
+			t.Fatalf("缺文件 %s", rel)
+		}
+	}
+	cm, _ := readClaudeMarket(root)
+	xm, _ := readCodexMarket(root)
+	if !hasClaude(cm, "demo") || !hasCodex(xm, "demo") {
+		t.Fatal("两市集应各多一条 demo")
+	}
+	router, _ := os.ReadFile(filepath.Join(root, "pieces", "tessera-core", "skills", "piece-router", "SKILL.md"))
+	if !strings.Contains(string(router), "| 演示意图 | demo |") {
+		t.Fatal("路由行未插入")
+	}
+	// 无 intent:不插行,routerAdded=false
+	added2, err := New(root, NewOpts{ID: "quiet"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if added2 {
+		t.Fatal("无 intent 不应插路由行")
+	}
+	// 重复拒绝
+	if _, err := New(root, NewOpts{ID: "demo"}); err == nil {
+		t.Fatal("重复 id 应报错")
+	}
+}
+
+func hasClaude(m *ClaudeMarket, id string) bool {
+	for _, p := range m.Plugins {
+		if p.Name == id {
+			return true
+		}
+	}
+	return false
+}
+func hasCodex(m *CodexMarket, id string) bool {
+	for _, p := range m.Plugins {
+		if p.Name == id {
+			return true
+		}
+	}
+	return false
 }
