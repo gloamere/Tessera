@@ -13,6 +13,7 @@ description: 复杂或不确定该用什么工具、涉及多种能力、或说"
 | 持久任务追踪/依赖图/跨会话跟进 | bd-tasks | 用户明确要求或跨会话时,已安装则执行 bd,否则提示先经 tessera-setup 安装 |
 | 记笔记、整理知识、建/查知识库 | knowledge-base | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
 | 游戏/内容/产品方案策划(非写代码) | planner | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
+| 符号级代码检索/引用查找/跨文件重构/陌生大仓库理解 | serena | 外部 MCP:先 /mcp 查是否已挂,未挂则按 serena skill 给两端安装命令,不假定工具已可用 |
 | 拼图状态/安装/升级 | tessera-core 自身 | tessera-status、tessera-setup skill |
 
 **如实交代状态**:未安装、未验证或规划中的目标只能说明其状态,不能伪装成已安装、可直接调用的 skill/CLI。

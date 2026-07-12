@@ -1,0 +1,8 @@
+{
+  "name": "serena",
+  "description": "语义代码 MCP 工具(符号级检索与编辑)",
+  "version": "0.1.0",
+  "author": {
+    "name": "van"
+  }
+}

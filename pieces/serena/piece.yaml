@@ -1,0 +1,17 @@
+id: serena
+kind: mcp-server
+summary: 语义代码 MCP 工具(符号级检索/引用/跨文件重构),经 MCP 挂到 Claude Code 与 Codex。
+when_to_use:
+  - 大型/陌生代码库按符号找定义、引用、跨文件重构
+  - 需要语义级(非纯文本)代码理解与精确符号编辑
+avoid_when: 小改动、单文件、宿主自带 read/grep/edit 已够
+platforms: { claude: mcp, codex: mcp, gemini: unsupported, domestic: unsupported }
+external_deps:
+  - name: serena
+    kind: mcp-server
+    prereq: uv
+    install: "uv tool install -p 3.13 serena-agent"
+    register_claude: "claude mcp add --scope user serena -- serena start-mcp-server --context claude-code --project-from-cwd"
+    register_codex: "serena setup codex  # 或手写 ~/.codex/config.toml 的 [mcp_servers.serena]"
+    trust_ref: serena
+upgrade_policy: notify-only

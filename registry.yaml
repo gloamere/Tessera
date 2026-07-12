@@ -29,3 +29,18 @@ external:
     status: not-integrated
     per_platform:
       any: "隔离调用:pip install crewai,子进程方式"
+
+  # --- 候选 MCP 拼图:两端原生支持,值得作 mcp-server 拼图落地(见 serena 试点 + tessera-mcp-piece-kind 决策)---
+  - id: playwright-mcp
+    kind: mcp-candidate
+    summary: 微软官方 Playwright MCP;给 agent Web 能力(MCP 原生,优于 browser-use 子进程)。
+    status: not-integrated
+    per_platform:
+      claude: "claude mcp add playwright -- npx @playwright/mcp@latest"
+      codex: "~/.codex/config.toml 加 [mcp_servers.playwright]"
+  - id: github-mcp-server
+    kind: mcp-candidate
+    summary: GitHub 官方 MCP;让 agent 操作仓库/PR/issue。
+    status: not-integrated
+    per_platform:
+      any: "官方 github-mcp-server,按其 README 在两端注册 MCP"
