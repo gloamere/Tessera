@@ -1,0 +1,6 @@
+{
+  "name": "taste",
+  "description": "审美拼图:UI/视觉/文案评审,反套路化输出",
+  "version": "0.1.0",
+  "skills": "./skills/"
+}

@@ -13,6 +13,24 @@
       "source": { "source": "local", "path": "./pieces/bd-tasks" },
       "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
       "category": "Productivity"
+    },
+    {
+      "name": "taste",
+      "source": { "source": "local", "path": "./pieces/taste" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    },
+    {
+      "name": "knowledge-base",
+      "source": { "source": "local", "path": "./pieces/knowledge-base" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    },
+    {
+      "name": "planner",
+      "source": { "source": "local", "path": "./pieces/planner" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
     }
   ]
 }

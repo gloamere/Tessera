@@ -1,0 +1,13 @@
+id: knowledge-base
+kind: skill
+summary: 个人知识库拼图:用 markdown + 双链记录、组织、检索知识,不引入重型 RAG。
+when_to_use:
+  - 记笔记、整理某主题资料、建知识卡片
+  - 把散落信息沉淀成可复用的结构化笔记
+  - 在已有笔记间建立关联 / 索引
+avoid_when: 一次性问答、无需沉淀的临时信息
+platforms: { claude: native, codex: native, gemini: snippet, domestic: snippet }
+external_deps: []
+inspired_by:
+  - kepano/obsidian-skills    # Obsidian 官方作者的知识操作技能
+upgrade_policy: notify-only
