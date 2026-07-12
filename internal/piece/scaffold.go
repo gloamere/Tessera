@@ -3,8 +3,10 @@ package piece
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 type ClaudePlugin struct {
@@ -84,4 +86,49 @@ func writeJSON(path string, v any) error {
 	}
 	b = append(b, '\n')
 	return os.WriteFile(path, b, 0o644)
+}
+
+var reSemver = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+
+func Bump(root, id, version string) error {
+	if !reSemver.MatchString(version) {
+		return fmt.Errorf("版本号非法(需 X.Y.Z):%s", version)
+	}
+	cm, err := readClaudeMarket(root)
+	if err != nil {
+		return err
+	}
+	found := false
+	for i := range cm.Plugins {
+		if cm.Plugins[i].Name == id {
+			cm.Plugins[i].Version = version
+			found = true
+		}
+	}
+	if !found {
+		return fmt.Errorf("拼图 %q 不在 claude marketplace", id)
+	}
+	if err := setPluginVersion(root, id, ".claude-plugin", version); err != nil {
+		return err
+	}
+	if err := setPluginVersion(root, id, ".codex-plugin", version); err != nil {
+		return err
+	}
+	return writeClaudeMarket(root, cm)
+}
+
+// setPluginVersion 改 plugin.json 的 version,保住其余字段。
+func setPluginVersion(root, id, sub, version string) error {
+	path := filepath.Join(root, "pieces", id, sub, "plugin.json")
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(b, &m); err != nil {
+		return err
+	}
+	vb, _ := json.Marshal(version)
+	m["version"] = vb
+	return writeJSON(path, m)
 }

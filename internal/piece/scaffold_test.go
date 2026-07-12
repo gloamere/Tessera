@@ -86,3 +86,54 @@ func TestMarketRoundTripPreservesTopLevel(t *testing.T) {
 		t.Fatal("codex interface 字段丢失")
 	}
 }
+
+func seedPiece(t *testing.T, root, id string) {
+	t.Helper()
+	mustWrite(t, filepath.Join(root, "pieces", id, ".claude-plugin", "plugin.json"),
+		`{"name":"`+id+`","description":"d","version":"0.1.0","author":{"name":"van"}}`+"\n")
+	mustWrite(t, filepath.Join(root, "pieces", id, ".codex-plugin", "plugin.json"),
+		`{"name":"`+id+`","description":"d","version":"0.1.0","skills":"./skills/"}`+"\n")
+}
+
+func pluginVersion(t *testing.T, root, id, sub string) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join(root, "pieces", id, sub, "plugin.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m map[string]any
+	if err := json.Unmarshal(b, &m); err != nil {
+		t.Fatal(err)
+	}
+	return m["version"].(string)
+}
+
+func TestBumpSyncsThreeVersions(t *testing.T) {
+	root := tmpRepo(t)
+	seedPiece(t, root, "demo")
+	cm, _ := readClaudeMarket(root)
+	cm.Plugins = append(cm.Plugins, ClaudePlugin{Name: "demo", Source: "./pieces/demo", Description: "d", Version: "0.1.0", Strict: true})
+	writeClaudeMarket(root, cm)
+
+	if err := Bump(root, "demo", "0.2.0"); err != nil {
+		t.Fatal(err)
+	}
+	if v := pluginVersion(t, root, "demo", ".claude-plugin"); v != "0.2.0" {
+		t.Fatalf("claude plugin.json = %s", v)
+	}
+	if v := pluginVersion(t, root, "demo", ".codex-plugin"); v != "0.2.0" {
+		t.Fatalf("codex plugin.json = %s", v)
+	}
+	cm2, _ := readClaudeMarket(root)
+	for _, p := range cm2.Plugins {
+		if p.Name == "demo" && p.Version != "0.2.0" {
+			t.Fatalf("marketplace = %s", p.Version)
+		}
+	}
+	if err := Bump(root, "demo", "bad"); err == nil {
+		t.Fatal("非法版本应报错")
+	}
+	if err := Bump(root, "nope", "0.2.0"); err == nil {
+		t.Fatal("不存在的 id 应报错")
+	}
+}
