@@ -2,18 +2,18 @@
 
 ## ⚠️ 分支工作流(Codex 必读)
 
-**在 `codex-dev` 分支上开发,不要直接提交到 `main`,也不要动其它分支。**
+**统一在 `main` 分支开发与同步。**
 
 ```bash
 git fetch origin
-git checkout codex-dev
-git reset --hard origin/codex-dev   # 开工前同步:Claude 摘取合并后会重置本分支,故用 reset 而非 pull
+git checkout main
+git pull --ff-only origin main
 # … 开发、提交 …
-git push origin codex-dev           # 只推到 codex-dev
+git push origin main
 ```
 
-- **不要**自己合并到 `main`。合并请求(把 `codex-dev` 合入 `main`)由 Claude 审查后统一处理。
-- Claude 审查时可能**只摘取**部分改动进 `main`,再把 `codex-dev` **重置为最新 `main`**。因此 `codex-dev` 不是只进不退——开工前务必 `git reset --hard origin/codex-dev`,不要假定你上次推的提交还在。有未推的本地改动先备份再同步。
+- `main` 是唯一工作分支与事实来源；不要创建或依赖 `codex-dev`。
+- 开工前先同步 `main`。有未提交改动时先确认其归属，不要用重置命令覆盖它。
 
 ---
 
