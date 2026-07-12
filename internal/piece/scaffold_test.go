@@ -239,3 +239,33 @@ func TestRemove(t *testing.T) {
 		t.Fatal("不存在应报错")
 	}
 }
+
+func TestNewEscapesAndValidates(t *testing.T) {
+	root := tmpRepo(t)
+	if _, err := New(root, NewOpts{ID: "demo2", Desc: `a "b" c`}); err != nil {
+		t.Fatal(err)
+	}
+	for _, sub := range []string{".claude-plugin", ".codex-plugin"} {
+		b, err := os.ReadFile(filepath.Join(root, "pieces", "demo2", sub, "plugin.json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var m map[string]any
+		if err := json.Unmarshal(b, &m); err != nil {
+			t.Fatalf("%s plugin.json 非法 JSON: %v", sub, err)
+		}
+		if m["description"] != `a "b" c` {
+			t.Fatalf("%s description 未如实转义: %v", sub, m["description"])
+		}
+	}
+	yb, _ := os.ReadFile(filepath.Join(root, "pieces", "demo2", "piece.yaml"))
+	if !strings.Contains(string(yb), `summary: "a \"b\" c"`) {
+		t.Fatalf("piece.yaml summary 未转义:\n%s", yb)
+	}
+	if _, err := New(root, NewOpts{ID: "../evil"}); err == nil {
+		t.Fatal("路径穿越 id 应报错")
+	}
+	if _, err := New(root, NewOpts{ID: "Bad_ID"}); err == nil {
+		t.Fatal("非 kebab id 应报错")
+	}
+}

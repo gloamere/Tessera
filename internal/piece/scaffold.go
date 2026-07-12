@@ -90,6 +90,7 @@ func writeJSON(path string, v any) error {
 }
 
 var reSemver = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+var reID = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 
 func Bump(root, id, version string) error {
 	if !reSemver.MatchString(version) {
@@ -141,6 +142,19 @@ type NewOpts struct {
 	Desc   string
 }
 
+type claudePluginManifest struct {
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Version     string            `json:"version"`
+	Author      map[string]string `json:"author"`
+}
+type codexPluginManifest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Version     string `json:"version"`
+	Skills      string `json:"skills"`
+}
+
 func New(root string, o NewOpts) (bool, error) {
 	if o.ID == "" {
 		return false, fmt.Errorf("需要拼图 id")
@@ -151,13 +165,29 @@ func New(root string, o NewOpts) (bool, error) {
 	if o.Desc == "" {
 		o.Desc = o.ID + " 拼图"
 	}
+	if !reID.MatchString(o.ID) {
+		return false, fmt.Errorf("拼图 id 需为 kebab-case([a-z0-9] 与连字符):%s", o.ID)
+	}
+	if !reID.MatchString(o.Skill) {
+		return false, fmt.Errorf("skill 名需为 kebab-case([a-z0-9] 与连字符):%s", o.Skill)
+	}
 	if pieceRegistered(root, o.ID) {
 		return false, fmt.Errorf("拼图 %q 已存在", o.ID)
 	}
 
-	pieceYAML := "id: " + o.ID + "\nkind: skill\nsummary: " + o.Desc + "\nwhen_to_use:\n  - <填写触发意图>\navoid_when: <填写不适用场景>\nplatforms: { claude: native, codex: native, gemini: snippet, domestic: snippet }\nexternal_deps: []\nupgrade_policy: notify-only\n"
-	claudePlugin := "{\n  \"name\": \"" + o.ID + "\",\n  \"description\": \"" + o.Desc + "\",\n  \"version\": \"0.1.0\",\n  \"author\": { \"name\": \"van\" }\n}\n"
-	codexPlugin := "{\n  \"name\": \"" + o.ID + "\",\n  \"description\": \"" + o.Desc + "\",\n  \"version\": \"0.1.0\",\n  \"skills\": \"./skills/\"\n}\n"
+	summary := `"` + strings.NewReplacer(`\`, `\\`, `"`, `\"`, "\n", " ", "\r", " ").Replace(o.Desc) + `"`
+	pieceYAML := "id: " + o.ID + "\nkind: skill\nsummary: " + summary + "\nwhen_to_use:\n  - <填写触发意图>\navoid_when: <填写不适用场景>\nplatforms: { claude: native, codex: native, gemini: snippet, domestic: snippet }\nexternal_deps: []\nupgrade_policy: notify-only\n"
+
+	cb, err := json.MarshalIndent(claudePluginManifest{Name: o.ID, Description: o.Desc, Version: "0.1.0", Author: map[string]string{"name": "van"}}, "", "  ")
+	if err != nil {
+		return false, err
+	}
+	xb, err := json.MarshalIndent(codexPluginManifest{Name: o.ID, Description: o.Desc, Version: "0.1.0", Skills: "./skills/"}, "", "  ")
+	if err != nil {
+		return false, err
+	}
+	claudePlugin := string(cb) + "\n"
+	codexPlugin := string(xb) + "\n"
 	skillMD := "---\nname: " + o.Skill + "\ndescription: <一句话:何时触发本 skill,决定路由>\n---\n\n# " + o.Skill + "\n\n<方法论正文>\n"
 
 	writes := []struct{ rel, body string }{
