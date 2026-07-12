@@ -1,5 +1,22 @@
 # Agent Instructions
 
+## ⚠️ 分支工作流(Codex 必读)
+
+**在 `codex-dev` 分支上开发,不要直接提交到 `main`,也不要动其它分支。**
+
+```bash
+git fetch origin
+git checkout codex-dev
+git pull --ff-only origin codex-dev   # 开工前同步
+# … 开发、提交 …
+git push origin codex-dev             # 只推到 codex-dev
+```
+
+- **不要**自己合并到 `main`。合并请求(把 `codex-dev` 合入 `main`)由 Claude 审查后统一处理。
+- `codex-dev` 落后 `main` 时(Claude 合并后会同步),`git pull` 跟上即可。
+
+---
+
 This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
 
 ## Quick Reference
