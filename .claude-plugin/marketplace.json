@@ -40,7 +40,7 @@
       "name": "planner",
       "source": "./pieces/planner",
       "description": "策划:游戏/内容/产品方案",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "strict": true
     },
     {

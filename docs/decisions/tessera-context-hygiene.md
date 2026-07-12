@@ -17,7 +17,7 @@ review: Claude Code 修复 #14882 / #43875 / #31935 后重审
 
 - **三级渐进披露(文档设计)**:① `name`+`description` 会话启动常驻(~80–100 token/块);② SKILL.md 正文仅调用时加载;③ 引用资源按需。
 - **常驻税 = 所有已装拼图的 description 之和**,线性随已装数增长。
-- **CLAUDE.md / AGENTS.md 与拼图是不同机制**:CLAUDE.md 全文常驻;AGENTS.md 仅 Codex 常驻读(Claude Code 不自动读);拼图走渐进披露。**拼图本身不写 CLAUDE.md/AGENTS.md**;唯一注入是 `tessera init` 往目标项目 AGENTS.md 补一段带标记、幂等、~150 token 的 guidance(Codex 侧常驻,Claude Code 零成本)。无 hooks。
+- **CLAUDE.md / AGENTS.md 与拼图是不同机制**:项目说明文件与拼图的按需加载彼此独立。Tessera 的插件本身不写入用户项目的说明文件，也不使用 hooks；项目级约束由项目维护者自行维护。
 
 ## 坑(勿踩)
 

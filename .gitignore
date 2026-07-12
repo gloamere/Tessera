@@ -1,7 +1,5 @@
 node_modules/
 *.log
 .superpowers/
-pieces/*/bin/
-dist/
 .serena/
 .beads/

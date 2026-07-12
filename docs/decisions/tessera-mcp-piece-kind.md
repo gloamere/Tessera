@@ -36,4 +36,4 @@ Tessera 现有拼图类型:`skill`(纯指令,如 taste/planner)、`cli-wrapper`(
 
 ## 演进
 
-若 MCP 拼图增多且手动注册繁琐,再评估把注册做成 `tessera` 的 Go 子命令(如 `tessera piece mcp-install <id>`);当前保持文档化即可。
+若 MCP 拼图增多且手动注册繁琐，再评估提供宿主原生的安装引导或独立、可选的工具；核心插件仍保持纯 skills，不引入二进制前置依赖。当前保持文档化即可。

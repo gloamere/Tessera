@@ -1,6 +1,6 @@
 {
   "name": "planner",
   "description": "策划拼图:游戏/内容/产品方案的方向性策划(非写代码)",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "skills": "./skills/"
 }

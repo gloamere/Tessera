@@ -14,7 +14,7 @@ external:
       claude: "已装于 ~/.claude/skills/agent-reach(散装)"
       codex: "M3 评估 symlink 到 ~/.agents/skills"
 
-  # --- 候选后端:未集成。某块拼图要真干活时以子进程/CLI 隔离调用,勿编入 tessera Go 二进制(保持零依赖 + License 隔离)---
+  # --- 候选后端:未集成。某块拼图要真干活时以独立 CLI/MCP 调用，保持核心插件无常驻进程、无隐式安装。---
   - id: browser-use
     kind: backend-candidate
     summary: Web 自动化后端(浏览器操作手脚);未来 web-execute 类拼图的执行层。
