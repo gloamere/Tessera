@@ -2,7 +2,7 @@
   "author": {
     "name": "van"
   },
-  "description": "Tessera 内核:路由、安装、状态、诊断与可复跑评测",
+  "description": "Tessera 内核:动态能力解析、路由、安装、状态、诊断与评测",
   "name": "tessera-core",
-  "version": "0.1.6+codex.20260713083314"
+  "version": "0.1.6+codex.20260713090244"
 }

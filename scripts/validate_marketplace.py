@@ -10,6 +10,7 @@ import yaml
 
 from admission_score import evaluate, grade_for_score
 from doctor_status import overall_status
+from resolve_capabilities import CATALOG_STATES, RUNTIME_STATES, resolve_capabilities
 from version_status import classify_version
 
 
@@ -186,6 +187,7 @@ def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
         "tessera-status",
         "tessera-doctor",
         "tessera-eval",
+        "tessera-capabilities",
         "external-unavailable",
     }
     schema_path = ROOT / "tests" / "routing-output.schema.json"
@@ -325,6 +327,24 @@ def validate_doctor_cases(errors: list[str]) -> None:
             errors.append(f"版本状态 {versions} 期望 {expected}，实际 {actual}")
 
 
+def validate_capability_catalog(errors: list[str]) -> None:
+    for host in ("codex", "claude"):
+        try:
+            catalog = resolve_capabilities(ROOT, host, installed_plugins=set())
+        except (OSError, ValueError, yaml.YAMLError, json.JSONDecodeError) as exc:
+            errors.append(f"{host} 动态能力目录解析失败: {exc}")
+            continue
+        capabilities = catalog.get("capabilities", [])
+        ids = [item.get("id") for item in capabilities if isinstance(item, dict)]
+        if len(ids) != len(set(ids)):
+            errors.append(f"{host} 动态能力目录存在重复 id")
+        for item in capabilities:
+            if item.get("catalog_state") not in CATALOG_STATES:
+                errors.append(f"{host} 能力 {item.get('id')} catalog_state 无效")
+            if item.get("runtime_state") not in RUNTIME_STATES:
+                errors.append(f"{host} 能力 {item.get('id')} runtime_state 无效")
+
+
 def main() -> int:
     errors: list[str] = []
     try:
@@ -406,6 +426,9 @@ def main() -> int:
                     piece_dir / "commands" / "tessera-doctor.md",
                     piece_dir / "skills" / "tessera-eval" / "SKILL.md",
                     piece_dir / "commands" / "tessera-eval.md",
+                    piece_dir / "skills" / "tessera-capabilities" / "SKILL.md",
+                    piece_dir / "commands" / "tessera-capabilities.md",
+                    ROOT / "scripts" / "resolve_capabilities.py",
                     ROOT / "tests" / "routing-output.schema.json",
                 ):
                     if not required_path.is_file():
@@ -425,6 +448,7 @@ def main() -> int:
         validate_route_cases(marketplace_ids, errors)
         validate_admission_cases(errors)
         validate_doctor_cases(errors)
+        validate_capability_catalog(errors)
     except ValueError as exc:
         errors.append(str(exc))
 

@@ -26,3 +26,10 @@ jobs:
           --adapter-executable python3
           --adapter-arg tests/fixtures/fake_eval_host.py
           --output eval-results/ci-routing.json
+      - name: Resolve capability catalog
+        run: >-
+          python3 scripts/resolve_capabilities.py
+          --host codex
+          --installed-plugin tessera-core
+          --active-skill piece-router
+          --format json

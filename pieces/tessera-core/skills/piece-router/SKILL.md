@@ -5,6 +5,14 @@ description: 复杂或不确定该用什么工具、涉及多种能力、说"新
 
 # 拼图派发表
 
+## 动态能力解析
+
+派发前优先使用当前会话明确暴露的 skills 作为 active 证据。能定位 Tessera 仓库时，按 `tessera-capabilities` 的流程运行 `scripts/resolve_capabilities.py --host <host> --probe`，把会话可见 skill 逐项作为 `--active-skill` 传入。
+
+只直接调用 `runtime_state: active` 的能力；`installed` 建议新开会话，`available` 可转 `tessera-setup`，`unknown` 如实说明证据不足，`reference-only`、`unverified`、`unsupported` 不得路由。仓库或脚本不可见时退化为当前会话 skill 列表，不因无法动态解析而阻塞直接任务。
+
+下表是内置意图示例，不是安装或激活状态的事实来源：
+
 | 意图 | 拼图 | 调用方式 |
 |---|---|---|
 | 搜索、调研、查资料、读 URL、看某平台讨论 | agent-reach 或宿主原生能力 | 先按 registry 检查当前宿主可用性；不可用时如实说明并使用宿主已有能力，不假定外部 skill 可调用 |
@@ -17,6 +25,7 @@ description: 复杂或不确定该用什么工具、涉及多种能力、说"新
 | 拼图状态/安装/升级 | tessera-core 自身 | tessera-status、tessera-setup skill |
 | 全面体检/诊断 Tessera 漂移或状态矛盾 | tessera-core 自身 | tessera-doctor skill；只读检查，不自动修复 |
 | 复跑固定案例、评估路由准确率与错误类型 | tessera-core 自身 | tessera-eval skill；只判断路由，不执行案例任务 |
+| 动态列出或解释当前可用能力 | tessera-core 自身 | tessera-capabilities skill；合并会话、市集、piece、registry/trust 证据 |
 
 **如实交代状态**:未安装、未验证或规划中的目标只能说明其状态,不能伪装成已安装、可直接调用的 skill/CLI。
 

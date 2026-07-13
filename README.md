@@ -55,7 +55,7 @@ flowchart LR
 
 | 拼图 | 类型 | 用途 | 额外条件 |
 |---|---|---|---|
-| `tessera-core` | Skills | 路由与解释、安装引导、状态、升级建议、只读诊断、可复跑评测 | 无 |
+| `tessera-core` | Skills | 动态能力解析、路由与解释、安装、状态、诊断、可复跑评测 | 无 |
 | `taste` | Skill | UI、视觉、排版与文案评审 | 无 |
 | `knowledge-base` | Skill | Markdown 知识沉淀与检索 | 无 |
 | `planner` | Skill | 游戏、内容、产品方案策划 | 无 |
@@ -80,6 +80,7 @@ codex plugin list
 - “新增一个拼图” → `piece-router` 按七级准入量表先评分再建议
 - “全面体检 Tessera / tessera doctor” → `tessera-doctor`
 - “运行 tessera eval，复测路由准确率” → `tessera-eval`
+- “动态解析当前有哪些能力” → `tessera-capabilities`
 
 Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执行其自身的插件安装命令。
 
@@ -88,6 +89,7 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 | 功能 | 行为 |
 |---|---|
 | 任务路由 | 在直接执行、专业拼图、条件式子代理和透明降级之间选择 |
+| 动态能力解析 | 合并会话、市集、piece、skill、registry/trust 与宿主探测，区分目录状态和运行时状态 |
 | 专业能力调用 | 仅当质量/速度收益高于额外 token 与等待成本时调用 |
 | 条件式子代理 | 宿主支持且任务独立时，最多并行 3 个；主 Agent 负责汇总与验证 |
 | 拼图安装 | 展示选项与依赖；外部安装始终由用户确认 |
@@ -104,6 +106,7 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 
 ```powershell
 python scripts/validate_marketplace.py
+python scripts/resolve_capabilities.py --host codex --probe --format table
 python scripts/run_routing_eval.py --host codex --dry-run
 codex plugin marketplace add ./
 codex plugin add tessera-core@tessera

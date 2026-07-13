@@ -8,9 +8,9 @@ description: 当用户要"初始化工作流""安装拼图""装 Tessera""setup �
 ## 流程
 
 1. 定位市集仓库根(从当前 skill 的插件根上溯，或让用户给出 Tessera 仓库路径)，并判断当前宿主是 Codex 还是 Claude；无法判断且会影响命令时才询问。
-2. Codex 读 `.agents/plugins/marketplace.json`，Claude 读 `.claude-plugin/marketplace.json`；再读各 `pieces/<id>/piece.yaml`。`registry.yaml` 缺失时跳过外部段。
+2. 优先运行 `scripts/resolve_capabilities.py --host <host> --probe --format json`，使用动态目录作为候选单一来源。脚本不可见时才退化为读取 Codex `.agents/plugins/marketplace.json` 或 Claude `.claude-plugin/marketplace.json`，再读各 `pieces/<id>/piece.yaml`；`registry.yaml` 缺失时跳过外部段。
 3. 生成可选列表:
-   - 本地拼图：取当前宿主市集中的 id、版本(若该市集提供)与 summary。
+   - 本地拼图：只取目录中 `catalog_state: installable` 且 `runtime_state` 为 `available`、`installed` 或 `active` 的来源拼图；已安装/active 项默认不重复安装，并显示版本与状态。
    - 外部能力：仅当前宿主 `availability` 为 `installable`、存在 `trust_ref` 且能在 `trust.yaml` 找到匹配项时可选。
    - `status: not-integrated`、`kind` 以 `-candidate` 结尾、`reference-only`、`unverified`、`unsupported` 只能列入“不可安装/研究信息”，不得进入选择项。
 4. 优先使用宿主原生多选提问；不可用时输出编号列表，要求用户回复逗号分隔的拼图 id。没有用户选择不得安装。

@@ -14,6 +14,7 @@
         "tessera-status",
         "tessera-doctor",
         "tessera-eval",
+        "tessera-capabilities",
         "taste",
         "knowledge-base",
         "planner",

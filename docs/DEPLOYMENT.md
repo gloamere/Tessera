@@ -28,6 +28,7 @@ codex plugin list
 - “查看拼图和依赖状态”或“tessera status”验证 `tessera-status`。
 - “安装拼图 / setup”验证 `tessera-setup`。
 - “运行 tessera eval”验证 `tessera-eval`；评测报告默认写入 `eval-results/`。
+- “动态解析当前 Tessera 能力”验证 `tessera-capabilities`；结果必须区分 active、installed、available 与 unknown。
 
 ## Claude Code
 
@@ -44,6 +45,7 @@ codex plugin list
 ```powershell
 python -m pip install --disable-pip-version-check --requirement requirements-dev.txt
 python scripts/validate_marketplace.py
+python scripts/resolve_capabilities.py --host codex --probe --format table
 python scripts/run_routing_eval.py --host codex --dry-run
 codex plugin marketplace add ./
 codex plugin add tessera-core@tessera
@@ -58,6 +60,7 @@ codex debug prompt-input
 - “tessera status”无法证实时必须报告 `unknown`，不得把未知写成未安装。
 - “tessera doctor”应输出总状态和逐项证据，且不得修改文件或自动执行修复。
 - “tessera eval”应调用固定案例并区分整套通过率、路由正确率和执行错误；CI 假宿主结果不得冒充模型实测。
+- “动态解析当前能力”不得把市集存在误报成当前 active，也不得把探测失败误报成未安装。
 - 已装版与市集版只差 build metadata 时应报告 `refresh-available`；预发布或缺失版本应报告 `unknown`。
 - 模糊复合任务触发 router 时应有一行路由说明；明显简单任务不增加说明。
 - 在没有决策目录的普通项目中做低风险方案选择，不得自动创建 `docs/decisions/`。

@@ -48,6 +48,11 @@
   prompt: 运行 tessera eval，用固定案例复测路由准确率
   expected_route: tessera-eval
   must_not_route: [tessera-doctor]
+- id: resolve-capabilities
+  category: core
+  prompt: 动态解析当前 Tessera 有哪些能力，区分可调用、已安装和未验证
+  expected_route: tessera-capabilities
+  must_not_route: [tessera-status, tessera-setup]
 - id: propose-new-piece
   category: core
   prompt: 我想新增一个代码语义检索拼图

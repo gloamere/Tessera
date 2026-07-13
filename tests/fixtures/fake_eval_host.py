@@ -11,6 +11,7 @@ ROUTES = {
     "direct-small-edit": "direct",
     "multi-intent": "piece-router",
     "evaluate-routing": "tessera-eval",
+    "resolve-capabilities": "tessera-capabilities",
 }
 
 prompt = sys.stdin.read()

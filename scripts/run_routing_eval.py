@@ -73,7 +73,7 @@ def build_prompt(case: dict[str, Any]) -> str:
 - direct：宿主直接完成
 - piece-router：需要 Tessera 路由网关处理复合、模糊或高影响请求
 - piece-admission：新增、引入、拆分或设计拼图的准入评审
-- tessera-setup / tessera-status / tessera-doctor / tessera-eval：对应核心能力
+- tessera-setup / tessera-status / tessera-doctor / tessera-eval / tessera-capabilities：对应核心能力
 - taste / knowledge-base / planner：对应专业拼图
 - external-unavailable：请求的外部候选当前不可安装或不可验证
 
