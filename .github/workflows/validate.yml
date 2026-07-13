@@ -16,3 +16,13 @@ jobs:
         run: python3 scripts/validate_marketplace.py
       - name: Test admission scoring
         run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - name: Exercise routing eval runner
+        run: >-
+          python3 scripts/run_routing_eval.py
+          --host claude
+          --case direct-small-edit
+          --case multi-intent
+          --case evaluate-routing
+          --adapter-executable python3
+          --adapter-arg tests/fixtures/fake_eval_host.py
+          --output eval-results/ci-routing.json

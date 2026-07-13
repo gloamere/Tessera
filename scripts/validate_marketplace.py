@@ -16,6 +16,14 @@ from version_status import classify_version
 ROOT = Path(__file__).resolve().parents[1]
 PIECES = ROOT / "pieces"
 SUPPORTED_AVAILABILITY = {"installable", "reference-only", "unverified", "unsupported"}
+SUPPORTED_ROUTE_CATEGORIES = {
+    "direct",
+    "specialist",
+    "core",
+    "multi-intent",
+    "external",
+    "decision",
+}
 EXPECTED_PLATFORMS = {
     "claude": "native",
     "codex": "native",
@@ -170,15 +178,27 @@ def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
     if not isinstance(cases, list) or not cases:
         errors.append(f"{relative(path)}: 必须是非空数组")
         return
-    valid_targets = valid_piece_ids | {
+    valid_targets = (valid_piece_ids - {"tessera-core"}) | {
         "direct",
         "piece-router",
         "piece-admission",
         "tessera-setup",
         "tessera-status",
         "tessera-doctor",
+        "tessera-eval",
         "external-unavailable",
     }
+    schema_path = ROOT / "tests" / "routing-output.schema.json"
+    schema = read_json(schema_path)
+    schema_targets = (
+        schema.get("properties", {}).get("route", {}).get("enum")
+        if isinstance(schema.get("properties"), dict)
+        else None
+    )
+    if not isinstance(schema_targets, list) or set(schema_targets) != valid_targets:
+        errors.append(
+            f"{relative(schema_path)}: route enum 与评测目标不一致"
+        )
     seen: set[str] = set()
     for case in cases:
         if not isinstance(case, dict):
@@ -193,6 +213,8 @@ def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
         seen.add(case_id)
         if not isinstance(case.get("prompt"), str) or not case["prompt"].strip():
             errors.append(f"{relative(path)}: {case_id} 缺少 prompt")
+        if case.get("category") not in SUPPORTED_ROUTE_CATEGORIES:
+            errors.append(f"{relative(path)}: {case_id} 的 category 无效: {case.get('category')}")
         expected = case.get("expected_route")
         if expected not in valid_targets:
             errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效: {expected}")
@@ -382,6 +404,9 @@ def main() -> int:
                 for required_path in (
                     piece_dir / "skills" / "tessera-doctor" / "SKILL.md",
                     piece_dir / "commands" / "tessera-doctor.md",
+                    piece_dir / "skills" / "tessera-eval" / "SKILL.md",
+                    piece_dir / "commands" / "tessera-eval.md",
+                    ROOT / "tests" / "routing-output.schema.json",
                 ):
                     if not required_path.is_file():
                         errors.append(f"tessera-core: 缺少 {relative(required_path)}")

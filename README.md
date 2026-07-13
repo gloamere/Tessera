@@ -55,7 +55,7 @@ flowchart LR
 
 | 拼图 | 类型 | 用途 | 额外条件 |
 |---|---|---|---|
-| `tessera-core` | Skills | 路由与解释、安装引导、状态、升级建议、只读诊断 | 无 |
+| `tessera-core` | Skills | 路由与解释、安装引导、状态、升级建议、只读诊断、可复跑评测 | 无 |
 | `taste` | Skill | UI、视觉、排版与文案评审 | 无 |
 | `knowledge-base` | Skill | Markdown 知识沉淀与检索 | 无 |
 | `planner` | Skill | 游戏、内容、产品方案策划 | 无 |
@@ -79,6 +79,7 @@ codex plugin list
 - “安装拼图 / setup” → `tessera-setup`
 - “新增一个拼图” → `piece-router` 按七级准入量表先评分再建议
 - “全面体检 Tessera / tessera doctor” → `tessera-doctor`
+- “运行 tessera eval，复测路由准确率” → `tessera-eval`
 
 Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执行其自身的插件安装命令。
 
@@ -92,6 +93,7 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 | 拼图安装 | 展示选项与依赖；外部安装始终由用户确认 |
 | 状态诊断 | 汇总插件版本、启用状态和外部依赖状态 |
 | 全面体检 | 只读检查市集、manifest、版本、registry/trust 与依赖漂移 |
+| 可复跑评测 | 固定案例调用宿主，保存逐案例 JSON，区分误调用、漏调用、多意图与执行错误 |
 | 升级建议 | 区分 current、refresh、update、ahead、unknown；只建议，不自动执行 |
 | 路由解释 | router 被调用时说明选择、净收益依据与降级方式 |
 | 任务规划 | 使用宿主原生能力，不引入外部持久任务后端 |
@@ -101,6 +103,8 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 本项目的产品面是插件清单与 Markdown skills。提交前运行：
 
 ```powershell
+python scripts/validate_marketplace.py
+python scripts/run_routing_eval.py --host codex --dry-run
 codex plugin marketplace add ./
 codex plugin add tessera-core@tessera
 codex plugin list

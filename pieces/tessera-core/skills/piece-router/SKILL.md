@@ -16,6 +16,7 @@ description: 复杂或不确定该用什么工具、涉及多种能力、说"新
 | 安装 registry 中未集成/候选外部能力 | 本 router | 说明其不可安装状态与缺失证据，不进入 tessera-setup 选择项 |
 | 拼图状态/安装/升级 | tessera-core 自身 | tessera-status、tessera-setup skill |
 | 全面体检/诊断 Tessera 漂移或状态矛盾 | tessera-core 自身 | tessera-doctor skill；只读检查，不自动修复 |
+| 复跑固定案例、评估路由准确率与错误类型 | tessera-core 自身 | tessera-eval skill；只判断路由，不执行案例任务 |
 
 **如实交代状态**:未安装、未验证或规划中的目标只能说明其状态,不能伪装成已安装、可直接调用的 skill/CLI。
 

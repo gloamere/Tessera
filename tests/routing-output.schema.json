@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["route", "reason", "router_used"],
+  "properties": {
+    "route": {
+      "type": "string",
+      "enum": [
+        "direct",
+        "piece-router",
+        "piece-admission",
+        "tessera-setup",
+        "tessera-status",
+        "tessera-doctor",
+        "tessera-eval",
+        "taste",
+        "knowledge-base",
+        "planner",
+        "external-unavailable"
+      ]
+    },
+    "reason": {"type": "string"},
+    "router_used": {"type": "boolean"}
+  }
+}
