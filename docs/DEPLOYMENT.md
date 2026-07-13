@@ -34,7 +34,7 @@ codex plugin list
 
 ## 可选拼图与依赖
 
-`tessera-core` 无外部依赖。`bd-tasks`、`serena` 等拼图按需安装，并在状态检查中如实报告缺少的 CLI/MCP 配置。Tessera 不静默安装第三方依赖。
+`tessera-core` 与当前内置拼图均无外部运行时依赖。候选后端只有在重量、收益与安装方式验证通过后才会进入拼图市集；Tessera 不静默安装第三方依赖。
 
 ## 维护者验证
 

@@ -10,10 +10,8 @@ description: 复杂或不确定该用什么工具、涉及多种能力、或说"
 | 搜索、调研、查资料、读 URL、看某平台讨论 | agent-reach | 已装于 ~/.claude/skills;Codex 端安装未验证,不可用则如实说明,不假定可调用 |
 | UI/视觉设计评审、审美判断、反套路自检 | taste | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
 | 写代码、改功能、修 bug | superpowers 流程链 | brainstorming → writing-plans → 实现 → verification;不可用则如实说明 |
-| 持久任务追踪/依赖图/跨会话跟进 | bd-tasks | 用户明确要求或跨会话时,已安装则执行 bd,否则提示先经 tessera-setup 安装 |
 | 记笔记、整理知识、建/查知识库 | knowledge-base | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
 | 游戏/内容/产品方案策划(非写代码) | planner | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
-| 符号级代码检索/引用查找/跨文件重构/陌生大仓库理解 | serena | 外部 MCP:先 /mcp 查是否已挂,未挂则按 serena skill 给两端安装命令,不假定工具已可用 |
 | 拼图状态/安装/升级 | tessera-core 自身 | tessera-status、tessera-setup skill |
 
 **如实交代状态**:未安装、未验证或规划中的目标只能说明其状态,不能伪装成已安装、可直接调用的 skill/CLI。
@@ -24,7 +22,7 @@ description: 复杂或不确定该用什么工具、涉及多种能力、或说"
 2. **已安装且明显更专业的拼图更合适**:直接调用该拼图;仅当质量收益大于额外 token 与等待时间时才调。
 3. **模糊、复合或跨领域**:用本 skill 路由识别意图、选下一步。
 4. **可拆成独立子任务的复杂工作**:宿主支持时按下节「条件委派」委派,主 agent 汇总。
-5. **持久追踪**只在用户明确要求,或任务跨会话、存在依赖图、需要协作时才建议 `bd-tasks`;会话内计划用宿主 agent 的计划能力,不强制落 bd。
+5. **任务规划与跟踪**使用宿主 agent 的原生能力，不为此引入外部任务后端。
 
 ## 条件委派子代理
 

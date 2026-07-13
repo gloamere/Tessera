@@ -1,30 +1,30 @@
 ---
 schema: tessera/decision@1
 id: tessera-mcp-piece-kind
-status: approved
+status: superseded
 created: 2026-07-12
 approved: 2026-07-12
-review: 多块 MCP 拼图落地后重审注册方式是否需自动化
+review: 2026-07-13 因首个试点过重而撤回，见 remove-heavy-pieces
 ---
 
 # 引入 `kind: mcp-server` 拼图类型
 
 ## 背景
 
-Tessera 现有拼图类型:`skill`(纯指令,如 taste/planner)、`cli-wrapper`(路由到外部 CLI,如 bd-tasks 路由到 `bd`)。调研发现 **MCP** 是 Claude Code 与 Codex **两端都原生支持**的工具协议——一个 MCP server 就是一块即插即用的能力拼图,比 langchain/crewAI 那类重型运行时贴合 Tessera 的"能力拼图"定位得多。
+Tessera 现有拼图以 `skill`（纯指令，如 taste/planner）为主。调研曾认为 **MCP** 是 Claude Code 与 Codex 两端都原生支持的工具协议，可以作为即插即用的能力拼图。
 
 ## 决策
 
 新增拼图类型 **`kind: mcp-server`**,承接 Tessera 薄组织器定位:
 
-- 拼图本体仍是一块 **SKILL.md(路由 + 文档)**,不由 Tessera 自动安装 MCP server;和 `cli-wrapper` 路由到外部 `bd` 同构,只是外部依赖从 CLI 换成 MCP server,用户按文档在宿主里挂载。
-- `piece.yaml` 的 `external_deps` 记录:前置(如 uv)、安装命令、**两端注册命令**(Claude `claude mcp add`;Codex `serena setup codex` 或 `~/.codex/config.toml`)。
+- 拼图本体仍是一块 **SKILL.md(路由 + 文档)**,不由 Tessera 自动安装 MCP server；用户按文档在宿主里挂载。
+- `piece.yaml` 的 `external_deps` 记录前置、安装命令与两端注册命令。
 - SKILL.md 必须**如实交代状态**:未挂载时先 `/mcp` 检查、说明"未挂载"并给安装步骤,不假装其工具已可用(承接 [[tessera-routing-principles]] 的诚实原则)。
 - `platforms` 用 `{ claude: mcp, codex: mcp, gemini: unsupported, domestic: unsupported }`。
 
 ## 试点
 
-首块:**`serena`**(语义代码 MCP:符号级检索/引用/跨文件重构),对编码为主的工作流收益最大。
+首个语义代码 MCP 试点在实际使用中被认为过重，已于 2026-07-13 从市集与路由中撤下。该结果同时否定了本决策中“先落地再评估重量”的顺序。
 
 `playwright-mcp`(Web,官方,MCP 原生——优于 browser-use 子进程方案)、`github-mcp-server`(仓库/PR/issue,官方)先登记进 `registry.yaml` 作候选,不实装。
 
@@ -36,4 +36,4 @@ Tessera 现有拼图类型:`skill`(纯指令,如 taste/planner)、`cli-wrapper`(
 
 ## 演进
 
-若 MCP 拼图增多且手动注册繁琐，再评估提供宿主原生的安装引导或独立、可选的工具；核心插件仍保持纯 skills，不引入二进制前置依赖。当前保持文档化即可。
+本决策已被 `remove-heavy-pieces` 取代。MCP 能力仍可作为候选研究，但必须先证明相对宿主原生能力有明确净收益且足够轻量，才能进入拼图市集。

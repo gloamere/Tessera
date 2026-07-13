@@ -1,6 +1,6 @@
 {
   "name": "planner",
-  "description": "策划拼图:游戏/内容/产品方案的方向性策划(非写代码)",
-  "version": "0.1.1",
+  "description": "\u7b56\u5212\u62fc\u56fe:\u6e38\u620f/\u5185\u5bb9/\u4ea7\u54c1\u65b9\u6848\u7684\u65b9\u5411\u6027\u7b56\u5212(\u975e\u5199\u4ee3\u7801)",
+  "version": "0.1.1+codex.20260713060249",
   "skills": "./skills/"
 }

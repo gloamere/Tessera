@@ -1,9 +1,4 @@
 allowed_installs:
-  - id: bd
-    kind: npm-global            # 模板:npm install -g <package>[@<pin>]
-    package: "@beads/bd"
-    pin: null                   # 可选 semver;锁版后升级提醒跳过
-    upstream: gastownhall/beads
   - id: superpowers
     kind: claude-marketplace    # 模板:claude plugin marketplace add <source>
     source: obra/superpowers-marketplace

@@ -1,7 +1,0 @@
-{
-  "database": "dolt",
-  "backend": "dolt",
-  "dolt_mode": "server",
-  "dolt_database": "workflow_os",
-  "project_id": "935a06ae-aa1f-44b6-a3ae-0f76b7eef1ed"
-}

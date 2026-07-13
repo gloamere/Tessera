@@ -25,7 +25,6 @@ flowchart LR
     P -- 否 --> C{能拆为独立子任务，且并行收益<br/>高于 token 与协调成本？}
     C -- 是 --> M[最多 3 个子代理并行<br/>主 Agent 汇总、验证、交付]
     C -- 否 --> A
-    R -. 仅长期追踪/依赖图/协作 .-> B[可选 bd-tasks / Beads]
     S --> G[用户确认外部安装<br/>原生权限控制 · 真实状态披露]
     M --> G
     A --> G
@@ -33,12 +32,10 @@ flowchart LR
     classDef entry fill:#1f6feb,color:#fff,stroke:#1f6feb,stroke-width:2px;
     classDef decision fill:#fff8c5,color:#24292f,stroke:#bf8700,stroke-width:2px;
     classDef action fill:#dafbe1,color:#116329,stroke:#4ac26b,stroke-width:2px;
-    classDef optional fill:#f6f8fa,color:#57606a,stroke:#8c959f;
     classDef guard fill:#fbefff,color:#6639ba,stroke:#d2a8ff,stroke-width:2px;
     class U,R entry;
     class D,P,C decision;
     class A,S,M action;
-    class B optional;
     class G guard;
 ```
 
@@ -47,8 +44,7 @@ flowchart LR
 - 新项目、重构或跨领域需求：先判断该规划、调研、拆分还是直接实施。
 - 明确的 UI/视觉改动：在收益足够时调用 `taste`，而不是为小改动增加路由开销。
 - 游戏、内容和产品方案：用 `planner` 形成可评审、可拍板的方向。
-- 陌生大型代码库：已配置 Serena 时，用符号级检索辅助理解与重构。
-- 跨会话、带依赖的长期工作：用户明确需要时才使用 `bd-tasks`，不把它变成日常任务的前置条件。
+- 陌生大型代码库：使用宿主已有的检索与代码导航能力，避免为路由额外引入重型服务。
 
 ## 默认拼图
 
@@ -57,11 +53,9 @@ flowchart LR
 | 拼图 | 类型 | 用途 | 额外条件 |
 |---|---|---|---|
 | `tessera-core` | Skills | 路由、安装引导、拼图/依赖状态 | 无 |
-| `bd-tasks` | CLI wrapper | 长期任务、依赖图、跨会话追踪 | 可选 `bd` / Beads |
 | `taste` | Skill | UI、视觉、排版与文案评审 | 无 |
 | `knowledge-base` | Skill | Markdown 知识沉淀与检索 | 无 |
 | `planner` | Skill | 游戏、内容、产品方案策划 | 无 |
-| `serena` | MCP | 符号级代码检索、引用查找、重构 | `uv`、Serena 与 MCP 注册 |
 
 外部候选（例如 Playwright MCP、GitHub MCP）只在安装方式验证并经用户确认后才进入工作流；未安装、未验证或未集成的能力会如实说明，不会伪装成可调用工具。
 
@@ -92,7 +86,7 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 | 条件式子代理 | 宿主支持且任务独立时，最多并行 3 个；主 Agent 负责汇总与验证 |
 | 拼图安装 | 展示选项与依赖；外部安装始终由用户确认 |
 | 状态诊断 | 汇总插件版本、启用状态和外部依赖状态 |
-| 持久任务 | `bd-tasks` 是可选拼图；会话内计划优先使用宿主原生能力 |
+| 任务规划 | 使用宿主原生能力，不引入外部持久任务后端 |
 
 ## 开发与验证
 

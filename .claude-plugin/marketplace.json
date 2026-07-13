@@ -12,14 +12,7 @@
       "name": "tessera-core",
       "source": "./pieces/tessera-core",
       "description": "内核:路由兜底、安装引导、状态查看",
-      "version": "0.1.6",
-      "strict": true
-    },
-    {
-      "name": "bd-tasks",
-      "source": "./pieces/bd-tasks",
-      "description": "任务追踪:bd CLI 路由",
-      "version": "0.1.1",
+      "version": "0.1.6+codex.20260713060249",
       "strict": true
     },
     {
@@ -40,14 +33,7 @@
       "name": "planner",
       "source": "./pieces/planner",
       "description": "策划:游戏/内容/产品方案",
-      "version": "0.1.1",
-      "strict": true
-    },
-    {
-      "name": "serena",
-      "source": "./pieces/serena",
-      "description": "语义代码 MCP 工具(符号级检索与编辑)",
-      "version": "0.1.0",
+      "version": "0.1.1+codex.20260713060249",
       "strict": true
     }
   ]

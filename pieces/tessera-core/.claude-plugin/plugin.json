@@ -4,5 +4,5 @@
   },
   "description": "Tessera 内核:路由兜底、安装引导、状态查看",
   "name": "tessera-core",
-  "version": "0.1.6"
+  "version": "0.1.6+codex.20260713060249"
 }
