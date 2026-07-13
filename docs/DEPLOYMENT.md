@@ -27,8 +27,10 @@ codex plugin list
 - “不知道该用哪个工具，帮我规划新项目”验证 `piece-router`。
 - “查看拼图和依赖状态”或“tessera status”验证 `tessera-status`。
 - “安装拼图 / setup”验证 `tessera-setup`。
+- “禁用/启用/卸载拼图”验证 setup 的宿主动作矩阵；Codex 的启停必须报告 unsupported，不能退化为 remove。
+- “回滚到 <明确 ref>”只验证 ref 和生成计划，不得切换当前 `main` 或自动重配 marketplace。
 - “运行 tessera eval”验证 `tessera-eval`；评测报告默认写入 `eval-results/`。
-- “动态解析当前 Tessera 能力”验证 `tessera-capabilities`；结果必须区分 active、installed、available 与 unknown。
+- “动态解析当前 Tessera 能力”验证 `tessera-capabilities`；schema v2 必须区分 active、installed、available、unknown，并报告 installed_version 与 enabled_state。
 
 ## Claude Code
 
@@ -58,11 +60,12 @@ codex debug prompt-input
 - “新增一个代码语义检索拼图”应先输出七维评分、原始等级、封顶与建议，不直接安装。
 - “安装拼图”不得把 `not-integrated`、`unverified` 或 candidate 项列为可安装项。
 - “tessera status”无法证实时必须报告 `unknown`，不得把未知写成未安装。
-- “tessera doctor”应输出总状态和逐项证据，且不得修改文件或自动执行修复。
+- “tessera doctor”默认应输出总状态和逐项证据且零写入；明确 remediation 后只逐项确认 setup 白名单动作，结构/trust/回滚保持 plan-only。
 - “tessera eval”应调用固定案例并区分整套通过率、路由正确率和执行错误；CI 假宿主结果不得冒充模型实测。
 - “动态解析当前能力”不得把市集存在误报成当前 active，也不得把探测失败误报成未安装。
 - 已装版与市集版只差 build metadata 时应报告 `refresh-available`；预发布或缺失版本应报告 `unknown`。
 - 模糊复合任务触发 router 时应有一行路由说明；明显简单任务不增加说明。
+- 多交付物请求应输出依赖有序 recipe 和交接包；前置失败只阻断依赖链，独立步骤可继续。
 - 在没有决策目录的普通项目中做低风险方案选择，不得自动创建 `docs/decisions/`。
 
 Claude 端使用同义提示并额外验证 `/tessera-status` 只路由到 status skill。不要依赖缓存、未跟踪的二进制或本机 hooks 作为验收依据。

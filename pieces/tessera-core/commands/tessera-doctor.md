@@ -1,5 +1,5 @@
 ---
-description: 全面体检 Tessera 市集、插件、版本与依赖状态
+description: 全面体检 Tessera；明确要求 remediation 时逐项确认安全修复
 ---
 
-调用并严格遵循 `tessera-doctor` skill 完成只读体检。该 skill 是检查顺序、严重度、版本判断和修复建议的唯一事实来源；本命令不复制流程。
+调用并严格遵循 `tessera-doctor` skill。默认完成只读体检；只有用户显式要求 remediation 才进入逐项确认流程。本命令不复制检查或修复规则。

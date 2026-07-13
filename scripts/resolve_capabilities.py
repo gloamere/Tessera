@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
@@ -18,6 +19,20 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_STATES = {"installable", "reference-only", "unverified", "unsupported"}
 RUNTIME_STATES = {"active", "installed", "available", "unknown", "unsupported"}
+ENABLED_STATES = {
+    "enabled",
+    "disabled",
+    "not-installed",
+    "unknown",
+    "unsupported",
+    "not-applicable",
+}
+
+
+@dataclass(frozen=True)
+class PluginInstallation:
+    version: str | None = None
+    enabled_state: str = "unknown"
 
 
 def read_yaml(path: Path) -> Any:
@@ -62,14 +77,61 @@ def marketplace_entries(root: Path, host: str) -> dict[str, dict[str, Any]]:
     }
 
 
-def probe_installed_plugins(host: str, root: Path) -> tuple[set[str] | None, str]:
+def _plugin_name(item: dict[str, Any]) -> str | None:
+    name = item.get("name")
+    if isinstance(name, str) and name:
+        return name
+    plugin_id = item.get("pluginId") or item.get("id")
+    if isinstance(plugin_id, str) and plugin_id:
+        return plugin_id.split("@", 1)[0]
+    return None
+
+
+def parse_plugin_list_json(text: str) -> dict[str, PluginInstallation]:
+    payload = json.loads(text)
+    if isinstance(payload, list):
+        items = payload
+    elif isinstance(payload, dict):
+        items = payload.get("installed", payload.get("plugins"))
+    else:
+        items = None
+    if not isinstance(items, list):
+        raise ValueError("plugin list JSON missing installed/plugins array")
+
+    result: dict[str, PluginInstallation] = {}
+    for item in items:
+        if not isinstance(item, dict) or item.get("installed") is False:
+            continue
+        name = _plugin_name(item)
+        if not name:
+            continue
+        enabled = item.get("enabled")
+        enabled_state = (
+            "enabled" if enabled is True else "disabled" if enabled is False else "unknown"
+        )
+        version = item.get("version")
+        result[name] = PluginInstallation(
+            version=version if isinstance(version, str) else None,
+            enabled_state=enabled_state,
+        )
+    return result
+
+
+def parse_plugin_list_text(text: str) -> dict[str, PluginInstallation]:
+    names = set(re.findall(r"(?m)^\s*([a-z0-9][a-z0-9-]*)@[^\s]+", text))
+    return {name: PluginInstallation() for name in names}
+
+
+def probe_installed_plugins(
+    host: str, root: Path
+) -> tuple[dict[str, PluginInstallation] | None, str]:
     names = ("codex.cmd", "codex", "codex.exe") if os.name == "nt" else ("codex",)
     if host == "claude":
         names = ("claude.cmd", "claude", "claude.exe") if os.name == "nt" else ("claude",)
     executable = next((found for name in names if (found := shutil.which(name))), None)
     if executable is None:
         return None, f"{host} CLI unavailable"
-    command = [executable, "plugin", "list"]
+    command = [executable, "plugin", "list", "--json"]
     try:
         completed = subprocess.run(
             command,
@@ -83,11 +145,29 @@ def probe_installed_plugins(host: str, root: Path) -> tuple[set[str] | None, str
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         return None, str(exc)
-    if completed.returncode != 0:
-        detail = completed.stderr.strip() or completed.stdout.strip()
-        return None, f"plugin list exited {completed.returncode}: {detail[:300]}"
-    installed = set(re.findall(r"(?m)^\s*([a-z0-9][a-z0-9-]*)@[^\s]+", completed.stdout))
-    return installed, f"{host} plugin list"
+    if completed.returncode == 0:
+        try:
+            return parse_plugin_list_json(completed.stdout), f"{host} plugin list --json"
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    try:
+        fallback = subprocess.run(
+            [executable, "plugin", "list"],
+            cwd=root,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return None, str(exc)
+    if fallback.returncode != 0:
+        detail = fallback.stderr.strip() or fallback.stdout.strip()
+        return None, f"plugin list exited {fallback.returncode}: {detail[:300]}"
+    return parse_plugin_list_text(fallback.stdout), f"{host} plugin list (text fallback)"
 
 
 def _manifest_version(piece_dir: Path, host: str, entry: dict[str, Any]) -> str | None:
@@ -123,13 +203,18 @@ def _trusted_external_state(
 def resolve_capabilities(
     root: Path,
     host: str,
-    installed_plugins: set[str] | None = None,
+    installed_plugins: set[str] | dict[str, PluginInstallation] | None = None,
     active_skills: set[str] | None = None,
     probe_evidence: str = "not probed",
 ) -> dict[str, Any]:
     if host not in {"codex", "claude"}:
         raise ValueError(f"unsupported host: {host}")
     active_skills = active_skills or set()
+    installations = (
+        {name: PluginInstallation() for name in installed_plugins}
+        if isinstance(installed_plugins, set)
+        else installed_plugins
+    )
     entries = marketplace_entries(root, host)
     capabilities: list[dict[str, Any]] = []
     seen_skills: set[str] = set()
@@ -144,12 +229,21 @@ def resolve_capabilities(
         catalog_state = "installable" if host_support == "native" else "unsupported"
         if catalog_state == "unsupported":
             piece_runtime = "unsupported"
-        elif installed_plugins is None:
+        elif installations is None:
             piece_runtime = "unknown"
-        elif piece_id in installed_plugins:
+        elif piece_id in installations:
             piece_runtime = "installed"
         else:
             piece_runtime = "available"
+        installation = installations.get(piece_id) if installations is not None else None
+        if catalog_state == "unsupported":
+            enabled_state = "unsupported"
+        elif piece_runtime == "available":
+            enabled_state = "not-installed"
+        elif installation is None:
+            enabled_state = "unknown"
+        else:
+            enabled_state = installation.enabled_state
 
         skill_paths = sorted((piece_dir / "skills").glob("*/SKILL.md"))
         for skill_path in skill_paths:
@@ -161,6 +255,7 @@ def resolve_capabilities(
                 raise ValueError(f"duplicate skill id: {skill_id}")
             seen_skills.add(skill_id)
             runtime_state = "active" if skill_id in active_skills else piece_runtime
+            skill_enabled_state = "enabled" if runtime_state == "active" else enabled_state
             capabilities.append(
                 {
                     "id": skill_id,
@@ -170,6 +265,8 @@ def resolve_capabilities(
                     "runtime_state": runtime_state,
                     "host_support": host_support or "unknown",
                     "version": _manifest_version(piece_dir, host, entry),
+                    "installed_version": installation.version if installation else None,
+                    "enabled_state": skill_enabled_state,
                     "description": frontmatter.get("description", ""),
                     "source": skill_path.relative_to(root).as_posix(),
                     "evidence": "current session" if runtime_state == "active" else probe_evidence,
@@ -201,6 +298,8 @@ def resolve_capabilities(
                     "runtime_state": "unknown" if state != "unsupported" else "unsupported",
                     "host_support": state,
                     "version": None,
+                    "installed_version": None,
+                    "enabled_state": "not-applicable",
                     "description": item.get("summary", ""),
                     "source": "registry.yaml",
                     "evidence": evidence,
@@ -212,7 +311,7 @@ def resolve_capabilities(
         state = capability["runtime_state"]
         counts[state] = counts.get(state, 0) + 1
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "host": host,
         "probe_evidence": probe_evidence,
         "summary": {"total": len(capabilities), **counts},
@@ -221,12 +320,13 @@ def resolve_capabilities(
 
 
 def print_table(catalog: dict[str, Any]) -> None:
-    print("能力 | 来源拼图 | 类型 | 目录状态 | 运行时状态 | 证据")
-    print("---|---|---|---|---|---")
+    print("能力 | 来源拼图 | 类型 | 目录状态 | 运行时状态 | 启用状态 | 已装版本 | 证据")
+    print("---|---|---|---|---|---|---|---")
     for item in catalog["capabilities"]:
         print(
             f"{item['id']} | {item['piece'] or '-'} | {item['kind']} | "
-            f"{item['catalog_state']} | {item['runtime_state']} | {item['evidence']}"
+            f"{item['catalog_state']} | {item['runtime_state']} | "
+            f"{item['enabled_state']} | {item['installed_version'] or '-'} | {item['evidence']}"
         )
 
 
@@ -236,6 +336,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--root", type=Path, default=ROOT)
     result.add_argument("--probe", action="store_true")
     result.add_argument("--installed-plugin", action="append", default=[])
+    result.add_argument("--disabled-plugin", action="append", default=[])
     result.add_argument("--active-skill", action="append", default=[])
     result.add_argument("--format", choices=("json", "table"), default="table")
     return result
@@ -243,7 +344,17 @@ def parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
-    installed: set[str] | None = set(args.installed_plugin) if args.installed_plugin else None
+    explicit = set(args.installed_plugin) | set(args.disabled_plugin)
+    installed: dict[str, PluginInstallation] | None = (
+        {
+            name: PluginInstallation(
+                enabled_state="disabled" if name in args.disabled_plugin else "unknown"
+            )
+            for name in explicit
+        }
+        if explicit
+        else None
+    )
     evidence = "explicit --installed-plugin" if installed is not None else "not probed"
     if args.probe:
         installed, evidence = probe_installed_plugins(args.host, args.root.resolve())

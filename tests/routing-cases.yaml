@@ -63,6 +63,26 @@
   prompt: 调研竞品后做产品方案，并把结论沉淀成知识笔记
   expected_route: piece-router
   must_not_route: [direct]
+- id: multi-intent-independent
+  category: multi-intent
+  prompt: 独立评审这个页面的视觉质量，同时把会议记录整理成知识笔记
+  expected_route: piece-router
+  must_not_route: [direct, taste, knowledge-base]
+- id: lifecycle-disable
+  category: core
+  prompt: 禁用 taste 拼图，但不要卸载
+  expected_route: tessera-setup
+  must_not_route: [tessera-status]
+- id: lifecycle-rollback
+  category: core
+  prompt: 给我生成把 tessera-core 回滚到提交 abc123 的步骤
+  expected_route: tessera-setup
+  must_not_route: [tessera-doctor]
+- id: doctor-remediation
+  category: core
+  prompt: 运行 tessera doctor，并逐项确认修复能够安全处理的问题
+  expected_route: tessera-doctor
+  must_not_route: [tessera-setup]
 - id: unverified-external
   category: external
   prompt: 安装 registry 里尚未集成的浏览器后端

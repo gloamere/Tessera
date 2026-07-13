@@ -55,7 +55,7 @@ flowchart LR
 
 | 拼图 | 类型 | 用途 | 额外条件 |
 |---|---|---|---|
-| `tessera-core` | Skills | 动态能力解析、路由与解释、安装、状态、诊断、可复跑评测 | 无 |
+| `tessera-core` | Skills | 动态能力解析、路由与 recipe、生命周期、状态、诊断/remediation、可复跑评测 | 无 |
 | `taste` | Skill | UI、视觉、排版与文案评审 | 无 |
 | `knowledge-base` | Skill | Markdown 知识沉淀与检索 | 无 |
 | `planner` | Skill | 游戏、内容、产品方案策划 | 无 |
@@ -77,8 +77,9 @@ codex plugin list
 - “不知道该用哪个工具，帮我规划新项目” → `piece-router`
 - “查看拼图和依赖状态”或“tessera status” → `tessera-status`
 - “安装拼图 / setup” → `tessera-setup`
+- “升级、禁用、卸载或回滚指导” → `tessera-setup`
 - “新增一个拼图” → `piece-router` 按七级准入量表先评分再建议
-- “全面体检 Tessera / tessera doctor” → `tessera-doctor`
+- “全面体检 Tessera / tessera doctor” → `tessera-doctor`；明确要求修复时逐项确认 remediation
 - “运行 tessera eval，复测路由准确率” → `tessera-eval`
 - “动态解析当前有哪些能力” → `tessera-capabilities`
 
@@ -89,14 +90,15 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 | 功能 | 行为 |
 |---|---|
 | 任务路由 | 在直接执行、专业拼图、条件式子代理和透明降级之间选择 |
-| 动态能力解析 | 合并会话、市集、piece、skill、registry/trust 与宿主探测，区分目录状态和运行时状态 |
+| 动态能力解析 | schema v2 合并会话、市集、piece、skill、registry/trust 与宿主 JSON 探测，并报告安装版本和启用状态 |
 | 专业能力调用 | 仅当质量/速度收益高于额外 token 与等待成本时调用 |
 | 条件式子代理 | 宿主支持且任务独立时，最多并行 3 个；主 Agent 负责汇总与验证 |
-| 拼图安装 | 展示选项与依赖；外部安装始终由用户确认 |
-| 状态诊断 | 汇总插件版本、启用状态和外部依赖状态 |
-| 全面体检 | 只读检查市集、manifest、版本、registry/trust 与依赖漂移 |
+| 拼图生命周期 | 安装、刷新/升级、启停和卸载逐项确认；回滚只接受显式 Git ref 并保持 plan-only |
+| 状态诊断 | 汇总插件版本、启用状态、宿主可用动作和外部依赖状态 |
+| 全面体检 | 默认只读；显式 remediation 仅执行 setup 白名单动作并逐项复查 |
+| 多意图 recipe | 按数据依赖排序、使用统一交接包，失败只阻断依赖链且不持久化状态 |
 | 可复跑评测 | 固定案例调用宿主，保存逐案例 JSON，区分误调用、漏调用、多意图与执行错误 |
-| 升级建议 | 区分 current、refresh、update、ahead、unknown；只建议，不自动执行 |
+| 升级建议 | 区分 current、refresh、update、ahead、unknown；变更统一交给 setup 逐项确认 |
 | 路由解释 | router 被调用时说明选择、净收益依据与降级方式 |
 | 任务规划 | 使用宿主原生能力，不引入外部持久任务后端 |
 

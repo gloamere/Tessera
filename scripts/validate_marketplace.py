@@ -10,7 +10,12 @@ import yaml
 
 from admission_score import evaluate, grade_for_score
 from doctor_status import overall_status
-from resolve_capabilities import CATALOG_STATES, RUNTIME_STATES, resolve_capabilities
+from resolve_capabilities import (
+    CATALOG_STATES,
+    ENABLED_STATES,
+    RUNTIME_STATES,
+    resolve_capabilities,
+)
 from version_status import classify_version
 
 
@@ -327,6 +332,43 @@ def validate_doctor_cases(errors: list[str]) -> None:
             errors.append(f"版本状态 {versions} 期望 {expected}，实际 {actual}")
 
 
+def validate_recipe_cases(errors: list[str]) -> None:
+    path = ROOT / "tests" / "recipe-cases.yaml"
+    cases = read_yaml(path)
+    if not isinstance(cases, list) or not cases:
+        errors.append(f"{relative(path)}: 必须是非空数组")
+        return
+    seen: set[str] = set()
+    for case in cases:
+        if not isinstance(case, dict) or not isinstance(case.get("id"), str):
+            errors.append(f"{relative(path)}: 每个案例必须有字符串 id")
+            continue
+        case_id = case["id"]
+        if case_id in seen:
+            errors.append(f"{relative(path)}: 案例 id {case_id} 重复")
+        seen.add(case_id)
+        steps = case.get("steps")
+        if not isinstance(steps, list) or len(steps) < 2:
+            errors.append(f"{relative(path)}: {case_id} 至少需要两个步骤")
+            continue
+        step_ids = [item.get("id") for item in steps if isinstance(item, dict)]
+        if len(step_ids) != len(steps) or len(step_ids) != len(set(step_ids)):
+            errors.append(f"{relative(path)}: {case_id} 步骤 id 无效或重复")
+            continue
+        positions = {step_id: index for index, step_id in enumerate(step_ids)}
+        for index, step in enumerate(steps):
+            dependencies = step.get("depends_on", [])
+            if not isinstance(dependencies, list) or any(dep not in positions for dep in dependencies):
+                errors.append(f"{relative(path)}: {case_id}.{step_ids[index]} 依赖无效")
+            elif any(positions[dep] >= index for dep in dependencies):
+                errors.append(f"{relative(path)}: {case_id} 未按依赖排序")
+        parallel = case.get("parallel", [])
+        if not isinstance(parallel, list) or any(item not in positions for item in parallel):
+            errors.append(f"{relative(path)}: {case_id} 并行步骤无效")
+        elif any(steps[positions[item]].get("depends_on") for item in parallel):
+            errors.append(f"{relative(path)}: {case_id} 只有无依赖步骤可并行")
+
+
 def validate_capability_catalog(errors: list[str]) -> None:
     for host in ("codex", "claude"):
         try:
@@ -335,6 +377,8 @@ def validate_capability_catalog(errors: list[str]) -> None:
             errors.append(f"{host} 动态能力目录解析失败: {exc}")
             continue
         capabilities = catalog.get("capabilities", [])
+        if catalog.get("schema_version") != 2:
+            errors.append(f"{host} 动态能力目录 schema_version 必须为 2")
         ids = [item.get("id") for item in capabilities if isinstance(item, dict)]
         if len(ids) != len(set(ids)):
             errors.append(f"{host} 动态能力目录存在重复 id")
@@ -343,6 +387,10 @@ def validate_capability_catalog(errors: list[str]) -> None:
                 errors.append(f"{host} 能力 {item.get('id')} catalog_state 无效")
             if item.get("runtime_state") not in RUNTIME_STATES:
                 errors.append(f"{host} 能力 {item.get('id')} runtime_state 无效")
+            if item.get("enabled_state") not in ENABLED_STATES:
+                errors.append(f"{host} 能力 {item.get('id')} enabled_state 无效")
+            if "installed_version" not in item:
+                errors.append(f"{host} 能力 {item.get('id')} 缺少 installed_version")
 
 
 def main() -> int:
@@ -421,6 +469,15 @@ def main() -> int:
                 )
                 if not admission_reference.is_file():
                     errors.append("tessera-core: 缺少 piece-router 准入量表 reference")
+                recipe_reference = (
+                    piece_dir
+                    / "skills"
+                    / "piece-router"
+                    / "references"
+                    / "multi-intent-recipes.md"
+                )
+                if not recipe_reference.is_file():
+                    errors.append("tessera-core: 缺少多意图 recipe 契约")
                 for required_path in (
                     piece_dir / "skills" / "tessera-doctor" / "SKILL.md",
                     piece_dir / "commands" / "tessera-doctor.md",
@@ -429,6 +486,8 @@ def main() -> int:
                     piece_dir / "skills" / "tessera-capabilities" / "SKILL.md",
                     piece_dir / "commands" / "tessera-capabilities.md",
                     ROOT / "scripts" / "resolve_capabilities.py",
+                    ROOT / "scripts" / "lifecycle_policy.py",
+                    ROOT / "scripts" / "remediation_policy.py",
                     ROOT / "tests" / "routing-output.schema.json",
                 ):
                     if not required_path.is_file():
@@ -448,6 +507,7 @@ def main() -> int:
         validate_route_cases(marketplace_ids, errors)
         validate_admission_cases(errors)
         validate_doctor_cases(errors)
+        validate_recipe_cases(errors)
         validate_capability_catalog(errors)
     except ValueError as exc:
         errors.append(str(exc))

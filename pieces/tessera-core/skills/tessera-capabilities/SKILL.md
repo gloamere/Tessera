@@ -21,6 +21,7 @@ python scripts/resolve_capabilities.py --host codex --probe --active-skill piece
 4. 解释两个独立状态：
    - `catalog_state`：`installable`、`reference-only`、`unverified`、`unsupported`。
    - `runtime_state`：`active`、`installed`、`available`、`unknown`、`unsupported`。
+5. schema v2 还提供 `installed_version` 与 `enabled_state`。启用状态只允许 `enabled`、`disabled`、`not-installed`、`unknown`、`unsupported`、`not-applicable`；文本回退不得猜测 enabled/disabled。
 
 ## 消费规则
 
@@ -30,4 +31,4 @@ python scripts/resolve_capabilities.py --host codex --probe --active-skill piece
 - `unknown`：证据不足；说明缺失证据，不降格成“未安装”。
 - `reference-only` / `unverified` / `unsupported`：不可进入可调用或安装候选。
 
-输出至少包含：能力、来源拼图、目录状态、运行时状态、证据。若用户只问某项能力，可以过滤展示，但状态判断仍须使用完整解析结果。
+输出至少包含：能力、来源拼图、目录状态、运行时状态、启用状态、已装版本、证据。若用户只问某项能力，可以过滤展示，但状态判断仍须使用完整解析结果。

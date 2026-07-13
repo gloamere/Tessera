@@ -14,6 +14,8 @@ Tessera 不再把 router 的静态派发表当作能力安装与激活状态的�
 - `catalog_state`：能力在当前宿主是否 `installable`、`reference-only`、`unverified` 或 `unsupported`。
 - `runtime_state`：能力在当前会话/机器是 `active`、`installed`、`available`、`unknown` 或 `unsupported`。
 
+schema v2 在不改变上述语义的前提下，为本地能力增加 `installed_version` 和 `enabled_state`。探测优先使用宿主 `plugin list --json`；文本回退只能证明安装时，启用状态保持 `unknown`。
+
 当前会话明确暴露的 skill 是 active 的最高优先级证据；CLI 已安装证据不能代替会话激活证据。探测失败保持 unknown，不推断为未安装。
 
 ## 消费者

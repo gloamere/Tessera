@@ -1,34 +1,34 @@
 ---
 name: tessera-doctor
-description: 当用户要全面体检 Tessera、诊断市集/插件/版本/registry/trust/依赖漂移，或问“为什么 Tessera 状态不一致”时使用。只读检查并给修复建议，不自动安装、升级或改文件。
+description: 全面诊断 Tessera 市集、插件、版本、启用状态、registry/trust 与依赖漂移；默认只读，用户明确要求 remediation 时才逐项确认并委托 setup 修复。
 ---
 
 # Tessera Doctor
 
-执行只读体检；无法取得的证据标为 `UNKNOWN`，不得猜测或把未知写成失败。
+默认执行只读体检；无法取得的证据标为 `UNKNOWN`。只有用户明确说“修复”“remediate”或同义意图时才能进入 remediation 模式。
 
-## 检查顺序
+## 诊断模式（默认）
 
-1. **识别宿主与根目录**：确认 Codex/Claude、当前 skill 插件根，以及能否定位 Tessera 市集仓库根。仓库根不可见时继续检查插件自身，不报假故障。
-2. **当前会话与 CLI**：按 `tessera-status` 的宿主命令读取插件列表。CLI 失败但本 skill 已加载时，`tessera-core` 记为 `PASS（当前会话已加载）`，CLI 能见度记为 `UNKNOWN`。
-3. **市集与结构**：仓库根可见时检查双市集拼图集合、source、piece 目录、双端 manifest 名称与版本是否一致；不可见则 `UNKNOWN`。
-4. **版本状态**：比较已装版与市集/manifest 版：
-   - 完全相同 → `current`。
-   - `+` 前基础版本相同、build metadata 不同 → `refresh-available`。
-   - 两端都是 `major.minor.patch` 且市集更高 → `update-available`；已装更高 → `ahead`。
-   - 缺值、预发布版本无法可靠比较或格式不明 → `unknown`。
-5. **registry / trust**：可见时检查 `availability`、`not-integrated` 隔离、`trust_ref` 与安装命令完全匹配；未集成候选只记 `INFO`，不算故障。
-6. **外部依赖**：只运行已安装拼图在 `piece.yaml` 明确声明的 `version_check`。未声明即 `PASS（无外部依赖）`。
+1. 识别宿主、当前插件根和市集仓库根；仓库不可见时继续检查插件自身。
+2. 按 `tessera-status` 读取安装版本与启用状态。当前 skill 已加载可证明 core active，但不能替代 CLI 对其它拼图的证据。
+3. 检查双市集拼图集合、source、piece 目录、双端 manifest 名称与版本；检查 registry availability、候选隔离、trust_ref 与安装命令完全匹配。
+4. 使用既有版本规则；只运行已安装拼图明确声明的 `version_check`。
+5. 先给总状态，再输出 `检查项 | 结果 | 证据 | 建议`，最后列必要动作。诊断模式永不确认、执行或修改。
 
-## 严重度与总状态
+严重度保持：结构/trust 损坏或明确依赖缺失为 `FAIL`；可验证更新、禁用异常或非致命漂移为 `WARN`；证据不可得为 `UNKNOWN`；候选信息为 `INFO`。总状态仍按 `FAIL → error`、否则 `WARN → warning`、否则 `UNKNOWN → unknown`、其余 `healthy`。
 
-- `FAIL`：结构/manifest 损坏、双市集不一致、trust 命令不一致、已安装拼图的明确依赖缺失。
-- `WARN`：存在可验证的刷新/升级、配置漂移或非致命异常。
-- `UNKNOWN`：证据不可得；不等于失败。
-- `PASS`：检查有证据且一致。`INFO` 不影响总状态。
+## Remediation 模式（显式）
 
-总状态按 `FAIL → error`、否则 `WARN → warning`、否则存在 `UNKNOWN → unknown`、其余 `healthy`。
+1. 必须先完成一轮只读诊断快照，再生成候选表：`id | 诊断 | scope | 动作/命令 | 影响 | 可逆性 | 验证 | 依赖`。
+2. scope 只有以下语义：
+   - `host-lifecycle`、trust 完全匹配的 `trusted-install`：可交给 `tessera-setup` 执行。
+   - `repository-structure`、`trust`、`rollback`：只能输出 `plan-only`，不得在 doctor 内改文件或重配市集。
+3. 每个可执行项单独请求确认；确认前再次展示完整命令。用户拒绝或未确认记为 `skipped`。
+4. setup 执行后立即复查对应检查项；命令成功但状态未达到目标仍记为 `failed`。
+5. 失败项的依赖后续记为 `blocked`；无依赖项可继续。最终输出 `succeeded / failed / skipped / blocked / plan-only`，并重新计算 doctor 总状态。
 
-## 输出
+## 硬规则
 
-先给总状态，再输出：`检查项 | 结果 | 证据 | 建议`。最后只列必要修复动作；安装/刷新命令必须来自 `tessera-setup` 与 `trust.yaml`，执行前仍需用户确认。doctor 自身永不修改文件、安装插件、升级依赖或写入遥测。
+- 默认模式始终零写入；remediation 不是批量同意，一次确认只授权一项。
+- 只执行 setup 动作矩阵或与 `trust.yaml` 完全匹配的安装命令。
+- 不自动修复 manifest/marketplace/trust，不执行 Git 回滚，不写遥测。

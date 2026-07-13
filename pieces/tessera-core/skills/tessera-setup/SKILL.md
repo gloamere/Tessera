@@ -1,28 +1,52 @@
 ---
 name: tessera-setup
-description: 当用户要"初始化工作流""安装拼图""装 Tessera""setup 工作流"或在新机器/新项目上部署能力拼图时使用。引导式安装:列出可装拼图,经用户勾选后逐项安装。
+description: 当用户要安装、刷新、升级、启用、禁用、卸载、回滚或初始化 Tessera 拼图时使用。所有变更先展示影响并逐项确认；回滚只生成基于显式 Git ref 的计划。
 ---
 
-# tessera-setup 安装引导
+# Tessera 生命周期引导
 
-## 流程
+管理拼图的安装、刷新、升级、启用、禁用和卸载；回滚只生成可验证计划。所有无法证实的状态保持 `unknown`，不得猜测或用另一动作冒充。
 
-1. 定位市集仓库根(从当前 skill 的插件根上溯，或让用户给出 Tessera 仓库路径)，并判断当前宿主是 Codex 还是 Claude；无法判断且会影响命令时才询问。
-2. 优先运行 `scripts/resolve_capabilities.py --host <host> --probe --format json`，使用动态目录作为候选单一来源。脚本不可见时才退化为读取 Codex `.agents/plugins/marketplace.json` 或 Claude `.claude-plugin/marketplace.json`，再读各 `pieces/<id>/piece.yaml`；`registry.yaml` 缺失时跳过外部段。
-3. 生成可选列表:
-   - 本地拼图：只取目录中 `catalog_state: installable` 且 `runtime_state` 为 `available`、`installed` 或 `active` 的来源拼图；已安装/active 项默认不重复安装，并显示版本与状态。
-   - 外部能力：仅当前宿主 `availability` 为 `installable`、存在 `trust_ref` 且能在 `trust.yaml` 找到匹配项时可选。
-   - `status: not-integrated`、`kind` 以 `-candidate` 结尾、`reference-only`、`unverified`、`unsupported` 只能列入“不可安装/研究信息”，不得进入选择项。
-4. 优先使用宿主原生多选提问；不可用时输出编号列表，要求用户回复逗号分隔的拼图 id。没有用户选择不得安装。
-5. 逐项安装:
-   - 本地拼图(Claude):`claude plugin install <id>@tessera --scope user`
-   - 本地拼图(Codex):`codex plugin add <id>@tessera`
-   - template-pack 类:按「只补缺」复制模板到项目 `docs/`(文件已存在一律跳过)
-   - 外部 CLI:先跑 piece.yaml 的 version_check 探测;缺失才装;**install 命令必须与仓库根 trust.yaml 对应条目的模板逐词一致(全匹配,含未知 flag 即拒),不一致则拒绝执行并打印命令原文让用户手动判断**
-6. 输出安装报告:装了什么、跳过什么、哪些因未验证或不受支持而不可安装、哪些需重启会话生效。
+## 统一流程
+
+1. 识别 Codex/Claude 和 Tessera 仓库根；优先运行 `scripts/resolve_capabilities.py --host <host> --probe --format json`。脚本不可见时按 `tessera-status` 的宿主降级规则探测。
+2. 让用户选择目标拼图和动作。没有明确选择时只展示候选，不执行任何变更。
+3. 对每项展示：当前状态、目标状态、完整命令、影响范围、可逆性、恢复方式、验证命令和是否需重载。
+4. 使用宿主原生确认能力逐项确认。一次确认只授权当前展示的一个动作；跳过项记为 `skipped`。
+5. 仅执行下述白名单命令；执行后立即重新运行能力解析或宿主 `plugin list --json`，以实际状态判定成功，不能只看退出码。
+6. 输出 `succeeded / failed / skipped / blocked / plan-only` 报告。动作失败只阻断依赖它的后续动作，不影响独立项。
+
+## 候选与安装安全
+
+- 本地拼图只取动态目录中 `catalog_state: installable` 且运行时为 `available`、`installed` 或 `active` 的来源拼图；已安装项不重复作为“新安装”。
+- 外部能力只有当前宿主为 `installable`、存在 `trust_ref` 且 `trust.yaml` 安装命令逐词完全匹配时才可安装。
+- `not-integrated`、candidate、`reference-only`、`unverified`、`unsupported` 只能作为信息，不进入可执行选择项。
+- template-pack 仍只补缺，已有文件一律跳过；不得写入散装 skill 目录。
+
+## 宿主动作矩阵
+
+| 动作 | Claude | Codex |
+|---|---|---|
+| install | `claude plugin install <id>@tessera --scope user` | Windows: `codex.cmd plugin add <id>@tessera`；其它：`codex plugin add <id>@tessera` |
+| refresh / update | `claude plugin update <id>@tessera --scope user` | 与 install 相同，由 add 刷新 |
+| enable | `claude plugin enable <id>@tessera --scope user` | `unsupported` |
+| disable | `claude plugin disable <id>@tessera --scope user` | `unsupported`；不得改用 remove |
+| uninstall | `claude plugin uninstall <id>@tessera --scope user` | Windows: `codex.cmd plugin remove <id>@tessera`；其它：`codex plugin remove <id>@tessera` |
+| rollback | 仅计划 | 仅计划 |
+
+- Claude 变更后提示 `/reload-plugins`；Codex 变更后提示新开会话。
+- 卸载不默认传 `--prune`，不移除 marketplace。卸载 `tessera-core` 前必须说明：当前会话可能仍保留旧能力，但新会话将无法调用 core。
+- Codex 没有公开插件级 enable/disable 时如实报告 `unsupported`，不直接编辑私有配置。
+
+## 回滚指导
+
+1. 必须由用户提供明确 tag 或 commit；`latest`、`previous`、缓存目录和“上一个版本”均不够明确。
+2. 仓库可见时运行：`python scripts/lifecycle_policy.py --host <host> --action rollback --piece <id> --ref <ref>`。该命令只读验证 commit、双宿主 manifest 和目标版本。
+3. 展示当前 marketplace 来源、目标 commit/version、可能受影响的其它拼图以及恢复到当前 ref 的步骤。
+4. 只输出宿主对应的 pinned marketplace/reinstall 人工步骤；不得切换当前工作树、使用旧缓存、自动移除或重配 marketplace。
 
 ## 硬规则
 
-- 永不静默安装未勾选项;永不执行 trust.yaml 之外的安装命令。
-- 外部能力的 `per_platform.<host>` 安装命令必须与 `trust.yaml` 对应 `install` 逐字一致；不一致就拒绝执行并显示差异。
-- 本 skill 只经 plugin 通道安装拼图;`~/.claude/skills/`、`~/.agents/skills/` 散装目录是开发模式专用,不写入。
+- 所有可执行变更逐项确认；永不静默安装、刷新、启停或卸载。
+- 外部安装命令必须与 `trust.yaml` 完全匹配；未知 flag 或差异一律拒绝。
+- 回滚、仓库结构修复和 trust 修改永远是 `plan-only`。

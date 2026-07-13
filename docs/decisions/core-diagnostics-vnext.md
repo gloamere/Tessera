@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: core-diagnostics-vnext
-status: approved
+status: superseded
 created: 2026-07-13
 approved: 2026-07-13
 review: 累积至少 10 次 doctor/status 真实使用后重审诊断项与输出噪音
+superseded_by: core-lifecycle-recipes-remediation
 ---
 
 # Core vNext：诊断、升级建议与路由解释
