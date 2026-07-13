@@ -30,6 +30,10 @@
   prompt: tessera status，看看装了哪些拼图
   expected_route: tessera-status
   must_not_route: [tessera-setup]
+- id: diagnose-tessera
+  prompt: tessera doctor，全面检查市集、版本和 trust 是否漂移
+  expected_route: tessera-doctor
+  must_not_route: [tessera-status]
 - id: propose-new-piece
   prompt: 我想新增一个代码语义检索拼图
   expected_route: piece-admission

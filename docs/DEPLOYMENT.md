@@ -54,6 +54,9 @@ codex debug prompt-input
 - “新增一个代码语义检索拼图”应先输出七维评分、原始等级、封顶与建议，不直接安装。
 - “安装拼图”不得把 `not-integrated`、`unverified` 或 candidate 项列为可安装项。
 - “tessera status”无法证实时必须报告 `unknown`，不得把未知写成未安装。
+- “tessera doctor”应输出总状态和逐项证据，且不得修改文件或自动执行修复。
+- 已装版与市集版只差 build metadata 时应报告 `refresh-available`；预发布或缺失版本应报告 `unknown`。
+- 模糊复合任务触发 router 时应有一行路由说明；明显简单任务不增加说明。
 - 在没有决策目录的普通项目中做低风险方案选择，不得自动创建 `docs/decisions/`。
 
 Claude 端使用同义提示并额外验证 `/tessera-status` 只路由到 status skill。不要依赖缓存、未跟踪的二进制或本机 hooks 作为验收依据。

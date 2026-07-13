@@ -11,8 +11,8 @@
     {
       "name": "tessera-core",
       "source": "./pieces/tessera-core",
-      "description": "内核:路由兜底、安装引导、状态查看",
-      "version": "0.1.6+codex.20260713071436",
+      "description": "内核:路由、安装引导、状态与只读诊断",
+      "version": "0.1.6+codex.20260713080157",
       "strict": true
     },
     {

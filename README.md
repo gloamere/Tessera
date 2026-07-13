@@ -55,7 +55,7 @@ flowchart LR
 
 | 拼图 | 类型 | 用途 | 额外条件 |
 |---|---|---|---|
-| `tessera-core` | Skills | 路由、安装引导、拼图/依赖状态 | 无 |
+| `tessera-core` | Skills | 路由与解释、安装引导、状态、升级建议、只读诊断 | 无 |
 | `taste` | Skill | UI、视觉、排版与文案评审 | 无 |
 | `knowledge-base` | Skill | Markdown 知识沉淀与检索 | 无 |
 | `planner` | Skill | 游戏、内容、产品方案策划 | 无 |
@@ -78,6 +78,7 @@ codex plugin list
 - “查看拼图和依赖状态”或“tessera status” → `tessera-status`
 - “安装拼图 / setup” → `tessera-setup`
 - “新增一个拼图” → `piece-router` 按七级准入量表先评分再建议
+- “全面体检 Tessera / tessera doctor” → `tessera-doctor`
 
 Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执行其自身的插件安装命令。
 
@@ -90,6 +91,9 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 | 条件式子代理 | 宿主支持且任务独立时，最多并行 3 个；主 Agent 负责汇总与验证 |
 | 拼图安装 | 展示选项与依赖；外部安装始终由用户确认 |
 | 状态诊断 | 汇总插件版本、启用状态和外部依赖状态 |
+| 全面体检 | 只读检查市集、manifest、版本、registry/trust 与依赖漂移 |
+| 升级建议 | 区分 current、refresh、update、ahead、unknown；只建议，不自动执行 |
+| 路由解释 | router 被调用时说明选择、净收益依据与降级方式 |
 | 任务规划 | 使用宿主原生能力，不引入外部持久任务后端 |
 
 ## 开发与验证

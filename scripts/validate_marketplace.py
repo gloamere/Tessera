@@ -9,6 +9,8 @@ import sys
 import yaml
 
 from admission_score import evaluate, grade_for_score
+from doctor_status import overall_status
+from version_status import classify_version
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -174,6 +176,7 @@ def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
         "piece-admission",
         "tessera-setup",
         "tessera-status",
+        "tessera-doctor",
         "external-unavailable",
     }
     seen: set[str] = set()
@@ -249,6 +252,55 @@ def validate_admission_cases(errors: list[str]) -> None:
                 errors.append(
                     f"{relative(path)}: {case_id}.{field} 期望 {expected.get(field)!r}，实际 {actual[field]!r}"
                 )
+
+
+def validate_doctor_cases(errors: list[str]) -> None:
+    path = ROOT / "tests" / "doctor-cases.yaml"
+    cases = read_yaml(path)
+    if not isinstance(cases, list) or not cases:
+        errors.append(f"{relative(path)}: 必须是非空数组")
+        return
+    seen: set[str] = set()
+    for case in cases:
+        if not isinstance(case, dict) or not isinstance(case.get("id"), str):
+            errors.append(f"{relative(path)}: 每个案例必须有字符串 id")
+            continue
+        case_id = case["id"]
+        if case_id in seen:
+            errors.append(f"{relative(path)}: 案例 id {case_id} 重复")
+        seen.add(case_id)
+        results = case.get("results")
+        expected = case.get("expected_overall")
+        if not isinstance(results, list) or expected not in {
+            "healthy",
+            "warning",
+            "error",
+            "unknown",
+        }:
+            errors.append(f"{relative(path)}: {case_id} 结果或 expected_overall 无效")
+            continue
+        try:
+            actual = overall_status(results)
+        except ValueError as exc:
+            errors.append(f"{relative(path)}: {case_id}: {exc}")
+            continue
+        if actual != expected:
+            errors.append(
+                f"{relative(path)}: {case_id} 期望 {expected}，实际 {actual}"
+            )
+
+    version_cases = {
+        ("1.2.3", "1.2.3"): "current",
+        ("1.2.3+codex.old", "1.2.3+codex.new"): "refresh-available",
+        ("1.2.3", "1.3.0"): "update-available",
+        ("2.0.0", "1.9.9"): "ahead",
+        (None, "1.0.0"): "unknown",
+        ("1.0.0-beta.1", "1.0.0"): "unknown",
+    }
+    for versions, expected in version_cases.items():
+        actual = classify_version(*versions)
+        if actual != expected:
+            errors.append(f"版本状态 {versions} 期望 {expected}，实际 {actual}")
 
 
 def main() -> int:
@@ -327,6 +379,12 @@ def main() -> int:
                 )
                 if not admission_reference.is_file():
                     errors.append("tessera-core: 缺少 piece-router 准入量表 reference")
+                for required_path in (
+                    piece_dir / "skills" / "tessera-doctor" / "SKILL.md",
+                    piece_dir / "commands" / "tessera-doctor.md",
+                ):
+                    if not required_path.is_file():
+                        errors.append(f"tessera-core: 缺少 {relative(required_path)}")
 
         active_instruction_paths = list(PIECES.glob("**/SKILL.md")) + list(
             PIECES.glob("**/commands/*.md")
@@ -341,6 +399,7 @@ def main() -> int:
         validate_decisions(errors)
         validate_route_cases(marketplace_ids, errors)
         validate_admission_cases(errors)
+        validate_doctor_cases(errors)
     except ValueError as exc:
         errors.append(str(exc))
 
