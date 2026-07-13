@@ -1,0 +1,52 @@
+- id: direct-small-edit
+  prompt: 修正文档里的一个错别字
+  expected_route: direct
+  must_not_route: [piece-router, planner]
+- id: visual-review
+  prompt: 评审这个页面的层级、配色和排版，看看是否有 AI 味
+  expected_route: taste
+  must_not_route: [planner]
+- id: visual-functional-bug
+  prompt: 按钮点击后接口返回 500，帮我定位原因
+  expected_route: direct
+  must_not_route: [taste]
+- id: knowledge-capture
+  prompt: 把这些研究结论整理成可复用的双链笔记
+  expected_route: knowledge-base
+  must_not_route: [planner]
+- id: transient-question
+  prompt: 解释一下这个正则表达式
+  expected_route: direct
+  must_not_route: [knowledge-base]
+- id: product-directions
+  prompt: 给这个活动设计三个可供负责人拍板的玩法方向
+  expected_route: planner
+  must_not_route: [taste]
+- id: install-pieces
+  prompt: 帮我安装 Tessera 拼图
+  expected_route: tessera-setup
+  must_not_route: [piece-admission]
+- id: inspect-status
+  prompt: tessera status，看看装了哪些拼图
+  expected_route: tessera-status
+  must_not_route: [tessera-setup]
+- id: propose-new-piece
+  prompt: 我想新增一个代码语义检索拼图
+  expected_route: piece-admission
+  must_not_route: [tessera-setup]
+- id: multi-intent
+  prompt: 调研竞品后做产品方案，并把结论沉淀成知识笔记
+  expected_route: piece-router
+  must_not_route: [direct]
+- id: unverified-external
+  prompt: 安装 registry 里尚未集成的浏览器后端
+  expected_route: external-unavailable
+  must_not_route: [tessera-setup]
+- id: low-risk-without-decision-directory
+  prompt: 这个仓库没有 docs/decisions，把 README 的两个重复段落合并掉
+  expected_route: direct
+  must_not_route: [planner]
+- id: high-impact-direction-confirmation
+  prompt: 项目没有 ADR，请把存储层从本地文件整体切换成远程数据库
+  expected_route: piece-router
+  must_not_route: [direct]

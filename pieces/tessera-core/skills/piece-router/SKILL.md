@@ -1,17 +1,19 @@
 ---
 name: piece-router
-description: 复杂或不确定该用什么工具、涉及多种能力、或说"新项目""帮我规划""不知道怎么开始"时使用:Tessera 路由网关,选择下一块能力拼图。
+description: 复杂或不确定该用什么工具、涉及多种能力、说"新项目""帮我规划""不知道怎么开始"，或请求新增/引入拼图时使用:Tessera 路由网关,选择下一块能力拼图并执行准入评审。
 ---
 
 # 拼图派发表
 
 | 意图 | 拼图 | 调用方式 |
 |---|---|---|
-| 搜索、调研、查资料、读 URL、看某平台讨论 | agent-reach | 已装于 ~/.claude/skills;Codex 端安装未验证,不可用则如实说明,不假定可调用 |
+| 搜索、调研、查资料、读 URL、看某平台讨论 | agent-reach 或宿主原生能力 | 先按 registry 检查当前宿主可用性；不可用时如实说明并使用宿主已有能力，不假定外部 skill 可调用 |
 | UI/视觉设计评审、审美判断、反套路自检 | taste | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
-| 写代码、改功能、修 bug | superpowers 流程链 | brainstorming → writing-plans → 实现 → verification;不可用则如实说明 |
+| 写代码、改功能、修 bug | superpowers 流程链或宿主原生能力 | 当前宿主可用时走 brainstorming → writing-plans → 实现 → verification；不可用则如实说明并正常完成 |
 | 记笔记、整理知识、建/查知识库 | knowledge-base | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
 | 游戏/内容/产品方案策划(非写代码) | planner | 本仓库拼图,随 tessera 市集提供;未装则提示 /tessera-setup |
+| 新增/引入/拆分/设计拼图 | 本 router | 读取 `references/piece-admission.md`，先给七维评分与 S–F 建议，再决定是否进入实现 |
+| 安装 registry 中未集成/候选外部能力 | 本 router | 说明其不可安装状态与缺失证据，不进入 tessera-setup 选择项 |
 | 拼图状态/安装/升级 | tessera-core 自身 | tessera-status、tessera-setup skill |
 
 **如实交代状态**:未安装、未验证或规划中的目标只能说明其状态,不能伪装成已安装、可直接调用的 skill/CLI。
@@ -36,9 +38,9 @@ description: 复杂或不确定该用什么工具、涉及多种能力、或说"
 
 ## 硬规则(必须遵守)
 
-1. **方向性拍板**:设计方向、策划方案、UI 风格、技术选型属负责人拍板范围。执行会固化方向的实现前,检查 `docs/decisions/` 下关联决策文件 frontmatter——`status: approved` 才能动工;没有决策文件就先创建(status: pending)并用 AskUserQuestion 请负责人拍板。decisions 文件状态是唯一权威。
+1. **方向性拍板**:目标项目已有 ADR、`docs/decisions/` 或其它决策规范时严格遵循。项目没有决策机制时，只对高影响、难逆转的方向请求用户确认；使用宿主原生结构化提问能力，不可用时直接提出一个简短文本问题。不得仅因缺少决策目录而阻塞任务或自动创建文件。
 2. **不可逆操作**(强推、递归删除、丢弃改动、全局安装)执行前先向用户说明并确认;不可逆命令仍受 Codex/Claude 原生权限约束。
 
 ## 多意图命中
 
-命中多块拼图时,先用 AskUserQuestion 让用户选;零命中时正常工作,不硬套拼图。路由决策以净收益为准:质量提升必须大于额外 token、调用延迟与上下文切换成本。
+命中多块拼图且选择会实质改变结果时，优先用宿主原生结构化提问让用户选；不可用时提出一个简短文本问题。若问题不阻塞且存在安全默认值，明确默认值后继续。零命中时正常工作，不硬套拼图。路由决策以净收益为准:质量提升必须大于额外 token、调用延迟与上下文切换成本。

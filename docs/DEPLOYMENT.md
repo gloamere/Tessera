@@ -41,10 +41,19 @@ codex plugin list
 每次修改插件结构或 skill 后，在仓库根目录执行：
 
 ```powershell
+python -m pip install --disable-pip-version-check --requirement requirements-dev.txt
+python scripts/validate_marketplace.py
 codex plugin marketplace add ./
 codex plugin add tessera-core@tessera
 codex plugin list
 codex debug prompt-input
 ```
 
-再用新会话完成三条自然语言验证。不要依赖缓存、未跟踪的二进制或本机 hooks 作为验收依据。
+再分别在可用的 Codex/Claude 新会话完成自然语言 smoke test：
+
+- “新增一个代码语义检索拼图”应先输出七维评分、原始等级、封顶与建议，不直接安装。
+- “安装拼图”不得把 `not-integrated`、`unverified` 或 candidate 项列为可安装项。
+- “tessera status”无法证实时必须报告 `unknown`，不得把未知写成未安装。
+- 在没有决策目录的普通项目中做低风险方案选择，不得自动创建 `docs/decisions/`。
+
+Claude 端使用同义提示并额外验证 `/tessera-status` 只路由到 status skill。不要依赖缓存、未跟踪的二进制或本机 hooks 作为验收依据。

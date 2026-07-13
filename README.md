@@ -25,17 +25,20 @@ flowchart LR
     P -- 否 --> C{能拆为独立子任务，且并行收益<br/>高于 token 与协调成本？}
     C -- 是 --> M[最多 3 个子代理并行<br/>主 Agent 汇总、验证、交付]
     C -- 否 --> A
-    S --> G[用户确认外部安装<br/>原生权限控制 · 真实状态披露]
-    M --> G
-    A --> G
+    S --> E{是否需要外部安装？}
+    E -- 是 --> G[用户确认外部安装<br/>原生权限控制 · 真实状态披露]
+    E -- 否 --> O[交付结果]
+    M --> O
+    A --> O
+    G --> O
 
     classDef entry fill:#1f6feb,color:#fff,stroke:#1f6feb,stroke-width:2px;
     classDef decision fill:#fff8c5,color:#24292f,stroke:#bf8700,stroke-width:2px;
     classDef action fill:#dafbe1,color:#116329,stroke:#4ac26b,stroke-width:2px;
     classDef guard fill:#fbefff,color:#6639ba,stroke:#d2a8ff,stroke-width:2px;
     class U,R entry;
-    class D,P,C decision;
-    class A,S,M action;
+    class D,P,C,E decision;
+    class A,S,M,O action;
     class G guard;
 ```
 
@@ -74,6 +77,7 @@ codex plugin list
 - “不知道该用哪个工具，帮我规划新项目” → `piece-router`
 - “查看拼图和依赖状态”或“tessera status” → `tessera-status`
 - “安装拼图 / setup” → `tessera-setup`
+- “新增一个拼图” → `piece-router` 按七级准入量表先评分再建议
 
 Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执行其自身的插件安装命令。
 

@@ -12,28 +12,28 @@
       "name": "tessera-core",
       "source": "./pieces/tessera-core",
       "description": "内核:路由兜底、安装引导、状态查看",
-      "version": "0.1.6+codex.20260713060249",
+      "version": "0.1.6+codex.20260713071436",
       "strict": true
     },
     {
       "name": "taste",
       "source": "./pieces/taste",
       "description": "审美评审:UI/视觉/文案反套路",
-      "version": "0.1.0",
+      "version": "0.1.0+codex.20260713071436",
       "strict": true
     },
     {
       "name": "knowledge-base",
       "source": "./pieces/knowledge-base",
       "description": "知识库:markdown + 双链轻量管理",
-      "version": "0.1.0",
+      "version": "0.1.0+codex.20260713071436",
       "strict": true
     },
     {
       "name": "planner",
       "source": "./pieces/planner",
       "description": "策划:游戏/内容/产品方案",
-      "version": "0.1.1+codex.20260713060249",
+      "version": "0.1.1+codex.20260713071436",
       "strict": true
     }
   ]

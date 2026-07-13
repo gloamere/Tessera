@@ -1,6 +1,6 @@
 {
   "name": "knowledge-base",
-  "description": "知识库拼图:markdown + 双链的轻量个人知识管理",
-  "version": "0.1.0",
+  "description": "\u77e5\u8bc6\u5e93\u62fc\u56fe:markdown + \u53cc\u94fe\u7684\u8f7b\u91cf\u4e2a\u4eba\u77e5\u8bc6\u7ba1\u7406",
+  "version": "0.1.0+codex.20260713071436",
   "skills": "./skills/"
 }

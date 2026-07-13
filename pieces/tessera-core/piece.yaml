@@ -5,7 +5,8 @@ when_to_use:
   - 复合/模糊意图,不确定用哪块拼图 → piece-router
   - 初始化工作流、安装拼图 → tessera-setup
   - 查看拼图与依赖状态 → tessera-status(skill;Claude 也可用 /tessera-status 命令)
+  - 用户要求新增、引入、拆分或设计拼图 → piece-router 加载七级准入量表
 avoid_when: 已有明确单一工具触发的任务
-platforms: { claude: native, codex: native, gemini: snippet, domestic: snippet }
+platforms: { claude: native, codex: native, gemini: unsupported, domestic: unsupported }
 external_deps: []
 upgrade_policy: notify-only

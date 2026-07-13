@@ -6,7 +6,7 @@ when_to_use:
   - 内容 / 活动 / 产品方案设计
   - 需要先定方向、再交负责人拍板的创意工作
 avoid_when: 写代码(走 superpowers 流程链)、纯执行无策划成分
-platforms: { claude: native, codex: native, gemini: snippet, domestic: snippet }
+platforms: { claude: native, codex: native, gemini: unsupported, domestic: unsupported }
 external_deps: []
 inspired_by:
   - mvanhorn/last30days-skill          # 跨源近 30 天调研
