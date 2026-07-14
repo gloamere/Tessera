@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: personal-workflow-mainline
-status: approved
+status: superseded
 created: 2026-07-13
 approved: 2026-07-13
 review: 累积 30/90 天本地使用数据后重审拼图保留、触发边界与是否公开
+superseded_by: native-first-runtime-simplification
 ---
 
 # Tessera 以个人跨 Agent 工作流为主线

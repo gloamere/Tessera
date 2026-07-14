@@ -7,10 +7,6 @@ description: 当需要记笔记、整理某主题资料、把散落信息沉淀�
 
 轻量方式沉淀知识:一则一文件,markdown + 双链,可被 grep 检索。**不上向量库**——个人规模用文件 + 搜索足够。
 
-## 可选本地使用记录
-
-若能定位 Tessera 仓库的 `scripts/usage_events.py`，进入时尝试运行 `start --host <host> --skill knowledge-base --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill knowledge-base --outcome completed|failed --project <cwd>`。默认关闭；记录不可用不得影响知识沉淀或增加用户提示。
-
 ## 一则笔记的结构
 
 ```markdown
@@ -48,5 +44,5 @@ created: <YYYY-MM-DD>
 
 ## 与其它拼图
 
-- 需跨全网搜集新资料 → 先走 agent-reach,再把结论沉淀成笔记。
+- 需搜集新资料 → 先使用宿主当前可用的搜索、浏览器或连接器，再把结论沉淀成笔记。
 - 要真·RAG(百万级文档语义检索)才考虑接 llama_index / milvus 后端(见 registry 候选后端),个人规模不必。

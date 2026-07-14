@@ -2,7 +2,7 @@
   "author": {
     "name": "van"
   },
-  "description": "Tessera 个人可靠性内核:原生 Skill 调用验证、跨宿主诊断与异常路由",
+  "description": "Tessera 轻量评测层:验证 Codex/Claude 原生 Skill 调用与边界稳定性",
   "name": "tessera-core",
-  "version": "0.4.0+codex.20260714"
+  "version": "0.6.0+codex.20260714063655"
 }

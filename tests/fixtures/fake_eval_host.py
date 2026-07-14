@@ -9,12 +9,11 @@ import sys
 
 ROUTES = {
     "direct-small-edit": "direct",
-    "multi-intent": "piece-router",
+    "multi-intent": "planner",
     "evaluate-routing": "tessera-eval",
-    "resolve-capabilities": "tessera-capabilities",
 }
 NATIVE_SKILLS = {
-    "multi-intent": ["piece-router", "planner", "knowledge-base"],
+    "multi-intent": ["planner", "knowledge-base"],
 }
 
 prompt = sys.stdin.read()
@@ -24,12 +23,12 @@ route = ROUTES.get(case_id, "direct")
 if "MODE: native" in prompt:
     selected = NATIVE_SKILLS.get(
         case_id,
-        [] if route == "direct" else ["piece-router" if route == "piece-admission" else route],
+        [] if route == "direct" else [route],
     )
     print(
         json.dumps(
             {
-                "decision": "direct" if not selected else ("router" if "piece-router" in selected else "skill"),
+                "decision": "direct" if not selected else "skill",
                 "selected_skills": selected,
                 "observed_skills": selected,
                 "observation_source": "host-events",
@@ -38,4 +37,4 @@ if "MODE: native" in prompt:
         )
     )
 else:
-    print(json.dumps({"route": route, "reason": "deterministic fixture", "router_used": route == "piece-router"}))
+    print(json.dumps({"route": route, "reason": "deterministic fixture"}))

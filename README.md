@@ -2,152 +2,129 @@
 
 # 🧩 Tessera
 
-**Claude / Codex 原生 Skills 之上的个人可靠性控制层。**
+**Claude / Codex 原生 Skills 之上的轻量评测与专业工作流。**
 
-让宿主原生完成普通 Skill 发现与调用；Tessera 负责调用验证、跨宿主诊断和数据驱动精简。明确任务直接交给宿主，只有模糊、多意图、高风险或新增能力请求才进入 Tessera router。
+宿主负责 Skill 发现、计划、确认、委派和插件生命周期；Tessera 只验证原生调用，并提供少量可选专业 Skill。
 
 [![CI](https://github.com/gloamere/Tessera/actions/workflows/validate.yml/badge.svg)](https://github.com/gloamere/Tessera/actions/workflows/validate.yml)
 ![License](https://img.shields.io/github/license/gloamere/Tessera?color=blue)
 
 </div>
 
-Tessera 是纯 skills 插件：没有 hooks、常驻进程、Go/Node 二进制或 release 下载链。可选使用记录默认关闭；显式启用后只写入本机 `~/.tessera`，不联网，也不记录提示正文和真实项目路径。
+Tessera 是纯 Skills 市集：没有 hooks、常驻进程、数据库、私有任务后端或自建插件管理器。普通任务直接由 Claude/Codex 处理；明确的专业请求由宿主按 Skill description 原生选择。
 
-## 当前主线
+## 能力
 
-Tessera 先服务维护者自己的“开发为主、产品/调研/UI/知识为辅”工作流，不以商业化、stars、公共 Benchmark 或拼图数量为目标。
-
-- **Eval**：区分路由政策分类与可观测的原生 Skill 调用，用真实失败驱动边界优化。
-- **Status / Doctor**：统一查看 Codex / Claude 的版本、启用状态、配置漂移和个人使用摘要。
-- **Router**：只处理模糊、多意图、高风险、不可逆决策和新能力准入。
-- **本地使用记录（可选）**：用 30/90 天数据决定保留、修正或卸载哪些能力。
-
-`setup`、生命周期、remediation、marketplace 与 trust 是低频维护层，保持安全可用但不继续扩张。七级准入量表和 recipe 保留为按需参考，不作为日常仪式。
-
-## 执行流程
+| 插件 | Skill | 用途 | 安装策略 |
+|---|---|---|---|
+| `tessera-core` | `tessera-eval` | 区分 policy 分类与可观察 native 调用，检查误调、漏调和稳定性 | 核心 |
+| `taste` | `taste` | UI、视觉、排版、配色与文案审美评审 | 可选 |
+| `planner` | `planner` | 游戏、内容、活动和产品方向策划 | 可选 |
+| `knowledge-base` | `knowledge-base` | Markdown + 双链知识沉淀 | 可选 |
 
 ```mermaid
 flowchart LR
-    U([用户任务]) --> H{宿主原生选择}
-    H --> A[直接处理]
-    H --> S[直接调用专业 Skill]
-    H --> X{模糊 / 多意图 / 高风险<br/>或新增能力？}
-    X -- 是 --> R[Tessera router]
-    X -- 否 --> A
-    R --> O[执行并交付]
-    A --> O
-    S --> O
-    O --> L[可选本地使用记录]
-    C([配置或宿主变化]) --> E[Tessera eval]
-    E --> T[失败驱动的边界建议<br/>人工确认后修改]
-
-    classDef entry fill:#1f6feb,color:#fff,stroke:#1f6feb,stroke-width:2px;
-    classDef decision fill:#fff8c5,color:#24292f,stroke:#bf8700,stroke-width:2px;
-    classDef action fill:#dafbe1,color:#116329,stroke:#4ac26b,stroke-width:2px;
-    classDef guard fill:#fbefff,color:#6639ba,stroke:#d2a8ff,stroke-width:2px;
-    class U,R,E entry;
-    class H,X decision;
-    class A,S,O,L action;
-    class C,T guard;
+    U([用户任务]) --> H{Claude / Codex 原生选择}
+    H --> D[直接处理]
+    H --> T[taste]
+    H --> P[planner]
+    H --> K[knowledge-base]
+    C([Skill 或宿主变化]) --> E[tessera-eval]
+    E --> R[可观察报告与边界建议]
 ```
 
-## 适用场景
+## 原生优先边界
 
-- 新项目、高影响重构或跨领域需求：`piece-router` 负责选择工作方式和确认方向。
-- 明确的 UI/视觉评审：宿主直接调用 `taste`，不先经过 Tessera router。
-- 明确的游戏、内容和产品方案：宿主直接调用 `planner`；知识沉淀同理由宿主直接调用 `knowledge-base`。
-- 陌生大型代码库：使用宿主已有的检索与代码导航能力，避免为路由额外引入重型服务。
+以下能力直接使用宿主功能，Tessera 不再包装：
 
-## 默认拼图
+- Skill 发现与调用。
+- 会话计划、Goal、用户确认和子代理委派。
+- 插件浏览、安装、刷新、启用、禁用与卸载。
+- 已安装插件和当前启用状态查看。
+- 外部工具、MCP、连接器和浏览器能力选择。
 
-“默认提供”不等于静默安装。除 `tessera-core` 外，其余拼图都由用户按需安装。
+仓库只在 CI 中检查 Claude/Codex marketplace、manifest 和 Skill frontmatter 是否一致；不会在用户会话中维护第二份运行时能力目录。
 
-| 拼图 | 类型 | 用途 | 额外条件 |
-|---|---|---|---|
-| `tessera-core` | Skills | 原生调用验证、状态/诊断和异常路由；附带冻结的生命周期与准入能力 | 无 |
-| `taste` | Skill | UI、视觉、排版与文案评审 | 无 |
-| `knowledge-base` | Skill | Markdown 知识沉淀与检索 | 无 |
-| `planner` | Skill | 游戏、内容、产品方案策划 | 无 |
+## 安装
 
-外部候选（例如 Playwright MCP、GitHub MCP）只在安装方式验证并经用户确认后才进入工作流；未安装、未验证或未集成的能力会如实说明，不会伪装成可调用工具。
+### Codex
 
-## 安装（Codex）
+Windows 一键安装核心插件：
 
 ```powershell
-git clone https://github.com/gloamere/Tessera.git
-cd Tessera
-codex plugin marketplace add ./
+irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
+```
+
+安装全部四个插件：
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1))) -All
+```
+
+macOS / Linux：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gloamere/Tessera/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/gloamere/Tessera/main/install.sh | sh -s -- --all
+```
+
+脚本只调用 Codex 原生 marketplace/plugin 命令并验证安装结果。若不希望执行远程脚本，可手动运行：
+
+```powershell
+codex plugin marketplace add gloamere/Tessera --ref main
 codex plugin add tessera-core@tessera
-codex plugin list
+codex plugin list --json
 ```
 
-新开 Codex 会话后，三个主要入口按价值排序是：
+无需 clone Tessera 仓库。安装后新开任务；插件启停与卸载使用 Codex 原生插件浏览器或 `codex plugin` 命令。
 
-- “运行 tessera eval，复测原生 Skill 调用” → `tessera-eval`
-- “查看拼图和依赖状态”或“tessera status” → `tessera-status`
-- “全面体检 Tessera / tessera doctor” → `tessera-doctor`；明确要求修复时逐项确认 remediation
-- “不知道该用哪个工具，帮我规划新项目” → `piece-router`
-
-低频维护仍可使用“安装/升级/禁用/卸载/回滚指导”触发 `tessera-setup`。`tessera-capabilities` 保留为完整能力目录的兼容入口，日常查看已经并入 status。
-
-## 可选本地使用记录
+### Claude Code
 
 ```powershell
-# 显式启用；默认保留 90 天
-python scripts/usage_events.py enable
-
-# 查看最近 30 或 90 天摘要
-python scripts/usage_events.py summary --days 30
-
-# 停止新增记录但保留历史；清空必须显式 purge
-python scripts/usage_events.py disable
-python scripts/usage_events.py purge
+claude plugin marketplace add gloamere/Tessera
+claude plugin install tessera-core@tessera --scope user
+claude plugin list --json
 ```
 
-事件只包含 skill、宿主、时间、完成状态、显式有用性反馈和带本机 salt 的项目哈希。记录依赖首方 Skill 执行 start/finish 指令，是 best-effort 而不是宿主级完整遥测；外部 Skill 的直接调用无法可靠观测，摘要会明确披露这一边界。
+按需安装 `taste@tessera`、`planner@tessera` 或 `knowledge-base@tessera`。交互会话中安装或启停后运行 `/reload-plugins`；其它生命周期动作使用 Claude 原生 `/plugin` 或 `claude plugin` 命令。
 
-Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执行其自身的插件安装命令。
+## Eval
 
-## 功能边界
+安装后直接说“运行 tessera eval”或“用个人场景复测原生 Skill 调用”。`tessera-eval` 会从自身插件目录加载运行器、schema 和案例，报告写入当前项目的 `eval-results/`。不需要 Tessera checkout 或 pip；运行 eval 的机器只需能调用 Python 3 标准库。
 
-| 功能 | 行为 |
-|---|---|
-| 原生调用 | 普通任务由 Claude/Codex 根据 Skill description 原生发现与调用，Tessera 不增加前置网关 |
-| 异常路由 | 只为模糊、多意图、高风险、不可逆决策和新能力请求选择工作方式 |
-| 动态能力解析 | schema v2 合并会话、市集、piece、skill、registry/trust 与宿主 JSON 探测；status 默认 quick，详细模式才显示候选与未验证项 |
-| 专业能力调用 | 仅当质量/速度收益高于额外 token 与等待成本时调用 |
-| 条件式子代理 | 宿主支持且任务独立时，最多并行 3 个；主 Agent 负责汇总与验证 |
-| 拼图生命周期 | 安装、刷新/升级、启停和卸载逐项确认；回滚只接受显式 Git ref 并保持 plan-only |
-| 状态诊断 | 汇总插件版本、启用状态、宿主可用动作和外部依赖状态 |
-| 全面体检 | 默认只读；显式 remediation 仅执行 setup 白名单动作并逐项复查 |
-| 多意图 recipe | 按数据依赖排序、使用统一交接包，失败只阻断依赖链且不持久化状态 |
-| 政策评测 | 用显式分类提示验证 Tessera 路由政策；结果不冒充宿主原生调用证据 |
-| 原生调用评测 | 不泄露路由清单，从宿主事件或可信 transcript 观察 Skill；区分 verified、declared-only、unobservable、conflict |
-| 提示边界优化 | 同一真实失败至少三次中复现两次才给建议；不自动修改 Skill，也不优化用户日常提示词 |
-| 个人场景回归 | 独立维护 25 个案例：15 个开发、10 个产品/调研/UI/知识场景 |
-| 本地使用记录 | 默认关闭；启用后本地记录首方 skill 的触发、完成、反馈与跨项目复用，不联网 |
-| 升级建议 | 区分 current、refresh、update、ahead、unknown；变更统一交给 setup 逐项确认 |
-| 路由解释 | router 被调用时说明选择、净收益依据与降级方式 |
-| 任务规划 | 使用宿主原生能力，不引入外部持久任务后端 |
+报告严格区分：
 
-## 开发与验证
+- `verified`：宿主事件或可信 transcript 观察到调用。
+- `declared-only`：只有模型自报，不算真实调用通过。
+- `unobservable`：没有足够证据。
+- `conflict`：模型声明与宿主证据冲突。
 
-本项目的产品面是插件清单与 Markdown skills。提交前运行：
+Claude 没有可信适配器时只支持 dry-run，并报告 `unavailable`；CI 假宿主只验证脚本和 schema，不作为模型准确率。
+
+## 开发验证
 
 ```powershell
 python scripts/validate_marketplace.py
-python scripts/resolve_capabilities.py --host codex --probe --view quick --format table
-python scripts/run_routing_eval.py --host codex --mode policy --dry-run
-python scripts/run_routing_eval.py --host codex --mode native --cases tests/personal-routing-cases.yaml --dry-run
-python scripts/run_routing_eval.py --host codex --mode native --case visual-review --repeat 3 --suggest-tuning
 python -m unittest discover -s tests -p 'test_*.py'
-codex plugin marketplace add ./
-codex plugin add tessera-core@tessera
-codex plugin list
-codex debug prompt-input
+python scripts/run_routing_eval.py --host codex --mode policy --dry-run
+python scripts/run_routing_eval.py --host codex --mode native --cases pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json --dry-run
 ```
 
-`policy` 只证明路由政策分类；只有 `native` 中带宿主事件或可信 transcript 的 `verified` 才算可观测调用证据。Claude CLI/适配器不可用时只验证结构与 dry-run，不得把假宿主结果描述成 Claude 实测。详见 [部署手册](docs/DEPLOYMENT.md)、[个人工作流主线](docs/decisions/personal-workflow-mainline.md) 与 [原生路由优先决策](docs/decisions/native-routing-reliability-layer.md)。
+## 从 0.4 迁移
+
+0.5 删除了 `piece-router`、`tessera-setup`、`tessera-status`、`tessera-capabilities` 和 `tessera-doctor`，也删除了指令式本地 usage events；0.6 将 eval 运行器、案例和 schema 收入插件安装包，并提供一键安装器。替代方式：
+
+| 旧入口 | 替代方式 |
+|---|---|
+| router / recipe / 子代理规则 | 宿主原生计划、Goal、确认与委派 |
+| setup | 宿主原生插件管理器和 CLI |
+| status / capabilities | 宿主原生插件列表和插件浏览器 |
+| doctor / remediation | 宿主诊断；Tessera 仓库结构由 `validate_marketplace.py` 检查 |
+| usage events | native eval 报告与人工维护的代表案例 |
+
+已有 `~/.tessera` 数据不会被代码主动删除；不再需要时由用户自行备份或清理。
+
+详见 [部署手册](docs/DEPLOYMENT.md)、[原生路由优先决策](docs/decisions/native-routing-reliability-layer.md) 与 [运行时精简决策](docs/decisions/native-first-runtime-simplification.md)。
 
 ## 许可
 

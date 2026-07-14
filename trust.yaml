@@ -1,5 +1,0 @@
-allowed_installs:
-  - id: superpowers
-    kind: claude-marketplace    # 模板:claude plugin marketplace add <source>
-    source: obra/superpowers-marketplace
-    install: "claude plugin install superpowers@superpowers-marketplace"

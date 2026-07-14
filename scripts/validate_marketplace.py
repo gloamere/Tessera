@@ -1,50 +1,37 @@
-"""Validate Tessera marketplaces, pieces, registry, skills, and policy fixtures."""
+"""Validate Tessera's slim dual-host release surface."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
 import sys
+from typing import Any
 
 import yaml
-
-from admission_score import evaluate, grade_for_score
-from doctor_status import overall_status
-from resolve_capabilities import (
-    CATALOG_STATES,
-    ENABLED_STATES,
-    RUNTIME_STATES,
-    resolve_capabilities,
-)
-from version_status import classify_version
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PIECES = ROOT / "pieces"
-SUPPORTED_AVAILABILITY = {"installable", "reference-only", "unverified", "unsupported"}
-SUPPORTED_ROUTE_CATEGORIES = {
-    "direct",
-    "specialist",
-    "core",
-    "multi-intent",
-    "external",
-    "decision",
-}
 EXPECTED_PLATFORMS = {
     "claude": "native",
     "codex": "native",
     "gemini": "unsupported",
     "domestic": "unsupported",
 }
-REQUIRED_PIECE_FIELDS = {
-    "id",
-    "kind",
-    "summary",
-    "when_to_use",
-    "avoid_when",
-    "platforms",
-    "external_deps",
-    "upgrade_policy",
+EXPECTED_SKILLS = {
+    "tessera-core": {"tessera-eval"},
+    "taste": {"taste"},
+    "planner": {"planner"},
+    "knowledge-base": {"knowledge-base"},
+}
+ROUTES = {"direct", "tessera-eval", "taste", "planner", "knowledge-base"}
+RETIRED_RUNTIME_NAMES = {
+    "piece-router",
+    "tessera-setup",
+    "tessera-status",
+    "tessera-capabilities",
+    "tessera-doctor",
+    "usage_events.py",
 }
 
 
@@ -52,166 +39,160 @@ def relative(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
 
 
-def read_json(path: Path) -> dict:
-    try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError(f"{relative(path)}: {exc}") from exc
+def read_json(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
-        raise ValueError(f"{relative(path)}: 根节点必须是对象")
+        raise ValueError(f"{relative(path)}: 必须是 JSON 对象")
     return value
 
 
-def read_yaml(path: Path):
-    try:
-        return yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as exc:
-        raise ValueError(f"{relative(path)}: {exc}") from exc
+def read_yaml(path: Path) -> Any:
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
-def plugin_map(marketplace: dict, label: str, errors: list[str]) -> dict[str, dict]:
+def marketplace_entries(path: Path, errors: list[str]) -> dict[str, dict[str, Any]]:
+    marketplace = read_json(path)
     items = marketplace.get("plugins")
     if not isinstance(items, list):
-        errors.append(f"{label}: plugins 必须是数组")
+        errors.append(f"{relative(path)}: plugins 必须是数组")
         return {}
-    result: dict[str, dict] = {}
+    entries: dict[str, dict[str, Any]] = {}
     for item in items:
         if not isinstance(item, dict) or not isinstance(item.get("name"), str):
-            errors.append(f"{label}: 每个插件都必须有字符串 name")
+            errors.append(f"{relative(path)}: 每个插件必须有字符串 name")
             continue
         name = item["name"]
-        if name in result:
-            errors.append(f"{label}: 插件 {name} 重复")
-        result[name] = item
-    return result
+        if name in entries:
+            errors.append(f"{relative(path)}: 插件 {name} 重复")
+        entries[name] = item
+    return entries
 
 
-def validate_skill_frontmatter(path: Path, errors: list[str]) -> None:
+def parse_frontmatter(path: Path, errors: list[str]) -> dict[str, Any]:
     text = path.read_text(encoding="utf-8")
-    if not text.startswith("---\n") or "\n---\n" not in text[4:]:
-        errors.append(f"{relative(path)}: 缺少完整 YAML frontmatter")
-        return
-    raw = text.split("\n---\n", 1)[0][4:]
+    if not text.startswith("---\n"):
+        errors.append(f"{relative(path)}: 缺少 YAML frontmatter")
+        return {}
     try:
-        frontmatter = yaml.safe_load(raw)
-    except yaml.YAMLError as exc:
+        _, raw, _ = text.split("---", 2)
+        value = yaml.safe_load(raw)
+    except (ValueError, yaml.YAMLError) as exc:
         errors.append(f"{relative(path)}: frontmatter 无效: {exc}")
-        return
-    if not isinstance(frontmatter, dict):
+        return {}
+    if not isinstance(value, dict):
         errors.append(f"{relative(path)}: frontmatter 必须是对象")
-        return
-    for field in ("name", "description"):
-        if not isinstance(frontmatter.get(field), str) or not frontmatter[field].strip():
-            errors.append(f"{relative(path)}: frontmatter 缺少 {field}")
+        return {}
+    if not isinstance(value.get("name"), str) or not value["name"]:
+        errors.append(f"{relative(path)}: frontmatter 缺少 name")
+    if not isinstance(value.get("description"), str) or not value["description"].strip():
+        errors.append(f"{relative(path)}: frontmatter 缺少 description")
+    return value
 
 
-def validate_decisions(errors: list[str]) -> None:
-    for path in sorted((ROOT / "docs" / "decisions").glob("*.md")):
-        text = path.read_text(encoding="utf-8")
-        if not text.startswith("---\n") or "\n---\n" not in text[4:]:
-            errors.append(f"{relative(path)}: 缺少决策 frontmatter")
+def validate_piece(
+    piece_id: str,
+    claude_entry: dict[str, Any],
+    codex_entry: dict[str, Any],
+    errors: list[str],
+) -> None:
+    piece_dir = PIECES / piece_id
+    expected_source = f"./pieces/{piece_id}"
+    if claude_entry.get("source") != expected_source:
+        errors.append(f"{piece_id}: Claude source 应为 {expected_source}")
+    codex_source = codex_entry.get("source")
+    if not isinstance(codex_source, dict) or codex_source.get("path") != expected_source:
+        errors.append(f"{piece_id}: Codex source 应为 {expected_source}")
+
+    version = claude_entry.get("version")
+    if not isinstance(version, str) or not version:
+        errors.append(f"{piece_id}: Claude marketplace 缺少 version")
+    for host in ("claude", "codex"):
+        manifest_path = piece_dir / f".{host}-plugin" / "plugin.json"
+        if not manifest_path.is_file():
+            errors.append(f"{piece_id}: 缺少 {relative(manifest_path)}")
             continue
-        raw = text.split("\n---\n", 1)[0][4:]
-        try:
-            frontmatter = yaml.safe_load(raw)
-        except yaml.YAMLError as exc:
-            errors.append(f"{relative(path)}: 决策 frontmatter 无效: {exc}")
-            continue
-        if not isinstance(frontmatter, dict) or frontmatter.get("status") not in {
-            "pending",
-            "approved",
-            "superseded",
-        }:
-            errors.append(f"{relative(path)}: status 必须是 pending/approved/superseded")
+        manifest = read_json(manifest_path)
+        if manifest.get("name") != piece_id:
+            errors.append(f"{relative(manifest_path)}: name 不匹配")
+        if manifest.get("version") != version:
+            errors.append(f"{relative(manifest_path)}: version 与 marketplace 不一致")
 
+    piece_path = piece_dir / "piece.yaml"
+    piece = read_yaml(piece_path) if piece_path.is_file() else None
+    if not isinstance(piece, dict):
+        errors.append(f"{piece_id}: 缺少或无效的 piece.yaml")
+    else:
+        for field in ("id", "kind", "summary", "when_to_use", "avoid_when", "platforms", "external_deps"):
+            if field not in piece:
+                errors.append(f"{relative(piece_path)}: 缺少 {field}")
+        if piece.get("id") != piece_id:
+            errors.append(f"{relative(piece_path)}: id 不匹配")
+        if piece.get("platforms") != EXPECTED_PLATFORMS:
+            errors.append(f"{relative(piece_path)}: platforms 与双宿主边界不一致")
 
-def validate_registry(errors: list[str]) -> None:
-    registry = read_yaml(ROOT / "registry.yaml")
-    trust = read_yaml(ROOT / "trust.yaml")
-    if not isinstance(registry, dict) or not isinstance(registry.get("external"), list):
-        errors.append("registry.yaml: external 必须是数组")
-        return
-    if not isinstance(trust, dict) or not isinstance(trust.get("allowed_installs"), list):
-        errors.append("trust.yaml: allowed_installs 必须是数组")
-        return
-
-    trust_by_id = {
-        item.get("id"): item
-        for item in trust["allowed_installs"]
-        if isinstance(item, dict) and isinstance(item.get("id"), str)
-    }
-    seen: set[str] = set()
-    for item in registry["external"]:
-        if not isinstance(item, dict) or not isinstance(item.get("id"), str):
-            errors.append("registry.yaml: 每个 external 条目必须有字符串 id")
-            continue
-        item_id = item["id"]
-        if item_id in seen:
-            errors.append(f"registry.yaml: external id {item_id} 重复")
-        seen.add(item_id)
-        availability = item.get("availability")
-        if not isinstance(availability, dict) or set(availability) != {"claude", "codex"}:
-            errors.append(f"registry.yaml: {item_id} 必须声明 claude/codex availability")
-            continue
-        for host, state in availability.items():
-            if state not in SUPPORTED_AVAILABILITY:
-                errors.append(f"registry.yaml: {item_id}.{host} availability 无效: {state}")
-
-        kind = item.get("kind", "")
-        if isinstance(kind, str) and kind.endswith("-candidate"):
-            if item.get("status") != "not-integrated":
-                errors.append(f"registry.yaml: 候选 {item_id} 必须是 not-integrated")
-        if item.get("status") == "not-integrated" and "installable" in availability.values():
-            errors.append(f"registry.yaml: 未集成候选 {item_id} 不得标为 installable")
-
-        installable_hosts = [host for host, state in availability.items() if state == "installable"]
-        if not installable_hosts:
-            continue
-        trust_ref = item.get("trust_ref")
-        if trust_ref not in trust_by_id:
-            errors.append(f"registry.yaml: 可安装项 {item_id} 缺少有效 trust_ref")
-            continue
-        commands = item.get("per_platform", {})
-        trusted_command = trust_by_id[trust_ref].get("install")
-        for host in installable_hosts:
-            if not isinstance(commands, dict) or commands.get(host) != trusted_command:
-                errors.append(f"registry.yaml: {item_id}.{host} 安装命令与 trust.yaml 不一致")
-
-
-def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
-    valid_targets = (valid_piece_ids - {"tessera-core"}) | {
-        "direct",
-        "piece-router",
-        "piece-admission",
-        "tessera-setup",
-        "tessera-status",
-        "tessera-doctor",
-        "tessera-eval",
-        "tessera-capabilities",
-        "external-unavailable",
-    }
-    valid_native_skills = (valid_piece_ids - {"tessera-core"}) | {
-        "piece-router",
-        "tessera-setup",
-        "tessera-status",
-        "tessera-doctor",
-        "tessera-eval",
-        "tessera-capabilities",
-    }
-    schema_path = ROOT / "tests" / "routing-output.schema.json"
-    schema = read_json(schema_path)
-    schema_targets = (
-        schema.get("properties", {}).get("route", {}).get("enum")
-        if isinstance(schema.get("properties"), dict)
-        else None
-    )
-    if not isinstance(schema_targets, list) or set(schema_targets) != valid_targets:
+    skill_paths = sorted((piece_dir / "skills").glob("*/SKILL.md"))
+    actual_skills: set[str] = set()
+    for skill_path in skill_paths:
+        frontmatter = parse_frontmatter(skill_path, errors)
+        if isinstance(frontmatter.get("name"), str):
+            actual_skills.add(frontmatter["name"])
+        text = skill_path.read_text(encoding="utf-8")
+        for retired in RETIRED_RUNTIME_NAMES:
+            if retired in text:
+                errors.append(f"{relative(skill_path)}: 包含已移除运行时入口 {retired}")
+    if actual_skills != EXPECTED_SKILLS[piece_id]:
         errors.append(
-            f"{relative(schema_path)}: route enum 与评测目标不一致"
+            f"{piece_id}: Skill 集合应为 {sorted(EXPECTED_SKILLS[piece_id])}，实际 {sorted(actual_skills)}"
         )
-    for filename in ("routing-cases.yaml", "personal-routing-cases.yaml"):
-        path = ROOT / "tests" / filename
-        cases = read_yaml(path)
+
+    command_names = {path.stem for path in (piece_dir / "commands").glob("*.md")}
+    expected_commands = {"tessera-eval"} if piece_id == "tessera-core" else set()
+    if command_names != expected_commands:
+        errors.append(
+            f"{piece_id}: Claude command 集合应为 {sorted(expected_commands)}，实际 {sorted(command_names)}"
+        )
+
+
+def validate_eval_cases(errors: list[str]) -> None:
+    eval_root = PIECES / "tessera-core" / "skills" / "tessera-eval"
+    required_runtime = (
+        eval_root / "scripts" / "run_routing_eval.py",
+        eval_root / "scripts" / "run.ps1",
+        eval_root / "scripts" / "run.sh",
+        eval_root / "references" / "routing-cases.json",
+        eval_root / "references" / "personal-routing-cases.json",
+        eval_root / "references" / "schemas" / "routing-output.schema.json",
+        eval_root / "references" / "schemas" / "native-invocation-output.schema.json",
+    )
+    for path in required_runtime:
+        if not path.is_file():
+            errors.append(f"{relative(path)}: 自包含 eval 运行资产缺失")
+
+    for cache_dir in eval_root.rglob("__pycache__"):
+        errors.append(f"{relative(cache_dir)}: 插件包不得包含 Python 字节码缓存")
+
+    runner_path = eval_root / "scripts" / "run_routing_eval.py"
+    if runner_path.is_file():
+        runner = runner_path.read_text(encoding="utf-8")
+        for forbidden in ("import yaml", "ROOT / \"tests\"", "requirements-dev.txt"):
+            if forbidden in runner:
+                errors.append(f"{relative(runner_path)}: 包含仓库或第三方运行时依赖 {forbidden!r}")
+
+    schema_path = eval_root / "references" / "schemas" / "routing-output.schema.json"
+    schema = read_json(schema_path)
+    enum = schema.get("properties", {}).get("route", {}).get("enum")
+    if not isinstance(enum, list) or set(enum) != ROUTES:
+        errors.append(f"{relative(schema_path)}: route enum 与精简能力面不一致")
+
+    native_schema_path = eval_root / "references" / "schemas" / "native-invocation-output.schema.json"
+    native_schema = read_json(native_schema_path)
+    decisions = native_schema.get("properties", {}).get("decision", {}).get("enum")
+    if decisions != ["direct", "skill"]:
+        errors.append(f"{relative(native_schema_path)}: decision 只能是 direct/skill")
+
+    for filename in ("routing-cases.json", "personal-routing-cases.json"):
+        path = eval_root / "references" / filename
+        cases = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(cases, list) or not cases:
             errors.append(f"{relative(path)}: 必须是非空数组")
             continue
@@ -219,341 +200,67 @@ def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
         profiles = {"development": 0, "product": 0}
         for case in cases:
             if not isinstance(case, dict):
-                errors.append(f"{relative(path)}: 每个案例必须是对象")
+                errors.append(f"{relative(path)}: 案例必须是对象")
                 continue
             case_id = case.get("id")
             if not isinstance(case_id, str) or not case_id:
                 errors.append(f"{relative(path)}: 案例缺少 id")
                 continue
             if case_id in seen:
-                errors.append(f"{relative(path)}: 案例 id {case_id} 重复")
+                errors.append(f"{relative(path)}: 案例 {case_id} 重复")
             seen.add(case_id)
-            if not isinstance(case.get("prompt"), str) or not case["prompt"].strip():
-                errors.append(f"{relative(path)}: {case_id} 缺少 prompt")
-            if case.get("category") not in SUPPORTED_ROUTE_CATEGORIES:
-                errors.append(f"{relative(path)}: {case_id} 的 category 无效: {case.get('category')}")
-            expected = case.get("expected_route")
-            if expected not in valid_targets:
-                errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效: {expected}")
-            expected_skills = case.get("expected_skills")
-            if (
-                not isinstance(expected_skills, list)
-                or any(skill not in valid_native_skills for skill in expected_skills)
-                or len(expected_skills) != len(set(expected_skills))
+            if case.get("expected_route") not in ROUTES:
+                errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效")
+            skills = case.get("expected_skills")
+            if not isinstance(skills, list) or any(
+                skill not in {"tessera-eval", "taste", "planner", "knowledge-base"}
+                for skill in skills
             ):
                 errors.append(f"{relative(path)}: {case_id} 的 expected_skills 无效")
-            excluded = case.get("must_not_route", [])
-            if not isinstance(excluded, list) or any(target not in valid_targets for target in excluded):
-                errors.append(f"{relative(path)}: {case_id} 的 must_not_route 无效")
-            if filename == "personal-routing-cases.yaml":
+            if filename == "personal-routing-cases.json":
                 profile = case.get("profile")
                 if profile not in profiles:
-                    errors.append(f"{relative(path)}: {case_id} 的 profile 无效: {profile}")
+                    errors.append(f"{relative(path)}: {case_id} 的 profile 无效")
                 else:
                     profiles[profile] += 1
-        if filename == "personal-routing-cases.yaml":
-            if len(cases) != 25 or profiles != {"development": 15, "product": 10}:
-                errors.append(
-                    f"{relative(path)}: 必须保持 25 个案例（development=15, product=10），实际 {profiles}"
-                )
-
-
-def validate_admission_cases(errors: list[str]) -> None:
-    path = ROOT / "tests" / "admission-cases.yaml"
-    cases = read_yaml(path)
-    if not isinstance(cases, list) or not cases:
-        errors.append(f"{relative(path)}: 必须是非空数组")
-        return
-    grade_boundaries = {
-        100: "S",
-        90: "S",
-        89: "A",
-        80: "A",
-        79: "B",
-        70: "B",
-        69: "C",
-        60: "C",
-        59: "D",
-        50: "D",
-        49: "E",
-        40: "E",
-        39: "F",
-        0: "F",
-    }
-    for score, expected_grade in grade_boundaries.items():
-        actual_grade = grade_for_score(score)
-        if actual_grade != expected_grade:
+        if filename == "personal-routing-cases.json" and (
+            len(cases) != 25 or profiles != {"development": 15, "product": 10}
+        ):
             errors.append(
-                f"准入等级边界 {score} 期望 {expected_grade}，实际 {actual_grade}"
+                f"{relative(path)}: 必须保持 25 个案例及 15/10 profile，实际 {profiles}"
             )
-    seen: set[str] = set()
-    for case in cases:
-        if not isinstance(case, dict) or not isinstance(case.get("id"), str):
-            errors.append(f"{relative(path)}: 每个案例必须有字符串 id")
-            continue
-        case_id = case["id"]
-        if case_id in seen:
-            errors.append(f"{relative(path)}: 案例 id {case_id} 重复")
-        seen.add(case_id)
-        try:
-            actual = evaluate(case.get("scores", {}), case.get("flags", {}))
-        except (TypeError, ValueError) as exc:
-            errors.append(f"{relative(path)}: {case_id}: {exc}")
-            continue
-        expected = case.get("expected")
-        if not isinstance(expected, dict):
-            errors.append(f"{relative(path)}: {case_id} 缺少 expected")
-            continue
-        for field in ("raw_score", "raw_grade", "cap_grade", "final_grade"):
-            if actual[field] != expected.get(field):
-                errors.append(
-                    f"{relative(path)}: {case_id}.{field} 期望 {expected.get(field)!r}，实际 {actual[field]!r}"
-                )
-
-
-def validate_doctor_cases(errors: list[str]) -> None:
-    path = ROOT / "tests" / "doctor-cases.yaml"
-    cases = read_yaml(path)
-    if not isinstance(cases, list) or not cases:
-        errors.append(f"{relative(path)}: 必须是非空数组")
-        return
-    seen: set[str] = set()
-    for case in cases:
-        if not isinstance(case, dict) or not isinstance(case.get("id"), str):
-            errors.append(f"{relative(path)}: 每个案例必须有字符串 id")
-            continue
-        case_id = case["id"]
-        if case_id in seen:
-            errors.append(f"{relative(path)}: 案例 id {case_id} 重复")
-        seen.add(case_id)
-        results = case.get("results")
-        expected = case.get("expected_overall")
-        if not isinstance(results, list) or expected not in {
-            "healthy",
-            "warning",
-            "error",
-            "unknown",
-        }:
-            errors.append(f"{relative(path)}: {case_id} 结果或 expected_overall 无效")
-            continue
-        try:
-            actual = overall_status(results)
-        except ValueError as exc:
-            errors.append(f"{relative(path)}: {case_id}: {exc}")
-            continue
-        if actual != expected:
-            errors.append(
-                f"{relative(path)}: {case_id} 期望 {expected}，实际 {actual}"
-            )
-
-    version_cases = {
-        ("1.2.3", "1.2.3"): "current",
-        ("1.2.3+codex.old", "1.2.3+codex.new"): "refresh-available",
-        ("1.2.3", "1.3.0"): "update-available",
-        ("2.0.0", "1.9.9"): "ahead",
-        (None, "1.0.0"): "unknown",
-        ("1.0.0-beta.1", "1.0.0"): "unknown",
-    }
-    for versions, expected in version_cases.items():
-        actual = classify_version(*versions)
-        if actual != expected:
-            errors.append(f"版本状态 {versions} 期望 {expected}，实际 {actual}")
-
-
-def validate_recipe_cases(errors: list[str]) -> None:
-    path = ROOT / "tests" / "recipe-cases.yaml"
-    cases = read_yaml(path)
-    if not isinstance(cases, list) or not cases:
-        errors.append(f"{relative(path)}: 必须是非空数组")
-        return
-    seen: set[str] = set()
-    for case in cases:
-        if not isinstance(case, dict) or not isinstance(case.get("id"), str):
-            errors.append(f"{relative(path)}: 每个案例必须有字符串 id")
-            continue
-        case_id = case["id"]
-        if case_id in seen:
-            errors.append(f"{relative(path)}: 案例 id {case_id} 重复")
-        seen.add(case_id)
-        steps = case.get("steps")
-        if not isinstance(steps, list) or len(steps) < 2:
-            errors.append(f"{relative(path)}: {case_id} 至少需要两个步骤")
-            continue
-        step_ids = [item.get("id") for item in steps if isinstance(item, dict)]
-        if len(step_ids) != len(steps) or len(step_ids) != len(set(step_ids)):
-            errors.append(f"{relative(path)}: {case_id} 步骤 id 无效或重复")
-            continue
-        positions = {step_id: index for index, step_id in enumerate(step_ids)}
-        for index, step in enumerate(steps):
-            dependencies = step.get("depends_on", [])
-            if not isinstance(dependencies, list) or any(dep not in positions for dep in dependencies):
-                errors.append(f"{relative(path)}: {case_id}.{step_ids[index]} 依赖无效")
-            elif any(positions[dep] >= index for dep in dependencies):
-                errors.append(f"{relative(path)}: {case_id} 未按依赖排序")
-        parallel = case.get("parallel", [])
-        if not isinstance(parallel, list) or any(item not in positions for item in parallel):
-            errors.append(f"{relative(path)}: {case_id} 并行步骤无效")
-        elif any(steps[positions[item]].get("depends_on") for item in parallel):
-            errors.append(f"{relative(path)}: {case_id} 只有无依赖步骤可并行")
-
-
-def validate_capability_catalog(errors: list[str]) -> None:
-    for host in ("codex", "claude"):
-        try:
-            catalog = resolve_capabilities(ROOT, host, installed_plugins=set())
-        except (OSError, ValueError, yaml.YAMLError, json.JSONDecodeError) as exc:
-            errors.append(f"{host} 动态能力目录解析失败: {exc}")
-            continue
-        capabilities = catalog.get("capabilities", [])
-        if catalog.get("schema_version") != 2:
-            errors.append(f"{host} 动态能力目录 schema_version 必须为 2")
-        ids = [item.get("id") for item in capabilities if isinstance(item, dict)]
-        if len(ids) != len(set(ids)):
-            errors.append(f"{host} 动态能力目录存在重复 id")
-        for item in capabilities:
-            if item.get("catalog_state") not in CATALOG_STATES:
-                errors.append(f"{host} 能力 {item.get('id')} catalog_state 无效")
-            if item.get("runtime_state") not in RUNTIME_STATES:
-                errors.append(f"{host} 能力 {item.get('id')} runtime_state 无效")
-            if item.get("enabled_state") not in ENABLED_STATES:
-                errors.append(f"{host} 能力 {item.get('id')} enabled_state 无效")
-            if "installed_version" not in item:
-                errors.append(f"{host} 能力 {item.get('id')} 缺少 installed_version")
 
 
 def main() -> int:
     errors: list[str] = []
     try:
-        claude = read_json(ROOT / ".claude-plugin" / "marketplace.json")
-        codex = read_json(ROOT / ".agents" / "plugins" / "marketplace.json")
-        claude_plugins = plugin_map(claude, "Claude 市集", errors)
-        codex_plugins = plugin_map(codex, "Codex 市集", errors)
-
-        if set(claude_plugins) != set(codex_plugins):
-            errors.append("Claude 与 Codex 市集的拼图名称不一致")
-
-        piece_dirs = {path.name for path in PIECES.iterdir() if path.is_dir()}
-        marketplace_ids = set(claude_plugins) | set(codex_plugins)
-        if piece_dirs != marketplace_ids:
+        claude_path = ROOT / ".claude-plugin" / "marketplace.json"
+        codex_path = ROOT / ".agents" / "plugins" / "marketplace.json"
+        claude = marketplace_entries(claude_path, errors)
+        codex = marketplace_entries(codex_path, errors)
+        if set(claude) != set(codex):
+            errors.append("Claude 与 Codex marketplace 插件集合不一致")
+        if set(claude) != set(EXPECTED_SKILLS):
             errors.append(
-                f"pieces/ 与市集不一致: orphan={sorted(piece_dirs - marketplace_ids)}, missing={sorted(marketplace_ids - piece_dirs)}"
+                f"marketplace 应包含 {sorted(EXPECTED_SKILLS)}，实际 {sorted(set(claude) | set(codex))}"
             )
-
-        for piece_id in sorted(marketplace_ids):
-            piece_dir = PIECES / piece_id
-            claude_entry = claude_plugins.get(piece_id, {})
-            codex_entry = codex_plugins.get(piece_id, {})
-            expected_source = f"./pieces/{piece_id}"
-            if claude_entry.get("source") != expected_source:
-                errors.append(f"{piece_id}: Claude source 应为 {expected_source}")
-            if codex_entry.get("source", {}).get("path") != expected_source:
-                errors.append(f"{piece_id}: Codex source 应为 {expected_source}")
-
-            for manifest_path in (
-                piece_dir / ".claude-plugin" / "plugin.json",
-                piece_dir / ".codex-plugin" / "plugin.json",
-            ):
-                if not manifest_path.is_file():
-                    errors.append(f"{piece_id}: 缺少 {relative(manifest_path)}")
-                    continue
-                manifest = read_json(manifest_path)
-                if manifest.get("name") != piece_id:
-                    errors.append(f"{piece_id}: {relative(manifest_path)} 的 name 不匹配")
-                if manifest.get("version") != claude_entry.get("version"):
-                    errors.append(f"{piece_id}: 市集与 manifest 的 version 不匹配")
-
-            piece_path = piece_dir / "piece.yaml"
-            if not piece_path.is_file():
-                errors.append(f"{piece_id}: 缺少 piece.yaml")
-                continue
-            piece = read_yaml(piece_path)
-            if not isinstance(piece, dict):
-                errors.append(f"{piece_id}: piece.yaml 必须是对象")
-                continue
-            missing_fields = REQUIRED_PIECE_FIELDS - set(piece)
-            if missing_fields:
-                errors.append(f"{piece_id}: piece.yaml 缺少 {sorted(missing_fields)}")
-            if piece.get("id") != piece_id:
-                errors.append(f"{piece_id}: piece.yaml id 不匹配")
-            if piece.get("platforms") != EXPECTED_PLATFORMS:
-                errors.append(f"{piece_id}: platforms 必须明确 Codex/Claude native，其余 unsupported")
-            if not isinstance(piece.get("when_to_use"), list) or not piece["when_to_use"]:
-                errors.append(f"{piece_id}: when_to_use 必须是非空数组")
-            if not isinstance(piece.get("external_deps"), list):
-                errors.append(f"{piece_id}: external_deps 必须是数组")
-
-            for skill_path in sorted((piece_dir / "skills").glob("*/SKILL.md")):
-                validate_skill_frontmatter(skill_path, errors)
-                if "usage_events.py" not in skill_path.read_text(encoding="utf-8"):
-                    errors.append(
-                        f"{relative(skill_path)}: 首方 skill 缺少可选本地使用记录契约"
-                    )
-            if piece_id == "tessera-core":
-                for retired in ("hooks", "bin", "gate-rules.json"):
-                    if (piece_dir / retired).exists():
-                        errors.append(f"tessera-core: 已移除的 {retired} 不应存在")
-                admission_reference = (
-                    piece_dir
-                    / "skills"
-                    / "piece-router"
-                    / "references"
-                    / "piece-admission.md"
-                )
-                if not admission_reference.is_file():
-                    errors.append("tessera-core: 缺少 piece-router 准入量表 reference")
-                recipe_reference = (
-                    piece_dir
-                    / "skills"
-                    / "piece-router"
-                    / "references"
-                    / "multi-intent-recipes.md"
-                )
-                if not recipe_reference.is_file():
-                    errors.append("tessera-core: 缺少多意图 recipe 契约")
-                for required_path in (
-                    piece_dir / "skills" / "tessera-doctor" / "SKILL.md",
-                    piece_dir / "commands" / "tessera-doctor.md",
-                    piece_dir / "skills" / "tessera-eval" / "SKILL.md",
-                    piece_dir / "commands" / "tessera-eval.md",
-                    piece_dir / "skills" / "tessera-capabilities" / "SKILL.md",
-                    piece_dir / "commands" / "tessera-capabilities.md",
-                    ROOT / "scripts" / "resolve_capabilities.py",
-                    ROOT / "scripts" / "lifecycle_policy.py",
-                    ROOT / "scripts" / "remediation_policy.py",
-                    ROOT / "scripts" / "usage_events.py",
-                    ROOT / "tests" / "routing-output.schema.json",
-                    ROOT / "tests" / "native-invocation-output.schema.json",
-                    ROOT / "tests" / "personal-routing-cases.yaml",
-                ):
-                    if not required_path.is_file():
-                        errors.append(f"tessera-core: 缺少 {relative(required_path)}")
-
-        active_instruction_paths = list(PIECES.glob("**/SKILL.md")) + list(
-            PIECES.glob("**/commands/*.md")
-        )
-        for path in active_instruction_paths:
-            text = path.read_text(encoding="utf-8")
-            for forbidden in ("AskUserQuestion", "bd version"):
-                if forbidden in text:
-                    errors.append(f"{relative(path)}: 不得包含宿主/已移除能力残留 {forbidden!r}")
-
-        validate_registry(errors)
-        validate_decisions(errors)
-        validate_route_cases(marketplace_ids, errors)
-        validate_admission_cases(errors)
-        validate_doctor_cases(errors)
-        validate_recipe_cases(errors)
-        validate_capability_catalog(errors)
-    except ValueError as exc:
+        piece_dirs = {path.name for path in PIECES.iterdir() if path.is_dir()}
+        if piece_dirs != set(EXPECTED_SKILLS):
+            errors.append(f"pieces/ 集合与目标发布面不一致: {sorted(piece_dirs)}")
+        for piece_id in sorted(set(claude) & set(codex) & set(EXPECTED_SKILLS)):
+            validate_piece(piece_id, claude[piece_id], codex[piece_id], errors)
+        validate_eval_cases(errors)
+        for installer in (ROOT / "install.ps1", ROOT / "install.sh"):
+            if not installer.is_file():
+                errors.append(f"{relative(installer)}: 缺少一键安装入口")
+    except (OSError, ValueError, json.JSONDecodeError, yaml.YAMLError) as exc:
         errors.append(str(exc))
 
     if errors:
-        print("插件与策略校验失败:", file=sys.stderr)
+        print("Tessera 发布物校验失败:", file=sys.stderr)
         print("\n".join(f"- {error}" for error in errors), file=sys.stderr)
         return 1
-    print(
-        f"校验通过：{len(claude_plugins)} 个拼图，双市集、YAML/frontmatter、registry/trust、路由与准入案例一致。"
-    )
+    print("校验通过：4 个插件、4 个运行时 Skill，双宿主发布物与 eval 案例一致。")
     return 0
 
 

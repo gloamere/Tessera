@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: piece-admission-rubric
-status: approved
+status: superseded
 created: 2026-07-13
 approved: 2026-07-13
 review: 累积至少 20 次真实准入评审后复核权重与等级阈值
+superseded_by: native-first-runtime-simplification
 ---
 
 # 七级拼图准入体系

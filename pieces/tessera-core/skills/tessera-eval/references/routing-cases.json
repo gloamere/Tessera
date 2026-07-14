@@ -1,0 +1,121 @@
+[
+  {
+    "id": "direct-small-edit",
+    "category": "direct",
+    "prompt": "修正文档里的一个错别字",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "visual-review",
+    "category": "specialist",
+    "prompt": "评审这个页面的层级、配色和排版，看看是否有 AI 味",
+    "expected_route": "taste",
+    "expected_skills": [
+      "taste"
+    ]
+  },
+  {
+    "id": "visual-functional-bug",
+    "category": "direct",
+    "prompt": "按钮点击后接口返回 500，帮我定位原因",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "knowledge-capture",
+    "category": "specialist",
+    "prompt": "把这些研究结论整理成可复用的双链笔记",
+    "expected_route": "knowledge-base",
+    "expected_skills": [
+      "knowledge-base"
+    ]
+  },
+  {
+    "id": "transient-question",
+    "category": "direct",
+    "prompt": "解释一下这个正则表达式",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "product-directions",
+    "category": "specialist",
+    "prompt": "给这个活动设计三个可供负责人拍板的玩法方向",
+    "expected_route": "planner",
+    "expected_skills": [
+      "planner"
+    ]
+  },
+  {
+    "id": "host-plugin-install",
+    "category": "core",
+    "prompt": "帮我安装 Tessera 的 taste 插件",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "host-plugin-status",
+    "category": "core",
+    "prompt": "看看当前宿主装了哪些 Tessera 插件",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "evaluate-routing",
+    "category": "core",
+    "prompt": "运行 tessera eval，用固定案例复测原生 Skill 调用",
+    "expected_route": "tessera-eval",
+    "expected_skills": [
+      "tessera-eval"
+    ]
+  },
+  {
+    "id": "propose-new-skill",
+    "category": "core",
+    "prompt": "我想新增一个代码语义检索 Skill，先评估再创建",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "multi-intent",
+    "category": "multi-intent",
+    "prompt": "调研竞品后做产品方案，并把结论沉淀成知识笔记",
+    "expected_route": "planner",
+    "expected_skills": [
+      "planner",
+      "knowledge-base"
+    ]
+  },
+  {
+    "id": "multi-intent-independent",
+    "category": "multi-intent",
+    "prompt": "独立评审这个页面的视觉质量，同时把会议记录整理成知识笔记",
+    "expected_route": "taste",
+    "expected_skills": [
+      "taste",
+      "knowledge-base"
+    ]
+  },
+  {
+    "id": "lifecycle-disable",
+    "category": "core",
+    "prompt": "在当前宿主禁用 taste 插件，但不要卸载",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "unverified-external",
+    "category": "external",
+    "prompt": "查明当前宿主是否能安装这个尚未验证的浏览器插件",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "high-impact-direction-confirmation",
+    "category": "decision",
+    "prompt": "项目没有 ADR，请评估把存储层从本地文件整体切换成远程数据库",
+    "expected_route": "direct",
+    "expected_skills": []
+  }
+]

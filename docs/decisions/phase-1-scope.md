@@ -1,6 +1,7 @@
 ---
-status: approved
+status: superseded
 date: 2026-07-13
+superseded_by: native-first-runtime-simplification
 ---
 
 # 第一阶段：纯 skills 路由网关

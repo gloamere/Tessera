@@ -5,7 +5,7 @@ when_to_use:
   - 游戏玩法 / 关卡 / 系统策划
   - 内容 / 活动 / 产品方案设计
   - 需要先定方向、再交负责人拍板的创意工作
-avoid_when: 写代码(走 superpowers 流程链)、纯执行无策划成分
+avoid_when: 写代码或代码实施计划（使用宿主原生规划能力）、纯执行无策划成分
 platforms: { claude: native, codex: native, gemini: unsupported, domestic: unsupported }
 external_deps: []
 inspired_by:

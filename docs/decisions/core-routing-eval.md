@@ -1,6 +1,7 @@
 ---
-status: approved
+status: superseded
 date: 2026-07-13
+superseded_by: self-contained-plugin-distribution
 ---
 
 # tessera-eval 采用仓库内可复跑评测集

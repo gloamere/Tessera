@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: core-lifecycle-recipes-remediation
-status: approved
+status: superseded
 created: 2026-07-13
 approved: 2026-07-13
 review: 累积至少 10 次生命周期变更、recipe 与 remediation 真实使用后重审安全边界和输出噪音
+superseded_by: native-first-runtime-simplification
 ---
 
 # Core 0.2：完整生命周期、轻量 Recipe 与引导修复

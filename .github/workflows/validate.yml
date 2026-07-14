@@ -10,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install validation dependencies
-        run: python3 -m pip install --disable-pip-version-check --requirement requirements-dev.txt
       - name: Validate marketplace structure
         run: python3 scripts/validate_marketplace.py
-      - name: Test admission scoring
+      - name: Run unit tests
         run: python3 -m unittest discover -s tests -p 'test_*.py'
       - name: Exercise routing eval runner
         run: >-
@@ -42,12 +40,5 @@ jobs:
           python3 scripts/run_routing_eval.py
           --host codex
           --mode native
-          --cases tests/personal-routing-cases.yaml
+          --cases pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json
           --dry-run
-      - name: Resolve capability catalog
-        run: >-
-          python3 scripts/resolve_capabilities.py
-          --host codex
-          --installed-plugin tessera-core
-          --active-skill piece-router
-          --format json

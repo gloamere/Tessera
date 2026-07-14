@@ -1,6 +1,7 @@
 ---
-status: approved
+status: superseded
 date: 2026-07-13
+superseded_by: native-first-runtime-simplification
 ---
 
 # 动态能力解析采用证据合并目录

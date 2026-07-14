@@ -3,8 +3,10 @@ import sys
 import unittest
 
 
+sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+SKILL_ROOT = ROOT / "pieces" / "tessera-core" / "skills" / "tessera-eval"
+sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from run_routing_eval import (  # noqa: E402
     HostResult,
@@ -21,12 +23,12 @@ from run_routing_eval import (  # noqa: E402
 
 class RoutingEvalTests(unittest.TestCase):
     def test_loads_versioned_categories(self):
-        cases = load_cases(ROOT / "tests" / "routing-cases.yaml")
+        cases = load_cases(SKILL_ROOT / "references" / "routing-cases.json")
         self.assertGreaterEqual(len(cases), 15)
         self.assertTrue(all(case["category"] for case in cases))
 
     def test_personal_suite_keeps_60_40_profile(self):
-        cases = load_cases(ROOT / "tests" / "personal-routing-cases.yaml")
+        cases = load_cases(SKILL_ROOT / "references" / "personal-routing-cases.json")
         self.assertEqual(len(cases), 25)
         self.assertEqual(
             {profile: sum(case.get("profile") == profile for case in cases) for profile in ("development", "product")},
@@ -42,7 +44,7 @@ class RoutingEvalTests(unittest.TestCase):
             "prompt": "x",
             "expected_route": "taste",
         }
-        over = classify(direct, HostResult({"route": "piece-router", "reason": "x"}, 10))
+        over = classify(direct, HostResult({"route": "taste", "reason": "x"}, 10))
         missed = classify(specialist, HostResult({"route": "direct", "reason": "x"}, 20))
         self.assertEqual(over["outcome"], "over_route")
         self.assertEqual(missed["outcome"], "missed_route")
@@ -59,9 +61,9 @@ class RoutingEvalTests(unittest.TestCase):
 
     def test_extracts_first_party_skills_from_windows_and_unix_commands(self):
         windows = r"powershell Get-Content C:\cache\taste\skills\taste\SKILL.md"
-        unix = "cat /cache/tessera/skills/piece-router/SKILL.md"
+        unix = "cat /cache/tessera/skills/tessera-eval/SKILL.md"
         self.assertEqual(skills_from_command(windows), {"taste"})
-        self.assertEqual(skills_from_command(unix), {"piece-router"})
+        self.assertEqual(skills_from_command(unix), {"tessera-eval"})
 
     def test_parses_multiple_skills_and_reports_malformed_events(self):
         events = "\n".join(

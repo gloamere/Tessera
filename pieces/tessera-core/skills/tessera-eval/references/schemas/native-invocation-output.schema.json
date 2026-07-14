@@ -6,7 +6,7 @@
   "properties": {
     "decision": {
       "type": "string",
-      "enum": ["direct", "skill", "router"]
+      "enum": ["direct", "skill"]
     },
     "selected_skills": {
       "type": "array",

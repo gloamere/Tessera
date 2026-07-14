@@ -4,36 +4,36 @@
     "name": "van"
   },
   "metadata": {
-    "description": "个人工作流操作系统:本地拼图市集",
+    "description": "原生 Skill 调用评测与可选专业工作流",
     "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "tessera-core",
       "source": "./pieces/tessera-core",
-      "description": "个人可靠性内核:原生 Skill 调用验证、跨宿主诊断与异常路由",
-      "version": "0.4.0+codex.20260714",
+      "description": "轻量评测层:验证 Codex/Claude 原生 Skill 调用与边界稳定性",
+      "version": "0.6.0+codex.20260714063655",
       "strict": true
     },
     {
       "name": "taste",
       "source": "./pieces/taste",
       "description": "审美评审:UI/视觉/文案反套路",
-      "version": "0.1.0+codex.20260713071436",
+      "version": "0.2.0+codex.20260714",
       "strict": true
     },
     {
       "name": "knowledge-base",
       "source": "./pieces/knowledge-base",
       "description": "知识库:markdown + 双链轻量管理",
-      "version": "0.1.0+codex.20260713071436",
+      "version": "0.2.0+codex.20260714",
       "strict": true
     },
     {
       "name": "planner",
       "source": "./pieces/planner",
       "description": "策划:游戏/内容/产品方案",
-      "version": "0.1.1+codex.20260713071436",
+      "version": "0.2.0+codex.20260714",
       "strict": true
     }
   ]

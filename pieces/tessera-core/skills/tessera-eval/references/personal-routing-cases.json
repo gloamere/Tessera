@@ -1,0 +1,219 @@
+[
+  {
+    "id": "personal-dev-small-edit",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "把这个函数里的变量名拼写错误修正掉，不改其它逻辑",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-code-explanation",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "解释这段缓存失效逻辑为什么先删索引再写新值",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-feature-implementation",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "给现有 CLI 增加一个只读的 --json 输出选项并补测试",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-bug-diagnosis",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "保存按钮点击后接口返回 500，复现并定位根因",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-performance-regression",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "最近列表加载从 200ms 退化到 3 秒，帮我做性能诊断",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-tests",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "用红绿重构方式为这个解析器补边界测试",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-refactor",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "合并这两个重复的配置解析函数，保持公开行为不变",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-ci-git",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "这个 PR 的 GitHub Actions 单测失败了，检查日志并修复",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-ui-functional",
+    "profile": "development",
+    "category": "direct",
+    "prompt": "对话框按 Escape 没有关闭，这是功能问题，定位并修复",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-ui-visual",
+    "profile": "development",
+    "category": "specialist",
+    "prompt": "评审这个设置页的视觉层级、留白和配色，去掉模板味",
+    "expected_route": "taste",
+    "expected_skills": [
+      "taste"
+    ]
+  },
+  {
+    "id": "personal-dev-architecture",
+    "profile": "development",
+    "category": "decision",
+    "prompt": "评估是否把本地文件存储整体换成远程数据库，并给出可拍板方案",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-destructive-change",
+    "profile": "development",
+    "category": "decision",
+    "prompt": "删除现有迁移历史并强制所有项目改用新的不可兼容格式",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-independent-work",
+    "profile": "development",
+    "category": "multi-intent",
+    "prompt": "分别检查后端性能瓶颈、前端可访问性和测试覆盖，并汇总结论",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-lifecycle",
+    "profile": "development",
+    "category": "core",
+    "prompt": "使用当前宿主的插件管理功能更新已安装的 taste 插件",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-dev-new-skill",
+    "profile": "development",
+    "category": "core",
+    "prompt": "我连续遇到多次数据库迁移审查需求，评估是否值得新增一个 Skill",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-product-directions",
+    "profile": "product",
+    "category": "specialist",
+    "prompt": "为这个个人效率工具给出三个可供拍板的发展方向",
+    "expected_route": "planner",
+    "expected_skills": [
+      "planner"
+    ]
+  },
+  {
+    "id": "personal-product-competitor-research",
+    "profile": "product",
+    "category": "multi-intent",
+    "prompt": "先调研同类产品，再基于证据形成产品方向建议",
+    "expected_route": "planner",
+    "expected_skills": [
+      "planner"
+    ]
+  },
+  {
+    "id": "personal-product-knowledge-capture",
+    "profile": "product",
+    "category": "specialist",
+    "prompt": "把这次架构调研结论整理成可复用的双链知识笔记",
+    "expected_route": "knowledge-base",
+    "expected_skills": [
+      "knowledge-base"
+    ]
+  },
+  {
+    "id": "personal-product-meeting-notes",
+    "profile": "product",
+    "category": "specialist",
+    "prompt": "把会议记录拆成原子笔记，并建立相关主题的双链",
+    "expected_route": "knowledge-base",
+    "expected_skills": [
+      "knowledge-base"
+    ]
+  },
+  {
+    "id": "personal-product-copy-review",
+    "profile": "product",
+    "category": "specialist",
+    "prompt": "评审首页标题和按钮文案，去掉空洞的 AI 营销腔",
+    "expected_route": "taste",
+    "expected_skills": [
+      "taste"
+    ]
+  },
+  {
+    "id": "personal-product-option-comparison",
+    "profile": "product",
+    "category": "specialist",
+    "prompt": "为活动机制设计三个方向，列出目标、核心机制和关键取舍",
+    "expected_route": "planner",
+    "expected_skills": [
+      "planner"
+    ]
+  },
+  {
+    "id": "personal-product-ambiguous-project",
+    "profile": "product",
+    "category": "multi-intent",
+    "prompt": "我想做个新项目但还不知道从哪里开始，帮我选择工作方式",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-product-multi-intent",
+    "profile": "product",
+    "category": "multi-intent",
+    "prompt": "独立评审页面视觉，同时把访谈记录整理进知识库",
+    "expected_route": "taste",
+    "expected_skills": [
+      "taste",
+      "knowledge-base"
+    ]
+  },
+  {
+    "id": "personal-product-external-unavailable",
+    "profile": "product",
+    "category": "external",
+    "prompt": "查明当前宿主是否能安装一个尚未集成、也没有验证记录的研究插件",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "personal-product-transient-question",
+    "profile": "product",
+    "category": "direct",
+    "prompt": "用两句话解释北极星指标和普通 KPI 的区别",
+    "expected_route": "direct",
+    "expected_skills": []
+  }
+]
