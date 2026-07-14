@@ -1,0 +1,60 @@
+[
+  {
+    "id": "taste-landing-page-review",
+    "plugin": "taste@tessera",
+    "skill": "taste",
+    "activation": "injected",
+    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "请评审下面这个 SaaS 落地页的视觉层级、整体气质和模板化 AI 味。给出具体可执行的改进建议，但不要修改代码，也不要说明你使用了什么 Skill。\n\n```html\n<main class=\"hero\">\n  <section class=\"card\">\n    <h1>✨ Unleash Seamless Innovation</h1>\n    <p>Elevate your workflow with our revolutionary AI-powered platform.</p>\n    <a class=\"cta\" href=\"/start\">Get Started</a>\n  </section>\n</main>\n```\n\n```css\nbody { margin: 0; font-family: Arial, sans-serif; text-align: center; }\n.hero { min-height: 100vh; padding: 24px; background: linear-gradient(135deg, #7c3aed, #2563eb); }\n.card { margin: 80px auto; padding: 48px; color: #fff; border-radius: 32px; box-shadow: 0 24px 80px rgba(0,0,0,.25); }\nh1, p, .cta { font-size: 16px; }\n.cta { display: inline-block; margin-top: 16px; padding: 16px 24px; color: white; background: #3b82f6; border-radius: 16px; outline: none; }\n```",
+    "criteria": [
+      {"id": "hierarchy", "any": ["层级", "主次", "视觉重量"]},
+      {"id": "spacing", "any": ["留白", "间距", "呼吸"]},
+      {"id": "color", "any": ["配色", "颜色", "渐变"]},
+      {"id": "typography", "any": ["字体", "字号", "行高"]},
+      {"id": "consistency", "any": ["一致性", "圆角", "token"]},
+      {"id": "details", "any": ["细节", "状态", "hover", "focus", "空态", "错误态"]},
+      {"id": "dimension-scores", "regex": "[1-5]/5", "min_matches": 6},
+      {"id": "prioritized-actions", "any": ["Top 3", "top 3", "前三", "优先级"]},
+      {"id": "decisive-conclusion", "any": ["值得改", "不值得改", "结论"]}
+    ]
+  },
+  {
+    "id": "planner-steam-festival",
+    "plugin": "planner@tessera",
+    "skill": "planner",
+    "activation": "injected",
+    "skill_file": "../../pieces/planner/skills/planner/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "我们要为一款独立解谜游戏设计两周的 Steam 新品节活动。预算 2 万元，团队只有 2 人，当前 demo 可玩 20 分钟，首要目标是增加愿望单。请给负责人一份可用于决定下一步的方案；不要搜索，也不要写代码。",
+    "criteria": [
+      {"id": "audience", "any": ["受众", "玩家", "目标人群"]},
+      {"id": "success-metrics", "any": ["成功指标", "愿望单增长", "转化率", "新增愿望单"]},
+      {"id": "multiple-directions", "regex": "方向\\s*[A-C一二三123]", "min_matches": 2},
+      {"id": "tradeoffs", "any": ["取舍", "代价", "优点", "缺点"]},
+      {"id": "decision-request", "any": ["拍板", "请选择", "你更倾向", "确认方向"]},
+      {"id": "risks", "any": ["风险", "未定项"]},
+      {"id": "constraints", "all": ["2 万", "2 人", "20 分钟"]},
+      {"id": "implementation-boundary", "any": ["落地拆解", "执行方", "确认后"]}
+    ]
+  },
+  {
+    "id": "knowledge-base-research-notes",
+    "plugin": "knowledge-base@tessera",
+    "skill": "knowledge-base",
+    "activation": "injected",
+    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "请把下面的散落信息整理成一个可长期维护、以后容易检索和继续补充的个人知识库产物。只输出建议产物，不要真的写文件。\n\n- 5 位访谈用户都说插件安装步骤太长。\n- 新的一键安装脚本已经把步骤从 3 条命令降到 1 条。\n- eval 运行仍需要 Python 3，但不需要 pip。\n- 用户常把插件安装依赖和 eval 运行依赖混为一谈。\n- 后续文档应该分别说明“安装要求”和“运行 eval 要求”。",
+    "criteria": [
+      {"id": "multiple-files", "regex": "[a-z0-9-]+\\.md", "min_matches": 2},
+      {"id": "frontmatter-title", "regex": "(?m)^title:", "min_matches": 2},
+      {"id": "frontmatter-tags", "regex": "(?m)^tags:", "min_matches": 2},
+      {"id": "frontmatter-created", "regex": "(?m)^created:", "min_matches": 2},
+      {"id": "expansion-sections", "regex": "## 展开", "min_matches": 2},
+      {"id": "association-sections", "regex": "## 关联", "min_matches": 2},
+      {"id": "backlinks", "regex": "\\[\\[[^\\]]+\\]\\]", "min_matches": 2},
+      {"id": "installation-runtime-separation", "all": ["安装", "Python 3", "pip"]}
+    ]
+  }
+]
