@@ -2,99 +2,119 @@
   category: direct
   prompt: 修正文档里的一个错别字
   expected_route: direct
+  expected_skills: []
   must_not_route: [piece-router, planner]
 - id: visual-review
   category: specialist
   prompt: 评审这个页面的层级、配色和排版，看看是否有 AI 味
   expected_route: taste
+  expected_skills: [taste]
   must_not_route: [planner]
 - id: visual-functional-bug
   category: direct
   prompt: 按钮点击后接口返回 500，帮我定位原因
   expected_route: direct
+  expected_skills: []
   must_not_route: [taste]
 - id: knowledge-capture
   category: specialist
   prompt: 把这些研究结论整理成可复用的双链笔记
   expected_route: knowledge-base
+  expected_skills: [knowledge-base]
   must_not_route: [planner]
 - id: transient-question
   category: direct
   prompt: 解释一下这个正则表达式
   expected_route: direct
+  expected_skills: []
   must_not_route: [knowledge-base]
 - id: product-directions
   category: specialist
   prompt: 给这个活动设计三个可供负责人拍板的玩法方向
   expected_route: planner
+  expected_skills: [planner]
   must_not_route: [taste]
 - id: install-pieces
   category: core
   prompt: 帮我安装 Tessera 拼图
   expected_route: tessera-setup
+  expected_skills: [tessera-setup]
   must_not_route: [piece-admission]
 - id: inspect-status
   category: core
   prompt: tessera status，看看装了哪些拼图
   expected_route: tessera-status
+  expected_skills: [tessera-status]
   must_not_route: [tessera-setup]
 - id: diagnose-tessera
   category: core
   prompt: tessera doctor，全面检查市集、版本和 trust 是否漂移
   expected_route: tessera-doctor
+  expected_skills: [tessera-doctor]
   must_not_route: [tessera-status]
 - id: evaluate-routing
   category: core
   prompt: 运行 tessera eval，用固定案例复测路由准确率
   expected_route: tessera-eval
+  expected_skills: [tessera-eval]
   must_not_route: [tessera-doctor]
 - id: resolve-capabilities
   category: core
   prompt: 动态解析当前 Tessera 有哪些能力，区分可调用、已安装和未验证
   expected_route: tessera-capabilities
+  expected_skills: [tessera-capabilities]
   must_not_route: [tessera-status, tessera-setup]
 - id: propose-new-piece
   category: core
   prompt: 我想新增一个代码语义检索拼图
   expected_route: piece-admission
+  expected_skills: [piece-router]
   must_not_route: [tessera-setup]
 - id: multi-intent
   category: multi-intent
   prompt: 调研竞品后做产品方案，并把结论沉淀成知识笔记
   expected_route: piece-router
+  expected_skills: [piece-router, planner, knowledge-base]
   must_not_route: [direct]
 - id: multi-intent-independent
   category: multi-intent
   prompt: 独立评审这个页面的视觉质量，同时把会议记录整理成知识笔记
   expected_route: piece-router
+  expected_skills: [piece-router, taste, knowledge-base]
   must_not_route: [direct, taste, knowledge-base]
 - id: lifecycle-disable
   category: core
   prompt: 禁用 taste 拼图，但不要卸载
   expected_route: tessera-setup
+  expected_skills: [tessera-setup]
   must_not_route: [tessera-status]
 - id: lifecycle-rollback
   category: core
   prompt: 给我生成把 tessera-core 回滚到提交 abc123 的步骤
   expected_route: tessera-setup
+  expected_skills: [tessera-setup]
   must_not_route: [tessera-doctor]
 - id: doctor-remediation
   category: core
   prompt: 运行 tessera doctor，并逐项确认修复能够安全处理的问题
   expected_route: tessera-doctor
+  expected_skills: [tessera-doctor]
   must_not_route: [tessera-setup]
 - id: unverified-external
   category: external
   prompt: 安装 registry 里尚未集成的浏览器后端
   expected_route: external-unavailable
+  expected_skills: [piece-router]
   must_not_route: [tessera-setup]
 - id: low-risk-without-decision-directory
   category: decision
   prompt: 这个仓库没有 docs/decisions，把 README 的两个重复段落合并掉
   expected_route: direct
+  expected_skills: []
   must_not_route: [planner]
 - id: high-impact-direction-confirmation
   category: decision
   prompt: 项目没有 ADR，请把存储层从本地文件整体切换成远程数据库
   expected_route: piece-router
+  expected_skills: [piece-router]
   must_not_route: [direct]

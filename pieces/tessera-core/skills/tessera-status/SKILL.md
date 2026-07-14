@@ -1,6 +1,6 @@
 ---
 name: tessera-status
-description: 查看 Tessera 拼图的安装版本、启用状态、升级状态、可用生命周期动作与外部依赖。Codex/Claude 两端通用。
+description: 查看 Tessera 在 Codex/Claude 的安装版本、启用状态、manifest/registry/trust 漂移、可用生命周期动作、外部依赖与30/90天个人使用摘要。日常状态走本 skill；完整候选目录才使用 tessera-capabilities。
 ---
 
 # Tessera Status
@@ -13,7 +13,7 @@ description: 查看 Tessera 拼图的安装版本、启用状态、升级状态�
 - 常用能力目录已经并入 status；`tessera-capabilities` 只作为兼容入口，不应优先引导。
 - 用户明确要求启用、停用、汇总、反馈或清空本地使用记录时，调用 `scripts/usage_events.py` 的 `enable / disable / summary / feedback / purge`。执行前说明配置位于 `~/.tessera/config.json`、事件位于 `~/.tessera/usage/events.jsonl`，且不记录提示正文或真实项目路径。
 - `summary --days 30|90` 输出触发数、完成/失败/未完成、完成率、显式有效反馈、项目数和按 skill/host 汇总，并注明无法观测外部 skill 的直接调用。
-- 本 status 自身也先尝试 `start --host <host> --skill tessera-status --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill tessera-status --outcome completed|failed --project <cwd>`。未启用或记录失败时静默跳过。
+- 本 status 自身也先尝试 `start --host <host> --skill tessera-status --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill tessera-status --outcome completed|failed --project <cwd>`。未启用或记录失败时静默跳过。该指令式记录是 best-effort，不得描述成宿主级完整遥测。
 
 ## 探测
 

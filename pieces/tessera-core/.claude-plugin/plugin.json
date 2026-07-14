@@ -2,7 +2,7 @@
   "author": {
     "name": "van"
   },
-  "description": "Tessera 个人工作流内核:路由、状态诊断、场景回归与可选本地使用记录",
+  "description": "Tessera 个人可靠性内核:原生 Skill 调用验证、跨宿主诊断与异常路由",
   "name": "tessera-core",
-  "version": "0.3.0+codex.20260713"
+  "version": "0.4.0+codex.20260714"
 }

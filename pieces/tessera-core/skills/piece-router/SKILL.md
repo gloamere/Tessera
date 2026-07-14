@@ -1,9 +1,11 @@
 ---
 name: piece-router
-description: 复杂或不确定该用什么工具、涉及多种能力、说"新项目""帮我规划""不知道怎么开始"，或请求新增/引入拼图时使用:Tessera 路由网关,选择下一块能力拼图并执行准入评审。
+description: 仅当请求模糊、包含多个独立交付物、涉及高风险或不可逆方向决策，或请求新增/引入/拆分拼图时使用。Tessera 在这些异常场景选择工作方式并执行能力准入；明确的单一任务以及 taste、planner、knowledge-base 等专业请求由宿主原生直接处理，不先调用本 skill。
 ---
 
 # 拼图派发表
+
+宿主原生 Skill 选择是默认路径。本 skill 不是所有请求的前置网关，只处理 description 指定的异常场景。
 
 ## 可选本地使用记录
 
@@ -11,7 +13,7 @@ description: 复杂或不确定该用什么工具、涉及多种能力、说"新
 
 ## 动态能力解析
 
-派发前优先使用当前会话明确暴露的 skills 作为 active 证据。能定位 Tessera 仓库时，按 `tessera-capabilities` 的流程运行 `scripts/resolve_capabilities.py --host <host> --probe`，把会话可见 skill 逐项作为 `--active-skill` 传入。
+本 skill 实际命中后，优先使用当前会话明确暴露的 skills 作为 active 证据。能定位 Tessera 仓库时，按 `tessera-capabilities` 的流程运行 `scripts/resolve_capabilities.py --host <host> --probe`，把会话可见 skill 逐项作为 `--active-skill` 传入。普通任务不得为了探测目录先调用本 skill。
 
 只直接调用 `runtime_state: active` 的能力；`installed` 建议新开会话，`available` 可转 `tessera-setup`，`unknown` 如实说明证据不足，`reference-only`、`unverified`、`unsupported` 不得路由。仓库或脚本不可见时退化为当前会话 skill 列表，不因无法动态解析而阻塞直接任务。
 
@@ -35,9 +37,9 @@ description: 复杂或不确定该用什么工具、涉及多种能力、说"新
 
 ## 先选执行层级
 
-1. **单一、明确、低风险**:当前 agent 直接完成,不创建任务、不为小改动强制进入路由或专业拼图。
-2. **已安装且明显更专业的拼图更合适**:直接调用该拼图;仅当质量收益大于额外 token 与等待时间时才调。
-3. **模糊、复合或跨领域**:用本 skill 路由识别意图、选下一步。
+1. **单一、明确、低风险**:由宿主直接完成，不调用本 skill。
+2. **明确命中已安装的专业拼图**:由宿主直接调用该拼图，不先经过本 skill。
+3. **模糊、多个独立交付物、高风险或不可逆方向决策**:本 skill 识别意图并选择下一步。
 4. **可拆成独立子任务的复杂工作**:宿主支持时按下节「条件委派」委派,主 agent 汇总。
 5. **任务规划与跟踪**使用宿主 agent 的原生能力，不为此引入外部任务后端。
 

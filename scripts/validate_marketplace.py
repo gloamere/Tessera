@@ -190,6 +190,14 @@ def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
         "tessera-capabilities",
         "external-unavailable",
     }
+    valid_native_skills = (valid_piece_ids - {"tessera-core"}) | {
+        "piece-router",
+        "tessera-setup",
+        "tessera-status",
+        "tessera-doctor",
+        "tessera-eval",
+        "tessera-capabilities",
+    }
     schema_path = ROOT / "tests" / "routing-output.schema.json"
     schema = read_json(schema_path)
     schema_targets = (
@@ -227,6 +235,13 @@ def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
             expected = case.get("expected_route")
             if expected not in valid_targets:
                 errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效: {expected}")
+            expected_skills = case.get("expected_skills")
+            if (
+                not isinstance(expected_skills, list)
+                or any(skill not in valid_native_skills for skill in expected_skills)
+                or len(expected_skills) != len(set(expected_skills))
+            ):
+                errors.append(f"{relative(path)}: {case_id} 的 expected_skills 无效")
             excluded = case.get("must_not_route", [])
             if not isinstance(excluded, list) or any(target not in valid_targets for target in excluded):
                 errors.append(f"{relative(path)}: {case_id} 的 must_not_route 无效")
@@ -507,6 +522,7 @@ def main() -> int:
                     ROOT / "scripts" / "remediation_policy.py",
                     ROOT / "scripts" / "usage_events.py",
                     ROOT / "tests" / "routing-output.schema.json",
+                    ROOT / "tests" / "native-invocation-output.schema.json",
                     ROOT / "tests" / "personal-routing-cases.yaml",
                 ):
                     if not required_path.is_file():

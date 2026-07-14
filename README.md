@@ -2,9 +2,9 @@
 
 # 🧩 Tessera
 
-**面向个人的跨 Agent 工作流控制层。**
+**Claude / Codex 原生 Skills 之上的个人可靠性控制层。**
 
-用路由、状态诊断和场景回归，让自己的 Codex / Claude Code 工作流保持轻量、可靠、可演进。简单任务直接完成，专业能力按需调用，复杂任务才进入路由或条件式并行。
+让宿主原生完成普通 Skill 发现与调用；Tessera 负责调用验证、跨宿主诊断和数据驱动精简。明确任务直接交给宿主，只有模糊、多意图、高风险或新增能力请求才进入 Tessera router。
 
 [![CI](https://github.com/gloamere/Tessera/actions/workflows/validate.yml/badge.svg)](https://github.com/gloamere/Tessera/actions/workflows/validate.yml)
 ![License](https://img.shields.io/github/license/gloamere/Tessera?color=blue)
@@ -17,9 +17,9 @@ Tessera 是纯 skills 插件：没有 hooks、常驻进程、Go/Node 二进制�
 
 Tessera 先服务维护者自己的“开发为主、产品/调研/UI/知识为辅”工作流，不以商业化、stars、公共 Benchmark 或拼图数量为目标。
 
-- **Router**：选择直接执行、专业拼图或复杂任务协调。
-- **Status / Doctor**：快速查看日常状态，必要时深入诊断。
-- **Eval**：用核心案例和 25 个个人场景防止配置回归。
+- **Eval**：区分路由政策分类与可观测的原生 Skill 调用，用真实失败驱动边界优化。
+- **Status / Doctor**：统一查看 Codex / Claude 的版本、启用状态、配置漂移和个人使用摘要。
+- **Router**：只处理模糊、多意图、高风险、不可逆决策和新能力准入。
 - **本地使用记录（可选）**：用 30/90 天数据决定保留、修正或卸载哪些能力。
 
 `setup`、生命周期、remediation、marketplace 与 trust 是低频维护层，保持安全可用但不继续扩张。七级准入量表和 recipe 保留为按需参考，不作为日常仪式。
@@ -28,36 +28,34 @@ Tessera 先服务维护者自己的“开发为主、产品/调研/UI/知识为�
 
 ```mermaid
 flowchart LR
-    U([用户任务]) --> D{单一、明确、低风险？}
-    D -- 是 --> A[当前 Agent 直接完成]
-    D -- 否 --> R[Tessera 路由网关<br/>piece-router]
-    R --> P{已安装的专业拼图<br/>是否带来净收益？}
-    P -- 是 --> S[调用专业 skill]
-    P -- 否 --> C{能拆为独立子任务，且并行收益<br/>高于 token 与协调成本？}
-    C -- 是 --> M[最多 3 个子代理并行<br/>主 Agent 汇总、验证、交付]
-    C -- 否 --> A
-    S --> E{是否需要外部安装？}
-    E -- 是 --> G[用户确认外部安装<br/>原生权限控制 · 真实状态披露]
-    E -- 否 --> O[交付结果]
-    M --> O
+    U([用户任务]) --> H{宿主原生选择}
+    H --> A[直接处理]
+    H --> S[直接调用专业 Skill]
+    H --> X{模糊 / 多意图 / 高风险<br/>或新增能力？}
+    X -- 是 --> R[Tessera router]
+    X -- 否 --> A
+    R --> O[执行并交付]
     A --> O
-    G --> O
+    S --> O
+    O --> L[可选本地使用记录]
+    C([配置或宿主变化]) --> E[Tessera eval]
+    E --> T[失败驱动的边界建议<br/>人工确认后修改]
 
     classDef entry fill:#1f6feb,color:#fff,stroke:#1f6feb,stroke-width:2px;
     classDef decision fill:#fff8c5,color:#24292f,stroke:#bf8700,stroke-width:2px;
     classDef action fill:#dafbe1,color:#116329,stroke:#4ac26b,stroke-width:2px;
     classDef guard fill:#fbefff,color:#6639ba,stroke:#d2a8ff,stroke-width:2px;
-    class U,R entry;
-    class D,P,C,E decision;
-    class A,S,M,O action;
-    class G guard;
+    class U,R,E entry;
+    class H,X decision;
+    class A,S,O,L action;
+    class C,T guard;
 ```
 
 ## 适用场景
 
-- 新项目、重构或跨领域需求：先判断该规划、调研、拆分还是直接实施。
-- 明确的 UI/视觉改动：在收益足够时调用 `taste`，而不是为小改动增加路由开销。
-- 游戏、内容和产品方案：用 `planner` 形成可评审、可拍板的方向。
+- 新项目、高影响重构或跨领域需求：`piece-router` 负责选择工作方式和确认方向。
+- 明确的 UI/视觉评审：宿主直接调用 `taste`，不先经过 Tessera router。
+- 明确的游戏、内容和产品方案：宿主直接调用 `planner`；知识沉淀同理由宿主直接调用 `knowledge-base`。
 - 陌生大型代码库：使用宿主已有的检索与代码导航能力，避免为路由额外引入重型服务。
 
 ## 默认拼图
@@ -66,7 +64,7 @@ flowchart LR
 
 | 拼图 | 类型 | 用途 | 额外条件 |
 |---|---|---|---|
-| `tessera-core` | Skills | 路由、状态/诊断、个人场景回归；附带冻结的生命周期与准入能力 | 无 |
+| `tessera-core` | Skills | 原生调用验证、状态/诊断和异常路由；附带冻结的生命周期与准入能力 | 无 |
 | `taste` | Skill | UI、视觉、排版与文案评审 | 无 |
 | `knowledge-base` | Skill | Markdown 知识沉淀与检索 | 无 |
 | `planner` | Skill | 游戏、内容、产品方案策划 | 无 |
@@ -83,12 +81,12 @@ codex plugin add tessera-core@tessera
 codex plugin list
 ```
 
-新开 Codex 会话后，三个日常入口是：
+新开 Codex 会话后，三个主要入口按价值排序是：
 
-- “不知道该用哪个工具，帮我规划新项目” → `piece-router`
+- “运行 tessera eval，复测原生 Skill 调用” → `tessera-eval`
 - “查看拼图和依赖状态”或“tessera status” → `tessera-status`
 - “全面体检 Tessera / tessera doctor” → `tessera-doctor`；明确要求修复时逐项确认 remediation
-- “运行 tessera eval，复测个人工作流” → `tessera-eval`
+- “不知道该用哪个工具，帮我规划新项目” → `piece-router`
 
 低频维护仍可使用“安装/升级/禁用/卸载/回滚指导”触发 `tessera-setup`。`tessera-capabilities` 保留为完整能力目录的兼容入口，日常查看已经并入 status。
 
@@ -106,7 +104,7 @@ python scripts/usage_events.py disable
 python scripts/usage_events.py purge
 ```
 
-事件只包含 skill、宿主、时间、完成状态、显式有用性反馈和带本机 salt 的项目哈希。外部 skill 的直接调用无法可靠观测，摘要会明确披露这一边界。
+事件只包含 skill、宿主、时间、完成状态、显式有用性反馈和带本机 salt 的项目哈希。记录依赖首方 Skill 执行 start/finish 指令，是 best-effort 而不是宿主级完整遥测；外部 Skill 的直接调用无法可靠观测，摘要会明确披露这一边界。
 
 Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执行其自身的插件安装命令。
 
@@ -114,7 +112,8 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 
 | 功能 | 行为 |
 |---|---|
-| 任务路由 | 在直接执行、专业拼图、条件式子代理和透明降级之间选择 |
+| 原生调用 | 普通任务由 Claude/Codex 根据 Skill description 原生发现与调用，Tessera 不增加前置网关 |
+| 异常路由 | 只为模糊、多意图、高风险、不可逆决策和新能力请求选择工作方式 |
 | 动态能力解析 | schema v2 合并会话、市集、piece、skill、registry/trust 与宿主 JSON 探测；status 默认 quick，详细模式才显示候选与未验证项 |
 | 专业能力调用 | 仅当质量/速度收益高于额外 token 与等待成本时调用 |
 | 条件式子代理 | 宿主支持且任务独立时，最多并行 3 个；主 Agent 负责汇总与验证 |
@@ -122,7 +121,9 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 | 状态诊断 | 汇总插件版本、启用状态、宿主可用动作和外部依赖状态 |
 | 全面体检 | 默认只读；显式 remediation 仅执行 setup 白名单动作并逐项复查 |
 | 多意图 recipe | 按数据依赖排序、使用统一交接包，失败只阻断依赖链且不持久化状态 |
-| 可复跑评测 | 固定案例调用宿主，保存逐案例 JSON，区分误调用、漏调用、多意图与执行错误 |
+| 政策评测 | 用显式分类提示验证 Tessera 路由政策；结果不冒充宿主原生调用证据 |
+| 原生调用评测 | 不泄露路由清单，从宿主事件或可信 transcript 观察 Skill；区分 verified、declared-only、unobservable、conflict |
+| 提示边界优化 | 同一真实失败至少三次中复现两次才给建议；不自动修改 Skill，也不优化用户日常提示词 |
 | 个人场景回归 | 独立维护 25 个案例：15 个开发、10 个产品/调研/UI/知识场景 |
 | 本地使用记录 | 默认关闭；启用后本地记录首方 skill 的触发、完成、反馈与跨项目复用，不联网 |
 | 升级建议 | 区分 current、refresh、update、ahead、unknown；变更统一交给 setup 逐项确认 |
@@ -136,8 +137,9 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 ```powershell
 python scripts/validate_marketplace.py
 python scripts/resolve_capabilities.py --host codex --probe --view quick --format table
-python scripts/run_routing_eval.py --host codex --dry-run
-python scripts/run_routing_eval.py --host codex --cases tests/personal-routing-cases.yaml --dry-run
+python scripts/run_routing_eval.py --host codex --mode policy --dry-run
+python scripts/run_routing_eval.py --host codex --mode native --cases tests/personal-routing-cases.yaml --dry-run
+python scripts/run_routing_eval.py --host codex --mode native --case visual-review --repeat 3 --suggest-tuning
 python -m unittest discover -s tests -p 'test_*.py'
 codex plugin marketplace add ./
 codex plugin add tessera-core@tessera
@@ -145,7 +147,7 @@ codex plugin list
 codex debug prompt-input
 ```
 
-验证应在新会话中进行，以确认 skill 实际被加载。Claude CLI/适配器不可用时只验证结构与 dry-run，不得把假宿主结果描述成 Claude 实测。详见 [部署手册](docs/DEPLOYMENT.md) 与 [个人工作流主线](docs/decisions/personal-workflow-mainline.md)。
+`policy` 只证明路由政策分类；只有 `native` 中带宿主事件或可信 transcript 的 `verified` 才算可观测调用证据。Claude CLI/适配器不可用时只验证结构与 dry-run，不得把假宿主结果描述成 Claude 实测。详见 [部署手册](docs/DEPLOYMENT.md)、[个人工作流主线](docs/decisions/personal-workflow-mainline.md) 与 [原生路由优先决策](docs/decisions/native-routing-reliability-layer.md)。
 
 ## 许可
 

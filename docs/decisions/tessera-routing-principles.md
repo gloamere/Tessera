@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: tessera-routing-principles
-status: approved
+status: superseded
 created: 2026-07-12
 approved: 2026-07-12
 review: 已安装拼图、真实路由评测或宿主能力变化时重审
+superseded_by: native-routing-reliability-layer
 ---
 
 # 第一阶段路由原则
