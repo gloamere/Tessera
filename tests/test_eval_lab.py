@@ -16,6 +16,19 @@ FAKE_CODEX = ROOT / "tests" / "fixtures" / "fake_eval_lab_codex.py"
 
 
 class EvalLabIntegrationTests(unittest.TestCase):
+    def test_repository_cases_reference_only_current_skill_files(self) -> None:
+        cases = json.loads(
+            (ROOT / "experiments" / "eval-lab" / "cases.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual({case["skill"] for case in cases}, {"taste", "knowledge-base"})
+        for case in cases:
+            skill_file = (
+                ROOT / "experiments" / "eval-lab" / case["skill_file"]
+            ).resolve()
+            self.assertTrue(skill_file.is_file(), skill_file)
+
     def run_lab(
         self,
         cases: list[dict[str, object]],

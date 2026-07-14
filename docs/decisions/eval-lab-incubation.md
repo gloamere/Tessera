@@ -20,7 +20,7 @@ Eval Lab 的评测能力成立：`planner` 两轮分别得到 `-0.375` 和 `-0.2
 - 现有 `tessera-eval` 的发布边界是路由评测，不执行案例任务，并明确不建设 Prompt Lab；
 - 受控注入依赖其他插件仓库中的精确 `SKILL.md`，并入 core 后无法在不复制内容或探测兄弟插件缓存的前提下保持自包含；
 - 两轮共 36 次真实调用约耗时 28.9 分钟，适合维护者按需评审，不适合作为用户默认插件能力；
-- `taste` 和 `knowledge-base` 都没有达到净 improvement 门槛，当前主要产出是定位 `planner` 退化，而不是证明 core 集成的持续用户收益。
+- 后续五案例价值评审中，`taste` 与 `knowledge-base` 各有一个 improvement、零 regression；这支持保留专业 Skill，但不改变 Eval Lab 依赖仓库 Skill 文件、运行昂贵且不适合进入 core 的判断。
 
 ## 已完成的准入检查
 

@@ -1,0 +1,1121 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-14T09:51:32.058485+00:00",
+  "claim": "paired native skill utility with host-event attribution",
+  "adapter": "codex-cli",
+  "evidence": "native-host-events",
+  "cases_file": "D:\\Gloamere\\Tessera\\experiments\\eval-lab\\cases.json",
+  "repeat": 3,
+  "model": "gpt-5.6-sol",
+  "summary": {
+    "total": 5,
+    "improvements": 1,
+    "regressions": 0,
+    "no_change": 4,
+    "unverified": 0,
+    "execution_errors": 0,
+    "raw_improvements": 3,
+    "raw_regressions": 0,
+    "raw_ties": 2
+  },
+  "cases": [
+    {
+      "id": "knowledge-base-research-notes",
+      "plugin": "knowledge-base@tessera",
+      "skill": "knowledge-base",
+      "activation": "injected",
+      "skill_sha256": "b2bcfaa832ed625219489849ce65d4287a3840dbcbc3e336b039fd485b821573",
+      "skill_content_chars": 855,
+      "skill_content_bytes": 1672,
+      "baseline_score": 0.875,
+      "skill_score": 1.0,
+      "delta": 0.125,
+      "direction": "improvement",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 97742,
+        "cached_input_tokens": 60416,
+        "output_tokens": 4030,
+        "reasoning_output_tokens": 514
+      },
+      "skill_usage": {
+        "input_tokens": 48261,
+        "cached_input_tokens": 24064,
+        "output_tokens": 3861,
+        "reasoning_output_tokens": 487
+      },
+      "usage_delta": {
+        "input_tokens": -49481,
+        "cached_input_tokens": -36352,
+        "output_tokens": -169,
+        "reasoning_output_tokens": -27
+      },
+      "baseline_criterion_rates": {
+        "multiple-files": 1.0,
+        "frontmatter-title": 1.0,
+        "frontmatter-tags": 1.0,
+        "frontmatter-created": 1.0,
+        "expansion-sections": 0.0,
+        "association-sections": 1.0,
+        "backlinks": 1.0,
+        "installation-runtime-separation": 1.0
+      },
+      "skill_criterion_rates": {
+        "multiple-files": 1.0,
+        "frontmatter-title": 1.0,
+        "frontmatter-tags": 1.0,
+        "frontmatter-created": 1.0,
+        "expansion-sections": 1.0,
+        "association-sections": 1.0,
+        "backlinks": 1.0,
+        "installation-runtime-separation": 1.0
+      },
+      "criterion_deltas": {
+        "multiple-files": 0.0,
+        "frontmatter-title": 0.0,
+        "frontmatter-tags": 0.0,
+        "frontmatter-created": 0.0,
+        "expansion-sections": 1.0,
+        "association-sections": 0.0,
+        "backlinks": 0.0,
+        "installation-runtime-separation": 0.0
+      },
+      "gained_criteria": [
+        "expansion-sections"
+      ],
+      "lost_criteria": [],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 50041,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32582,
+            "cached_input_tokens": 30208,
+            "output_tokens": 1383,
+            "reasoning_output_tokens": 226
+          },
+          "answer": "建议产物：1 则索引笔记 + 4 则原子笔记，采用 Markdown、标签和双链。\n\n### `plugin-install-and-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行索引\ntags: [插件, eval, 索引]\ncreated: 2026-07-14\n---\n\n插件安装和 eval 运行是两个不同阶段，应分别维护用户反馈、流程改进和环境要求。\n\n## 相关笔记\n- [[插件安装步骤过长是普遍用户痛点]]\n- [[一键安装脚本将安装流程缩短为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[文档应分开说明插件安装要求和 eval 运行要求]]\n```\n\n### `plugin-installation-friction.md`\n\n```markdown\n---\ntitle: 插件安装步骤过长是普遍用户痛点\ntags: [插件, 安装, 用户访谈, 用户体验]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明这是具有一致性的用户痛点，而非个别反馈。\n\n## 证据\n- 访谈人数：5 人\n- 表达相同问题的人数：5 人\n- 主要问题：安装步骤过长\n\n## 关联\n- [[一键安装脚本将安装流程缩短为一条命令]]\n- [[文档应分开说明插件安装要求和 eval 运行要求]]\n```\n\n### `one-command-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将安装流程缩短为一条命令\ntags: [插件, 安装, 自动化, 用户体验]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本把插件安装流程从 3 条命令缩短到 1 条，直接回应了安装步骤过长的问题。\n\n## 变化\n- 改进前：3 条命令\n- 改进后：1 条命令\n- 减少：2 条命令\n\n## 关联\n- [[插件安装步骤过长是普遍用户痛点]]\n- [[文档应分开说明插件安装要求和 eval 运行要求]]\n```\n\n### `eval-runtime-requirements.md`\n\n```markdown\n---\ntitle: 运行 eval 需要 Python 3 但不需要 pip\ntags: [eval, Python, 运行环境, 依赖]\ncreated: 2026-07-14\n---\n\n运行 eval 仍然需要 Python 3，但不需要 pip。该要求属于 eval 运行环境，不应被表述为插件安装依赖。\n\n## 要求\n- Python 3：需要\n- pip：不需要\n\n## 关联\n- [[文档应分开说明插件安装要求和 eval 运行要求]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 文档应分开说明插件安装要求和 eval 运行要求\ntags: [文档, 插件, eval, 信息架构, 决策]\ncreated: 2026-07-14\n---\n\n用户经常混淆插件安装依赖与 eval 运行依赖。后续文档应设置两个独立章节，分别说明两类要求。\n\n## 建议结构\n\n### 插件安装要求\n- 说明安装插件所需的环境与依赖\n- 提供一键安装命令\n- 不混入仅运行 eval 才需要的条件\n\n### eval 运行要求\n- 明确需要 Python 3\n- 明确不需要 pip\n- 说明这些条件仅适用于运行 eval\n\n## 待补充\n- 插件安装所需环境与依赖的完整清单\n- 支持的 Python 3 最低版本\n- 各操作系统的差异\n\n## 关联\n- [[插件安装步骤过长是普遍用户痛点]]\n- [[一键安装脚本将安装流程缩短为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n```"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 33276,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32582,
+            "cached_input_tokens": 30208,
+            "output_tokens": 1190,
+            "reasoning_output_tokens": 140
+          },
+          "answer": "建议产物：4 则 Markdown 笔记。\n\n### `plugin-installation-and-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行索引\ntags: [插件, eval, 索引]\ncreated: 2026-07-14\n---\n\n插件安装与 eval 运行是两个独立环节，应分别维护其操作步骤和环境要求。\n\n## 主题笔记\n- [[插件安装流程过长是明确的用户痛点]]\n- [[一键安装脚本将插件安装缩减为一条命令]]\n- [[插件安装依赖与 eval 运行依赖必须分开说明]]\n```\n\n### `plugin-installation-friction.md`\n\n```markdown\n---\ntitle: 插件安装流程过长是明确的用户痛点\ntags: [插件, 安装, 用户访谈, 用户体验]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明安装流程的复杂度是一个一致且明确的用户痛点。\n\n## 证据\n- 访谈人数：5 人\n- 表达该问题的人数：5 人\n- 共识：插件安装步骤太长\n\n## 后续关注\n- 新流程是否降低安装耗时和失败率\n- 用户是否仍需要在多个工具或环境间切换\n\n## 关联\n- [[一键安装脚本将插件安装缩减为一条命令]]\n- [[插件安装依赖与 eval 运行依赖必须分开说明]]\n```\n\n### `one-command-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将插件安装缩减为一条命令\ntags: [插件, 安装, 自动化, 脚本]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本把插件安装流程从执行 3 条命令缩减为执行 1 条命令，直接回应了用户对安装步骤过长的反馈。\n\n## 变化\n- 旧流程：3 条命令\n- 新流程：1 条命令\n- 减少：2 条命令，约 67%\n\n## 待补充验证\n- 脚本支持的平台与 shell\n- 安装成功率和平均耗时\n- 失败后的错误提示与恢复方式\n\n## 关联\n- [[插件安装流程过长是明确的用户痛点]]\n- [[插件安装依赖与 eval 运行依赖必须分开说明]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 插件安装依赖与 eval 运行依赖必须分开说明\ntags: [插件, eval, 依赖, Python, 文档]\ncreated: 2026-07-14\n---\n\n用户经常混淆插件安装依赖和 eval 运行依赖。后续文档必须将两类要求拆成独立章节，避免用户误以为安装插件和运行 eval 需要相同环境。\n\n## 安装插件\n- 使用一键安装脚本\n- 具体环境要求：待文档补充\n\n## 运行 eval\n- 需要：Python 3\n- 不需要：pip\n\n## 文档结构建议\n1. 安装插件\n   - 前置要求\n   - 一键安装命令\n   - 安装验证\n2. 运行 eval\n   - 前置要求：Python 3\n   - 明确说明：不需要 pip\n   - 运行命令与结果验证\n\n## 关联\n- [[插件安装流程过长是明确的用户痛点]]\n- [[一键安装脚本将插件安装缩减为一条命令]]\n```"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 35956,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32578,
+            "cached_input_tokens": 0,
+            "output_tokens": 1457,
+            "reasoning_output_tokens": 148
+          },
+          "answer": "建议产物：4 则原子笔记 + 1 则主题索引。\n\n### `plugin-installation-friction.md`\n\n```markdown\n---\ntitle: 插件安装步骤过长是明确的用户痛点\ntags: [插件, 安装, 用户访谈, 用户体验]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明安装流程的复杂度是具有一致性的用户痛点。\n\n## 证据\n\n- 样本：5 位访谈用户\n- 结果：5 位均反馈安装步骤太长\n- 证据类型：用户访谈\n- 访谈记录：待补充\n\n## 关联\n\n- [[一键安装脚本将插件安装缩减为一条命令]]\n- [[插件安装要求与 eval 运行要求必须分开说明]]\n- [[插件安装与 eval 运行依赖容易被用户混淆]]\n```\n\n### `one-command-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将插件安装缩减为一条命令\ntags: [插件, 安装, 自动化, 用户体验]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本把插件安装流程从 3 条命令缩减到 1 条，直接回应了用户认为安装步骤过长的问题。\n\n## 变化\n\n- 原流程：3 条命令\n- 新流程：1 条命令\n- 减少：2 条命令，约 67%\n\n## 待验证\n\n- 用户是否能独立完成一键安装\n- 安装失败时的错误信息是否足够清晰\n- 访谈中的安装负担反馈是否因此下降\n\n## 关联\n\n- [[插件安装步骤过长是明确的用户痛点]]\n- [[插件安装要求与 eval 运行要求必须分开说明]]\n```\n\n### `eval-runtime-requirements.md`\n\n```markdown\n---\ntitle: 运行 eval 需要 Python 3 但不需要 pip\ntags: [eval, Python, 依赖, 运行环境]\ncreated: 2026-07-14\n---\n\n运行 eval 的环境要求是 Python 3；pip 不是运行 eval 的必要条件。\n\n## 要求\n\n- 必需：Python 3\n- 不需要：pip\n\n## 文档提示\n\n不要把这组要求写进“插件安装依赖”中，应放在独立的“运行 eval”章节。\n\n## 关联\n\n- [[插件安装与 eval 运行依赖容易被用户混淆]]\n- [[插件安装要求与 eval 运行要求必须分开说明]]\n```\n\n### `installation-vs-eval-dependencies.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行依赖容易被用户混淆\ntags: [插件, eval, 依赖, 用户认知, 文档]\ncreated: 2026-07-14\n---\n\n用户经常把插件安装依赖与 eval 运行依赖混为一谈，因此文档不能用一个笼统的“环境要求”章节同时描述两者。\n\n## 容易混淆的两个阶段\n\n1. 安装插件\n2. 运行 eval\n\n其中，Python 3 属于 eval 运行要求，而不是插件安装要求；运行 eval 不需要 pip。\n\n## 文档决策\n\n后续文档应明确拆分为：\n\n- 插件安装要求\n- eval 运行要求\n\n每一部分分别列出必需条件、不需要的条件和执行命令。\n\n## 关联\n\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[插件安装要求与 eval 运行要求必须分开说明]]\n```\n\n### `plugin-installation-and-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 使用知识索引\ntags: [插件, eval, 索引]\ncreated: 2026-07-14\n---\n\n本索引汇总插件安装体验、安装流程优化、eval 环境要求及相关文档决策。\n\n## 用户问题\n\n- [[插件安装步骤过长是明确的用户痛点]]\n- [[插件安装与 eval 运行依赖容易被用户混淆]]\n\n## 已有改进\n\n- [[一键安装脚本将插件安装缩减为一条命令]]\n\n## 环境要求\n\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n\n## 文档决策\n\n- [[插件安装要求与 eval 运行要求必须分开说明]]\n\n> 当前“文档决策”链接可先指向 `installation-vs-eval-dependencies.md`；当要求持续增加时，再拆成独立笔记。\n```"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "expansion-sections",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 32123,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16087,
+            "cached_input_tokens": 15104,
+            "output_tokens": 1418,
+            "reasoning_output_tokens": 210
+          },
+          "answer": "建议建立 5 则原子笔记和 1 则索引笔记：\n\n### `plugin-installation-and-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行知识索引\ntags: [插件, eval, 索引]\ncreated: 2026-07-14\n---\n\n插件安装与 eval 运行是两个独立环节，应分别维护其流程、依赖和用户反馈。\n\n## 相关笔记\n- [[插件安装步骤过长是普遍痛点]]\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[用户容易混淆插件安装依赖与 eval 运行依赖]]\n- [[文档应分别说明插件安装要求和 eval 运行要求]]\n```\n\n### `plugin-installation-steps-are-a-common-pain-point.md`\n\n```markdown\n---\ntitle: 插件安装步骤过长是普遍痛点\ntags: [插件, 安装, 用户访谈, 痛点]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明安装复杂度是具有一致性的用户痛点。\n\n## 展开\n该结论来自 5 位访谈用户的一致反馈。后续可继续补充访谈样本、原话和安装流失数据。\n\n## 关联\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[文档应分别说明插件安装要求和 eval 运行要求]]\n```\n\n### `one-command-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将安装缩减为一条命令\ntags: [插件, 安装, 自动化, 改进]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本把插件安装流程从 3 条命令缩减到 1 条，直接降低了安装操作成本。\n\n## 展开\n后续可补充脚本入口、适用平台、失败回退方式，以及上线前后的安装成功率。\n\n## 关联\n- [[插件安装步骤过长是普遍痛点]]\n- [[文档应分别说明插件安装要求和 eval 运行要求]]\n```\n\n### `eval-requires-python-but-not-pip.md`\n\n```markdown\n---\ntitle: 运行 eval 需要 Python 3 但不需要 pip\ntags: [eval, Python, 运行依赖]\ncreated: 2026-07-14\n---\n\n运行 eval 的环境要求是 Python 3；pip 不是运行 eval 的必要条件。\n\n## 展开\n文档和故障排查应明确区分“需要 Python 3”与“需要 pip”，避免用户安装不必要的工具。\n\n## 关联\n- [[用户容易混淆插件安装依赖与 eval 运行依赖]]\n- [[文档应分别说明插件安装要求和 eval 运行要求]]\n```\n\n### `users-confuse-install-and-eval-dependencies.md`\n\n```markdown\n---\ntitle: 用户容易混淆插件安装依赖与 eval 运行依赖\ntags: [插件, eval, 依赖, 用户认知]\ncreated: 2026-07-14\n---\n\n用户经常把插件安装依赖和 eval 运行依赖视为同一组要求，导致环境准备和问题排查出现偏差。\n\n## 展开\n后续可记录具体误解案例、支持工单关键词和最常见的错误配置。\n\n## 关联\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[文档应分别说明插件安装要求和 eval 运行要求]]\n```\n\n### `separate-install-and-eval-requirements-in-docs.md`\n\n```markdown\n---\ntitle: 文档应分别说明插件安装要求和 eval 运行要求\ntags: [文档, 插件, eval, 决策]\ncreated: 2026-07-14\n---\n\n后续文档应使用独立章节分别说明插件安装要求和 eval 运行要求，避免用户混淆两类依赖。\n\n## 展开\n建议至少拆为：\n\n- 插件安装：安装入口、所需条件、一键安装命令。\n- eval 运行：明确需要 Python 3、不需要 pip，并给出环境检查方式。\n\n## 关联\n- [[插件安装步骤过长是普遍痛点]]\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[用户容易混淆插件安装依赖与 eval 运行依赖]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "expansion-sections",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 26840,
+          "host_event_lines": 4,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16087,
+            "cached_input_tokens": 0,
+            "output_tokens": 1126,
+            "reasoning_output_tokens": 87
+          },
+          "answer": "建议产物：4 则原子笔记 + 1 则索引笔记。\n\n### `plugin-installation-friction.md`\n\n```markdown\n---\ntitle: 插件安装步骤过长是明确的用户痛点\ntags: [插件, 用户访谈, 安装体验]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明这是稳定且一致的体验问题，应优先降低安装操作成本。\n\n## 展开\n- 样本数：5 位访谈用户\n- 一致反馈：安装步骤太长\n- 后续可补充：访谈日期、用户类型、原话、安装失败率等量化信息\n\n## 关联\n- [[一键安装脚本将插件安装缩减为一条命令]]\n- [[插件安装依赖与 eval 运行依赖必须分开说明]]\n```\n\n### `one-command-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将插件安装缩减为一条命令\ntags: [插件, 安装脚本, 用户体验]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本把插件安装流程从 3 条命令缩减为 1 条，直接回应了用户认为安装步骤过长的问题。\n\n## 展开\n- 旧流程：3 条命令\n- 新流程：1 条命令\n- 后续可补充：脚本入口、支持平台、失败回滚方式、发布版本及采用率\n\n## 关联\n- [[插件安装步骤过长是明确的用户痛点]]\n- [[插件安装依赖与 eval 运行依赖必须分开说明]]\n```\n\n### `eval-runtime-requirements.md`\n\n```markdown\n---\ntitle: 运行 eval 需要 Python 3 但不需要 pip\ntags: [eval, Python, 运行依赖]\ncreated: 2026-07-14\n---\n\n运行 eval 的环境要求是 Python 3；pip 不是运行 eval 的必要依赖。\n\n## 展开\n文档和排障信息应明确区分“需要 Python 3”与“需要 pip”，避免用户因看到 Python 依赖而误以为必须安装或使用 pip。\n\n后续可补充：最低 Python 版本、支持的操作系统、验证环境的命令。\n\n## 关联\n- [[插件安装依赖与 eval 运行依赖必须分开说明]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 插件安装依赖与 eval 运行依赖必须分开说明\ntags: [文档, 插件, eval, 依赖管理]\ncreated: 2026-07-14\n---\n\n用户常把插件安装依赖和 eval 运行依赖混为一谈，因此后续文档必须分别列出“安装插件的要求”和“运行 eval 的要求”。\n\n## 展开\n建议文档采用两个独立小节：\n\n### 安装插件\n- 使用一键安装脚本\n- 单独列出脚本所需环境与平台限制\n\n### 运行 eval\n- 需要 Python 3\n- 不需要 pip\n\n不要把两组依赖合并成一个笼统的“前置要求”列表。\n\n## 关联\n- [[插件安装步骤过长是明确的用户痛点]]\n- [[一键安装脚本将插件安装缩减为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n```\n\n### `plugin-installation-and-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 使用知识索引\ntags: [索引, 插件, eval]\ncreated: 2026-07-14\n---\n\n本索引汇总插件安装体验、安装流程改进、eval 运行环境及相关文档规范。\n\n## 用户问题\n- [[插件安装步骤过长是明确的用户痛点]]\n\n## 解决方案\n- [[一键安装脚本将插件安装缩减为一条命令]]\n\n## 环境要求\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n\n## 文档规范\n- [[插件安装依赖与 eval 运行依赖必须分开说明]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "expansion-sections",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 31263,
+          "host_event_lines": 4,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16087,
+            "cached_input_tokens": 8960,
+            "output_tokens": 1317,
+            "reasoning_output_tokens": 190
+          },
+          "answer": "### `plugin-installation-friction.md`\n\n```markdown\n---\ntitle: 插件安装步骤过长是共同的用户痛点\ntags: [插件, 安装, 用户访谈, 痛点]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明安装流程的复杂度是普遍问题，而非个别用户偏好。\n\n## 展开\n\n- 证据：5 位访谈用户均提到安装步骤过长。\n- 影响：较长的安装流程会增加首次使用门槛，也容易造成依赖理解错误。\n- 已有改进：[[一键安装脚本将插件安装缩短为一条命令]]\n\n## 关联\n\n- [[插件安装与 eval 运行具有不同的依赖要求]]\n- [[文档应分别说明插件安装和 eval 运行要求]]\n```\n\n### `one-command-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将插件安装缩短为一条命令\ntags: [插件, 安装, 自动化, 改进]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本把插件安装流程从 3 条命令缩短为 1 条，直接回应了用户认为安装步骤过长的问题。\n\n## 展开\n\n- 改进前：需要执行 3 条命令。\n- 改进后：只需执行 1 条命令。\n- 后续可补充：脚本命令、支持平台、失败处理方式和用户采用情况。\n\n## 关联\n\n- [[插件安装步骤过长是共同的用户痛点]]\n- [[文档应分别说明插件安装和 eval 运行要求]]\n```\n\n### `plugin-install-vs-eval-dependencies.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行具有不同的依赖要求\ntags: [插件, eval, Python, 依赖, 概念澄清]\ncreated: 2026-07-14\n---\n\n插件安装依赖与 eval 运行依赖是两组不同要求；运行 eval 仍需 Python 3，但不需要 pip，不能把它们统称为插件安装依赖。\n\n## 展开\n\n- eval 运行要求：需要 Python 3。\n- eval 运行不要求：pip。\n- 常见误解：用户会把插件安装所需条件和 eval 运行所需条件混为一谈。\n- 待补充：插件安装自身的完整环境要求。\n\n## 关联\n\n- [[文档应分别说明插件安装和 eval 运行要求]]\n- [[一键安装脚本将插件安装缩短为一条命令]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 文档应分别说明插件安装和 eval 运行要求\ntags: [文档, 插件, eval, 依赖, 信息架构]\ncreated: 2026-07-14\n---\n\n后续文档应把“插件安装要求”和“运行 eval 要求”拆成独立章节，避免用户误以为 eval 的 Python 3 要求也是插件安装要求。\n\n## 展开\n\n建议文档结构：\n\n1. 插件安装\n   - 前置要求\n   - 一键安装命令\n   - 安装验证\n2. 运行 eval\n   - 需要 Python 3\n   - 不需要 pip\n   - 运行命令与结果说明\n\n两个章节应避免使用含糊的“环境依赖”总称，并明确标注每项要求适用于哪个阶段。\n\n## 关联\n\n- [[插件安装与 eval 运行具有不同的依赖要求]]\n- [[插件安装步骤过长是共同的用户痛点]]\n- [[一键安装脚本将插件安装缩短为一条命令]]\n```\n\n### `plugin-installation-and-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 使用索引\ntags: [索引, 插件, 安装, eval]\ncreated: 2026-07-14\n---\n\n本索引汇总插件安装体验、流程改进、eval 依赖和文档要求，作为后续研究与补充的入口。\n\n## 用户问题\n\n- [[插件安装步骤过长是共同的用户痛点]]\n- [[插件安装与 eval 运行具有不同的依赖要求]]\n\n## 已有改进\n\n- [[一键安装脚本将插件安装缩短为一条命令]]\n\n## 后续行动\n\n- [[文档应分别说明插件安装和 eval 运行要求]]\n```"
+        }
+      ]
+    },
+    {
+      "id": "knowledge-base-meeting-decisions",
+      "plugin": "knowledge-base@tessera",
+      "skill": "knowledge-base",
+      "activation": "injected",
+      "skill_sha256": "b2bcfaa832ed625219489849ce65d4287a3840dbcbc3e336b039fd485b821573",
+      "skill_content_chars": 855,
+      "skill_content_bytes": 1672,
+      "baseline_score": 0.875,
+      "skill_score": 1.0,
+      "delta": 0.125,
+      "direction": "improvement",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 98427,
+        "cached_input_tokens": 84480,
+        "output_tokens": 4634,
+        "reasoning_output_tokens": 1504
+      },
+      "skill_usage": {
+        "input_tokens": 48550,
+        "cached_input_tokens": 15104,
+        "output_tokens": 3426,
+        "reasoning_output_tokens": 916
+      },
+      "usage_delta": {
+        "input_tokens": -49877,
+        "cached_input_tokens": -69376,
+        "output_tokens": -1208,
+        "reasoning_output_tokens": -588
+      },
+      "baseline_criterion_rates": {
+        "multiple-files": 0.0,
+        "frontmatter": 1.0,
+        "tags": 1.0,
+        "backlinks": 1.0,
+        "decision": 1.0,
+        "action": 1.0,
+        "open-question": 1.0,
+        "review": 1.0
+      },
+      "skill_criterion_rates": {
+        "multiple-files": 1.0,
+        "frontmatter": 1.0,
+        "tags": 0.666667,
+        "backlinks": 1.0,
+        "decision": 1.0,
+        "action": 1.0,
+        "open-question": 1.0,
+        "review": 1.0
+      },
+      "criterion_deltas": {
+        "multiple-files": 1.0,
+        "frontmatter": 0.0,
+        "tags": -0.333333,
+        "backlinks": 0.0,
+        "decision": 0.0,
+        "action": 0.0,
+        "open-question": 0.0,
+        "review": 0.0
+      },
+      "gained_criteria": [
+        "multiple-files"
+      ],
+      "lost_criteria": [
+        "tags"
+      ],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "frontmatter",
+            "tags",
+            "backlinks",
+            "decision",
+            "action",
+            "open-question",
+            "review"
+          ],
+          "observed_skills": [],
+          "duration_ms": 46952,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 33375,
+            "cached_input_tokens": 24064,
+            "output_tokens": 1933,
+            "reasoning_output_tokens": 683
+          },
+          "answer": "```markdown\n---\ntitle: 安装器默认仅安装 core\nslug: installer-default-core\naliases: [安装器默认行为, core 默认安装, 可选插件安装]\ntags: [安装器, 部署, 决策]\ncreated: 2026-07-14\nstatus: 已决定\nsource: 团队会议记录（2026-07-14）\n---\n\n团队决定安装器默认仅安装 `core`。可选插件不会被默认安装，只有用户显式传入 `--all` 时才安装。\n\n## 决策规则\n\n- 默认执行：仅安装 `core`\n- 显式执行 `--all`：安装 `core` 及可选插件\n- 未传入 `--all`：不得隐式安装可选插件\n\n## 后续影响\n\n- 部署文档需要明确默认行为及 `--all` 的用途。\n- 新机器反馈将用于验证这一默认策略是否合理。\n\n## 关联\n\n- [[小林在 2026-07-17 前更新部署文档]]\n- [[2026-07-28 复盘新机器安装反馈]]\n- [[是否支持自动升级尚未决定]]\n```\n\n```markdown\n---\ntitle: 小林在 2026-07-17 前更新部署文档\nslug: update-deployment-docs-by-2026-07-17\naliases: [部署文档更新, 安装器文档任务]\ntags: [部署, 文档, 行动项]\ncreated: 2026-07-14\ndue: 2026-07-17\nowner: 小林\nstatus: 待完成\nsource: 团队会议记录（2026-07-14）\n---\n\n小林需要在 2026-07-17（本周五）前更新部署文档，使其与安装器的新默认策略一致。\n\n## 完成标准\n\n- 说明安装器默认仅安装 `core`。\n- 说明可选插件必须显式传入 `--all` 才会安装。\n- 给出默认安装和完整安装的命令示例。\n\n## 关联\n\n- [[安装器默认仅安装 core]]\n- [[2026-07-28 复盘新机器安装反馈]]\n```\n\n```markdown\n---\ntitle: 是否支持自动升级尚未决定\nslug: automatic-upgrade-undecided\naliases: [自动升级方案, 安装器自动更新]\ntags: [安装器, 自动升级, 待决策]\ncreated: 2026-07-14\nstatus: 待决策\nsource: 团队会议记录（2026-07-14）\n---\n\n团队尚未决定是否为安装器提供自动升级能力。在正式决策前，不应把自动升级视为已承诺功能。\n\n## 待确认\n\n- 是否需要自动升级。\n- 自动升级是默认启用还是用户主动开启。\n- 升级失败后的回滚策略。\n- 自动升级是否覆盖 `core` 和可选插件。\n\n## 下一检查点\n\n在 2026-07-28 的新机器反馈复盘中重新评估。\n\n## 关联\n\n- [[安装器默认仅安装 core]]\n- [[2026-07-28 复盘新机器安装反馈]]\n```\n\n```markdown\n---\ntitle: 2026-07-28 复盘新机器安装反馈\nslug: review-new-machine-feedback-2026-07-28\naliases: [两周后复盘, 新机器反馈复盘]\ntags: [安装器, 新机器, 复盘]\ncreated: 2026-07-14\nreview_date: 2026-07-28\nstatus: 已安排\nsource: 团队会议记录（2026-07-14）\n---\n\n团队计划在 2026-07-28（两周后）根据新机器的实际安装反馈进行复盘。\n\n## 复盘输入\n\n- 默认仅安装 `core` 是否符合使用预期。\n- 用户是否容易理解并正确使用 `--all`。\n- 部署文档是否足以支持新机器安装。\n- 安装或升级过程中出现的问题。\n\n## 建议输出\n\n- 保留或调整当前默认安装策略。\n- 记录部署文档的补充项。\n- 决定是否继续评估自动升级。\n- 为每项后续行动指定负责人和截止日期。\n\n## 关联\n\n- [[安装器默认仅安装 core]]\n- [[小林在 2026-07-17 前更新部署文档]]\n- [[是否支持自动升级尚未决定]]\n```"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "frontmatter",
+            "tags",
+            "backlinks",
+            "decision",
+            "action",
+            "open-question",
+            "review"
+          ],
+          "observed_skills": [],
+          "duration_ms": 36452,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32545,
+            "cached_input_tokens": 30208,
+            "output_tokens": 1334,
+            "reasoning_output_tokens": 387
+          },
+          "answer": "```markdown\n---\ntitle: 安装器默认只安装 core\ntags: [安装器, 部署, 决策]\ncreated: 2026-07-14\nstatus: 已决定\n---\n\n安装器默认只安装 `core`，不自动安装可选插件。\n\n## 影响\n\n默认安装保持最小化；需要可选插件的用户必须主动选择完整安装。\n\n## 关联\n\n- [[安装可选插件必须显式使用 --all]]\n- [[部署文档需在本周五前更新]]\n```\n\n```markdown\n---\ntitle: 安装可选插件必须显式使用 --all\ntags: [安装器, 插件, CLI, 决策]\ncreated: 2026-07-14\nstatus: 已决定\n---\n\n可选插件不会默认安装，只有显式传入 `--all` 参数时才安装。\n\n## 关联\n\n- [[安装器默认只安装 core]]\n- [[部署文档需在本周五前更新]]\n```\n\n```markdown\n---\ntitle: 部署文档需在本周五前更新\ntags: [部署文档, 行动项, 安装器]\ncreated: 2026-07-14\nstatus: 待完成\nowner: 小林\ndue: 2026-07-17\n---\n\n小林需在 2026-07-17 前更新部署文档，说明安装器默认只安装 `core`，以及使用 `--all` 安装可选插件的方法。\n\n## 完成标准\n\n- 说明默认安装范围仅包含 `core`\n- 说明 `--all` 的用途和使用方式\n- 检查部署示例与最新安装行为一致\n\n## 关联\n\n- [[安装器默认只安装 core]]\n- [[安装可选插件必须显式使用 --all]]\n```\n\n```markdown\n---\ntitle: 是否支持自动升级尚未决定\ntags: [自动升级, 待决策, 安装器]\ncreated: 2026-07-14\nstatus: 待讨论\n---\n\n团队尚未决定是否为安装器提供自动升级能力。\n\n## 后续\n\n在新机器使用反馈复盘时重新评估，重点关注升级需求、维护成本、失败恢复和用户控制权。\n\n## 关联\n\n- [[两周后复盘新机器反馈]]\n- [[安装器默认只安装 core]]\n```\n\n```markdown\n---\ntitle: 两周后复盘新机器反馈\ntags: [复盘, 新机器, 跟踪项]\ncreated: 2026-07-14\nstatus: 待安排\ndue: 2026-07-28\n---\n\n团队计划在 2026-07-28 左右，根据新机器上的实际安装反馈进行复盘。\n\n## 复盘重点\n\n- 默认只安装 `core` 是否符合使用预期\n- 用户是否能理解并正确使用 `--all`\n- 部署文档是否足以支持新机器安装\n- 是否需要自动升级能力\n\n## 关联\n\n- [[安装器默认只安装 core]]\n- [[安装可选插件必须显式使用 --all]]\n- [[部署文档需在本周五前更新]]\n- [[是否支持自动升级尚未决定]]\n```"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "frontmatter",
+            "tags",
+            "backlinks",
+            "decision",
+            "action",
+            "open-question",
+            "review"
+          ],
+          "observed_skills": [],
+          "duration_ms": 35220,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32507,
+            "cached_input_tokens": 30208,
+            "output_tokens": 1367,
+            "reasoning_output_tokens": 434
+          },
+          "answer": "```markdown\n---\ntitle: 安装器默认只安装 core\nstatus: decided\ntags: [安装器, 插件, 部署, 决策]\ncreated: 2026-07-14\n---\n\n团队决定安装器默认仅安装 `core`；可选插件不会被默认安装，必须由用户显式传入 `--all`。\n\n## 决策规则\n\n- 默认行为：仅安装 `core`\n- 完整安装：显式使用 `--all`\n- 目的：保持默认安装最小化，并让可选插件安装成为明确选择\n\n## 关联\n\n- [[更新安装器部署文档]]\n- [[是否为安装器提供自动升级]]\n- [[新机器安装反馈复盘]]\n```\n\n```markdown\n---\ntitle: 更新安装器部署文档\nstatus: todo\ntags: [安装器, 部署文档, 行动项]\nowner: 小林\ndue: 2026-07-17\ncreated: 2026-07-14\n---\n\n小林需在 2026-07-17（本周五）前更新部署文档，使其反映安装器的新默认行为。\n\n## 验收要点\n\n- 说明默认仅安装 `core`\n- 说明可选插件需要显式传入 `--all`\n- 提供默认安装与完整安装的命令示例\n\n## 关联\n\n- [[安装器默认只安装 core]]\n- [[新机器安装反馈复盘]]\n```\n\n```markdown\n---\ntitle: 是否为安装器提供自动升级\nstatus: undecided\ntags: [安装器, 自动升级, 待决策]\ncreated: 2026-07-14\n---\n\n团队尚未决定是否为安装器提供自动升级能力，此事项保持开放，后续需要结合实际部署反馈评估。\n\n## 待评估问题\n\n- 自动升级是否默认开启\n- 如何处理升级失败与版本回退\n- 是否允许固定版本或跳过升级\n- 自动升级对离线及受限网络环境的影响\n\n## 关联\n\n- [[安装器默认只安装 core]]\n- [[新机器安装反馈复盘]]\n```\n\n```markdown\n---\ntitle: 新机器安装反馈复盘\nstatus: scheduled\ntags: [安装器, 新机器, 用户反馈, 复盘]\nreview_date: 2026-07-28\ncreated: 2026-07-14\n---\n\n团队计划在 2026-07-28（两周后）根据新机器上的实际安装反馈进行复盘。\n\n## 建议收集\n\n- 默认仅安装 `core` 是否符合预期\n- 用户是否理解并正确使用 `--all`\n- 部署文档是否足够清晰\n- 安装失败、遗漏插件及环境兼容问题\n- 是否出现支持自动升级的实际需求\n\n## 复盘输出\n\n- 确认或调整默认安装策略\n- 记录部署文档的补充项\n- 对自动升级事项形成决定或明确下一步\n\n## 关联\n\n- [[安装器默认只安装 core]]\n- [[更新安装器部署文档]]\n- [[是否为安装器提供自动升级]]\n```"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "decision",
+            "action",
+            "open-question",
+            "review"
+          ],
+          "observed_skills": [],
+          "duration_ms": 30223,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16041,
+            "cached_input_tokens": 15104,
+            "output_tokens": 1339,
+            "reasoning_output_tokens": 365
+          },
+          "answer": "`installer-defaults-to-core-only.md`\n\n```markdown\n---\ntitle: 安装器默认只安装 core\nTags: [安装器, 部署, 决策]\ncreated: 2026-07-14\n---\n\n团队决定安装器默认只安装 core；可选插件不会被默认安装，必须显式使用 `--all`。\n\n## 展开\n- 默认行为：仅安装 core\n- 安装全部可选插件：显式传入 `--all`\n- 状态：已决定\n\n## 关联\n- [[小林需更新安装器部署文档]]\n- [[是否支持自动升级尚未决定]]\n- [[两周后复盘新机器部署反馈]]\n```\n\n`xiaolin-update-installer-deployment-docs.md`\n\n```markdown\n---\ntitle: 小林需更新安装器部署文档\nTags: [安装器, 部署文档, 待办]\ncreated: 2026-07-14\n---\n\n小林需在 2026-07-17（本周五）前更新部署文档，说明安装器默认只安装 core，以及 `--all` 的使用方式。\n\n## 展开\n- 负责人：小林\n- 截止日期：2026-07-17\n- 状态：待完成\n- 验收要点：\n  - 说明默认仅安装 core\n  - 说明可选插件需显式使用 `--all`\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[两周后复盘新机器部署反馈]]\n```\n\n`automatic-upgrade-remains-undecided.md`\n\n```markdown\n---\ntitle: 是否支持自动升级尚未决定\nTags: [安装器, 自动升级, 未决事项]\ncreated: 2026-07-14\n---\n\n团队尚未决定是否为安装器提供自动升级能力，该事项需保留并在后续讨论中继续追踪。\n\n## 展开\n- 状态：未决\n- 待明确：是否做自动升级\n- 下一检查点：两周后的新机器反馈复盘\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[两周后复盘新机器部署反馈]]\n```\n\n`review-new-machine-feedback-in-two-weeks.md`\n\n```markdown\n---\ntitle: 两周后复盘新机器部署反馈\nTags: [安装器, 新机器, 复盘, 待办]\ncreated: 2026-07-14\n---\n\n团队计划在 2026-07-28 根据新机器的实际反馈进行复盘，并检查当前安装策略及自动升级未决事项。\n\n## 展开\n- 复盘日期：2026-07-28\n- 状态：待进行\n- 输入：新机器的安装与使用反馈\n- 建议议题：\n  - 默认只安装 core 是否合理\n  - `--all` 是否易于理解和使用\n  - 部署文档是否足够清晰\n  - 是否需要自动升级\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[小林需更新安装器部署文档]]\n- [[是否支持自动升级尚未决定]]\n```\n\n`installer-deployment-topic-index.md`\n\n```markdown\n---\ntitle: 安装器部署事项索引\nTags: [安装器, 部署, 索引]\ncreated: 2026-07-14\n---\n\n本索引汇总安装器部署相关的已决策、待办、未决事项与复盘计划。\n\n## 决策\n- [[安装器默认只安装 core]]\n\n## 待办\n- [[小林需更新安装器部署文档]]\n- [[两周后复盘新机器部署反馈]]\n\n## 未决事项\n- [[是否支持自动升级尚未决定]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "tags",
+            "backlinks",
+            "decision",
+            "action",
+            "open-question",
+            "review"
+          ],
+          "observed_skills": [],
+          "duration_ms": 24328,
+          "host_event_lines": 4,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16041,
+            "cached_input_tokens": 0,
+            "output_tokens": 1038,
+            "reasoning_output_tokens": 218
+          },
+          "answer": "`installer-defaults-to-core.md`\n```markdown\n---\ntitle: 安装器默认只安装 core\n tags: [安装器, 部署, 决策]\ncreated: 2026-07-14\n---\n\n团队决定安装器默认只安装 `core`；可选插件不会被默认安装，必须显式传入 `--all`。\n\n## 展开\n- 默认行为：仅安装 `core`\n- 完整安装：显式使用 `--all`\n\n## 关联\n- [[小林在本周五前更新部署文档]]\n- [[自动升级方案尚未决定]]\n- [[两周后复盘新机器反馈]]\n```\n\n`update-deployment-docs-by-friday.md`\n```markdown\n---\ntitle: 小林在本周五前更新部署文档\ntags: [部署, 文档, 行动项]\ncreated: 2026-07-14\n---\n\n小林负责在 2026-07-17 前更新部署文档，写明安装器默认只安装 `core`，可选插件需显式使用 `--all`。\n\n## 展开\n- 负责人：小林\n- 截止日期：2026-07-17\n- 状态：待完成\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[两周后复盘新机器反馈]]\n```\n\n`automatic-upgrade-remains-undecided.md`\n```markdown\n---\ntitle: 自动升级方案尚未决定\ntags: [升级, 待决策, 部署]\ncreated: 2026-07-14\n---\n\n团队尚未决定是否实现自动升级，需要在获得更多部署反馈后继续评估。\n\n## 展开\n- 状态：待决策\n- 待评估：是否需要自动升级，以及它的风险、维护成本和用户体验\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[两周后复盘新机器反馈]]\n```\n\n`review-new-machine-feedback-in-two-weeks.md`\n```markdown\n---\ntitle: 两周后复盘新机器反馈\ntags: [复盘, 部署, 反馈, 行动项]\ncreated: 2026-07-14\n---\n\n团队计划在 2026-07-28 根据新机器的实际反馈复盘安装和部署方案。\n\n## 展开\n- 复盘日期：2026-07-28\n- 状态：待进行\n- 关注项：默认仅安装 `core` 是否合理、`--all` 是否易于理解、部署文档是否有效、是否需要自动升级\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[小林在本周五前更新部署文档]]\n- [[自动升级方案尚未决定]]\n```\n\n`installer-deployment-decisions-index.md`\n```markdown\n---\ntitle: 安装器与部署决策索引\ntags: [安装器, 部署, 索引]\ncreated: 2026-07-14\n---\n\n本索引汇总安装器默认策略、部署文档行动项、自动升级待决策事项及后续复盘安排。\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[小林在本周五前更新部署文档]]\n- [[自动升级方案尚未决定]]\n- [[两周后复盘新机器反馈]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "tags",
+            "backlinks",
+            "decision",
+            "action",
+            "open-question",
+            "review"
+          ],
+          "observed_skills": [],
+          "duration_ms": 26565,
+          "host_event_lines": 4,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16468,
+            "cached_input_tokens": 0,
+            "output_tokens": 1049,
+            "reasoning_output_tokens": 333
+          },
+          "answer": "`installer-install-policy.md`\n\n```markdown\n---\ntitle: 安装器默认只安装 core\n tags: [安装器, 部署, 决策]\ncreated: 2026-07-14\n---\n\n团队决定安装器默认只安装 `core`；安装可选插件时，用户必须显式传入 `--all`。\n\n## 展开\n- 默认行为：仅安装 `core`\n- 可选行为：使用 `--all` 安装可选插件\n- 状态：已决定\n\n## 关联\n- [[小林在本周五前更新部署文档]]\n- [[自动升级方案尚未决定]]\n- [[两周后复盘新机器反馈]]\n```\n\n`update-deployment-docs.md`\n\n```markdown\n---\ntitle: 小林在本周五前更新部署文档\ntags: [部署, 文档, 待办]\ncreated: 2026-07-14\n---\n\n小林负责在本周五（2026-07-17）前更新部署文档，写明安装器默认只安装 `core`，以及安装可选插件需要显式传入 `--all`。\n\n## 展开\n- 负责人：小林\n- 截止日期：2026-07-17\n- 状态：待完成\n- 验收条件：部署文档准确说明默认安装范围和 `--all` 的用途\n\n## 关联\n- [[安装器默认只安装 core]]\n```\n\n`automatic-upgrade-undecided.md`\n\n```markdown\n---\ntitle: 自动升级方案尚未决定\ntags: [自动升级, 待决策, 安装器]\ncreated: 2026-07-14\n---\n\n团队尚未决定是否实现自动升级，需要保留为待决策事项，不能视为已进入实施阶段。\n\n## 展开\n- 状态：待决策\n- 待确认：是否需要自动升级\n- 后续参考：新机器的安装与使用反馈\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[两周后复盘新机器反馈]]\n```\n\n`review-new-machine-feedback.md`\n\n```markdown\n---\ntitle: 两周后复盘新机器反馈\ntags: [复盘, 新机器, 跟进]\ncreated: 2026-07-14\n---\n\n团队计划在两周后（2026-07-28）根据新机器反馈进行复盘，检查安装策略的实际效果，并为后续决策提供依据。\n\n## 展开\n- 复盘日期：2026-07-28\n- 状态：待进行\n- 输入：新机器安装与使用反馈\n- 关注点：默认仅安装 `core` 是否合适、`--all` 是否清晰、是否需要自动升级\n\n## 关联\n- [[安装器默认只安装 core]]\n- [[自动升级方案尚未决定]]\n- [[小林在本周五前更新部署文档]]\n```"
+        }
+      ]
+    },
+    {
+      "id": "knowledge-base-incident-learning",
+      "plugin": "knowledge-base@tessera",
+      "skill": "knowledge-base",
+      "activation": "injected",
+      "skill_sha256": "b2bcfaa832ed625219489849ce65d4287a3840dbcbc3e336b039fd485b821573",
+      "skill_content_chars": 855,
+      "skill_content_bytes": 1672,
+      "baseline_score": 1.0,
+      "skill_score": 1.0,
+      "delta": 0.0,
+      "direction": "tie",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 97537,
+        "cached_input_tokens": 30208,
+        "output_tokens": 6441,
+        "reasoning_output_tokens": 700
+      },
+      "skill_usage": {
+        "input_tokens": 48586,
+        "cached_input_tokens": 24064,
+        "output_tokens": 6702,
+        "reasoning_output_tokens": 1258
+      },
+      "usage_delta": {
+        "input_tokens": -48951,
+        "cached_input_tokens": -6144,
+        "output_tokens": 261,
+        "reasoning_output_tokens": 558
+      },
+      "baseline_criterion_rates": {
+        "multiple-files": 1.0,
+        "frontmatter": 1.0,
+        "backlinks": 1.0,
+        "symptom": 1.0,
+        "workaround": 1.0,
+        "root-cause-boundary": 0.666667,
+        "runbook": 1.0,
+        "probe": 1.0
+      },
+      "skill_criterion_rates": {
+        "multiple-files": 1.0,
+        "frontmatter": 1.0,
+        "backlinks": 1.0,
+        "symptom": 1.0,
+        "workaround": 1.0,
+        "root-cause-boundary": 1.0,
+        "runbook": 1.0,
+        "probe": 1.0
+      },
+      "criterion_deltas": {
+        "multiple-files": 0.0,
+        "frontmatter": 0.0,
+        "backlinks": 0.0,
+        "symptom": 0.0,
+        "workaround": 0.0,
+        "root-cause-boundary": 0.333333,
+        "runbook": 0.0,
+        "probe": 0.0
+      },
+      "gained_criteria": [
+        "root-cause-boundary"
+      ],
+      "lost_criteria": [],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "symptom",
+            "workaround",
+            "runbook",
+            "probe"
+          ],
+          "observed_skills": [],
+          "duration_ms": 48921,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32516,
+            "cached_input_tokens": 0,
+            "output_tokens": 2218,
+            "reasoning_output_tokens": 279
+          },
+          "answer": "以下为可直接复制进个人知识库的 Markdown 产物；本次未写入磁盘。\n\n### `codex-windows-python-access-denied.md`\n\n```markdown\n---\ntitle: Windows Store 的 codex.exe 可能无法从 Python 子进程启动\ntags: [codex, windows, python, subprocess, access-denied, 故障复盘]\ncreated: 2026-07-14\n---\n\nWindows Store 提供的 `codex.exe` 即使能在交互式终端正常运行，也可能在 Python 子进程中因 `Access Denied` 启动失败。改用 npm 安装的 `codex.cmd` 后恢复正常。选择 Codex 可执行文件时，不能仅检查路径是否存在，必须实际执行 `--version` 验证。\n\n## 现象\n\n- 直接在终端运行 `codex` 正常。\n- Python 通过 `subprocess` 启动解析到的 Windows Store `codex.exe` 时失败。\n- 错误表现为 `Access Denied`，通常对应 Windows `WinError 5`。\n- 改用 npm 提供的 `codex.cmd` 后，Python 子进程恢复正常。\n\n## 原因判断\n\n直接终端执行成功，只能证明当前 Shell 能解析并启动 `codex`，不能证明解析出的具体文件可被 Python 子进程直接执行。\n\nWindows Store 的应用别名或打包程序可能受 Windows 启动机制、执行上下文或权限规则影响。因此，“文件存在”和“终端可运行”都不足以作为候选可用性的判据。\n\n> 当前证据能确认的是执行上下文差异；若未进一步检查 Windows 应用别名和权限机制，不把具体底层原因写成定论。\n\n## 修复\n\n- 安装或使用 npm 版本的 Codex CLI。\n- 让解析逻辑找到 npm 的 `codex.cmd`。\n- 对每个候选逐一执行 `--version`。\n- 只返回首个实际执行成功的候选。\n- 某个候选出现 `Access Denied`、无法启动、超时或返回非零状态时，继续探测下一个候选。\n\n## 长期结论\n\n外部 CLI 的解析应采用“发现候选 → 实际探活 → 选择可用项”，不要采用“找到首个存在的文件 → 直接返回”。\n\n## 关联\n\n- [[Codex CLI 候选解析必须执行探活]]\n- [[Windows 下 Codex CLI 子进程排障手册]]\n```\n\n### `codex-cli-resolution-probe.md`\n\n```markdown\n---\ntitle: Codex CLI 候选解析必须执行探活\ntags: [codex, cli, executable-resolution, health-check, robustness]\ncreated: 2026-07-14\n---\n\n`resolve_codex` 不应把“路径存在”视为“可执行”。它应逐个执行候选的 `--version`，返回第一个能够被当前进程成功启动且正常退出的候选。\n\n## 推荐解析流程\n\n1. 收集候选路径，并去重。\n2. 保留候选来源信息，例如 npm、PATH、Windows Store。\n3. 对每个候选执行 `<candidate> --version`。\n4. 设置较短超时，避免异常候选阻塞解析。\n5. 捕获权限错误、文件不存在和进程启动错误。\n6. 非零退出、超时或异常均视为该候选不可用。\n7. 返回第一个探活成功的候选。\n8. 全部失败时，报告所有候选及各自失败原因。\n\n## 验收条件\n\n- Windows Store `codex.exe` 抛出 `Access Denied` 时不会终止整个解析过程。\n- 后续 npm `codex.cmd` 可被继续探测并选中。\n- 日志能说明每个候选为何被接受或跳过。\n- 没有可用候选时，错误信息包含安装或 PATH 修复建议。\n\n## 设计原则\n\nCLI 探测必须在与真实调用相同的执行上下文中完成。交互式终端中的人工测试不能替代应用进程内的探活。\n\n## 关联\n\n- [[Windows Store 的 codex.exe 可能无法从 Python 子进程启动]]\n- [[Windows 下 Codex CLI 子进程排障手册]]\n```\n\n### `windows-codex-subprocess-runbook.md`\n\n```markdown\n---\ntitle: Windows 下 Codex CLI 子进程排障手册\ntags: [codex, windows, runbook, python, subprocess, npm]\ncreated: 2026-07-14\n---\n\n当 Codex 在终端正常、但从 Python 子进程启动失败时，首先核对 Python 实际执行的是哪个候选，并在相同上下文中逐个运行 `--version`。\n\n## 复现\n\n在终端确认：\n\n    codex --version\n    where.exe codex\n\n然后在与故障程序相同的 Python 环境中测试每个候选：\n\n    import subprocess\n\n    candidates = [\n        r\"<Windows Store codex.exe 路径>\",\n        r\"<npm codex.cmd 路径>\",\n    ]\n\n    for candidate in candidates:\n        try:\n            result = subprocess.run(\n                [candidate, \"--version\"],\n                capture_output=True,\n                text=True,\n                timeout=10,\n                check=False,\n            )\n            print(candidate, result.returncode, result.stdout, result.stderr)\n        except Exception as exc:\n            print(candidate, type(exc).__name__, repr(exc))\n\n## 判断\n\n- 终端成功、Python 报 `PermissionError` 或 `WinError 5`：记录为执行上下文差异。\n- Windows Store 候选失败、npm `codex.cmd` 成功：优先使用已探活的 npm 候选。\n- 所有候选失败：继续检查 PATH、安装状态、文件权限、工作目录和调用账户。\n- `--version` 成功但真实命令失败：比较参数、环境变量、标准输入输出和工作目录。\n\n## 恢复步骤\n\n1. 用 `where.exe codex` 列出 PATH 中的解析结果。\n2. 找到 npm 安装产生的 `codex.cmd`。\n3. 在 Python 中直接对它执行 `--version`。\n4. 确认成功后，让 `resolve_codex` 选择该候选。\n5. 再执行一次真实 Codex 子进程调用。\n6. 保留失败候选、异常类型、错误码和最终选中路径的诊断日志。\n\n## 防回归检查\n\n- 模拟第一个候选抛出 `PermissionError`。\n- 确认解析器继续测试第二个候选。\n- 确认 npm `codex.cmd` 被返回。\n- 模拟所有候选失败，确认汇总错误包含各候选的失败原因。\n- 确认解析器不会仅因 `Path.exists()` 为真就接受候选。\n\n## 快速结论\n\n看到“终端能运行、Python 子进程 Access Denied”时，不要立即判定 Codex 未安装。先确认实际命中的可执行文件，并换用经过 `--version` 探活的 npm `codex.cmd`。\n\n## 关联\n\n- [[Windows Store 的 codex.exe 可能无法从 Python 子进程启动]]\n- [[Codex CLI 候选解析必须执行探活]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "symptom",
+            "workaround",
+            "root-cause-boundary",
+            "runbook",
+            "probe"
+          ],
+          "observed_skills": [],
+          "duration_ms": 43315,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32513,
+            "cached_input_tokens": 15104,
+            "output_tokens": 1901,
+            "reasoning_output_tokens": 97
+          },
+          "answer": "以下内容可直接作为个人知识库条目保存；本次未写入磁盘。\n\n### `windows-store-codex-python-access-denied.md`\n\n```markdown\n---\ntitle: Python 子进程启动 Windows Store codex.exe 可能触发 Access Denied\ntags: [codex, windows, python, subprocess, access-denied, 故障复盘]\ncreated: 2026-07-14\n---\n\nWindows Store 版本的 `codex.exe` 可能在终端直接运行正常，但从 Python 子进程启动时返回 `Access Denied`。这说明“路径可解析”不等于“当前进程上下文可执行”；候选程序必须通过实际执行验证。\n\n## 已确认现象\n\n- 在终端直接运行 `codex.exe` 正常。\n- Python 通过 `subprocess` 启动同一候选程序时出现 `Access Denied`。\n- 改用 npm 安装提供的 `codex.cmd` 后恢复正常。\n\n## 原因边界\n\n已确认问题与 Windows Store 的 `codex.exe` 候选有关，但现有证据不足以断言具体属于 App Execution Alias、WindowsApps 权限还是打包应用启动语义。排障时应把这些作为待验证假设，而不是既定根因。\n\n## 可复用结论\n\n程序解析逻辑不能只依赖 `PATH`、`where.exe`、`shutil.which()` 或文件是否存在。对于 Windows Store、shim、alias 和包装脚本，必须在目标父进程环境中实际执行一次轻量命令。\n\n## 关联\n\n- [[resolve_codex 应通过 --version 验证候选程序]]\n- [[Codex Windows 子进程 Access Denied 排障手册]]\n```\n\n### `resolve-codex-probe-candidates.md`\n\n```markdown\n---\ntitle: resolve_codex 应通过 --version 验证候选程序\ntags: [codex, windows, python, subprocess, executable-resolution]\ncreated: 2026-07-14\n---\n\n`resolve_codex` 不应返回第一个“看起来存在”的 Codex 程序，而应按优先级逐个执行 `<候选> --version`，只返回能够成功启动并正常退出的候选。\n\n## 探测规则\n\n对每个候选程序：\n\n1. 使用与实际调用相同的 Python 子进程环境执行 `--version`。\n2. 设置较短超时，避免异常候选阻塞解析。\n3. 捕获 `PermissionError`、`OSError`、超时和非零退出码。\n4. 记录候选路径及失败类型，供诊断使用。\n5. 探测失败则继续下一个候选。\n6. 优先采用已验证可运行的 npm `codex.cmd`，不要因同名 `codex.exe` 排在前面就提前返回。\n7. 所有候选均失败时，返回包含逐项探测结果的明确错误。\n\n## 设计原则\n\n候选选择依据是“从当前 Python 进程可执行”，而不是“文件存在”“终端能运行”或“命令能被解析”。\n\n## 回归测试\n\n至少覆盖：\n\n- 第一个候选存在但抛出 `PermissionError`，第二个候选成功。\n- 候选返回非零退出码。\n- 候选执行超时。\n- npm `codex.cmd` 成功并被选中。\n- 所有候选失败时，错误信息列出各候选及失败原因。\n\n## 关联\n\n- [[Python 子进程启动 Windows Store codex.exe 可能触发 Access Denied]]\n- [[Codex Windows 子进程 Access Denied 排障手册]]\n```\n\n### `codex-windows-subprocess-access-denied-runbook.md`\n\n```markdown\n---\ntitle: Codex Windows 子进程 Access Denied 排障手册\ntags: [codex, windows, runbook, python, subprocess, access-denied]\ncreated: 2026-07-14\n---\n\n当 Codex 在终端可运行、但 Python 子进程报告 `Access Denied` 时，先比较两种环境解析到的真实命令，再逐个执行 `--version`。已知有效的恢复路径是绕过 Windows Store `codex.exe`，改用 npm 的 `codex.cmd`。\n\n## 复现步骤\n\n1. 在普通终端执行：\n\n   ```powershell\n   codex --version\n   Get-Command codex -All | Format-List Name,CommandType,Source,Definition\n   where.exe codex\n   ```\n\n2. 在实际出错的 Python 环境执行：\n\n   ```python\n   import shutil\n   import subprocess\n\n   candidate = shutil.which(\"codex\")\n   print(\"resolved:\", candidate)\n   subprocess.run(\n       [candidate, \"--version\"],\n       check=True,\n       capture_output=True,\n       text=True,\n       timeout=10,\n   )\n   ```\n\n3. 记录以下信息：\n\n   - Python 解析出的完整路径。\n   - 文件类型：`.exe`、`.cmd` 或其他 shim。\n   - 异常类型、错误码、标准输出和标准错误。\n   - 当前用户、`PATH`、工作目录以及 Python 的启动方式。\n   - 终端与 Python 是否解析到了不同候选。\n\n## 判断流程\n\n- 终端和 Python 都失败：检查安装、`PATH` 与 Codex 本身。\n- 终端成功、Python 失败：优先怀疑候选差异、Windows Store alias/权限或打包应用启动语义。\n- Windows Store `codex.exe` 失败、npm `codex.cmd` 成功：使用 `codex.cmd`，并保留失败候选的诊断记录。\n- 所有候选都失败：不要静默回退；汇总每个候选的探测结果后报错。\n\n## 恢复办法\n\n1. 确认 npm 提供的 `codex.cmd` 已安装并可执行。\n2. 让 `resolve_codex` 枚举全部候选。\n3. 对候选逐个运行 `--version`。\n4. 跳过返回 `Access Denied` 的 Windows Store `codex.exe`。\n5. 选择探测成功的 npm `codex.cmd`。\n6. 重新执行原 Python 调用并确认恢复。\n\n## 完成标准\n\n- Python 子进程可以稳定启动 Codex。\n- `resolve_codex` 返回的是实际探测成功的候选。\n- 日志能说明每个被跳过候选的失败原因。\n- 回归测试覆盖“首个候选不可执行、后续候选可用”的场景。\n\n## 关联\n\n- [[Python 子进程启动 Windows Store codex.exe 可能触发 Access Denied]]\n- [[resolve_codex 应通过 --version 验证候选程序]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "symptom",
+            "workaround",
+            "root-cause-boundary",
+            "runbook",
+            "probe"
+          ],
+          "observed_skills": [],
+          "duration_ms": 98707,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32508,
+            "cached_input_tokens": 15104,
+            "output_tokens": 2322,
+            "reasoning_output_tokens": 324
+          },
+          "answer": "已整理为 3 则可直接复制的 Markdown 知识库条目；本次未写入磁盘。\n\n建议文件名：`windows-store-codex-python-access-denied.md`\n\n```markdown\n---\ntitle: Windows Store 的 codex.exe 可能无法从 Python 子进程启动\ntags: [codex, windows, python, subprocess, 故障复盘]\ncreated: 2026-07-14\n---\n\nWindows Store 提供的 `codex.exe` 在终端中可以正常运行，但从 Python 子进程启动时可能报 `Access Denied`。终端可执行不代表该候选程序适合由当前宿主进程启动；本次改用 npm 安装的 `codex.cmd` 后恢复正常。\n\n## 症状\n\n- 直接在终端运行 Codex 正常。\n- Python 通过 `subprocess` 启动解析到的 Windows Store `codex.exe` 时失败。\n- 失败信息为 `Access Denied`。\n- 改用 npm 提供的 `codex.cmd` 后，Python 子进程可以正常启动 Codex。\n\n## 根因边界\n\n已确认问题与“候选程序能否被 Python 子进程实际启动”有关，而非 Codex 整体不可用。\n\n仅凭以下条件不能判定候选有效：\n\n- 文件存在；\n- 位于 `PATH`；\n- 可在交互式终端运行；\n- 名称为 `codex.exe`。\n\nWindows Store 执行别名或其运行上下文可能与 Python 子进程的启动方式存在兼容性或权限差异。未取得更多系统级证据前，不把更具体的 Windows 内部机制写成确定根因。\n\n## 解决办法\n\n绕过 Windows Store 的 `codex.exe`，选择 npm 安装提供的 `codex.cmd`。\n\n## 关联\n\n- [[外部命令候选必须通过实际执行验证]]\n- [[Codex Windows 子进程 Access Denied 排障手册]]\n```\n\n建议文件名：`validate-command-candidates-by-execution.md`\n\n```markdown\n---\ntitle: 外部命令候选必须通过实际执行验证\ntags: [工程实践, 命令解析, subprocess, 健壮性]\ncreated: 2026-07-14\n---\n\n解析外部命令时，不应把“路径存在”视为“命令可用”。候选程序应在目标宿主环境中逐个执行轻量探测；只有成功运行的候选才能返回给调用方。\n\n## 实践\n\n`resolve_codex` 对每个候选逐个执行：\n\n```text\n<候选> --version\n```\n\n候选只有满足预期的成功条件后才被选中。若出现启动异常、权限错误或非成功退出，则记录失败并继续探测下一个候选。\n\n## 为什么需要运行探测\n\n命令可用性同时取决于：\n\n- 路径和扩展名解析；\n- 当前用户及进程权限；\n- 执行别名、包装脚本或真实二进制的差异；\n- 交互式终端与程序化子进程的环境差异；\n- 程序能否完成最小启动流程。\n\n因此，`exists()`、`which()` 或 `PATH` 命中只能生成候选，不能完成最终验证。\n\n## 探测要求\n\n- 使用与正式调用相同的 Python 子进程机制。\n- 设置合理超时，避免异常候选阻塞解析。\n- 捕获 `PermissionError`、启动失败、超时和非零退出码。\n- 保留各候选的路径及失败原因，便于诊断。\n- 不因首个候选存在就停止搜索。\n\n## 关联\n\n- [[Windows Store 的 codex.exe 可能无法从 Python 子进程启动]]\n- [[Codex Windows 子进程 Access Denied 排障手册]]\n```\n\n建议文件名：`codex-windows-subprocess-access-denied-runbook.md`\n\n```markdown\n---\ntitle: Codex Windows 子进程 Access Denied 排障手册\ntags: [codex, windows, runbook, python, subprocess]\ncreated: 2026-07-14\n---\n\n当 Codex 在 Windows 终端中运行正常、但从 Python 子进程启动时报 `Access Denied` 时，首先确认 Python 实际解析到了哪个 Codex 候选，然后逐个执行 `--version`。若 Windows Store 的 `codex.exe` 失败，优先尝试 npm 的 `codex.cmd`。\n\n## 适用症状\n\n- 终端直接执行 `codex --version` 正常；\n- Python `subprocess` 启动 Codex 报权限错误；\n- 同一机器上可能存在多个 Codex 候选。\n\n## 排障步骤\n\n### 1. 枚举所有候选\n\n在 PowerShell 中执行：\n\n```powershell\nGet-Command codex -All | Format-List Name,CommandType,Source,Path\nwhere.exe codex\n```\n\n重点区分：\n\n- Windows Store 或 WindowsApps 下的 `codex.exe`；\n- npm 安装生成的 `codex.cmd`；\n- 其他同名包装程序或旧版本。\n\n### 2. 从 Python 复现真实启动条件\n\n不要只在 PowerShell 中测试。使用与业务代码相同的 `subprocess` 参数，对每个候选执行：\n\n```text\n<候选完整路径> --version\n```\n\n记录：\n\n- 候选完整路径；\n- 是否成功启动；\n- 退出码；\n- 标准输出和错误输出；\n- 捕获到的异常类型；\n- 是否超时。\n\n### 3. 判断结果\n\n- Windows Store `codex.exe` 报 `Access Denied`，但 npm `codex.cmd` 成功：选择 `codex.cmd`。\n- 所有候选都失败：检查 Python 进程身份、环境变量、工作目录和安全软件策略。\n- 终端与 Python 解析到不同路径：修正候选顺序或显式配置 Codex 路径。\n\n### 4. 验证修复\n\n至少验证：\n\n```text\ncodex --version\n```\n\n以及一次最小的实际 Codex 子进程调用。确认解析器返回的是已经由 Python 成功探测过的候选。\n\n### 5. 防止复发\n\n`resolve_codex` 应：\n\n1. 枚举全部候选；\n2. 按优先级逐个执行 `--version`；\n3. 跳过权限错误、启动失败、超时或非零退出的候选；\n4. 返回首个实际可运行的候选；\n5. 若全部失败，汇总每个候选的失败原因。\n\n## 已知有效恢复路径\n\n```text\nWindows Store codex.exe：Python 子进程 Access Denied\n                    ↓\n改用 npm codex.cmd\n                    ↓\nPython 子进程启动恢复\n```\n\n## 复盘检查清单\n\n- [ ] 记录 Python 实际调用的完整路径\n- [ ] 区分终端成功与子进程成功\n- [ ] 枚举全部同名候选\n- [ ] 对每个候选执行 `--version`\n- [ ] 保留权限错误和退出码\n- [ ] 用最小实际调用验证最终候选\n- [ ] 为全部候选失败提供聚合错误信息\n\n## 关联\n\n- [[Windows Store 的 codex.exe 可能无法从 Python 子进程启动]]\n- [[外部命令候选必须通过实际执行验证]]\n```"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "symptom",
+            "workaround",
+            "root-cause-boundary",
+            "runbook",
+            "probe"
+          ],
+          "observed_skills": [],
+          "duration_ms": 49214,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16480,
+            "cached_input_tokens": 8960,
+            "output_tokens": 2219,
+            "reasoning_output_tokens": 393
+          },
+          "answer": "建议保存为以下 4 则 Markdown 笔记。已将“事实”和“推测”分开，避免把未验证的根因固化。\n\n### `codex-windows-python-access-denied.md`\n\n```markdown\n---\ntitle: Windows Store 版 codex.exe 可能无法从 Python 子进程启动\ntags: [Codex, Windows, Python, 故障复盘]\ncreated: 2026-07-14\n---\n\nWindows Store 提供的 `codex.exe` 可以在终端直接运行，但从 Python 子进程启动时可能报 `Access Denied`。改用 npm 安装的 `codex.cmd` 后恢复正常。选择 Codex 可执行文件时，不能仅判断文件是否存在，还必须实际执行探测。\n\n## 已确认现象\n\n- 终端直接运行 Windows Store 的 `codex.exe` 正常。\n- 同一程序由 Python 子进程启动时出现 `Access Denied`。\n- 换用 npm 的 `codex.cmd` 后，Python 调用恢复。\n- `resolve_codex` 已改为逐个执行候选程序的 `--version`，选择首个可正常启动的候选。\n\n## 根因边界\n\n目前只能确认失败与“Windows Store 版可执行文件 + Python 子进程启动”这一组合相关。\n\nWindows Store 执行别名、权限模型或进程启动方式可能参与其中，但尚无足够证据确定具体机制，因此不应把其中任何一项记录为已证实根因。\n\n## 可复用结论\n\n“终端可运行”不等于“目标宿主进程可启动”。可执行文件解析必须在真实调用环境中进行能力探测。\n\n## 关联\n\n- [[可执行文件解析应使用实际执行探测]]\n- [[排查 Python 无法启动 Codex 的 Access Denied]]\n- [[Windows Codex 启动故障索引]]\n```\n\n### `probe-executable-candidates.md`\n\n```markdown\n---\ntitle: 可执行文件解析应使用实际执行探测\ntags: [进程管理, Windows, 可靠性, 设计原则]\ncreated: 2026-07-14\n---\n\n解析外部命令时，仅检查路径存在、扩展名或 `PATH` 命中并不足够；应按优先级逐个执行低副作用命令，例如 `--version`，并选择首个能够成功启动且返回有效结果的候选。\n\n## 推荐流程\n\n1. 枚举 `codex.exe`、`codex.cmd` 等候选。\n2. 对每个候选执行 `--version`。\n3. 捕获启动异常、权限错误、超时和非零退出码。\n4. 记录失败原因并继续探测下一候选。\n5. 返回第一个探测成功的候选。\n6. 所有候选均失败时，汇总诊断信息，而不是只报告最后一次错误。\n\n## 伪代码\n\n```text\nfor candidate in candidates:\n    try:\n        result = run(candidate, \"--version\", timeout=短超时)\n        if result.exit_code == 0 and result.output_is_valid:\n            return candidate\n    catch error:\n        diagnostics.append(candidate, error)\n\nraise NoUsableCodexCandidate(diagnostics)\n```\n\n## 设计注意\n\n- 探测应使用与正式调用相同的用户、环境变量和子进程启动方式。\n- 设置短超时，防止异常候选阻塞解析流程。\n- 不要因某个优先候选存在但不可执行而停止回退。\n- 日志应包含候选路径、异常类型和退出码，但避免泄露敏感环境变量。\n\n## 关联\n\n- [[Windows Store 版 codex.exe 可能无法从 Python 子进程启动]]\n- [[排查 Python 无法启动 Codex 的 Access Denied]]\n```\n\n### `troubleshoot-python-codex-access-denied.md`\n\n```markdown\n---\ntitle: 排查 Python 无法启动 Codex 的 Access Denied\ntags: [Codex, Windows, Python, 排障手册]\ncreated: 2026-07-14\n---\n\n遇到 Python 启动 Codex 报 `Access Denied` 时，先区分“命令不存在”和“候选存在但宿主无法启动”，再分别测试 Windows Store 的 `codex.exe` 与 npm 的 `codex.cmd`。\n\n## 复现与检查\n\n### 1. 查看命令候选\n\n```powershell\nGet-Command codex -All\nwhere.exe codex\n```\n\n记录每个候选的完整路径和文件类型。\n\n### 2. 在终端验证\n\n```powershell\ncodex --version\n```\n\n终端成功只能证明交互式 Shell 可以运行它，不能证明 Python 子进程也可以。\n\n### 3. 从 Python 分别探测候选\n\n使用生产代码相同的 `subprocess` 参数，分别对候选执行：\n\n```text\n<Windows Store codex.exe> --version\n<npm codex.cmd> --version\n```\n\n记录：\n\n- 候选完整路径\n- Python 异常类型与错误码\n- 标准输出和标准错误\n- 退出码\n- 是否超时\n- `shell`、工作目录和环境变量设置\n\n### 4. 判定\n\n如果 Store 版 `codex.exe` 在终端成功、Python 中报 `Access Denied`，而 npm 的 `codex.cmd` 在 Python 中成功，可暂时判定为候选兼容性问题。\n\n此时优先使用 npm 候选，并保留 Store 候选的失败诊断；不要仅凭路径优先级强制选择 Store 版。\n\n### 5. 验证修复\n\n确认 `resolve_codex`：\n\n- 逐个执行候选的 `--version`；\n- Store 候选失败后继续回退；\n- 最终选择 npm 的 `codex.cmd`；\n- 所有候选失败时给出汇总错误；\n- 正式 Codex 调用可以成功完成。\n\n## 回归场景\n\n1. Store `codex.exe` 不可启动，npm `codex.cmd` 可启动。\n2. 第一候选不存在，第二候选可启动。\n3. 第一候选返回非零退出码，第二候选成功。\n4. 第一候选超时，第二候选成功。\n5. 所有候选均失败，错误中包含各候选的诊断信息。\n\n## 关联\n\n- [[Windows Store 版 codex.exe 可能无法从 Python 子进程启动]]\n- [[可执行文件解析应使用实际执行探测]]\n- [[Windows Codex 启动故障索引]]\n```\n\n### `windows-codex-launch-index.md`\n\n```markdown\n---\ntitle: Windows Codex 启动故障索引\ntags: [Codex, Windows, 索引]\ncreated: 2026-07-14\n---\n\nWindows 上的 Codex 启动问题应从候选来源、真实宿主可执行性和回退策略三个方向排查。\n\n## 相关笔记\n\n- [[Windows Store 版 codex.exe 可能无法从 Python 子进程启动]]\n- [[可执行文件解析应使用实际执行探测]]\n- [[排查 Python 无法启动 Codex 的 Access Denied]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "symptom",
+            "workaround",
+            "root-cause-boundary",
+            "runbook",
+            "probe"
+          ],
+          "observed_skills": [],
+          "duration_ms": 54750,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16053,
+            "cached_input_tokens": 0,
+            "output_tokens": 2664,
+            "reasoning_output_tokens": 692
+          },
+          "answer": "建议沉淀为以下 4 则 Markdown 笔记。内容中的结论严格限定在现有证据范围内，未把 `Access Denied` 推断成某个未经验证的 Windows 机制问题。\n\n### `codex-windows-subprocess-incident.md`\n\n```markdown\n---\ntitle: Windows Store 的 codex.exe 可在终端运行但无法从 Python 子进程启动\ntags: [Codex, Windows, Python, 故障复盘]\ncreated: 2026-07-14\n---\n\nWindows Store 提供的 `codex.exe` 直接在终端执行正常，但由 Python 子进程启动时返回 `Access Denied`；因此“终端可执行”不能证明该候选适用于实际调用环境。\n\n## 展开\n\n故障表现：\n\n- 直接在 Windows 终端运行 Store 版本 `codex.exe`：正常。\n- 从 Python 子进程启动同一程序：`Access Denied`。\n- 改用 npm 安装提供的 `codex.cmd`：子进程调用恢复正常。\n\n本次复盘只能确认启动方式与执行结果存在差异，尚不能仅凭现象断定 Store 包装、权限令牌或 App Execution Alias 中的哪一层是根因。\n\n## 关联\n\n- [[可执行文件解析必须验证实际可启动性]]\n- [[Windows Codex 子进程 Access Denied 排障手册]]\n- [[Windows Codex 启动问题索引]]\n```\n\n### `executable-resolution-must-probe-launchability.md`\n\n```markdown\n---\ntitle: 可执行文件解析必须验证实际可启动性\ntags: [进程启动, Windows, 可靠性, 设计原则]\ncreated: 2026-07-14\n---\n\n解析外部命令时，仅检查路径存在或依赖终端解析结果并不可靠；应在与正式调用相同的子进程环境中执行轻量命令，只有探测成功的候选才能被选中。\n\n## 展开\n\n`resolve_codex` 现在按候选顺序逐个执行：\n\n```text\n<candidate> --version\n```\n\n建议把候选判定为可用所需的条件固定为：\n\n- 子进程成功创建；\n- 在限定时间内退出；\n- 退出码为成功；\n- 输出符合预期的 Codex 版本信息。\n\n以下情况应记录并继续尝试下一个候选，而不是立即终止解析：\n\n- `Access Denied`；\n- 文件不存在；\n- 进程启动异常；\n- 探测超时；\n- 非零退出码；\n- 输出无法识别。\n\n日志至少保留候选路径、候选类型、探测结果和失败原因。不要只记录最终的“未找到 Codex”，否则会丢失真正的启动失败信息。\n\n## 关联\n\n- [[Windows Store 的 codex.exe 可在终端运行但无法从 Python 子进程启动]]\n- [[Windows Codex 子进程 Access Denied 排障手册]]\n```\n\n### `windows-codex-access-denied-runbook.md`\n\n```markdown\n---\ntitle: Windows Codex 子进程 Access Denied 排障手册\ntags: [Codex, Windows, Python, 排障手册]\ncreated: 2026-07-14\n---\n\n遇到 Codex 子进程 `Access Denied` 时，应分别验证“终端直接执行”和“应用实际子进程执行”，再逐一探测所有候选；若 Store 版本只在子进程中失败，可切换到已经通过探测的 npm `codex.cmd`。\n\n## 展开\n\n### 1. 收集环境\n\n记录：\n\n- Windows 版本；\n- Python 版本；\n- 应用启动方式；\n- `PATH`；\n- 所有 Codex 候选的完整路径；\n- 候选来自 Windows Store、npm 或其他安装方式；\n- `resolve_codex` 的候选顺序。\n\n可使用以下命令查看终端能够解析到的候选：\n\n```powershell\nGet-Command codex -All | Select-Object CommandType, Source, Definition\nwhere.exe codex\n```\n\n### 2. 验证终端执行\n\n对每个候选使用完整路径执行：\n\n```powershell\n& '<candidate-path>' --version\n```\n\n记录退出码、标准输出和错误输出。\n\n### 3. 验证 Python 子进程执行\n\n使用与正式应用相同的工作目录、环境变量、参数组织方式和启动选项执行候选：\n\n```python\nimport subprocess\n\nresult = subprocess.run(\n    [candidate, \"--version\"],\n    capture_output=True,\n    text=True,\n    timeout=10,\n    check=False,\n)\n\nprint(result.returncode)\nprint(result.stdout)\nprint(result.stderr)\n```\n\n如果正式代码对 `.cmd` 使用了专门的 Windows 调用方式，复现脚本也必须保持一致。\n\n### 4. 建立结果矩阵\n\n```text\n候选                         终端执行       Python 子进程\nWindows Store codex.exe      成功           Access Denied\nnpm codex.cmd                待实测/成功     成功\n```\n\n不要因为第一列成功就跳过第二列。\n\n### 5. 恢复服务\n\n- 安装或定位 npm 提供的 `codex.cmd`；\n- 确认它在 Python 子进程中执行 `--version` 成功；\n- 让 `resolve_codex` 跳过探测失败的 Store 候选；\n- 确认最终选中 npm `codex.cmd`；\n- 再运行一次真实 Codex 调用，而不只验证版本命令。\n\n### 6. 回归验收\n\n以下条件全部满足才算恢复：\n\n- Store 候选的启动失败不会中断后续候选探测；\n- npm `codex.cmd --version` 能从实际 Python 子进程运行；\n- `resolve_codex` 返回已经探测成功的候选；\n- 真实 Codex 命令可以完成；\n- 日志能解释每个候选为何被接受或跳过。\n\n### 7. 后续根因调查\n\n若需要定位 Store 版本的底层原因，应另外比较：\n\n- 终端与 Python 进程的用户、权限和环境变量；\n- 解析出的真实路径是否相同；\n- App Execution Alias 或 Store 包装是否参与启动；\n- 不同 Python 启动参数是否改变结果。\n\n在取得证据前，不把上述任一因素写成确定根因。\n\n## 关联\n\n- [[Windows Store 的 codex.exe 可在终端运行但无法从 Python 子进程启动]]\n- [[可执行文件解析必须验证实际可启动性]]\n- [[Windows Codex 启动问题索引]]\n```\n\n### `windows-codex-launch-index.md`\n\n```markdown\n---\ntitle: Windows Codex 启动问题索引\ntags: [Codex, Windows, 索引]\ncreated: 2026-07-14\n---\n\n本索引汇总 Windows 环境中 Codex 可执行文件解析、子进程启动失败和恢复流程的长期知识。\n\n## 笔记\n\n- 事故现象：[[Windows Store 的 codex.exe 可在终端运行但无法从 Python 子进程启动]]\n- 通用设计原则：[[可执行文件解析必须验证实际可启动性]]\n- 复现与恢复：[[Windows Codex 子进程 Access Denied 排障手册]]\n\n## 关联\n\n- [[Windows Store 的 codex.exe 可在终端运行但无法从 Python 子进程启动]]\n- [[可执行文件解析必须验证实际可启动性]]\n- [[Windows Codex 子进程 Access Denied 排障手册]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "symptom",
+            "workaround",
+            "root-cause-boundary",
+            "runbook",
+            "probe"
+          ],
+          "observed_skills": [],
+          "duration_ms": 39335,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16053,
+            "cached_input_tokens": 15104,
+            "output_tokens": 1819,
+            "reasoning_output_tokens": 173
+          },
+          "answer": "建议沉淀为以下 4 个 Markdown 文件。内容区分了已验证事实与尚未确认的根因，避免把 workaround 误记成根因结论。\n\n### `windows-store-codex-python-access-denied.md`\n\n```markdown\n---\ntitle: Windows Store 版 codex.exe 可能无法从 Python 子进程启动\ntags: [Codex, Windows, Python, 故障复盘]\ncreated: 2026-07-14\n---\n\nWindows Store 提供的 `codex.exe` 在终端中可以直接运行，但从 Python 子进程启动时可能返回 `Access Denied`。这说明“终端可执行”不足以证明程序也能被自动化进程启动；当前复盘尚未确认更底层的 Windows 权限或应用执行别名机制是否为根因。\n\n## 展开\n\n已观察到：\n\n- 直接在终端运行 Windows Store 的 `codex.exe` 正常。\n- 使用 Python 子进程启动同一候选程序时出现 `Access Denied`。\n- 改用 npm 安装提供的 `codex.cmd` 后，子进程调用恢复正常。\n\n因此，排查 Windows CLI 启动问题时，需要在真实调用环境中执行候选程序，不能只检查路径是否存在。\n\n## 关联\n\n- [[通过执行 --version 验证 CLI 候选是否可用]]\n- [[Windows 下 Codex 子进程 Access Denied 排障手册]]\n```\n\n### `probe-cli-candidates-with-version.md`\n\n```markdown\n---\ntitle: 通过执行 --version 验证 CLI 候选是否可用\ntags: [CLI, Python, Windows, 可靠性]\ncreated: 2026-07-14\n---\n\nCLI 解析函数不应只判断候选文件是否存在，而应在目标子进程环境中逐个执行 `<candidate> --version`；只有能够成功启动并返回有效结果的候选，才应被选中。\n\n## 展开\n\n`resolve_codex` 现在采用逐个探测策略：\n\n1. 按既定优先级枚举 `codex`、`codex.cmd`、`codex.exe` 等候选。\n2. 对每个候选执行 `--version`。\n3. 遇到 `Access Denied`、文件不可执行、启动失败、超时或异常退出时，记录失败并继续探测。\n4. 返回第一个验证成功的候选。\n5. 如果全部失败，报告所有候选及各自失败原因。\n\n这种探测验证的是“当前调用者能否真实执行该 CLI”，比 `PATH` 查找、文件存在检查或终端手工运行更可靠。\n\n## 关联\n\n- [[Windows Store 版 codex.exe 可能无法从 Python 子进程启动]]\n- [[Windows 下 Codex 子进程 Access Denied 排障手册]]\n```\n\n### `codex-subprocess-access-denied-runbook.md`\n\n```markdown\n---\ntitle: Windows 下 Codex 子进程 Access Denied 排障手册\ntags: [Codex, Windows, Runbook, 排障]\ncreated: 2026-07-14\n---\n\n当 Codex 在终端中运行正常、但由 Python 子进程启动时报 `Access Denied` 时，应先确认实际解析到的可执行文件，再在 Python 环境中逐个执行候选的 `--version`；若 Windows Store 候选失败，可切换到 npm 提供的 `codex.cmd`。\n\n## 复现条件\n\n- 操作系统：Windows。\n- 已存在 Windows Store 提供的 `codex.exe`。\n- 终端直接执行 Codex 正常。\n- Python 通过 `subprocess` 启动 Codex 时出现 `Access Denied`。\n\n## 排查步骤\n\n1. 在终端确认命令解析结果：\n\n   ```powershell\n   Get-Command codex -All\n   where.exe codex\n   ```\n\n2. 记录所有候选的完整路径及来源，特别区分：\n\n   - Windows Store / 应用执行别名提供的 `codex.exe`\n   - npm 提供的 `codex.cmd`\n\n3. 不依赖终端手工测试结果，在 Python 子进程环境中分别运行：\n\n   ```text\n   <candidate> --version\n   ```\n\n4. 对每个候选记录：\n\n   - 是否成功创建进程\n   - 退出码\n   - 标准输出与错误输出\n   - 是否发生 `Access Denied`\n   - 是否超时\n\n5. 如果 Store 版 `codex.exe` 失败而 npm 的 `codex.cmd` 成功，让 `resolve_codex` 跳过失败候选并选择 `codex.cmd`。\n\n6. 使用真实业务命令完成一次端到端验证，避免只验证 `--version`。\n\n## 已验证的恢复方式\n\n使用 npm 提供的 `codex.cmd` 替代 Windows Store 的 `codex.exe`，Python 子进程调用恢复正常。\n\n## 防回归检查\n\n- `resolve_codex` 必须逐个执行 `--version`，而不是只检查文件存在。\n- 单个候选失败后必须继续尝试后续候选。\n- 全部失败时，错误信息应列出探测过的候选及失败原因。\n- 测试应覆盖“首个候选存在但不可执行、后续候选可用”的情况。\n\n## 尚未确认\n\n本次复盘只确认了触发条件和有效绕过方案，尚未证明 Windows Store 沙箱、应用执行别名或具体 ACL 是唯一根因。后续若继续深挖，应保留 Windows 版本、Python 版本、候选完整路径和原始异常信息。\n\n## 关联\n\n- [[Windows Store 版 codex.exe 可能无法从 Python 子进程启动]]\n- [[通过执行 --version 验证 CLI 候选是否可用]]\n```\n\n### `codex-windows-troubleshooting-index.md`\n\n```markdown\n---\ntitle: Codex Windows 启动故障知识索引\ntags: [Codex, Windows, 索引]\ncreated: 2026-07-14\n---\n\n本索引汇总 Windows 环境下 Codex CLI 的解析、子进程启动与 `Access Denied` 排障知识。\n\n## 笔记\n\n- [[Windows Store 版 codex.exe 可能无法从 Python 子进程启动]]\n- [[通过执行 --version 验证 CLI 候选是否可用]]\n- [[Windows 下 Codex 子进程 Access Denied 排障手册]]\n```"
+        }
+      ]
+    },
+    {
+      "id": "knowledge-base-research-synthesis",
+      "plugin": "knowledge-base@tessera",
+      "skill": "knowledge-base",
+      "activation": "injected",
+      "skill_sha256": "b2bcfaa832ed625219489849ce65d4287a3840dbcbc3e336b039fd485b821573",
+      "skill_content_chars": 855,
+      "skill_content_bytes": 1672,
+      "baseline_score": 0.75,
+      "skill_score": 1.0,
+      "delta": 0.25,
+      "direction": "improvement",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 98434,
+        "cached_input_tokens": 69376,
+        "output_tokens": 5194,
+        "reasoning_output_tokens": 763
+      },
+      "skill_usage": {
+        "input_tokens": 48159,
+        "cached_input_tokens": 30208,
+        "output_tokens": 6123,
+        "reasoning_output_tokens": 1268
+      },
+      "usage_delta": {
+        "input_tokens": -50275,
+        "cached_input_tokens": -39168,
+        "output_tokens": 929,
+        "reasoning_output_tokens": 505
+      },
+      "baseline_criterion_rates": {
+        "multiple-files": 0.0,
+        "frontmatter": 0.333333,
+        "backlinks": 1.0,
+        "sources": 1.0,
+        "version-observation": 1.0,
+        "epistemic-status": 1.0,
+        "future-verification": 1.0,
+        "no-false-resolution": 1.0
+      },
+      "skill_criterion_rates": {
+        "multiple-files": 1.0,
+        "frontmatter": 1.0,
+        "backlinks": 1.0,
+        "sources": 1.0,
+        "version-observation": 1.0,
+        "epistemic-status": 1.0,
+        "future-verification": 1.0,
+        "no-false-resolution": 1.0
+      },
+      "criterion_deltas": {
+        "multiple-files": 1.0,
+        "frontmatter": 0.666667,
+        "backlinks": 0.0,
+        "sources": 0.0,
+        "version-observation": 0.0,
+        "epistemic-status": 0.0,
+        "future-verification": 0.0,
+        "no-false-resolution": 0.0
+      },
+      "gained_criteria": [
+        "multiple-files",
+        "frontmatter"
+      ],
+      "lost_criteria": [],
+      "attribution": "verified-injection",
+      "verdict": "improvement",
+      "baseline_runs": [
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "backlinks",
+            "sources",
+            "version-observation",
+            "epistemic-status",
+            "future-verification",
+            "no-false-resolution"
+          ],
+          "observed_skills": [],
+          "duration_ms": 43771,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 33414,
+            "cached_input_tokens": 24064,
+            "output_tokens": 1646,
+            "reasoning_output_tokens": 347
+          },
+          "answer": "建议保存为 `plugin-body-loading-timing.md`：\n\n```markdown\n---\ntitle: 插件正文加载时机目前无法定论\ntags: [插件, 加载机制, 版本验证, 待确认]\ncreated: 2026-07-14\nstatus: 待验证\n---\n\n现有资料互相冲突，只能确认“文档说法、特定版本观察、changelog 未提及”三件事；无法据此判定插件正文实际在何时加载，也不能证明 2.1.207 是否修复或改变了该行为。\n\n## 已知事实\n\n> 这里的“事实”仅指摘录内容本身，不代表已独立验证产品行为。\n\n- 资料 A 声称：插件正文只在调用时加载。\n- 资料 B 记录：在 Claude 2.0.74 中观察到插件全文在启动时加载。\n- 资料 C 显示：2.1.207 changelog 未提及该问题或相关修复。\n\n## 观察与证据边界\n\n### 资料 A：机制声明\n\n- 类型：文档或资料中的声明\n- 支持：预期设计为按需加载\n- 不支持：所有版本、环境均严格按需加载\n- 待确认：资料发布时间、适用产品及版本范围\n\n### 资料 B：版本观察\n\n- 类型：针对 Claude 2.0.74 的经验观察\n- 支持：至少在该观察环境中，现象表现为启动即加载全文\n- 不支持：这是稳定机制、普遍行为，或一定属于缺陷\n- 待确认：复现步骤、插件配置、判断“已加载”的方法及原始证据\n\n### 资料 C：变更日志缺项\n\n- 类型：缺乏明确记录\n- 支持：2.1.207 changelog 没有公开说明相关修复\n- 不支持：2.1.207 一定没有修复或改变行为\n- 原因：changelog 可能不完整，也可能省略内部实现变化\n\n## 当前判断\n\n- 资料 A 描述的是声明或预期机制。\n- 资料 B 描述的是特定版本、特定环境中的实际观察。\n- 两者可能冲突，也可能分别对应“设计语义”和“实现行为”。\n- 资料 C 不能消解冲突；“未提及”不等于“未改变”。\n\n## 未知项\n\n- 2.0.74 的观察能否稳定复现？\n- 启动时加载的是全文、元数据，还是用于索引的中间表示？\n- 资料 A 适用于哪些版本和插件类型？\n- 2.0.74 的现象是设计行为、缺陷，还是配置差异？\n- 2.1.207 是否改变了加载行为但未写入 changelog？\n- 2.0.74 到 2.1.207 之间哪个版本首次发生行为变化？\n\n## 版本验证记录\n\n| 版本 | 日期 | 环境/配置 | 启动时状态 | 调用后状态 | 判定方法 | 证据 | 结论 |\n|---|---|---|---|---|---|---|---|\n| 2.0.74 | 待补 | 待补 | 据资料 B：全文已加载 | 待补 | 待补 | 资料 B | 未独立复现 |\n| 2.1.207 | 待验证 | 待补 | 待验证 | 待验证 | 待补 | 资料 C 仅为 changelog | 无法判断 |\n| `<新版本>` | YYYY-MM-DD | `<环境>` | `<观察>` | `<观察>` | `<日志/内存/上下文检查>` | `<链接或摘录>` | `<结论>` |\n\n## 验证规则\n\n每次验证应固定：\n\n1. 记录完整版本号、插件类型和配置。\n2. 分别检查启动后、首次调用前、首次调用后的状态。\n3. 明确“加载”的判定标准，避免把元数据加载误判为正文加载。\n4. 保存可复核证据，如日志、上下文快照或最小复现步骤。\n5. 将“未在 changelog 中出现”记为缺失信息，不记为否定证据。\n\n## 关联\n\n- [[插件按需加载的声明与适用范围]]\n- [[Claude 2.0.74 插件启动加载观察]]\n- [[Claude 插件加载行为版本验证记录]]\n```\n\n该结构采用“结论先行 + 证据边界 + 可追加版本表”，后续每发现一个新版本，只需增加一行验证记录；证据足够时，再拆成关联的原子笔记。"
+        },
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "backlinks",
+            "sources",
+            "version-observation",
+            "epistemic-status",
+            "future-verification",
+            "no-false-resolution"
+          ],
+          "observed_skills": [],
+          "duration_ms": 40219,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32514,
+            "cached_input_tokens": 15104,
+            "output_tokens": 1457,
+            "reasoning_output_tokens": 330
+          },
+          "answer": "```markdown\n---\ntitle: 插件正文加载时机尚无定论，且可能随版本变化\ntags: [插件, 加载机制, Claude, 版本验证, 待确认]\ncreated: 2026-07-14\nstatus: unresolved\n---\n\n现有资料互相冲突，暂不能断言插件正文究竟是“仅在调用时加载”还是“启动时加载”。目前最可靠的表述是：**资料 A 给出调用时加载的机制描述；资料 B 在 Claude 2.0.74 中记录了启动即加载全文的版本化观察；资料 C 仅表明 2.1.207 的 changelog 未明确提及相关修复。**\n\n## 已知事实\n\n这里的“事实”仅指可以直接从现有摘录确认的资料内容，不代表产品机制已被证实。\n\n- 资料 A 声称：插件正文只在插件被调用时加载。\n- 资料 B 记录：在 Claude 2.0.74 中观察到插件全文在启动时加载。\n- 资料 C 记录：Claude 2.1.207 的 changelog 没有提及对此行为的修复。\n\n## 版本化观察\n\n| 版本 | 观察结果 | 证据类型 | 可推导范围 |\n|---|---|---|---|\n| Claude 2.0.74 | 启动即加载插件全文 | 运行时观察（资料 B） | 仅支持该版本、该测试环境下出现过此行为 |\n| Claude 2.1.207 | changelog 未提相关修复 | 发布说明缺项（资料 C） | 不能据此判断行为仍存在或已经改变 |\n\n## 不能成立的推论\n\n- 不能仅凭资料 A 认定所有版本都只在调用时加载。\n- 不能将 2.0.74 的观察推广到所有 Claude 版本。\n- changelog 没提修复，不等于没有修复或行为没有变化。\n- “启动时可见插件信息”不一定等于“启动时加载完整正文”；后续验证需明确区分元数据、摘要和全文。\n\n## 未知项\n\n- 资料 A 对应的产品版本、发布日期和证据来源。\n- 资料 B 的测试步骤、插件类型、正文长度及判断“全文已加载”的方法。\n- 2.0.74 之后、2.1.207 之前在哪个版本发生过行为变化。\n- 2.1.207 的实际运行时行为。\n- 该差异是版本变更、配置差异、缓存行为，还是“加载”定义不同造成的。\n- 插件未调用时，正文是否真正进入模型上下文，还是仅被宿主进程预读取。\n\n## 当前结论\n\n状态：**未解决**。\n\n在获得可复现的跨版本测试前，将“仅调用时加载”视为机制声明，将“启动即加载全文”视为 2.0.74 的环境相关观察，不把任一方提升为普遍事实。\n\n## 后续版本验证模板\n\n| 验证日期 | Claude 版本 | 插件版本/类型 | 启动时加载内容 | 调用后新增内容 | 检测方法 | 环境与配置 | 结果可信度 |\n|---|---|---|---|---|---|---|---|\n| YYYY-MM-DD | x.y.z |  | 无 / 元数据 / 摘要 / 全文 |  | 日志 / 上下文检查 / 其他 |  | 低 / 中 / 高 |\n\n每次验证还应记录：\n\n- 是否使用全新会话并清除缓存。\n- 插件正文中用于检测的唯一标记。\n- 插件调用前后是否都检查该标记。\n- 测试是否重复，结果是否稳定。\n- changelog 是否明确描述相关行为，而非仅靠“未提及”推断。\n\n## 关联\n\n- [[Claude 插件加载行为版本验证记录]]\n- [[发布说明缺项不能证明行为未改变]]\n- [[区分插件元数据加载与正文加载]]\n```"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "frontmatter",
+            "backlinks",
+            "sources",
+            "version-observation",
+            "epistemic-status",
+            "future-verification",
+            "no-false-resolution"
+          ],
+          "observed_skills": [],
+          "duration_ms": 46455,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32506,
+            "cached_input_tokens": 30208,
+            "output_tokens": 2091,
+            "reasoning_output_tokens": 86
+          },
+          "answer": "以下内容可直接作为个人知识库中的 4 则 Markdown 笔记。未搜索、未写文件。\n\n### `插件正文加载时机.md`\n\n```markdown\n---\ntitle: 插件正文加载时机尚无跨版本统一结论\ntags: [插件, 加载机制, 版本差异, 待验证]\ncreated: 2026-07-14\nstatus: unresolved\n---\n\n现有材料相互冲突，尚不能断言插件正文始终按需加载或始终在启动时加载。最合理的暂定判断是：加载行为可能受版本、插件类型、配置或观测方法影响，需要按版本实测。\n\n## 已知事实\n\n- 资料 A 明确声称：插件正文只在调用时加载。\n- 资料 B 记录的目标版本是 Claude 2.0.74。\n- 资料 B 报告：在该版本中观察到启动时即加载全文。\n- 资料 C 检查的是 2.1.207 changelog。\n- 资料 C 报告：该 changelog 没有提到对此行为的修复。\n\n以上事实仅描述“材料说了什么”，不等于相关机制已经得到独立验证。\n\n## 观察与主张\n\n| 材料 | 类型 | 内容 | 证据强度 |\n|---|---|---|---|\n| A | 机制主张 | 正文仅在调用时加载 | 未知；缺少版本、条件和实测方法 |\n| B | 特定版本观察 | 2.0.74 启动时加载全文 | 中等；是实测观察，但条件不完整 |\n| C | 文档观察 | 2.1.207 changelog 未提修复 | 有限；只能证明变更日志未记载 |\n\n## 不能推出的结论\n\n- 不能因资料 B 的观察直接判定资料 A 在所有版本中错误。\n- 不能因 2.1.207 changelog 未提修复，判定问题在该版本仍然存在。\n- 也不能据此判定行为已经修复；未写入 changelog 不代表发生或未发生变更。\n- 不能排除“元数据启动加载、正文调用加载”等观测口径差异。\n\n## 未知项\n\n- 资料 A 针对的产品版本与发布日期。\n- A 所称“正文”是否排除 manifest、描述、索引或缓存内容。\n- B 使用的插件类型、配置、启动方式及观测手段。\n- B 观察到的是磁盘读取、上下文注入、网络传输，还是内存缓存。\n- 2.0.74 到 2.1.207 之间是否存在未记入 changelog 的相关变更。\n- 2.1.207 的实际加载行为。\n\n## 暂定结论\n\n将“插件正文只在调用时加载”视为待验证机制主张；将“2.0.74 启动即加载全文”保留为有条件的版本观察；不要用 changelog 的沉默填补实测证据。\n\n## 关联\n\n- [[Claude 2.0.74 插件正文加载观察]]\n- [[Claude 2.1.207 插件正文加载待验证]]\n- [[插件正文加载版本验证记录]]\n```\n\n### `Claude 2.0.74 插件正文加载观察.md`\n\n```markdown\n---\ntitle: Claude 2.0.74 曾观察到启动即加载插件全文\ntags: [Claude, 插件, 2.0.74, 观察记录]\ncreated: 2026-07-14\nstatus: observed\n---\n\n资料 B 报告：Claude 2.0.74 在启动时即加载插件全文。这是一项特定版本下的观察，不应自动外推到其他版本或不同配置。\n\n## 观察\n\n- 版本：2.0.74\n- 现象：启动时加载全文\n- 来源：资料 B\n- 可复现性：未知\n- 观测方法：未知\n- 环境与配置：未知\n\n## 待补证据\n\n- 原始日志或调用轨迹\n- 插件结构与正文大小\n- 启动后未调用插件时的上下文、I/O 或网络证据\n- 重复测试结果及对照组\n\n## 关联\n\n- [[插件正文加载时机尚无跨版本统一结论]]\n- [[插件正文加载版本验证记录]]\n```\n\n### `Claude 2.1.207 插件正文加载待验证.md`\n\n```markdown\n---\ntitle: Claude 2.1.207 的插件正文加载行为仍未知\ntags: [Claude, 插件, 2.1.207, changelog, 待验证]\ncreated: 2026-07-14\nstatus: unknown\n---\n\n资料 C 仅表明 2.1.207 changelog 没有提到相关修复。由于 changelog 沉默不能证明代码行为未变，因此该版本的实际加载时机仍属未知。\n\n## 已知\n\n- 已检查材料：2.1.207 changelog\n- 结果：未提及插件正文加载行为的修复\n\n## 未知\n\n- 2.1.207 是否仍在启动时加载全文\n- 是否改为调用时加载\n- 是否存在未记录、间接或重构导致的行为变化\n\n## 下一步\n\n使用与 2.0.74 相同的插件、配置、启动流程和观测指标进行对照测试。\n\n## 关联\n\n- [[插件正文加载时机尚无跨版本统一结论]]\n- [[Claude 2.0.74 插件正文加载观察]]\n- [[插件正文加载版本验证记录]]\n```\n\n### `插件正文加载版本验证记录.md`\n\n```markdown\n---\ntitle: 插件正文加载版本验证记录\ntags: [插件, 验证模板, 版本对照]\ncreated: 2026-07-14\n---\n\n用于持续追加各版本的可复现实测，避免把文档主张、单次观察和未知状态混为一谈。\n\n## 验证口径\n\n- “启动加载”：未调用插件前，已能证明完整正文被读取或注入。\n- “调用加载”：启动阶段未见完整正文，首次调用时才出现读取或注入证据。\n- “未知”：证据不足，或只能看到元数据、缓存等间接迹象。\n\n## 版本记录\n\n| 版本 | 日期 | 插件/配置 | 观测方法 | 启动时证据 | 调用时证据 | 判定 | 可复现次数 | 来源 |\n|---|---|---|---|---|---|---|---:|---|\n| 2.0.74 | 待补 | 待补 | 待补 | 资料 B 称加载全文 | 待补 | 启动加载（暂记） | 待补 | 资料 B |\n| 2.1.207 | 待测 | 待补 | 待补 | 未知 | 未知 | 未知 | 0 | 资料 C 仅提供 changelog 信息 |\n| <新版本> | YYYY-MM-DD |  |  |  |  | 未知 |  |  |\n\n## 每次验证必须记录\n\n- 精确版本号与运行环境\n- 插件正文、manifest 和其他资源的边界\n- 是否清理缓存\n- 启动但不调用插件时的证据\n- 首次调用插件时的证据\n- 至少一次对照或重复测试\n- 与上一版本相比发生了什么变化\n\n## 关联\n\n- [[插件正文加载时机尚无跨版本统一结论]]\n- [[Claude 2.0.74 插件正文加载观察]]\n- [[Claude 2.1.207 插件正文加载待验证]]\n```"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "sources",
+            "version-observation",
+            "epistemic-status",
+            "future-verification",
+            "no-false-resolution"
+          ],
+          "observed_skills": [],
+          "duration_ms": 47493,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16053,
+            "cached_input_tokens": 15104,
+            "output_tokens": 2237,
+            "reasoning_output_tokens": 447
+          },
+          "answer": "建议产出以下 5 则原子笔记和 1 则索引笔记。现有材料只能确认“来源说了什么”，不能确定当前版本的真实加载行为。\n\n### `plugin-loading-index.md`\n\n```markdown\n---\ntitle: 插件正文加载时机调研索引\ntags: [插件, Claude, 索引]\ncreated: 2026-07-14\n---\n\n插件正文何时加载目前没有定论：资料 A 给出“调用时加载”的陈述，资料 B 在 Claude 2.0.74 观察到“启动即加载全文”，资料 C 仅能证明 2.1.207 changelog 未提相关修复。版本行为仍需实测。\n\n## 证据状态\n\n| 项目 | 类型 | 能支持的结论 |\n|---|---|---|\n| 资料 A | 来源陈述 | A 声称正文只在调用时加载 |\n| 资料 B | 单版本观察 | 2.0.74 曾出现启动即加载全文 |\n| 资料 C | changelog 缺失项 | 2.1.207 未公开提及相关修复 |\n| 2.1.207 实际行为 | 未知 | 不能从 changelog 推断 |\n\n## 关联\n- [[资料 A 声称插件正文只在调用时加载]]\n- [[Claude 2.0.74 曾被观察到启动即加载插件全文]]\n- [[Claude 2.1.207 changelog 未提及插件加载行为修复]]\n- [[插件正文加载时机目前不能由现有材料定论]]\n- [[插件加载行为需要逐版本验证]]\n```\n\n### `source-a-claims-plugin-body-loads-on-invocation.md`\n\n```markdown\n---\ntitle: 资料 A 声称插件正文只在调用时加载\ntags: [插件, 加载机制, 来源陈述]\ncreated: 2026-07-14\n---\n\n资料 A 的明确陈述是：插件正文只在调用插件时加载。这是对资料内容的事实记录，不等同于已经验证的产品行为。\n\n## 展开\n\n未知项：\n\n- 资料 A 针对哪个 Claude 版本。\n- 该陈述描述设计目标、文档约定，还是实际实现。\n- 是否存在启动预加载、缓存或版本差异等例外。\n\n## 关联\n- [[插件正文加载时机目前不能由现有材料定论]]\n- [[Claude 2.0.74 曾被观察到启动即加载插件全文]]\n```\n\n### `claude-2-0-74-plugin-body-loaded-at-startup.md`\n\n```markdown\n---\ntitle: Claude 2.0.74 曾被观察到启动即加载插件全文\ntags: [插件, Claude, 观察, 版本验证]\ncreated: 2026-07-14\n---\n\n资料 B 记录了一次版本相关观察：Claude 2.0.74 在启动时即加载插件全文。该结论应保留为观察，而非所有版本都如此的普遍事实。\n\n## 展开\n\n已观察：\n\n- 版本：Claude 2.0.74。\n- 现象：启动即加载插件全文。\n\n未知项：\n\n- 测试环境、插件配置和判定方法。\n- 该现象能否稳定复现。\n- 后续版本是否延续这一行为。\n\n## 关联\n- [[资料 A 声称插件正文只在调用时加载]]\n- [[插件加载行为需要逐版本验证]]\n```\n\n### `claude-2-1-207-changelog-omits-plugin-loading-fix.md`\n\n```markdown\n---\ntitle: Claude 2.1.207 changelog 未提及插件加载行为修复\ntags: [插件, Claude, changelog, 版本验证]\ncreated: 2026-07-14\n---\n\n资料 C 能确认的只有：Claude 2.1.207 changelog 没有提到插件正文加载行为的修复。未提及不能证明问题仍存在，也不能证明已经修复。\n\n## 展开\n\n未知项：\n\n- 2.1.207 的实际加载行为。\n- 是否存在未写入 changelog 的实现变更。\n- 相关变化是否在其他版本中发生。\n\n## 关联\n- [[Claude 2.0.74 曾被观察到启动即加载插件全文]]\n- [[插件正文加载时机目前不能由现有材料定论]]\n```\n\n### `plugin-body-loading-remains-unresolved.md`\n\n```markdown\n---\ntitle: 插件正文加载时机目前不能由现有材料定论\ntags: [插件, 结论, 未知项]\ncreated: 2026-07-14\n---\n\n现有材料不足以判定插件正文究竟在启动时还是调用时加载。资料 A 与 2.0.74 的观察冲突，而 2.1.207 changelog 的沉默无法消除冲突。\n\n## 展开\n\n当前可确定：\n\n- 资料 A 确实给出了“调用时加载”的陈述。\n- 资料 B 确实记录了 2.0.74 的相反观察。\n- 资料 C 确实未提及相关修复。\n\n当前不能确定：\n\n- 哪项材料代表当前实现。\n- 差异来自版本、环境、配置，还是观察方法。\n- 2.1.207 是否改变了该行为。\n\n## 关联\n- [[资料 A 声称插件正文只在调用时加载]]\n- [[Claude 2.0.74 曾被观察到启动即加载插件全文]]\n- [[Claude 2.1.207 changelog 未提及插件加载行为修复]]\n- [[插件加载行为需要逐版本验证]]\n```\n\n### `verify-plugin-loading-by-version.md`\n\n```markdown\n---\ntitle: 插件加载行为需要逐版本验证\ntags: [插件, 验证方法, 版本验证]\ncreated: 2026-07-14\n---\n\n判断插件正文加载时机应依靠同一测试方法逐版本实测，并把文档陈述、运行观察和 changelog 证据分开记录。\n\n## 展开\n\n每次追加验证时记录：\n\n| 版本 | 日期 | 环境与配置 | 启动时是否出现正文 | 调用后是否出现正文 | 证据类型 | 结果状态 |\n|---|---|---|---|---|---|---|\n| 2.0.74 | 待补 | 待补 | 观察为是 | 待补 | 资料 B 的观察 | 待复现 |\n| 2.1.207 | 待验证 | 待补 | 未知 | 未知 | changelog 未提及 | 未验证 |\n\n结果状态统一使用：`已复现`、`未复现`、`未验证`、`证据不足`。\n\n新增版本时，应另建一则原子笔记，标题采用“Claude <版本> 被观察到……”的形式，再从本笔记和索引笔记添加双链。\n\n## 关联\n- [[插件正文加载时机调研索引]]\n- [[插件正文加载时机目前不能由现有材料定论]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "sources",
+            "version-observation",
+            "epistemic-status",
+            "future-verification",
+            "no-false-resolution"
+          ],
+          "observed_skills": [],
+          "duration_ms": 45138,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16053,
+            "cached_input_tokens": 0,
+            "output_tokens": 1872,
+            "reasoning_output_tokens": 444
+          },
+          "answer": "以下是可直接落库的 Markdown 草稿。关键判断：现有材料只能证明“存在相互冲突的说法与观察”，不能确定当前版本的真实加载行为。\n\n### `plugin-body-loading-status.md`\n\n```markdown\n---\ntitle: 插件正文的加载时机目前不能定论\ntags: [Claude, 插件, 加载机制, 索引]\ncreated: 2026-07-14\n---\n\n现有资料不足以确定插件正文究竟在启动时还是调用时加载。资料 A 给出“调用时加载”的说法，资料 B 则报告 Claude 2.0.74 启动时加载全文；资料 C 只能说明 2.1.207 的 changelog 未提及相关修复，不能证明行为已经修复或仍然存在。\n\n## 当前证据\n\n| 资料 | 类型 | 能支持的结论 | 不能支持的结论 |\n|---|---|---|---|\n| A | 未验证说法 | 有资料声称正文仅在调用时加载 | 所有版本实际如此 |\n| B | 特定版本观察 | 2.0.74 曾被观察到启动即加载全文 | 其他版本也如此；观察原因已明确 |\n| C | changelog 检查 | 2.1.207 changelog 未提相关修复 | 2.1.207 未修复；行为没有暗改 |\n\n## 未知项\n\n- 资料 A 描述的是设计目标、文档承诺，还是实测行为。\n- 资料 B 的测试条件、插件配置及“加载全文”的判定方法。\n- 2.0.74 之后哪些版本改变过该行为。\n- 2.1.207 的实际行为。\n- 行为是否因插件类型、配置或运行环境而异。\n\n## 后续验证\n\n每验证一个新版本，单独建立一则版本观察笔记，并记录：\n\n- 精确版本号与测试日期\n- 启动时是否出现插件正文\n- 首次调用前后的上下文差异\n- 测试插件及配置\n- 判定方法与原始证据\n- 能否稳定复现\n\n## 关联\n\n- [[有资料声称插件正文仅在调用时加载]]\n- [[Claude 2.0.74 被观察到启动即加载插件全文]]\n- [[Claude 2.1.207 changelog 未提插件加载修复]]\n```\n\n### `plugin-body-load-on-invocation-claim.md`\n\n```markdown\n---\ntitle: 有资料声称插件正文仅在调用时加载\ntags: [Claude, 插件, 加载机制, 待验证]\ncreated: 2026-07-14\n---\n\n资料 A 声称插件正文只在调用时加载。当前没有提供版本范围、测试过程或原始出处，因此应将其视为待验证说法，而不是已经确认的产品事实。\n\n## 展开\n\n- 来源：资料 A\n- 证据类型：说法\n- 适用版本：未知\n- 可复现性：未知\n- 与资料 B 的观察冲突，但冲突可能来自版本、配置或“加载”的定义不同。\n\n## 关联\n\n- [[插件正文的加载时机目前不能定论]]\n- [[Claude 2.0.74 被观察到启动即加载插件全文]]\n```\n\n### `claude-2-0-74-plugin-body-startup-observation.md`\n\n```markdown\n---\ntitle: Claude 2.0.74 被观察到启动即加载插件全文\ntags: [Claude, 插件, 版本观察, 2.0.74]\ncreated: 2026-07-14\n---\n\n资料 B 报告：在 Claude 2.0.74 中，插件正文启动时便被加载。这是针对特定版本的观察，不应直接外推到其他版本。\n\n## 展开\n\n- 来源：资料 B\n- 证据类型：版本观察\n- 版本：2.0.74\n- 观察结果：启动即加载全文\n- 测试条件：未提供\n- 复现记录：未提供\n- 可信边界：能证明有人报告过该现象，尚不能证明所有环境必然如此。\n\n## 关联\n\n- [[插件正文的加载时机目前不能定论]]\n- [[有资料声称插件正文仅在调用时加载]]\n- [[Claude 2.1.207 changelog 未提插件加载修复]]\n```\n\n### `claude-2-1-207-changelog-no-plugin-load-fix.md`\n\n```markdown\n---\ntitle: Claude 2.1.207 changelog 未提插件加载修复\ntags: [Claude, 插件, changelog, 2.1.207]\ncreated: 2026-07-14\n---\n\n资料 C 显示，Claude 2.1.207 的 changelog 没有提及插件正文加载问题的修复。这只能确认发布说明中没有相关条目，不能据此判断实际行为是否改变。\n\n## 展开\n\n- 来源：资料 C\n- 证据类型：changelog 缺失项\n- 版本：2.1.207\n- 已知事实：changelog 未提相关修复\n- 未知：该版本是否仍在启动时加载全文\n- 注意：未写入 changelog不等于没有修改，也不等于问题仍然存在。\n\n## 关联\n\n- [[插件正文的加载时机目前不能定论]]\n- [[Claude 2.0.74 被观察到启动即加载插件全文]]\n```\n\n以后遇到新版本，应新增独立的“版本观察”笔记，再把链接和结论补入索引；不要改写旧版本观察。这样能保留证据的时间边界，并逐步形成可比较的版本序列。"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter",
+            "backlinks",
+            "sources",
+            "version-observation",
+            "epistemic-status",
+            "future-verification",
+            "no-false-resolution"
+          ],
+          "observed_skills": [],
+          "duration_ms": 43243,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16053,
+            "cached_input_tokens": 15104,
+            "output_tokens": 2014,
+            "reasoning_output_tokens": 377
+          },
+          "answer": "建议拆成 5 则原子笔记。以下内容仅整理给定摘录，未搜索、未写入文件。\n\n### `plugin-body-loading-evidence-status.md`\n\n```markdown\n---\ntitle: 插件正文的加载时机目前尚无确定结论\ntags: [插件, 加载机制, 结论]\ncreated: 2026-07-14\n---\n\n现有资料相互冲突：资料 A 声称插件正文仅在调用时加载，资料 B 则在 Claude 2.0.74 观察到启动即加载全文。资料 C 只能说明 2.1.207 的 changelog 未提及相关修复，不能证明行为没有变化。因此，插件正文的实际加载时机仍属未知，可能受版本、配置或测试方法影响。\n\n## 已知\n\n- 资料 A 包含“仅在调用时加载”的说法。\n- 资料 B 记录了 Claude 2.0.74 启动即加载全文的观察。\n- 资料 C 的 Claude 2.1.207 changelog 没有提及相关修复。\n\n## 未知\n\n- 资料 A 描述的是设计目标、文档约定，还是实测行为。\n- 资料 B 的观察能否稳定复现。\n- 2.0.74 到 2.1.207 之间的实际行为是否改变。\n- 配置、插件类型、缓存及加载检测方法是否影响结果。\n\n## 关联\n\n- [[资料 A 声称插件正文仅在调用时加载]]\n- [[Claude 2.0.74 曾被观察到启动即加载插件全文]]\n- [[2.1.207 changelog 未提及插件正文加载修复]]\n- [[插件正文加载行为的版本验证记录]]\n```\n\n### `plugin-body-call-time-claim.md`\n\n```markdown\n---\ntitle: 资料 A 声称插件正文仅在调用时加载\ntags: [插件, 加载机制, 资料主张]\ncreated: 2026-07-14\n---\n\n资料 A 的主张是插件正文只在调用插件时加载；在来源性质和复现证据明确前，这应记为“资料主张”，而不是已验证事实。\n\n## 展开\n\n- 主张：插件正文不会在启动时加载。\n- 证据类型：二手摘录中的陈述。\n- 验证状态：未验证。\n- 待补：资料 A 的出处、适用版本、原文语境和测试条件。\n\n## 关联\n\n- [[插件正文的加载时机目前尚无确定结论]]\n- [[Claude 2.0.74 曾被观察到启动即加载插件全文]]\n```\n\n### `claude-2-0-74-plugin-body-startup-observation.md`\n\n```markdown\n---\ntitle: Claude 2.0.74 曾被观察到启动即加载插件全文\ntags: [Claude, 插件, 版本观察]\ncreated: 2026-07-14\n---\n\n资料 B 记录了一次针对 Claude 2.0.74 的观察：插件全文在启动时已经加载。这是特定版本下的观察，不足以直接推广到其他版本或所有运行环境。\n\n## 展开\n\n- 版本：2.0.74\n- 观察结果：启动即加载全文。\n- 证据类型：行为观察。\n- 复现状态：摘录未说明。\n- 待补：操作系统、配置、插件样本、检测方法、重复次数和原始日志。\n\n## 关联\n\n- [[插件正文的加载时机目前尚无确定结论]]\n- [[资料 A 声称插件正文仅在调用时加载]]\n- [[插件正文加载行为的版本验证记录]]\n```\n\n### `claude-2-1-207-changelog-no-plugin-loading-fix.md`\n\n```markdown\n---\ntitle: 2.1.207 changelog 未提及插件正文加载修复\ntags: [Claude, changelog, 版本证据]\ncreated: 2026-07-14\n---\n\n资料 C 显示 Claude 2.1.207 的 changelog 没有提及插件正文加载问题的修复；这只能证明 changelog 中没有相关说明，不能证明该版本没有改变加载行为。\n\n## 展开\n\n- 版本：2.1.207\n- 文档事实：changelog 未提及相关修复。\n- 不能推出：行为仍与 2.0.74 相同。\n- 原因：行为可能被未记录地修改，也可能归入其他变更项。\n- 待补：对 2.1.207 进行与 2.0.74 条件一致的实测。\n\n## 关联\n\n- [[插件正文的加载时机目前尚无确定结论]]\n- [[Claude 2.0.74 曾被观察到启动即加载插件全文]]\n- [[插件正文加载行为的版本验证记录]]\n```\n\n### `plugin-body-loading-version-verification-log.md`\n\n```markdown\n---\ntitle: 插件正文加载行为的版本验证记录\ntags: [插件, 加载机制, 验证记录]\ncreated: 2026-07-14\n---\n\n应使用相同插件样本和检测方法逐版本验证正文加载时机；每次新增版本只追加观察与证据，不根据 changelog 的沉默推断运行行为。\n\n## 验证记录\n\n| 版本 | 启动时加载正文 | 调用时加载正文 | 环境与配置 | 证据 | 状态 |\n|---|---|---|---|---|---|\n| 2.0.74 | 观察为是 | 未知 | 未记录 | 资料 B | 待复现 |\n| 2.1.207 | 未知 | 未知 | 未记录 | changelog 未提修复 | 待实测 |\n| `<新版本>` | 待验证 | 待验证 | `<填写>` | `<日志或步骤>` | 待验证 |\n\n## 每次验证需记录\n\n- 精确版本号与操作系统。\n- 插件正文大小及可识别的探针文本。\n- 启动后、调用前能否检测到探针文本。\n- 首次调用后是否出现探针文本。\n- 缓存状态、相关配置及完整复现步骤。\n- 重复测试次数和结果是否一致。\n\n## 关联\n\n- [[插件正文的加载时机目前尚无确定结论]]\n- [[Claude 2.0.74 曾被观察到启动即加载插件全文]]\n- [[2.1.207 changelog 未提及插件正文加载修复]]\n```"
+        }
+      ]
+    },
+    {
+      "id": "knowledge-base-deduplicate-notes",
+      "plugin": "knowledge-base@tessera",
+      "skill": "knowledge-base",
+      "activation": "injected",
+      "skill_sha256": "b2bcfaa832ed625219489849ce65d4287a3840dbcbc3e336b039fd485b821573",
+      "skill_content_chars": 855,
+      "skill_content_bytes": 1672,
+      "baseline_score": 0.875,
+      "skill_score": 0.875,
+      "delta": 0.0,
+      "direction": "tie",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 151393,
+        "cached_input_tokens": 94720,
+        "output_tokens": 4071,
+        "reasoning_output_tokens": 1170
+      },
+      "skill_usage": {
+        "input_tokens": 48595,
+        "cached_input_tokens": 39168,
+        "output_tokens": 4427,
+        "reasoning_output_tokens": 1940
+      },
+      "usage_delta": {
+        "input_tokens": -102798,
+        "cached_input_tokens": -55552,
+        "output_tokens": 356,
+        "reasoning_output_tokens": 770
+      },
+      "baseline_criterion_rates": {
+        "canonical-files": 1.0,
+        "frontmatter": 1.0,
+        "backlinks": 0.666667,
+        "deduplication": 1.0,
+        "installation-boundary": 0.333333,
+        "eval-boundary": 1.0,
+        "migration": 1.0,
+        "index-update": 1.0
+      },
+      "skill_criterion_rates": {
+        "canonical-files": 1.0,
+        "frontmatter": 1.0,
+        "backlinks": 1.0,
+        "deduplication": 0.666667,
+        "installation-boundary": 0.666667,
+        "eval-boundary": 1.0,
+        "migration": 1.0,
+        "index-update": 1.0
+      },
+      "criterion_deltas": {
+        "canonical-files": 0.0,
+        "frontmatter": 0.0,
+        "backlinks": 0.333333,
+        "deduplication": -0.333333,
+        "installation-boundary": 0.333334,
+        "eval-boundary": 0.0,
+        "migration": 0.0,
+        "index-update": 0.0
+      },
+      "gained_criteria": [
+        "backlinks",
+        "installation-boundary"
+      ],
+      "lost_criteria": [
+        "deduplication"
+      ],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "canonical-files",
+            "frontmatter",
+            "backlinks",
+            "deduplication",
+            "eval-boundary",
+            "migration",
+            "index-update"
+          ],
+          "observed_skills": [],
+          "duration_ms": 34968,
+          "host_event_lines": 10,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 50372,
+            "cached_input_tokens": 31232,
+            "output_tokens": 1289,
+            "reasoning_output_tokens": 372
+          },
+          "answer": "建议新增 `eval.md` 作为 eval 环境的唯一事实来源；旧文件保留为迁移页。以下内容未写入磁盘。\n\n### `install.md`\n\n```markdown\n---\ntitle: 安装只需 Codex\ntags: [安装, Codex]\n---\n\n安装只需 Codex。\n\n如需运行 eval，请参阅 [[eval]]；eval 的运行环境不属于安装要求。\n```\n\n### `eval.md`（新增）\n\n```markdown\n---\ntitle: eval 的运行环境\ntags: [eval, Python, pip]\n---\n\n运行 eval 需要 Python 3，但不需要 pip。\n\n## 关联\n\n- [[install|安装只需 Codex]]\n```\n\n### `setup-notes.md`（旧链接迁移页）\n\n```markdown\n---\ntitle: 安装与 eval 环境说明（已迁移）\ntags: [安装, setup, eval, Python, 迁移]\n---\n\n本页内容已拆分，以避免混淆安装要求与 eval 运行要求：\n\n- 安装要求：[[install]]\n- eval 环境：[[eval]]\n\n旧的 `setup-notes.md` 链接可以继续使用；新链接应直接指向对应的主题页。\n```\n\n### `python.md`（旧链接迁移页）\n\n```markdown\n---\ntitle: Python 与 pip 说明（已迁移）\ntags: [Python, pip, eval, 迁移]\n---\n\n本页内容已迁移至 [[eval]]。\n\n旧的 `python.md` 链接可以继续使用；新链接应直接指向 `eval.md`。\n```\n\n### `index.md`\n\n```markdown\n---\ntitle: 安装与 eval 索引\ntags: [索引, 安装, eval]\n---\n\n## 主题\n\n- [[install|安装只需 Codex]]\n- [[eval|eval 的运行环境]]\n\n## 旧链接迁移\n\n以下页面仅用于兼容旧链接，不再维护重复内容：\n\n- [[setup-notes]] → [[install]]、[[eval]]\n- [[python]] → [[eval]]\n```\n\n这样事实只保留两处：`install.md` 管安装，`eval.md` 管 Python/pip；旧文件名、标题、标签和正文关键词仍然可被搜索到。"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "canonical-files",
+            "frontmatter",
+            "deduplication",
+            "installation-boundary",
+            "eval-boundary",
+            "migration",
+            "index-update"
+          ],
+          "observed_skills": [],
+          "duration_ms": 43485,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 32508,
+            "cached_input_tokens": 15104,
+            "output_tokens": 1088,
+            "reasoning_output_tokens": 218
+          },
+          "answer": "建议新增 `eval.md` 作为 eval 环境要求的唯一权威笔记；旧文件保留为迁移页，从而兼顾去重、关键词检索和旧链接有效性。以下内容不写磁盘。\n\n### `install.md`\n\n```markdown\n---\ntitle: 安装只需 Codex\ntags: [安装, Codex]\n---\n\n# 安装只需 Codex\n\n安装只需要 Codex，不需要 Python。\n\n> Python 仅用于运行 eval，详见 [eval.md](eval.md)。\n```\n\n### `eval.md`（新增）\n\n```markdown\n---\ntitle: eval 需要 Python 3，但不需要 pip\ntags: [eval, Python, Python3, pip, 环境要求]\n---\n\n# eval 需要 Python 3，但不需要 pip\n\n运行 eval 需要 Python 3，但不需要 pip，也不需要安装 Python 包。\n\n这不是 Codex 的安装要求。Codex 安装说明见 [install.md](install.md)。\n```\n\n### `setup-notes.md`（旧链接迁移页）\n\n```markdown\n---\ntitle: 安装与 eval 环境说明（已迁移）\ntags: [安装, eval, Python, 迁移]\n---\n\n# 安装与 eval 环境说明（已迁移）\n\n本页内容已拆分，以消除安装要求与 eval 要求之间的重复：\n\n- 安装无需 Python，只需 Codex：见 [install.md](install.md)\n- eval 需要 Python 3，但不需要 pip：见 [eval.md](eval.md)\n\n此文件为兼容旧链接而保留，请勿在此继续维护重复内容。\n```\n\n### `python.md`（旧链接迁移页）\n\n```markdown\n---\ntitle: eval 的 Python 要求（已迁移）\ntags: [eval, Python, Python3, pip, 迁移]\n---\n\n# eval 的 Python 要求（已迁移）\n\neval 需要 Python 3，但不需要 pip。权威说明已迁移至 [eval.md](eval.md)。\n\n此文件为兼容旧链接和保留“Python”“pip”等关键词检索而保留，请勿在此继续维护重复内容。\n```\n\n### `index.md`\n\n```markdown\n# 索引\n\n## 当前文档\n\n- [安装只需 Codex](install.md)\n- [eval 需要 Python 3，但不需要 pip](eval.md)\n\n## 旧链接迁移\n\n以下文件仅作为兼容入口保留：\n\n- [原安装与环境笔记](setup-notes.md) → 内容已拆分至 `install.md` 和 `eval.md`\n- [原 Python 笔记](python.md) → 内容已迁移至 `eval.md`\n```\n\n这样每项事实只在一个权威文件中维护，同时 `setup-notes.md`、`python.md` 及其中的检索关键词仍然存在，历史链接不会失效。"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "canonical-files",
+            "frontmatter",
+            "backlinks",
+            "deduplication",
+            "eval-boundary",
+            "migration",
+            "index-update"
+          ],
+          "observed_skills": [],
+          "duration_ms": 48107,
+          "host_event_lines": 12,
+          "command_event_count": 6,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 68513,
+            "cached_input_tokens": 48384,
+            "output_tokens": 1694,
+            "reasoning_output_tokens": 580
+          },
+          "answer": "工作区中未找到这四个实际文件。根据你提供的信息，建议保留 `setup-notes.md` 作为兼容旧链接的迁移页，将事实分别归一到两个原子笔记：安装要求归 `install.md`，eval 的 Python 要求归 `python.md`。\n\n`install.md`\n\n```markdown\n---\ntitle: 安装只需 Codex\ntags: [安装, setup, Codex]\ncreated: 2026-07-14\n---\n\n安装只需 Codex，不需要 Python。\n\n如需运行 eval，另见 [[python]]；eval 的运行环境不属于安装 Codex 的前置条件。\n\n## 关联\n\n- [[python]]\n- [[index]]\n```\n\n`python.md`\n\n```markdown\n---\ntitle: eval 需要 Python 3，但不需要 pip\ntags: [eval, Python, pip, 环境要求]\ncreated: 2026-07-14\n---\n\neval 需要 Python 3，但不需要 pip，也无需为 eval 运行 pip 安装步骤。\n\n这项要求只适用于 eval；安装本身只需 Codex，见 [[install]]。\n\n## 关联\n\n- [[install]]\n- [[index]]\n```\n\n`setup-notes.md`\n\n```markdown\n---\ntitle: 安装说明已迁移\ntags: [安装, setup, 迁移, 旧链接]\ncreated: 2026-07-14\n---\n\n此页为旧链接兼容入口，原有内容已拆分并迁移：\n\n- 安装要求：[[install]]\n- eval 的 Python 3 与 pip 要求：[[python]]\n\n请更新新链接，不要再向本页添加安装或 eval 环境说明。\n```\n\n`index.md`\n\n```markdown\n---\ntitle: 安装与 eval 环境索引\ntags: [索引, 安装, eval]\ncreated: 2026-07-14\n---\n\n## 当前笔记\n\n- [[install]]：安装只需 Codex\n- [[python]]：eval 需要 Python 3，但不需要 pip\n\n## 旧链接迁移\n\n- [[setup-notes]]：仅作为旧链接兼容入口，内容已迁移至上述笔记\n```\n\n这样既消除了 `install.md` 与 `setup-notes.md` 的重复，又通过迁移页、关键词标签和索引保留了旧链接兼容性与可检索性。"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "canonical-files",
+            "frontmatter",
+            "backlinks",
+            "installation-boundary",
+            "eval-boundary",
+            "migration",
+            "index-update"
+          ],
+          "observed_skills": [],
+          "duration_ms": 45065,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16483,
+            "cached_input_tokens": 8960,
+            "output_tokens": 1562,
+            "reasoning_output_tokens": 863
+          },
+          "answer": "建议保留四个文件：`install.md` 和 `python.md` 是规范知识，`setup-notes.md` 仅作旧链接迁移入口，`index.md` 负责主题关联。\n\n`install.md`\n\n```markdown\n---\ntitle: 安装只需 Codex，不需要 Python\ntags: [Codex, 安装, Python]\ncreated: 2026-07-14\n---\n\n安装阶段只需 Codex，不需要安装 Python。\n\n## 关联\n- [[python]]\n- [[setup-notes]]\n```\n\n`python.md`\n\n```markdown\n---\ntitle: eval 需要 Python 3，但不需要 pip\n-tags: [Codex, eval, Python, pip]\ncreated: 2026-07-14\n---\n\n运行 eval 需要 Python 3，但不需要 pip 或额外 Python 包。\n\n## 关联\n- [[install]]\n- [[setup-notes]]\n```\n\n上面 frontmatter 中应去掉误写的前导 `-`，正确内容为：\n\n```yaml\ntags: [Codex, eval, Python, pip]\n```\n\n`setup-notes.md`\n\n```markdown\n---\ntitle: setup-notes 已拆分为安装与 eval 环境两则笔记\ntags: [Codex, 安装, eval, Python, 迁移]\ncreated: 2026-07-14\n---\n\n此旧笔记已停止维护。原有的“安装无需 Python”内容迁移至 [[install]]；“eval 需要 Python 3”及“eval 不需要 pip”迁移至 [[python]]。\n\n保留本文件是为了兼容已有的 `[[setup-notes]]` 链接，并让旧关键词仍可被检索。\n\n## 关联\n- [[install]]\n- [[python]]\n```\n\n`index.md`\n\n```markdown\n---\ntitle: Codex 安装与 eval 环境索引\ntags: [Codex, 安装, eval, 索引]\ncreated: 2026-07-14\n---\n\nCodex 的安装要求与 eval 运行环境分别维护，避免混在同一则笔记中。\n\n## 规范笔记\n- [[install]]\n- [[python]]\n\n## 旧链接迁移\n- [[setup-notes]]\n```\n\n这样事实只在两则规范笔记中维护；迁移页仅保留必要摘要，以兼顾旧链接和关键词检索。若原文件已有 `created` 日期，应沿用原日期，而不是替换为本次整理日期。"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "canonical-files",
+            "frontmatter",
+            "backlinks",
+            "deduplication",
+            "eval-boundary",
+            "migration",
+            "index-update"
+          ],
+          "observed_skills": [],
+          "duration_ms": 32791,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16056,
+            "cached_input_tokens": 15104,
+            "output_tokens": 1466,
+            "reasoning_output_tokens": 611
+          },
+          "answer": "建议保留 `install.md`，新增 `eval-requirements.md`；`setup-notes.md` 和 `python.md` 改为迁移页。这样事实只在权威笔记中出现一次，同时旧文件链接、Python/pip 关键词仍可检索。\n\n### `install.md`\n\n```markdown\n---\ntitle: 安装只需要 Codex\n tags: [Codex, 安装, 环境要求]\ncreated: 2026-07-14\n---\n\n安装只需要 Codex，不需要 Python 或其他运行时。\n\n## 展开\n\nPython 属于 eval 的运行要求，不是安装依赖。两者应分开判断。\n\n## 关联\n\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n```\n\n### `eval-requirements.md`\n\n```markdown\n---\ntitle: 运行 eval 需要 Python 3 但不需要 pip\ntags: [Codex, eval, Python, pip, 环境要求]\ncreated: 2026-07-14\n---\n\n运行 eval 需要 Python 3，但不需要 pip。\n\n## 展开\n\nPython 3 只用于执行 eval；无需通过 pip 安装额外依赖。安装 Codex 本身也不依赖 Python。\n\n## 关联\n\n- [[安装只需要 Codex]]\n```\n\n### `setup-notes.md`\n\n```markdown\n---\ntitle: setup-notes 已拆分\ntags: [迁移, 安装, eval, Python]\ncreated: 2026-07-14\n---\n\n本笔记已拆分，保留此文件用于兼容旧链接。\n\n## 迁移位置\n\n- 安装要求：[[安装只需要 Codex]]\n- eval 环境要求：[[运行 eval 需要 Python 3 但不需要 pip]]\n```\n\n### `python.md`\n\n```markdown\n---\ntitle: python 笔记已迁移\ntags: [迁移, eval, Python, pip]\ncreated: 2026-07-14\n---\n\n本笔记内容已迁移，保留此文件用于兼容旧链接及 Python、pip 关键词检索。\n\n## 迁移位置\n\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n```\n\n### `index.md`\n\n```markdown\n---\ntitle: Codex 安装与 eval 环境索引\ntags: [索引, Codex, 安装, eval]\ncreated: 2026-07-14\n---\n\nCodex 的安装要求与 eval 运行要求分别记录，避免把安装依赖和评估环境混为一谈。\n\n## 权威笔记\n\n- [[安装只需要 Codex]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n\n## 旧链接迁移\n\n以下文件仅作为兼容入口保留，不再维护重复事实：\n\n- `setup-notes.md` → 安装与 eval 两则权威笔记\n- `python.md` → eval 环境要求笔记\n```\n\n唯一的小修正：实际落盘时应删除 `install.md` 示例中 `tags` 前多余的一个空格，使 YAML 字段顶格对齐。"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "canonical-files",
+            "frontmatter",
+            "backlinks",
+            "deduplication",
+            "installation-boundary",
+            "eval-boundary",
+            "migration",
+            "index-update"
+          ],
+          "observed_skills": [],
+          "duration_ms": 45235,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 16056,
+            "cached_input_tokens": 15104,
+            "output_tokens": 1399,
+            "reasoning_output_tokens": 466
+          },
+          "answer": "建议保留旧文件为迁移入口，并新增 `eval-requirements.md`。这样事实只在规范笔记中维护，旧链接仍然有效。\n\n### `install.md`\n\n```markdown\n---\ntitle: 安装只需 Codex\ntags: [安装, Codex, Python]\ncreated: 2026-07-14\n---\n\n安装阶段只需 Codex，无需安装 Python；eval 的运行环境要求另见关联笔记。\n\n## 展开\n\n“安装”和“运行 eval”是两个独立阶段。Python 不是安装前置条件。\n\n## 关联\n- [[eval 需要 Python 3 但不需要 pip]]\n```\n\n### `eval-requirements.md`（新增）\n\n```markdown\n---\ntitle: eval 需要 Python 3 但不需要 pip\ntags: [eval, Python, pip, 环境要求]\ncreated: 2026-07-14\n---\n\neval 运行时需要 Python 3，但不需要 pip。\n\n## 展开\n\nPython 3 仅用于运行 eval，不属于安装阶段的前置条件；eval 也不依赖通过 pip 安装额外内容。\n\n## 关联\n- [[安装只需 Codex]]\n```\n\n### `setup-notes.md`（旧链接迁移入口）\n\n```markdown\n---\ntitle: setup-notes 已拆分为安装与 eval 要求\n-tags: [迁移, 安装, eval, Python]\ncreated: 2026-07-14\n---\n\n本笔记已停止维护。原有“安装无需 Python”和“eval 需要 Python 3”内容已拆分到两则原子笔记。\n\n## 关联\n- [[安装只需 Codex]]\n- [[eval 需要 Python 3 但不需要 pip]]\n```\n\n其中 front matter 应去掉误写的前导 `-`，正确内容为：\n\n```yaml\ntags: [迁移, 安装, eval, Python]\n```\n\n### `python.md`（旧链接迁移入口）\n\n```markdown\n---\ntitle: python 笔记已迁移到 eval 环境要求\n-tags: [迁移, eval, Python, pip]\ncreated: 2026-07-14\n---\n\n本笔记已停止维护。原有 eval、Python 和 pip 相关结论已合并到规范笔记。\n\n## 关联\n- [[eval 需要 Python 3 但不需要 pip]]\n```\n\n同样应使用正确的 front matter：\n\n```yaml\ntags: [迁移, eval, Python, pip]\n```\n\n### `index.md`\n\n```markdown\n---\ntitle: 安装与 eval 环境索引\ntags: [索引, 安装, eval]\ncreated: 2026-07-14\n---\n\n安装和 eval 的环境要求分别维护，避免把安装前置条件与 eval 运行条件混为一谈。\n\n## 规范笔记\n- [[安装只需 Codex]]\n- [[eval 需要 Python 3 但不需要 pip]]\n\n## 旧链接迁移\n- `install.md`：继续作为安装要求的规范笔记。\n- `setup-notes.md`：保留为迁移入口，转向上述两则规范笔记。\n- `python.md`：保留为迁移入口，转向 eval 环境要求笔记。\n```\n\n核心取舍：`install.md` 与 `eval-requirements.md` 是唯一事实来源；`setup-notes.md` 和 `python.md` 只承担旧链接兼容及关键词检索，不再重复维护结论。"
+        }
+      ]
+    }
+  ]
+}

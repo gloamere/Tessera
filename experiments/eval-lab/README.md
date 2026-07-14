@@ -40,4 +40,4 @@ python experiments/eval-lab/run_eval_lab.py `
 
 ## 证据边界
 
-初次真实运行及解释见 [evidence/2026-07-14-initial.md](evidence/2026-07-14-initial.md)，两轮 R3 准入复跑见 [evidence/2026-07-14-admission-r3.md](evidence/2026-07-14-admission-r3.md)。评测器已经复现真实退化，但准入评审仍决定不将它并入 core；原因不只是分数，还包括自包含发布边界和运行成本。
+初次真实运行及解释见 [evidence/2026-07-14-initial.md](evidence/2026-07-14-initial.md)，两轮 R3 准入复跑见 [evidence/2026-07-14-admission-r3.md](evidence/2026-07-14-admission-r3.md)，三个专业 Skill 的组合评审见 [evidence/2026-07-14-professional-skill-value-review.md](evidence/2026-07-14-professional-skill-value-review.md)。评测器已经复现真实增益与退化，但仍不并入 core；原因还包括自包含发布边界和运行成本。

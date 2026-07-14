@@ -17,6 +17,7 @@
 ## 当前有效 ADR
 
 - [current-runtime-architecture](decisions/current-runtime-architecture.md)：当前 Module、Interface 与删除范围的事实来源。
+- [professional-skill-portfolio](decisions/professional-skill-portfolio.md)：`taste`、`knowledge-base` 保留与 `planner` 删除的价值证据。
 - [self-contained-plugin-distribution](decisions/self-contained-plugin-distribution.md)：插件自包含与安装 seam。
 - [eval-lab-incubation](decisions/eval-lab-incubation.md)：质量实验保持仓库内，不进入 core。
 - [remove-heavy-pieces](decisions/remove-heavy-pieces.md)：不引入重型任务后端或语义代码服务。

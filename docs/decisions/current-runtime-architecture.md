@@ -18,6 +18,8 @@ Tessera 运行时只发布三个独立插件：核心 `tessera-eval`，以及可
 
 `planner` 因两轮真实质量评审分别得到 `-0.375` 与 `-0.250` 的稳定 regression，从双宿主 marketplace、安装器、路由案例和发布目录删除。历史 evidence 保留，避免删除失败证据。
 
+`taste` 与 `knowledge-base` 各在五个代表案例的 R3 评审中得到一个 improvement、零 regression，继续保持独立 opt-in；详细范围和限制以 `professional-skill-portfolio` 为准。
+
 ## Module 与 seam
 
 - **宿主原生选择 Module**：Interface 是用户请求与已安装 Skill description；Implementation 由 Claude/Codex 提供，Tessera 不复制。

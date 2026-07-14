@@ -10,7 +10,7 @@ Tessera 只分发三个 Skill：核心 `tessera-eval`，以及可选的 `taste`�
 irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
 ```
 
-安装全部四个插件：
+安装全部三个插件：
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1))) -All
@@ -20,7 +20,7 @@ irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
 # macOS / Linux，默认只安装 core
 curl -fsSL https://raw.githubusercontent.com/gloamere/Tessera/main/install.sh | sh
 
-# 安装全部四个插件
+# 安装全部三个插件
 curl -fsSL https://raw.githubusercontent.com/gloamere/Tessera/main/install.sh | sh -s -- --all
 ```
 

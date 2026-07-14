@@ -18,8 +18,8 @@ Tessera 是纯 Skills 市集：没有 hooks、常驻进程、数据库、私有�
 | 插件 | Skill | 用途 | 安装策略 |
 |---|---|---|---|
 | `tessera-core` | `tessera-eval` | 区分 policy 分类与可观察 native 调用，检查误调、漏调和稳定性 | 核心 |
-| `taste` | `taste` | UI、视觉、排版、配色与文案审美评审 | 可选 |
-| `knowledge-base` | `knowledge-base` | Markdown + 双链知识沉淀 | 可选 |
+| `taste` | `taste` | UI、视觉、排版、配色与文案审美评审 | 可选；真实价值评审保留 |
+| `knowledge-base` | `knowledge-base` | Markdown + 双链知识沉淀 | 可选；真实价值评审保留 |
 
 ```mermaid
 flowchart LR
