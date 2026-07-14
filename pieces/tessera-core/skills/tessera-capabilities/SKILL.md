@@ -5,7 +5,11 @@ description: 当用户要动态解析、列出或解释 Tessera 当前可用能�
 
 # Tessera Capabilities
 
-生成当前宿主的动态能力目录。只读解析，不安装、刷新、启用插件或修改配置。
+这是保留兼容性的高级入口；日常能力查看优先使用 `tessera-status`。本入口生成当前宿主的完整动态能力目录，只读解析，不安装、刷新、启用插件或修改配置。
+
+## 可选本地使用记录
+
+若能定位仓库 `scripts/usage_events.py`，进入时尝试运行 `start --host <host> --skill tessera-capabilities --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill tessera-capabilities --outcome completed|failed --project <cwd>`。默认关闭，任何记录失败都静默跳过。
 
 ## 解析流程
 
@@ -14,7 +18,7 @@ description: 当用户要动态解析、列出或解释 Tessera 当前可用能�
 3. 运行当前宿主的解析命令。Codex 示例：
 
 ```powershell
-python scripts/resolve_capabilities.py --host codex --probe --active-skill piece-router --format table
+python scripts/resolve_capabilities.py --host codex --probe --active-skill piece-router --view all --format table
 ```
 
 每个当前可见 skill 都分别追加一个 `--active-skill <id>`。Claude 使用 `--host claude`；CLI 不可用时脚本保留 `unknown`，不得改写成未安装。

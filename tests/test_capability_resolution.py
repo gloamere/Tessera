@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from resolve_capabilities import (  # noqa: E402
     PluginInstallation,
+    filter_catalog,
     parse_plugin_list_json,
     parse_plugin_list_text,
     probe_installed_plugins,
@@ -87,6 +88,21 @@ class CapabilityResolutionTests(unittest.TestCase):
         installed, evidence = probe_installed_plugins("claude", ROOT)
         self.assertIsNone(installed)
         self.assertIn("unavailable", evidence)
+
+    def test_quick_view_keeps_first_party_and_hides_unverified_candidates(self):
+        catalog = resolve_capabilities(
+            ROOT,
+            "codex",
+            installed_plugins={"tessera-core", "taste"},
+        )
+        quick = filter_catalog(catalog, "quick")
+        ids = {item["id"] for item in quick["capabilities"]}
+        self.assertIn("tessera-status", ids)
+        self.assertIn("knowledge-base", ids)
+        self.assertNotIn("browser-use", ids)
+        self.assertNotIn("agent-reach", ids)
+        self.assertEqual(quick["summary"]["hidden"], 6)
+        self.assertEqual(len(catalog["capabilities"]), 15)
 
 
 if __name__ == "__main__":

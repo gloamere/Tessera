@@ -2,16 +2,27 @@
 
 # 🧩 Tessera
 
-**面向 Codex 与 Claude Code 的本地能力路由网关。**
+**面向个人的跨 Agent 工作流控制层。**
 
-把可复用能力组织成按需安装的「拼图（pieces）」：简单任务直接完成，明确的专业任务交给对应拼图，复杂任务才进行路由、拆分和条件式并行。
+用路由、状态诊断和场景回归，让自己的 Codex / Claude Code 工作流保持轻量、可靠、可演进。简单任务直接完成，专业能力按需调用，复杂任务才进入路由或条件式并行。
 
 [![CI](https://github.com/gloamere/Tessera/actions/workflows/validate.yml/badge.svg)](https://github.com/gloamere/Tessera/actions/workflows/validate.yml)
 ![License](https://img.shields.io/github/license/gloamere/Tessera?color=blue)
 
 </div>
 
-Tessera 是纯 skills 插件：没有 hooks、没有常驻进程、没有 Go/Node 二进制，也不下载 release。安装只需要 Git 与目标客户端的插件 CLI。
+Tessera 是纯 skills 插件：没有 hooks、常驻进程、Go/Node 二进制或 release 下载链。可选使用记录默认关闭；显式启用后只写入本机 `~/.tessera`，不联网，也不记录提示正文和真实项目路径。
+
+## 当前主线
+
+Tessera 先服务维护者自己的“开发为主、产品/调研/UI/知识为辅”工作流，不以商业化、stars、公共 Benchmark 或拼图数量为目标。
+
+- **Router**：选择直接执行、专业拼图或复杂任务协调。
+- **Status / Doctor**：快速查看日常状态，必要时深入诊断。
+- **Eval**：用核心案例和 25 个个人场景防止配置回归。
+- **本地使用记录（可选）**：用 30/90 天数据决定保留、修正或卸载哪些能力。
+
+`setup`、生命周期、remediation、marketplace 与 trust 是低频维护层，保持安全可用但不继续扩张。七级准入量表和 recipe 保留为按需参考，不作为日常仪式。
 
 ## 执行流程
 
@@ -55,7 +66,7 @@ flowchart LR
 
 | 拼图 | 类型 | 用途 | 额外条件 |
 |---|---|---|---|
-| `tessera-core` | Skills | 动态能力解析、路由与 recipe、生命周期、状态、诊断/remediation、可复跑评测 | 无 |
+| `tessera-core` | Skills | 路由、状态/诊断、个人场景回归；附带冻结的生命周期与准入能力 | 无 |
 | `taste` | Skill | UI、视觉、排版与文案评审 | 无 |
 | `knowledge-base` | Skill | Markdown 知识沉淀与检索 | 无 |
 | `planner` | Skill | 游戏、内容、产品方案策划 | 无 |
@@ -72,16 +83,30 @@ codex plugin add tessera-core@tessera
 codex plugin list
 ```
 
-新开 Codex 会话后，直接用自然语言触发：
+新开 Codex 会话后，三个日常入口是：
 
 - “不知道该用哪个工具，帮我规划新项目” → `piece-router`
 - “查看拼图和依赖状态”或“tessera status” → `tessera-status`
-- “安装拼图 / setup” → `tessera-setup`
-- “升级、禁用、卸载或回滚指导” → `tessera-setup`
-- “新增一个拼图” → `piece-router` 按七级准入量表先评分再建议
 - “全面体检 Tessera / tessera doctor” → `tessera-doctor`；明确要求修复时逐项确认 remediation
-- “运行 tessera eval，复测路由准确率” → `tessera-eval`
-- “动态解析当前有哪些能力” → `tessera-capabilities`
+- “运行 tessera eval，复测个人工作流” → `tessera-eval`
+
+低频维护仍可使用“安装/升级/禁用/卸载/回滚指导”触发 `tessera-setup`。`tessera-capabilities` 保留为完整能力目录的兼容入口，日常查看已经并入 status。
+
+## 可选本地使用记录
+
+```powershell
+# 显式启用；默认保留 90 天
+python scripts/usage_events.py enable
+
+# 查看最近 30 或 90 天摘要
+python scripts/usage_events.py summary --days 30
+
+# 停止新增记录但保留历史；清空必须显式 purge
+python scripts/usage_events.py disable
+python scripts/usage_events.py purge
+```
+
+事件只包含 skill、宿主、时间、完成状态、显式有用性反馈和带本机 salt 的项目哈希。外部 skill 的直接调用无法可靠观测，摘要会明确披露这一边界。
 
 Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执行其自身的插件安装命令。
 
@@ -90,7 +115,7 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 | 功能 | 行为 |
 |---|---|
 | 任务路由 | 在直接执行、专业拼图、条件式子代理和透明降级之间选择 |
-| 动态能力解析 | schema v2 合并会话、市集、piece、skill、registry/trust 与宿主 JSON 探测，并报告安装版本和启用状态 |
+| 动态能力解析 | schema v2 合并会话、市集、piece、skill、registry/trust 与宿主 JSON 探测；status 默认 quick，详细模式才显示候选与未验证项 |
 | 专业能力调用 | 仅当质量/速度收益高于额外 token 与等待成本时调用 |
 | 条件式子代理 | 宿主支持且任务独立时，最多并行 3 个；主 Agent 负责汇总与验证 |
 | 拼图生命周期 | 安装、刷新/升级、启停和卸载逐项确认；回滚只接受显式 Git ref 并保持 plan-only |
@@ -98,6 +123,8 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 | 全面体检 | 默认只读；显式 remediation 仅执行 setup 白名单动作并逐项复查 |
 | 多意图 recipe | 按数据依赖排序、使用统一交接包，失败只阻断依赖链且不持久化状态 |
 | 可复跑评测 | 固定案例调用宿主，保存逐案例 JSON，区分误调用、漏调用、多意图与执行错误 |
+| 个人场景回归 | 独立维护 25 个案例：15 个开发、10 个产品/调研/UI/知识场景 |
+| 本地使用记录 | 默认关闭；启用后本地记录首方 skill 的触发、完成、反馈与跨项目复用，不联网 |
 | 升级建议 | 区分 current、refresh、update、ahead、unknown；变更统一交给 setup 逐项确认 |
 | 路由解释 | router 被调用时说明选择、净收益依据与降级方式 |
 | 任务规划 | 使用宿主原生能力，不引入外部持久任务后端 |
@@ -108,15 +135,17 @@ Claude Code 使用同一仓库的 `.claude-plugin/marketplace.json`，但需执�
 
 ```powershell
 python scripts/validate_marketplace.py
-python scripts/resolve_capabilities.py --host codex --probe --format table
+python scripts/resolve_capabilities.py --host codex --probe --view quick --format table
 python scripts/run_routing_eval.py --host codex --dry-run
+python scripts/run_routing_eval.py --host codex --cases tests/personal-routing-cases.yaml --dry-run
+python -m unittest discover -s tests -p 'test_*.py'
 codex plugin marketplace add ./
 codex plugin add tessera-core@tessera
 codex plugin list
 codex debug prompt-input
 ```
 
-验证应在新会话中进行，以确认 skill 实际被加载。详见 [部署手册](docs/DEPLOYMENT.md) 与 [第一阶段边界](docs/decisions/phase-1-scope.md)。
+验证应在新会话中进行，以确认 skill 实际被加载。Claude CLI/适配器不可用时只验证结构与 dry-run，不得把假宿主结果描述成 Claude 实测。详见 [部署手册](docs/DEPLOYMENT.md) 与 [个人工作流主线](docs/decisions/personal-workflow-mainline.md)。
 
 ## 许可
 

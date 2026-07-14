@@ -7,6 +7,10 @@ description: 当做游戏玩法/关卡策划、内容或产品方案设计、活
 
 做非代码的方向性策划(游戏、内容、产品、活动)。产出**能被拍板的方案文档**,不是代码计划。
 
+## 可选本地使用记录
+
+若能定位 Tessera 仓库的 `scripts/usage_events.py`，进入时尝试运行 `start --host <host> --skill planner --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill planner --outcome completed|failed --project <cwd>`。默认关闭；记录不可用不得影响策划或增加用户提示。
+
 ## 流程
 
 1. **摸清语境**:目标受众是谁?要解决什么?成功长什么样?约束(时间/成本/平台)?先问清,别急着给方案。

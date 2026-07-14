@@ -15,6 +15,14 @@ class RoutingEvalTests(unittest.TestCase):
         self.assertGreaterEqual(len(cases), 15)
         self.assertTrue(all(case["category"] for case in cases))
 
+    def test_personal_suite_keeps_60_40_profile(self):
+        cases = load_cases(ROOT / "tests" / "personal-routing-cases.yaml")
+        self.assertEqual(len(cases), 25)
+        self.assertEqual(
+            {profile: sum(case.get("profile") == profile for case in cases) for profile in ("development", "product")},
+            {"development": 15, "product": 10},
+        )
+
     def test_classifies_over_and_under_routing(self):
         direct = {"id": "d", "category": "direct", "prompt": "x", "expected_route": "direct"}
         specialist = {

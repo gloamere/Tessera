@@ -7,6 +7,10 @@ description: 当需要对 UI、视觉、排版、配色、文案做品味/审美
 
 对设计/文案做品味判断。**核心目标:阻止套路化输出**,给具体、可执行的改进方向。
 
+## 可选本地使用记录
+
+若能定位 Tessera 仓库的 `scripts/usage_events.py`，进入时尝试运行 `start --host <host> --skill taste --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill taste --outcome completed|failed --project <cwd>`。默认关闭；记录不可用不得影响评审或增加用户提示。
+
 ## 评审前
 
 先问自己:这给谁看?想传递什么气质?没有语境的"好看"是空话。

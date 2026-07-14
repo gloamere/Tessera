@@ -179,11 +179,6 @@ def validate_registry(errors: list[str]) -> None:
 
 
 def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
-    path = ROOT / "tests" / "routing-cases.yaml"
-    cases = read_yaml(path)
-    if not isinstance(cases, list) or not cases:
-        errors.append(f"{relative(path)}: 必须是非空数组")
-        return
     valid_targets = (valid_piece_ids - {"tessera-core"}) | {
         "direct",
         "piece-router",
@@ -206,28 +201,46 @@ def validate_route_cases(valid_piece_ids: set[str], errors: list[str]) -> None:
         errors.append(
             f"{relative(schema_path)}: route enum 与评测目标不一致"
         )
-    seen: set[str] = set()
-    for case in cases:
-        if not isinstance(case, dict):
-            errors.append(f"{relative(path)}: 每个案例必须是对象")
+    for filename in ("routing-cases.yaml", "personal-routing-cases.yaml"):
+        path = ROOT / "tests" / filename
+        cases = read_yaml(path)
+        if not isinstance(cases, list) or not cases:
+            errors.append(f"{relative(path)}: 必须是非空数组")
             continue
-        case_id = case.get("id")
-        if not isinstance(case_id, str) or not case_id:
-            errors.append(f"{relative(path)}: 案例缺少 id")
-            continue
-        if case_id in seen:
-            errors.append(f"{relative(path)}: 案例 id {case_id} 重复")
-        seen.add(case_id)
-        if not isinstance(case.get("prompt"), str) or not case["prompt"].strip():
-            errors.append(f"{relative(path)}: {case_id} 缺少 prompt")
-        if case.get("category") not in SUPPORTED_ROUTE_CATEGORIES:
-            errors.append(f"{relative(path)}: {case_id} 的 category 无效: {case.get('category')}")
-        expected = case.get("expected_route")
-        if expected not in valid_targets:
-            errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效: {expected}")
-        excluded = case.get("must_not_route", [])
-        if not isinstance(excluded, list) or any(target not in valid_targets for target in excluded):
-            errors.append(f"{relative(path)}: {case_id} 的 must_not_route 无效")
+        seen: set[str] = set()
+        profiles = {"development": 0, "product": 0}
+        for case in cases:
+            if not isinstance(case, dict):
+                errors.append(f"{relative(path)}: 每个案例必须是对象")
+                continue
+            case_id = case.get("id")
+            if not isinstance(case_id, str) or not case_id:
+                errors.append(f"{relative(path)}: 案例缺少 id")
+                continue
+            if case_id in seen:
+                errors.append(f"{relative(path)}: 案例 id {case_id} 重复")
+            seen.add(case_id)
+            if not isinstance(case.get("prompt"), str) or not case["prompt"].strip():
+                errors.append(f"{relative(path)}: {case_id} 缺少 prompt")
+            if case.get("category") not in SUPPORTED_ROUTE_CATEGORIES:
+                errors.append(f"{relative(path)}: {case_id} 的 category 无效: {case.get('category')}")
+            expected = case.get("expected_route")
+            if expected not in valid_targets:
+                errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效: {expected}")
+            excluded = case.get("must_not_route", [])
+            if not isinstance(excluded, list) or any(target not in valid_targets for target in excluded):
+                errors.append(f"{relative(path)}: {case_id} 的 must_not_route 无效")
+            if filename == "personal-routing-cases.yaml":
+                profile = case.get("profile")
+                if profile not in profiles:
+                    errors.append(f"{relative(path)}: {case_id} 的 profile 无效: {profile}")
+                else:
+                    profiles[profile] += 1
+        if filename == "personal-routing-cases.yaml":
+            if len(cases) != 25 or profiles != {"development": 15, "product": 10}:
+                errors.append(
+                    f"{relative(path)}: 必须保持 25 个案例（development=15, product=10），实际 {profiles}"
+                )
 
 
 def validate_admission_cases(errors: list[str]) -> None:
@@ -456,6 +469,10 @@ def main() -> int:
 
             for skill_path in sorted((piece_dir / "skills").glob("*/SKILL.md")):
                 validate_skill_frontmatter(skill_path, errors)
+                if "usage_events.py" not in skill_path.read_text(encoding="utf-8"):
+                    errors.append(
+                        f"{relative(skill_path)}: 首方 skill 缺少可选本地使用记录契约"
+                    )
             if piece_id == "tessera-core":
                 for retired in ("hooks", "bin", "gate-rules.json"):
                     if (piece_dir / retired).exists():
@@ -488,7 +505,9 @@ def main() -> int:
                     ROOT / "scripts" / "resolve_capabilities.py",
                     ROOT / "scripts" / "lifecycle_policy.py",
                     ROOT / "scripts" / "remediation_policy.py",
+                    ROOT / "scripts" / "usage_events.py",
                     ROOT / "tests" / "routing-output.schema.json",
+                    ROOT / "tests" / "personal-routing-cases.yaml",
                 ):
                     if not required_path.is_file():
                         errors.append(f"tessera-core: 缺少 {relative(required_path)}")

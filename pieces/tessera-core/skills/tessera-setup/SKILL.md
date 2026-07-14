@@ -7,6 +7,10 @@ description: 当用户要安装、刷新、升级、启用、禁用、卸载、�
 
 管理拼图的安装、刷新、升级、启用、禁用和卸载；回滚只生成可验证计划。所有无法证实的状态保持 `unknown`，不得猜测或用另一动作冒充。
 
+## 可选本地使用记录
+
+若能定位仓库 `scripts/usage_events.py`，进入时尝试运行 `start --host <host> --skill tessera-setup --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill tessera-setup --outcome completed|failed --project <cwd>`。默认关闭，记录失败不得影响生命周期动作、确认或复查。
+
 ## 统一流程
 
 1. 识别 Codex/Claude 和 Tessera 仓库根；优先运行 `scripts/resolve_capabilities.py --host <host> --probe --format json`。脚本不可见时按 `tessera-status` 的宿主降级规则探测。

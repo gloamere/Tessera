@@ -11,8 +11,8 @@
     {
       "name": "tessera-core",
       "source": "./pieces/tessera-core",
-      "description": "内核:动态能力解析、路由、生命周期、状态、诊断与评测",
-      "version": "0.2.0+codex.20260713120258",
+      "description": "个人工作流内核:路由、状态诊断、场景回归与可选本地使用记录",
+      "version": "0.3.0+codex.20260713",
       "strict": true
     },
     {

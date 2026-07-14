@@ -1,6 +1,6 @@
 {
-  "description": "Tessera \u5185\u6838:\u52a8\u6001\u80fd\u529b\u89e3\u6790\u3001\u8def\u7531\u3001\u751f\u547d\u5468\u671f\u3001\u72b6\u6001\u3001\u8bca\u65ad\u4e0e\u8bc4\u6d4b",
+  "description": "Tessera \u4e2a\u4eba\u5de5\u4f5c\u6d41\u5185\u6838:\u8def\u7531\u3001\u72b6\u6001\u8bca\u65ad\u3001\u573a\u666f\u56de\u5f52\u4e0e\u53ef\u9009\u672c\u5730\u4f7f\u7528\u8bb0\u5f55",
   "name": "tessera-core",
   "skills": "./skills/",
-  "version": "0.2.0+codex.20260713120258"
+  "version": "0.3.0+codex.20260713"
 }

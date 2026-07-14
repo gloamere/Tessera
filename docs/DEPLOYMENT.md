@@ -1,6 +1,6 @@
 # Tessera 部署手册
 
-Tessera 是纯 skills 市集：无需 Go、Node、二进制、release 下载或 hooks。
+Tessera 是纯 skills 市集：无需 Go、Node、二进制、release 下载或 hooks。可选本地使用记录默认关闭且永不联网。
 
 ## Codex
 
@@ -30,7 +30,7 @@ codex plugin list
 - “禁用/启用/卸载拼图”验证 setup 的宿主动作矩阵；Codex 的启停必须报告 unsupported，不能退化为 remove。
 - “回滚到 <明确 ref>”只验证 ref 和生成计划，不得切换当前 `main` 或自动重配 marketplace。
 - “运行 tessera eval”验证 `tessera-eval`；评测报告默认写入 `eval-results/`。
-- “动态解析当前 Tessera 能力”验证 `tessera-capabilities`；schema v2 必须区分 active、installed、available、unknown，并报告 installed_version 与 enabled_state。
+- “查看当前 Tessera 能力”默认通过 status quick 视图验证；明确要求完整目录时才走兼容入口 `tessera-capabilities`。
 
 ## Claude Code
 
@@ -47,8 +47,10 @@ codex plugin list
 ```powershell
 python -m pip install --disable-pip-version-check --requirement requirements-dev.txt
 python scripts/validate_marketplace.py
-python scripts/resolve_capabilities.py --host codex --probe --format table
+python scripts/resolve_capabilities.py --host codex --probe --view quick --format table
 python scripts/run_routing_eval.py --host codex --dry-run
+python scripts/run_routing_eval.py --host codex --cases tests/personal-routing-cases.yaml --dry-run
+python -m unittest discover -s tests -p 'test_*.py'
 codex plugin marketplace add ./
 codex plugin add tessera-core@tessera
 codex plugin list
@@ -60,6 +62,8 @@ codex debug prompt-input
 - “新增一个代码语义检索拼图”应先输出七维评分、原始等级、封顶与建议，不直接安装。
 - “安装拼图”不得把 `not-integrated`、`unverified` 或 candidate 项列为可安装项。
 - “tessera status”无法证实时必须报告 `unknown`，不得把未知写成未安装。
+- status 默认 quick 视图不得展示未验证候选；用户要求详细模式时才显示完整目录。
+- 本地使用记录默认不创建文件；显式启用后只记录首方 skill 元数据与项目哈希，记录失败不得阻断任务。
 - “tessera doctor”默认应输出总状态和逐项证据且零写入；明确 remediation 后只逐项确认 setup 白名单动作，结构/trust/回滚保持 plan-only。
 - “tessera eval”应调用固定案例并区分整套通过率、路由正确率和执行错误；CI 假宿主结果不得冒充模型实测。
 - “动态解析当前能力”不得把市集存在误报成当前 active，也不得把探测失败误报成未安装。
@@ -68,4 +72,4 @@ codex debug prompt-input
 - 多交付物请求应输出依赖有序 recipe 和交接包；前置失败只阻断依赖链，独立步骤可继续。
 - 在没有决策目录的普通项目中做低风险方案选择，不得自动创建 `docs/decisions/`。
 
-Claude 端使用同义提示并额外验证 `/tessera-status` 只路由到 status skill。不要依赖缓存、未跟踪的二进制或本机 hooks 作为验收依据。
+Claude 端使用同义提示并额外验证 `/tessera-status` 只路由到 status skill。Claude CLI/适配器不可用时只做结构与 dry-run 校验，不得声称真实实测。不要依赖缓存、未跟踪的二进制或本机 hooks 作为验收依据。

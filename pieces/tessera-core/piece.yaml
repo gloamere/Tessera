@@ -1,13 +1,13 @@
 id: tessera-core
 kind: skill
-summary: Tessera 内核:动态能力解析、意图路由、安装、状态、诊断与可复跑评测。
+summary: Tessera 个人工作流内核:意图路由、快速状态/诊断、个人场景回归与可选本地使用记录。
 when_to_use:
   - 复合/模糊意图,不确定用哪块拼图 → piece-router
   - 初始化工作流或安装、升级、启停、卸载、回滚指导 → tessera-setup
   - 查看拼图安装版本、启用状态、生命周期动作与依赖 → tessera-status(skill;Claude 也可用 /tessera-status 命令)
   - 全面体检或逐项确认修复市集/插件/版本/registry/trust/依赖 → tessera-doctor(skill;Claude 也可用 /tessera-doctor 命令)
   - 复跑固定路由案例、查看准确率与错误分类 → tessera-eval(skill;Claude 也可用 /tessera-eval 命令)
-  - 动态列出当前可调用、已安装、可安装和未验证能力 → tessera-capabilities
+  - 日常能力与状态查看 → tessera-status；完整目录兼容入口 → tessera-capabilities
   - 用户要求新增、引入、拆分或设计拼图 → piece-router 加载七级准入量表
 avoid_when: 已有明确单一工具触发的任务
 platforms: { claude: native, codex: native, gemini: unsupported, domestic: unsupported }

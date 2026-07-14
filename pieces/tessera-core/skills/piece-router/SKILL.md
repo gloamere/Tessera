@@ -5,6 +5,10 @@ description: 复杂或不确定该用什么工具、涉及多种能力、说"新
 
 # 拼图派发表
 
+## 可选本地使用记录
+
+若能定位仓库 `scripts/usage_events.py`，进入本 skill 时尝试运行 `start --host <host> --skill piece-router --project <cwd>`；只有返回事件 id 时，结束前才运行 `finish --event-id <id> --host <host> --skill piece-router --outcome completed|failed --project <cwd>`。记录默认关闭、只写 `~/.tessera`，任何缺失或失败都静默跳过且不得影响路由。
+
 ## 动态能力解析
 
 派发前优先使用当前会话明确暴露的 skills 作为 active 证据。能定位 Tessera 仓库时，按 `tessera-capabilities` 的流程运行 `scripts/resolve_capabilities.py --host <host> --probe`，把会话可见 skill 逐项作为 `--active-skill` 传入。
@@ -25,7 +29,7 @@ description: 复杂或不确定该用什么工具、涉及多种能力、说"新
 | 拼图状态/安装/升级 | tessera-core 自身 | tessera-status、tessera-setup skill |
 | 全面体检/诊断 Tessera 漂移或状态矛盾 | tessera-core 自身 | tessera-doctor skill；只读检查，不自动修复 |
 | 复跑固定案例、评估路由准确率与错误类型 | tessera-core 自身 | tessera-eval skill；只判断路由，不执行案例任务 |
-| 动态列出或解释当前可用能力 | tessera-core 自身 | tessera-capabilities skill；合并会话、市集、piece、registry/trust 证据 |
+| 动态列出或解释当前可用能力 | tessera-core 自身 | 日常走 tessera-status；明确要求完整目录时兼容调用 tessera-capabilities |
 
 **如实交代状态**:未安装、未验证或规划中的目标只能说明其状态,不能伪装成已安装、可直接调用的 skill/CLI。
 
@@ -58,4 +62,4 @@ description: 复杂或不确定该用什么工具、涉及多种能力、说"新
 
 ## 路由解释
 
-本 router 被实际调用并作出选择时，在执行前输出一行：`路由说明：<任务形态> → <执行层级/拼图>；原因：<净收益依据>；不可用时：<降级方式>`。明显简单任务直接执行且没有调用本 router 时不额外输出；不写日志、不做遥测。
+本 router 被实际调用并作出选择时，在执行前输出一行：`路由说明：<任务形态> → <执行层级/拼图>；原因：<净收益依据>；不可用时：<降级方式>`。明显简单任务直接执行且没有调用本 router 时不额外输出；除用户显式启用的本地使用记录外，不写日志、不做联网遥测。

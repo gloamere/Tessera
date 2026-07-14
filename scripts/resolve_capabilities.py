@@ -330,6 +330,34 @@ def print_table(catalog: dict[str, Any]) -> None:
         )
 
 
+def filter_catalog(catalog: dict[str, Any], view: str) -> dict[str, Any]:
+    """Return a presentation view without changing capability resolution evidence."""
+    if view == "all":
+        return catalog
+    if view != "quick":
+        raise ValueError(f"unsupported view: {view}")
+    capabilities = [
+        item
+        for item in catalog["capabilities"]
+        if item.get("kind") == "skill"
+        or item.get("runtime_state") in {"active", "installed", "available"}
+        or item.get("enabled_state") == "disabled"
+    ]
+    counts: dict[str, int] = {}
+    for capability in capabilities:
+        state = capability["runtime_state"]
+        counts[state] = counts.get(state, 0) + 1
+    result = dict(catalog)
+    result["view"] = "quick"
+    result["summary"] = {
+        "total": len(capabilities),
+        "hidden": len(catalog["capabilities"]) - len(capabilities),
+        **counts,
+    }
+    result["capabilities"] = capabilities
+    return result
+
+
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--host", choices=("codex", "claude"), required=True)
@@ -339,6 +367,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--disabled-plugin", action="append", default=[])
     result.add_argument("--active-skill", action="append", default=[])
     result.add_argument("--format", choices=("json", "table"), default="table")
+    result.add_argument("--view", choices=("quick", "all"), default="all")
     return result
 
 
@@ -369,6 +398,7 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, ValueError, yaml.YAMLError, json.JSONDecodeError) as exc:
         print(f"能力解析失败: {exc}", file=sys.stderr)
         return 2
+    catalog = filter_catalog(catalog, args.view)
     if args.format == "json":
         print(json.dumps(catalog, ensure_ascii=False, indent=2))
     else:

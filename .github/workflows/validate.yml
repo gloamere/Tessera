@@ -26,6 +26,12 @@ jobs:
           --adapter-executable python3
           --adapter-arg tests/fixtures/fake_eval_host.py
           --output eval-results/ci-routing.json
+      - name: Validate personal scenario plan
+        run: >-
+          python3 scripts/run_routing_eval.py
+          --host codex
+          --cases tests/personal-routing-cases.yaml
+          --dry-run
       - name: Resolve capability catalog
         run: >-
           python3 scripts/resolve_capabilities.py

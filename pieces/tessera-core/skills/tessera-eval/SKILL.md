@@ -7,11 +7,23 @@ description: 当用户要运行、复跑或比较 Tessera 路由评测，检查�
 
 运行可复现的路由行为评测。评测只判断路由，不执行案例中的用户任务，不修改目标项目，不安装依赖。
 
+## 可选本地使用记录
+
+若能定位仓库 `scripts/usage_events.py`，进入时尝试运行 `start --host <host> --skill tessera-eval --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill tessera-eval --outcome completed|failed --project <cwd>`。记录失败不得影响评测结果，也不得混入 `eval-results`。
+
 ## 前置判断
 
-1. 定位 Tessera 仓库根；必须能看到 `scripts/run_routing_eval.py` 和 `tests/routing-cases.yaml`。不可见时报告 `UNKNOWN` 并给出需要用户提供的路径，不猜测。
+1. 定位 Tessera 仓库根；必须能看到 `scripts/run_routing_eval.py`、`tests/routing-cases.yaml` 和 `tests/personal-routing-cases.yaml`。不可见时报告 `UNKNOWN` 并给出需要用户提供的路径，不猜测。
 2. 识别宿主。Codex 使用脚本内置、已验证的只读临时会话适配器。Claude 仅在提供符合下述契约的适配器时运行；没有适配器就报告 `unavailable`，不得声称已实测。
 3. 默认运行全部案例；用户指定案例、宿主、模型或输出路径时按其要求收窄。
+
+核心机制回归使用默认的 `tests/routing-cases.yaml`；个人工作流回归使用：
+
+```powershell
+python scripts/run_routing_eval.py --host codex --cases tests/personal-routing-cases.yaml
+```
+
+个人案例固定保持 20–30 条；只有真实失败或新的高频场景才替换或增加。Claude CLI/适配器不可用时只允许 dry-run，不得声称已完成 Claude 实测。
 
 ## 执行
 

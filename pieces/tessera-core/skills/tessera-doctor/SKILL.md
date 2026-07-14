@@ -7,6 +7,10 @@ description: 全面诊断 Tessera 市集、插件、版本、启用状态、regi
 
 默认执行只读体检；无法取得的证据标为 `UNKNOWN`。只有用户明确说“修复”“remediate”或同义意图时才能进入 remediation 模式。
 
+## 可选本地使用记录
+
+若能定位仓库 `scripts/usage_events.py`，进入时尝试运行 `start --host <host> --skill tessera-doctor --project <cwd>`；只有返回事件 id 时，结束前运行 `finish --event-id <id> --host <host> --skill tessera-doctor --outcome completed|failed --project <cwd>`。默认关闭；日志不可用不得改变诊断、修复权限或最终状态。
+
 ## 诊断模式（默认）
 
 1. 识别宿主、当前插件根和市集仓库根；仓库不可见时继续检查插件自身。
@@ -31,4 +35,4 @@ description: 全面诊断 Tessera 市集、插件、版本、启用状态、regi
 
 - 默认模式始终零写入；remediation 不是批量同意，一次确认只授权一项。
 - 只执行 setup 动作矩阵或与 `trust.yaml` 完全匹配的安装命令。
-- 不自动修复 manifest/marketplace/trust，不执行 Git 回滚，不写遥测。
+- 不自动修复 manifest/marketplace/trust，不执行 Git 回滚；除显式启用的本地使用记录外，不写日志或联网遥测。
