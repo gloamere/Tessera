@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-14T08:13:31.390522+00:00",
+  "claim": "paired native skill utility with host-event attribution",
+  "adapter": "codex-cli",
+  "evidence": "native-host-events",
+  "cases_file": "D:\\Gloamere\\Tessera\\experiments\\eval-lab\\cases.json",
+  "repeat": 3,
+  "model": "gpt-5.6-sol",
+  "summary": {
+    "total": 1,
+    "improvements": 0,
+    "regressions": 0,
+    "no_change": 1,
+    "unverified": 0,
+    "execution_errors": 0,
+    "raw_improvements": 1,
+    "raw_regressions": 0,
+    "raw_ties": 0
+  },
+  "cases": [
+    {
+      "id": "knowledge-base-research-notes",
+      "plugin": "knowledge-base@tessera",
+      "skill": "knowledge-base",
+      "activation": "injected",
+      "skill_sha256": "b2bcfaa832ed625219489849ce65d4287a3840dbcbc3e336b039fd485b821573",
+      "baseline_score": 0.875,
+      "skill_score": 1.0,
+      "delta": 0.125,
+      "direction": "improvement",
+      "minimum_delta": 0.2,
+      "baseline_criterion_rates": {
+        "multiple-files": 1.0,
+        "frontmatter-title": 1.0,
+        "frontmatter-tags": 0.666667,
+        "frontmatter-created": 1.0,
+        "expansion-sections": 0.0,
+        "association-sections": 1.0,
+        "backlinks": 1.0,
+        "installation-runtime-separation": 1.0
+      },
+      "skill_criterion_rates": {
+        "multiple-files": 1.0,
+        "frontmatter-title": 1.0,
+        "frontmatter-tags": 1.0,
+        "frontmatter-created": 1.0,
+        "expansion-sections": 1.0,
+        "association-sections": 1.0,
+        "backlinks": 1.0,
+        "installation-runtime-separation": 1.0
+      },
+      "criterion_deltas": {
+        "multiple-files": 0.0,
+        "frontmatter-title": 0.0,
+        "frontmatter-tags": 0.333333,
+        "frontmatter-created": 0.0,
+        "expansion-sections": 1.0,
+        "association-sections": 0.0,
+        "backlinks": 0.0,
+        "installation-runtime-separation": 0.0
+      },
+      "gained_criteria": [
+        "frontmatter-tags",
+        "expansion-sections"
+      ],
+      "lost_criteria": [],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-created",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 43581,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "answer": "建议产物：4 则原子笔记 + 1 则主题索引。\n\n### `plugin-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行要求\n tags: [插件, eval, 文档, 索引]\ncreated: 2026-07-14\n---\n\n插件安装与 eval 运行是两个不同阶段，应分别维护其操作步骤和环境要求，避免用户混淆依赖。\n\n## 安装插件\n\n- 当前推荐使用一键安装脚本。\n- 安装步骤已由 3 条命令缩减为 1 条命令。\n\n详见：[[一键安装脚本将插件安装缩减为一条命令]]\n\n## 运行 eval\n\n- 需要 Python 3。\n- 不需要 pip。\n\n详见：[[eval 运行需要 Python 3 但不需要 pip]]\n\n## 用户反馈\n\n5 位受访用户均认为原插件安装步骤太长。用户也经常混淆插件安装依赖和 eval 运行依赖。\n\n详见：\n- [[受访用户认为插件安装步骤过长]]\n- [[文档应区分安装要求与 eval 运行要求]]\n```\n\n### `users-find-plugin-installation-too-long.md`\n\n```markdown\n---\ntitle: 受访用户认为插件安装步骤过长\n tags: [用户研究, 插件, 安装, 痛点]\ncreated: 2026-07-14\n---\n\n5 位访谈用户都认为插件安装步骤太长，说明安装流程长度是一个具有一致性的用户痛点。\n\n## 证据\n\n- 样本量：5 位访谈用户\n- 反馈一致性：5 位用户均提到安装步骤太长\n- 研究方式：用户访谈\n\n## 后续观察\n\n后续访谈或数据分析可继续补充：\n\n- 一键安装上线后的完成率\n- 安装耗时及失败率\n- 用户是否仍认为流程过长\n\n## 关联\n\n- [[一键安装脚本将插件安装缩减为一条命令]]\n- [[文档应区分安装要求与 eval 运行要求]]\n```\n\n### `one-command-plugin-installer.md`\n\n```markdown\n---\ntitle: 一键安装脚本将插件安装缩减为一条命令\n tags: [插件, 安装, 自动化, 改进]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本已将插件安装流程从 3 条命令缩减为 1 条命令，直接回应了用户对安装步骤过长的反馈。\n\n## 变化\n\n- 旧流程：3 条命令\n- 新流程：1 条命令\n- 减少：2 条命令，约 67%\n\n## 待补充\n\n- 脚本名称及调用示例\n- 支持的操作系统和 shell\n- 常见错误及恢复方式\n- 上线日期和版本\n- 安装成功率变化\n\n## 关联\n\n- [[受访用户认为插件安装步骤过长]]\n- [[eval 运行需要 Python 3 但不需要 pip]]\n- [[文档应区分安装要求与 eval 运行要求]]\n```\n\n### `eval-requires-python-not-pip.md`\n\n```markdown\n---\ntitle: eval 运行需要 Python 3 但不需要 pip\n tags: [eval, Python, 运行要求, 依赖]\ncreated: 2026-07-14\n---\n\n运行 eval 需要 Python 3，但不需要 pip；这是 eval 的运行环境要求，不是插件的安装要求。\n\n## 要求\n\n- 必需：Python 3\n- 非必需：pip\n\n## 文档注意事项\n\n不要把 Python 3 写进“插件安装要求”，也不要暗示用户必须安装或使用 pip。\n\n## 待补充\n\n- 最低及推荐 Python 版本\n- Python 版本检查命令\n- eval 启动命令\n- 不同操作系统的差异\n\n## 关联\n\n- [[插件安装与 eval 运行要求]]\n- [[文档应区分安装要求与 eval 运行要求]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 文档应区分安装要求与 eval 运行要求\n tags: [文档, 信息架构, 插件, eval, 决策]\ncreated: 2026-07-14\n---\n\n后续文档应分别设置“安装要求”和“运行 eval 要求”，因为用户经常把插件安装依赖与 eval 运行依赖混为一谈。\n\n## 建议结构\n\n### 安装要求\n\n- 说明如何安装插件\n- 优先展示一键安装脚本\n- 仅列出安装阶段真正需要的依赖\n\n### 运行 eval 要求\n\n- 明确需要 Python 3\n- 明确不需要 pip\n- 提供环境检查和运行方式\n\n## 写作原则\n\n- 按用户任务阶段组织信息，而不是把所有依赖放在一个列表中。\n- 每项依赖注明用途，例如“用于运行 eval”。\n- 避免使用含糊的总标题，如“环境要求”。\n\n## 关联\n\n- [[受访用户认为插件安装步骤过长]]\n- [[一键安装脚本将插件安装缩减为一条命令]]\n- [[eval 运行需要 Python 3 但不需要 pip]]\n```"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 40371,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "answer": "```text\nknowledge-base/\n├── plugin-installation-and-eval.md\n├── plugin-installation-friction.md\n├── one-click-plugin-installation.md\n├── eval-runtime-requirements.md\n├── dependency-boundary-confusion.md\n└── separate-install-and-eval-requirements.md\n```\n\n### `plugin-installation-and-eval.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行\n-tags: [插件, eval, 文档, 索引]\ncreated: 2026-07-14\n---\n\n插件安装和 eval 运行是两个不同阶段，应分别记录其要求、改进和用户反馈。\n\n## 相关笔记\n\n- [[插件安装步骤过长是普遍痛点]]\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[用户容易混淆安装依赖与 eval 运行依赖]]\n- [[文档应分别说明安装要求和 eval 运行要求]]\n```\n\n### `plugin-installation-friction.md`\n\n```markdown\n---\ntitle: 插件安装步骤过长是普遍痛点\ntags: [插件, 安装, 用户访谈, 痛点]\ncreated: 2026-07-14\n---\n\n5 位受访用户一致认为插件安装步骤太长，说明安装流程长度是一个普遍而非个别的体验问题。\n\n## 证据\n\n- 样本：5 位访谈用户\n- 反馈：5 人均认为安装步骤太长\n- 来源：用户访谈\n\n## 关联\n\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[插件安装与 eval 运行]]\n```\n\n### `one-click-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将安装缩减为一条命令\ntags: [插件, 安装, 自动化, 改进]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本已将插件安装流程从 3 条命令缩减为 1 条命令，用于缓解安装步骤过长的问题。\n\n## 变化\n\n- 改进前：3 条命令\n- 改进后：1 条命令\n- 减少：2 条命令，约 67%\n\n## 待验证\n\n- 用户是否能独立完成安装\n- 安装耗时和失败率是否下降\n- 文档是否已全面采用新脚本\n\n## 关联\n\n- [[插件安装步骤过长是普遍痛点]]\n- [[文档应分别说明安装要求和 eval 运行要求]]\n```\n\n### `eval-runtime-requirements.md`\n\n```markdown\n---\ntitle: 运行 eval 需要 Python 3 但不需要 pip\ntags: [eval, Python, 运行要求, 依赖]\ncreated: 2026-07-14\n---\n\n运行 eval 的环境要求是 Python 3；pip 不是运行 eval 的必要条件。\n\n## 要求\n\n- 必需：Python 3\n- 不必需：pip\n\n## 关联\n\n- [[用户容易混淆安装依赖与 eval 运行依赖]]\n- [[文档应分别说明安装要求和 eval 运行要求]]\n```\n\n### `dependency-boundary-confusion.md`\n\n```markdown\n---\ntitle: 用户容易混淆安装依赖与 eval 运行依赖\ntags: [用户认知, 依赖, 插件, eval, 文档问题]\ncreated: 2026-07-14\n---\n\n用户经常把插件安装依赖和 eval 运行依赖混为一谈，表明现有说明没有清楚划分安装阶段与运行阶段。\n\n## 容易混淆的概念\n\n- 插件安装要求：完成插件安装所需的条件\n- eval 运行要求：安装完成后执行 eval 所需的条件\n\n## 关联\n\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[文档应分别说明安装要求和 eval 运行要求]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 文档应分别说明安装要求和 eval 运行要求\ntags: [文档, 决策, 插件, eval, 依赖]\ncreated: 2026-07-14\n---\n\n后续文档应把“安装要求”和“运行 eval 要求”拆成独立章节，避免用户误判依赖关系。\n\n## 建议结构\n\n### 安装要求\n\n- 一键安装脚本的使用条件\n- 安装命令\n- 安装成功的验证方式\n\n### 运行 eval 要求\n\n- 需要 Python 3\n- 不需要 pip\n- eval 命令及运行成功的验证方式\n\n## 关联\n\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[用户容易混淆安装依赖与 eval 运行依赖]]\n```"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 39414,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "answer": "建议知识库结构：\n\n```text\nplugin-and-eval-requirements-index.md\nplugin-installation-is-too-long.md\none-click-install-reduces-commands.md\neval-runtime-requires-python3-not-pip.md\nseparate-install-and-eval-requirements.md\n```\n\n### `plugin-and-eval-requirements-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行要求索引\ntags: [插件, eval, 文档, 索引]\ncreated: 2026-07-14\n---\n\n插件安装与 eval 运行是两个不同阶段，应分别记录其流程、依赖和用户反馈，避免用户将两者混淆。\n\n## 用户反馈\n\n- [[插件安装步骤过长是普遍痛点]]\n- [[用户容易混淆插件安装依赖与 eval 运行依赖]]\n\n## 当前实现\n\n- [[一键安装脚本将安装流程缩减为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n\n## 文档决策\n\n- [[文档应分别说明安装要求和运行 eval 要求]]\n```\n\n### `plugin-installation-is-too-long.md`\n\n```markdown\n---\ntitle: 插件安装步骤过长是普遍痛点\ntags: [插件, 安装, 用户访谈, 痛点]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明这不是个别反馈，而是具有一致性的安装体验问题。\n\n## 证据\n\n- 访谈人数：5\n- 表达相同反馈的人数：5\n- 核心反馈：插件安装步骤太长\n\n## 后续验证\n\n- 记录一键安装脚本发布后的用户反馈。\n- 对比改进前后的安装成功率、完成时间和求助次数。\n\n## 关联\n\n- [[一键安装脚本将安装流程缩减为一条命令]]\n- [[用户容易混淆插件安装依赖与 eval 运行依赖]]\n```\n\n### `one-click-install-reduces-commands.md`\n\n```markdown\n---\ntitle: 一键安装脚本将安装流程缩减为一条命令\ntags: [插件, 安装, 一键安装, 改进]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本已将插件安装流程从 3 条命令缩减为 1 条，直接回应了用户对安装步骤过长的反馈。\n\n## 变化\n\n- 改进前：3 条命令\n- 改进后：1 条命令\n- 减少：2 条命令\n\n## 注意\n\n此脚本解决的是插件安装流程，不代表运行 eval 不再需要额外环境依赖。\n\n## 关联\n\n- [[插件安装步骤过长是普遍痛点]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[文档应分别说明安装要求和运行 eval 要求]]\n```\n\n### `eval-runtime-requires-python3-not-pip.md`\n\n```markdown\n---\ntitle: 运行 eval 需要 Python 3 但不需要 pip\ntags: [eval, Python, 运行依赖, 环境要求]\ncreated: 2026-07-14\n---\n\n运行 eval 仍然要求环境中安装 Python 3，但不要求安装或使用 pip。\n\n## 依赖清单\n\n- Python 3：需要\n- pip：不需要\n\n## 边界\n\n这里描述的是 eval 的运行要求，不是插件的安装要求。\n\n## 关联\n\n- [[用户容易混淆插件安装依赖与 eval 运行依赖]]\n- [[文档应分别说明安装要求和运行 eval 要求]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 文档应分别说明安装要求和运行 eval 要求\ntags: [文档, 信息架构, 插件, eval, 决策]\ncreated: 2026-07-14\n---\n\n后续文档应将“插件安装要求”和“运行 eval 要求”分成两个明确章节，因为用户经常混淆这两个阶段的依赖。\n\n## 建议结构\n\n### 安装要求\n\n- 说明插件安装所需条件。\n- 提供一键安装命令。\n- 不在此处混入 eval 的 Python 依赖。\n\n### 运行 eval 要求\n\n- 明确要求 Python 3。\n- 明确说明不需要 pip。\n- 说明这些要求仅适用于运行 eval。\n\n## 建议文案\n\n> 插件安装与 eval 运行的环境要求不同。安装插件请参照“安装要求”；运行 eval 前，请确认环境中已安装 Python 3。运行 eval 不需要 pip。\n\n## 关联\n\n- [[用户容易混淆插件安装依赖与 eval 运行依赖]]\n- [[一键安装脚本将安装流程缩减为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n```\n\n其中 `[[用户容易混淆插件安装依赖与 eval 运行依赖]]` 可在收集到具体误解案例后补成独立笔记；当前先作为待补充双链，避免凭现有信息虚构细节。"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "expansion-sections",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 53431,
+          "host_event_lines": 4,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "answer": "### `plugin-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行知识索引\ntags: [插件, eval, 索引]\ncreated: 2026-07-14\n---\n\n插件安装和 eval 运行是两个不同阶段，应分别维护用户反馈、依赖要求和文档说明。\n\n## 主题笔记\n- [[用户认为插件安装步骤过长]]\n- [[一键安装脚本将安装命令从三条降为一条]]\n- [[eval 运行需要 Python 3 但不需要 pip]]\n- [[安装要求与 eval 运行要求应分开说明]]\n```\n\n### `plugin-installation-is-too-long.md`\n\n```markdown\n---\ntitle: 用户认为插件安装步骤过长\ntags: [插件, 用户访谈, 安装体验]\ncreated: 2026-07-14\n---\n\n5 位受访用户一致认为插件安装步骤太长，说明安装流程长度是一个明确且重复出现的体验问题。\n\n## 展开\n- 证据来源：5 位用户访谈。\n- 反馈共识：5 位用户都提到了安装步骤过长。\n- 后续可补充：访谈时间、用户类型、原始话术，以及一键安装上线后的复访结果。\n\n## 关联\n- [[一键安装脚本将安装命令从三条降为一条]]\n- [[安装要求与 eval 运行要求应分开说明]]\n- [[插件安装与 eval 运行知识索引]]\n```\n\n### `one-command-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将安装命令从三条降为一条\ntags: [插件, 安装脚本, 体验改进]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本已把插件安装流程从执行 3 条命令缩短为执行 1 条命令。\n\n## 展开\n这是针对“安装步骤太长”反馈所做的流程改进。目前只能确认命令数量已经减少，是否真正改善安装体验仍需通过使用数据或用户复访验证。\n\n## 关联\n- [[用户认为插件安装步骤过长]]\n- [[安装要求与 eval 运行要求应分开说明]]\n- [[插件安装与 eval 运行知识索引]]\n```\n\n### `eval-requires-python-not-pip.md`\n\n```markdown\n---\ntitle: eval 运行需要 Python 3 但不需要 pip\ntags: [eval, Python, 运行依赖]\ncreated: 2026-07-14\n---\n\neval 运行环境必须提供 Python 3，但不要求安装 pip。\n\n## 展开\n该要求仅适用于运行 eval，不应被描述为插件安装依赖。后续若依赖发生变化，应在此笔记中更新，并同步检查相关文档。\n\n## 关联\n- [[安装要求与 eval 运行要求应分开说明]]\n- [[插件安装与 eval 运行知识索引]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 安装要求与 eval 运行要求应分开说明\ntags: [插件, eval, 文档, 依赖说明]\ncreated: 2026-07-14\n---\n\n后续文档应分别设置“安装要求”和“运行 eval 要求”，避免用户混淆两个阶段的依赖。\n\n## 展开\n用户经常把插件安装依赖与 eval 运行依赖混为一谈。文档应明确区分：\n\n- 安装要求：只列出安装插件所需的条件和一键安装步骤。\n- 运行 eval 要求：明确说明需要 Python 3，但不需要 pip。\n\n维护文档时，应分别核对两个阶段的要求，避免把 eval 的 Python 3 依赖误写成插件安装依赖。\n\n## 关联\n- [[用户认为插件安装步骤过长]]\n- [[一键安装脚本将安装命令从三条降为一条]]\n- [[eval 运行需要 Python 3 但不需要 pip]]\n- [[插件安装与 eval 运行知识索引]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "expansion-sections",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 30994,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "answer": "建议采用扁平目录，包含 1 则索引笔记和 4 则原子笔记：\n\n### `plugin-and-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 使用索引\ntags: [插件, eval, 索引]\ncreated: 2026-07-14\n---\n\n插件安装体验、依赖要求与文档改进应分别维护，避免把不同问题混在同一则笔记中。\n\n## 主题笔记\n- [[插件安装步骤过长是共同用户痛点]]\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[eval 运行需要 Python 3 但不需要 pip]]\n- [[文档应区分插件安装要求与 eval 运行要求]]\n```\n\n### `plugin-installation-friction.md`\n\n```markdown\n---\ntitle: 插件安装步骤过长是共同用户痛点\ntags: [插件, 安装, 用户访谈, 用户体验]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明安装流程的复杂度是一个共同痛点。\n\n## 展开\n该反馈来自 5 位访谈用户，可作为简化安装流程和改进安装文档的依据。\n\n## 关联\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[文档应区分插件安装要求与 eval 运行要求]]\n- [[插件安装与 eval 使用索引]]\n```\n\n### `one-command-plugin-installation.md`\n\n```markdown\n---\ntitle: 一键安装脚本将安装缩减为一条命令\ntags: [插件, 安装, 自动化, 脚本]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本已将插件安装流程从 3 条命令缩减为 1 条命令。\n\n## 展开\n该脚本直接回应了用户对安装步骤过长的反馈。后续说明安装流程时，应以一键安装方式为准。\n\n## 关联\n- [[插件安装步骤过长是共同用户痛点]]\n- [[文档应区分插件安装要求与 eval 运行要求]]\n- [[插件安装与 eval 使用索引]]\n```\n\n### `eval-runtime-requirements.md`\n\n```markdown\n---\ntitle: eval 运行需要 Python 3 但不需要 pip\ntags: [eval, Python, 运行依赖, 环境要求]\ncreated: 2026-07-14\n---\n\n运行 eval 需要 Python 3，但不需要 pip。\n\n## 展开\n这是 eval 自身的运行要求，不应与插件安装所需条件混为一谈。\n\n## 关联\n- [[文档应区分插件安装要求与 eval 运行要求]]\n- [[插件安装与 eval 使用索引]]\n```\n\n### `separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 文档应区分插件安装要求与 eval 运行要求\ntags: [文档, 插件, eval, 依赖, 信息架构]\ncreated: 2026-07-14\n---\n\n后续文档应分别设置“安装要求”和“运行 eval 要求”，避免用户混淆两类依赖。\n\n## 展开\n用户经常把插件安装依赖与 eval 运行依赖混为一谈。文档应使用两个明确的小节：\n\n- 安装要求：只列插件安装流程及其前置条件。\n- 运行 eval 要求：明确需要 Python 3、不需要 pip。\n\n## 关联\n- [[插件安装步骤过长是共同用户痛点]]\n- [[一键安装脚本将安装缩减为一条命令]]\n- [[eval 运行需要 Python 3 但不需要 pip]]\n- [[插件安装与 eval 使用索引]]\n```"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "multiple-files",
+            "frontmatter-title",
+            "frontmatter-tags",
+            "frontmatter-created",
+            "expansion-sections",
+            "association-sections",
+            "backlinks",
+            "installation-runtime-separation"
+          ],
+          "observed_skills": [],
+          "duration_ms": 39561,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "answer": "```text\nknowledge-base/\n├── plugin-install-and-eval-index.md\n├── users-find-plugin-installation-too-long.md\n├── one-click-script-reduces-installation-to-one-command.md\n├── eval-requires-python3-but-not-pip.md\n├── users-confuse-install-and-eval-dependencies.md\n└── docs-should-separate-install-and-eval-requirements.md\n```\n\n### `plugin-install-and-eval-index.md`\n\n```markdown\n---\ntitle: 插件安装与 eval 运行要求索引\ntags: [插件, eval, 索引]\ncreated: 2026-07-14\n---\n\n本索引汇总插件安装体验、eval 依赖和相关文档改进事项，后续调查与变更应继续链接到这里。\n\n## 用户反馈\n- [[用户认为插件安装步骤过长]]\n- [[用户容易混淆插件安装依赖和 eval 运行依赖]]\n\n## 当前实现\n- [[一键安装脚本将安装流程缩短为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n\n## 后续行动\n- [[文档应分别说明安装要求和运行 eval 要求]]\n```\n\n### `users-find-plugin-installation-too-long.md`\n\n```markdown\n---\ntitle: 用户认为插件安装步骤过长\ntags: [插件, 安装体验, 用户访谈]\ncreated: 2026-07-14\n---\n\n5 位受访用户都认为插件安装步骤太长，说明安装流程的复杂度是一个一致出现的体验问题。\n\n## 展开\n- 样本量：5 位访谈用户。\n- 反馈结果：5 位用户均提到安装步骤过长。\n- 后续可补充：访谈日期、用户类型、原始记录链接，以及新脚本上线后的复访结果。\n\n## 关联\n- [[插件安装与 eval 运行要求索引]]\n- [[一键安装脚本将安装流程缩短为一条命令]]\n- [[用户容易混淆插件安装依赖和 eval 运行依赖]]\n```\n\n### `one-click-script-reduces-installation-to-one-command.md`\n\n```markdown\n---\ntitle: 一键安装脚本将安装流程缩短为一条命令\ntags: [插件, 安装体验, 改进]\ncreated: 2026-07-14\n---\n\n新的一键安装脚本已将插件安装流程从 3 条命令缩短为 1 条命令。\n\n## 展开\n这是针对安装步骤过长问题的直接改进。当前只能确认命令数量减少；是否改善安装成功率和用户感受，仍需通过后续数据或访谈验证。\n\n## 关联\n- [[插件安装与 eval 运行要求索引]]\n- [[用户认为插件安装步骤过长]]\n- [[文档应分别说明安装要求和运行 eval 要求]]\n```\n\n### `eval-requires-python3-but-not-pip.md`\n\n```markdown\n---\ntitle: 运行 eval 需要 Python 3 但不需要 pip\ntags: [eval, 运行依赖, Python]\ncreated: 2026-07-14\n---\n\n运行 eval 的环境要求是 Python 3；pip 不是运行 eval 的必要条件。\n\n## 展开\n文档和故障排查信息应明确区分“需要 Python 3”与“不需要 pip”，避免用户把安装工具误认为运行依赖。\n\n## 关联\n- [[插件安装与 eval 运行要求索引]]\n- [[用户容易混淆插件安装依赖和 eval 运行依赖]]\n- [[文档应分别说明安装要求和运行 eval 要求]]\n```\n\n### `users-confuse-install-and-eval-dependencies.md`\n\n```markdown\n---\ntitle: 用户容易混淆插件安装依赖和 eval 运行依赖\ntags: [插件, eval, 用户认知, 依赖]\ncreated: 2026-07-14\n---\n\n用户经常把插件安装依赖与 eval 运行依赖混为一谈，表明当前说明没有清晰呈现两个阶段的边界。\n\n## 展开\n需要持续区分两个问题：\n\n- 安装插件需要什么？\n- 运行 eval 需要什么？\n\n后续可补充具体误解案例、支持请求数量及文档改版后的变化。\n\n## 关联\n- [[插件安装与 eval 运行要求索引]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[文档应分别说明安装要求和运行 eval 要求]]\n```\n\n### `docs-should-separate-install-and-eval-requirements.md`\n\n```markdown\n---\ntitle: 文档应分别说明安装要求和运行 eval 要求\ntags: [文档, 插件, eval, 待办]\ncreated: 2026-07-14\n---\n\n后续文档应设置独立的“安装要求”和“运行 eval 要求”部分，避免用户混淆两个阶段的依赖。\n\n## 展开\n建议文档至少明确：\n\n### 安装要求\n- 使用一键安装脚本。\n- 安装只需执行 1 条命令。\n- 单独列出安装阶段实际需要的依赖。\n\n### 运行 eval 要求\n- 需要 Python 3。\n- 不需要 pip。\n\n后续可补充文档变更链接、负责人、发布日期及验证结果。\n\n## 关联\n- [[插件安装与 eval 运行要求索引]]\n- [[一键安装脚本将安装流程缩短为一条命令]]\n- [[运行 eval 需要 Python 3 但不需要 pip]]\n- [[用户容易混淆插件安装依赖和 eval 运行依赖]]\n```"
+        }
+      ]
+    }
+  ]
+}

@@ -23,6 +23,12 @@ SKILL_PATH = re.compile(
     r"(?:^|[\\/])skills[\\/](?P<skill>[a-z0-9-]+)[\\/]SKILL\.md(?:$|[\s'\"`])",
     re.IGNORECASE,
 )
+TOKEN_FIELDS = (
+    "input_tokens",
+    "cached_input_tokens",
+    "output_tokens",
+    "reasoning_output_tokens",
+)
 
 
 def score(answer: str, criteria: list[dict[str, Any]]) -> tuple[float, list[str]]:
@@ -61,10 +67,13 @@ def run_adapter(executable: str, arguments: list[str], condition: str, prompt: s
     return payload
 
 
-def parse_codex_events(events: str) -> tuple[list[str], int, int]:
+def parse_codex_events(
+    events: str,
+) -> tuple[list[str], int, int, dict[str, int] | None]:
     observed: set[str] = set()
     command_events = 0
     malformed = 0
+    usage: dict[str, int] | None = None
     for line in events.splitlines():
         try:
             event = json.loads(line)
@@ -76,7 +85,18 @@ def parse_codex_events(events: str) -> tuple[list[str], int, int]:
         if isinstance(command, str):
             command_events += 1
             observed.update(match.group("skill") for match in SKILL_PATH.finditer(command))
-    return sorted(observed), command_events, malformed
+        event_usage = event.get("usage") if isinstance(event, dict) else None
+        if (
+            isinstance(event, dict)
+            and event.get("type") == "turn.completed"
+            and isinstance(event_usage, dict)
+        ):
+            usage = {
+                field: value
+                for field in TOKEN_FIELDS
+                if isinstance((value := event_usage.get(field)), int)
+            }
+    return sorted(observed), command_events, malformed, usage
 
 
 def resolve_codex(explicit: str | None) -> str:
@@ -157,11 +177,12 @@ def run_codex(
         payload = json.loads(output.read_text(encoding="utf-8"))
         if not isinstance(payload.get("answer"), str):
             raise ValueError("Codex answer must be a string")
-        skills, command_events, malformed = parse_codex_events(completed.stdout)
+        skills, command_events, malformed, usage = parse_codex_events(completed.stdout)
         payload["observed_skills"] = skills
         payload["_host_event_lines"] = len(completed.stdout.splitlines())
         payload["_command_event_count"] = command_events
         payload["_malformed_event_count"] = malformed
+        payload["_usage"] = usage
         payload["_duration_ms"] = round((time.perf_counter() - started) * 1000)
         return payload
 
@@ -176,7 +197,17 @@ def evaluate_run(payload: dict[str, Any], criteria: list[dict[str, Any]]) -> dic
         "host_event_lines": payload.get("_host_event_lines"),
         "command_event_count": payload.get("_command_event_count"),
         "malformed_event_count": payload.get("_malformed_event_count"),
+        "usage": payload.get("_usage"),
         "answer": payload["answer"],
+    }
+
+
+def aggregate_usage(runs: list[dict[str, Any]]) -> dict[str, int] | None:
+    if any(run["usage"] is None for run in runs):
+        return None
+    return {
+        field: sum(run["usage"].get(field, 0) for run in runs)
+        for field in TOKEN_FIELDS
     }
 
 
@@ -214,12 +245,16 @@ def main(argv: list[str] | None = None) -> int:
         activation = case.get("activation", "native")
         skill_content: str | None = None
         skill_sha256: str | None = None
+        skill_content_chars: int | None = None
+        skill_content_bytes: int | None = None
         if activation == "injected":
             skill_file = Path(case["skill_file"])
             if not skill_file.is_absolute():
                 skill_file = args.cases.resolve().parent / skill_file
             skill_content = skill_file.read_text(encoding="utf-8")
             skill_sha256 = hashlib.sha256(skill_content.encode("utf-8")).hexdigest()
+            skill_content_chars = len(skill_content)
+            skill_content_bytes = len(skill_content.encode("utf-8"))
 
         def execute(condition: str) -> dict[str, Any]:
             prompt = case["prompt"]
@@ -261,6 +296,8 @@ def main(argv: list[str] | None = None) -> int:
                     "skill": case["skill"],
                     "activation": activation,
                     "skill_sha256": skill_sha256,
+                    "skill_content_chars": skill_content_chars,
+                    "skill_content_bytes": skill_content_bytes,
                     "attribution": "unverified",
                     "verdict": "execution_error",
                     "error": str(exc),
@@ -269,6 +306,16 @@ def main(argv: list[str] | None = None) -> int:
             continue
         baseline_score = statistics.median(run["score"] for run in baseline_runs)
         skill_score = statistics.median(run["score"] for run in skill_runs)
+        baseline_usage = aggregate_usage(baseline_runs)
+        skill_usage = aggregate_usage(skill_runs)
+        usage_delta = (
+            {
+                field: skill_usage[field] - baseline_usage[field]
+                for field in TOKEN_FIELDS
+            }
+            if baseline_usage is not None and skill_usage is not None
+            else None
+        )
         criterion_ids = [criterion["id"] for criterion in case["criteria"]]
         baseline_criterion_rates = {
             criterion_id: round(
@@ -325,11 +372,16 @@ def main(argv: list[str] | None = None) -> int:
                 "skill": case["skill"],
                 "activation": activation,
                 "skill_sha256": skill_sha256,
+                "skill_content_chars": skill_content_chars,
+                "skill_content_bytes": skill_content_bytes,
                 "baseline_score": baseline_score,
                 "skill_score": skill_score,
                 "delta": delta,
                 "direction": direction,
                 "minimum_delta": threshold,
+                "baseline_usage": baseline_usage,
+                "skill_usage": skill_usage,
+                "usage_delta": usage_delta,
                 "baseline_criterion_rates": baseline_criterion_rates,
                 "skill_criterion_rates": skill_criterion_rates,
                 "criterion_deltas": criterion_deltas,

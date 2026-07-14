@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-14T08:25:16.336052+00:00",
+  "claim": "paired native skill utility with host-event attribution",
+  "adapter": "codex-cli",
+  "evidence": "native-host-events",
+  "cases_file": "D:\\Gloamere\\Tessera\\experiments\\eval-lab\\cases.json",
+  "repeat": 3,
+  "model": "gpt-5.6-sol",
+  "summary": {
+    "total": 1,
+    "improvements": 0,
+    "regressions": 0,
+    "no_change": 1,
+    "unverified": 0,
+    "execution_errors": 0,
+    "raw_improvements": 0,
+    "raw_regressions": 0,
+    "raw_ties": 1
+  },
+  "cases": [
+    {
+      "id": "taste-landing-page-review",
+      "plugin": "taste@tessera",
+      "skill": "taste",
+      "activation": "injected",
+      "skill_sha256": "035bd3dbfe6031b968026dda0227fc116e488b30c3a17bb298831c7b478b2aa2",
+      "baseline_score": 1.0,
+      "skill_score": 1.0,
+      "delta": 0.0,
+      "direction": "tie",
+      "minimum_delta": 0.2,
+      "baseline_criterion_rates": {
+        "hierarchy": 1.0,
+        "spacing": 1.0,
+        "color": 1.0,
+        "typography": 1.0,
+        "consistency": 1.0,
+        "details": 1.0,
+        "dimension-scores": 1.0,
+        "prioritized-actions": 1.0,
+        "decisive-conclusion": 1.0
+      },
+      "skill_criterion_rates": {
+        "hierarchy": 1.0,
+        "spacing": 1.0,
+        "color": 1.0,
+        "typography": 1.0,
+        "consistency": 1.0,
+        "details": 1.0,
+        "dimension-scores": 1.0,
+        "prioritized-actions": 1.0,
+        "decisive-conclusion": 1.0
+      },
+      "criterion_deltas": {
+        "hierarchy": 0.0,
+        "spacing": 0.0,
+        "color": 0.0,
+        "typography": 0.0,
+        "consistency": 0.0,
+        "details": 0.0,
+        "dimension-scores": 0.0,
+        "prioritized-actions": 0.0,
+        "decisive-conclusion": 0.0
+      },
+      "gained_criteria": [],
+      "lost_criteria": [],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "hierarchy",
+            "spacing",
+            "color",
+            "typography",
+            "consistency",
+            "details",
+            "dimension-scores",
+            "prioritized-actions",
+            "decisive-conclusion"
+          ],
+          "observed_skills": [],
+          "duration_ms": 45856,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "answer": "结论：值得重做首屏表达。目前最大问题不是“不够漂亮”，而是所有常见 AI 落地页套路叠在了一起：紫蓝渐变、大圆角、重阴影、emoji，以及 “Unleash / Seamless / Elevate / revolutionary AI-powered” 式空泛文案。它看起来像模板示例，无法说明产品是谁、解决什么问题、凭什么可信。\n\n| 维度 | 评分 | 诊断 | 可执行改法 |\n|---|---:|---|---|\n| 视觉层级 | 1/5 | `h1`、正文和按钮全是 `16px`，标题没有统领作用，阅读顺序不成立。 | 标题改为桌面端约 `48–64px`、正文 `18–20px`、按钮 `15–16px`；标题控制在两行内，正文最大宽度约 `560px`。 |\n| 留白与布局 | 2/5 | `margin: 80px auto` 和统一 `48px` 内边距只是把内容放大居中，没有形成节奏；首屏也缺少产品证据区。 | 使用明确的内容容器宽度（约 `1120–1200px`）；文案块左对齐或采用不对称双栏，右侧放真实产品界面；标题、正文、CTA 间距建议依次约 `24px / 32px`。 |\n| 配色 | 2/5 | 全屏紫蓝渐变既抢注意力，又与蓝色 CTA 混在一起，主行动不突出。 | 改用偏中性的浅色或深色底，只保留一个品牌强调色；CTA 与背景建立明显明度差。渐变若保留，应缩小到局部光晕或产品截图背景。 |\n| 字体 | 1/5 | Arial 加全元素同字号，使页面接近未设计状态，也缺少 SaaS 所需的专业感。 | 选一套辨识度适中的无衬线字体，建立至少标题、正文、辅助文字三级；标题字重约 `600–700`，正文行高约 `1.5–1.65`。 |\n| 一致性 | 2/5 | `32px` 卡片圆角、`16px` 按钮圆角和强阴影都很重，但页面没有足够组件支撑这套视觉语言。 | 收敛为一套规则，例如容器圆角 `16–20px`、按钮 `8–12px`；阴影更浅、更短，或用细边框代替。 |\n| 细节与可信度 | 1/5 | 没有导航、客户证明、产品画面、次级入口，也没有按钮的 focus/hover 反馈；`outline: none` 会损害键盘可访问性。 | 在 CTA 附近增加低噪声信任信息，如客户 Logo、量化成果或“无需信用卡”；补充明确可见的键盘焦点、hover 和 active 状态。 |\n\n优先级最高的三项：\n\n1. 重写信息主张。删除 emoji 和所有抽象词，改成“目标用户 + 具体任务 + 可验证收益”。例如：`Turn customer calls into searchable product insights`，正文再解释处理对象、速度或节省的时间。按钮也应更具体，如 `Analyze your first call` 或 `View live demo`。\n\n2. 建立真正的首屏层级。标题必须成为第一视觉焦点，正文负责解释，主 CTA 负责转化；加入真实产品截图或工作流演示，避免只剩一个悬浮玻璃卡片。若产品偏企业级，左文右图通常比全居中更可信。\n\n3. 去掉“默认 AI 皮肤”。取消全屏紫蓝渐变、emoji、大圆角和厚重阴影的组合；选择一个更贴合产品性格的方向，例如编辑工具式克制、数据产品式精确，或协作产品式温暖。只保留一项有辨识度的视觉决定，而不是同时堆叠流行效果。\n\n最终目标应是：用户在五秒内能说出“这是给谁的、它具体做什么、下一步点哪里”，并且能看到至少一项真实证据。"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "hierarchy",
+            "spacing",
+            "color",
+            "typography",
+            "consistency",
+            "details",
+            "dimension-scores",
+            "prioritized-actions",
+            "decisive-conclusion"
+          ],
+          "observed_skills": [],
+          "duration_ms": 73952,
+          "host_event_lines": 11,
+          "command_event_count": 6,
+          "malformed_event_count": 0,
+          "answer": "结论：值得重做。当前页面“紫蓝渐变 + 超大圆角 + 重阴影 + emoji + 空泛 AI 文案”的组合，模板化 AI 味非常强。它传达的是泛化的“科技、创新”，却没有表达产品到底是什么、为谁服务、为什么可信。\n\n| 维度 | 评分 | 诊断 | 可执行改法 |\n|---|---:|---|---|\n| 视觉层级 | 1/5 | 标题、正文、按钮全部是 16px，三者几乎同权，第一眼没有明确落点。 | 桌面端标题提高到约 48–64px，正文 18–20px，按钮 15–16px；标题行高压到 1.05–1.15，并限制标题与正文宽度。 |\n| 留白 | 3/5 | 空间不少，但 80px 外边距和 48px 内边距只是机械居中，没有形成节奏。 | 用垂直间距建立关系：标题到正文约 20–24px，正文到 CTA 约 28–32px；不要让所有内容等距悬浮。 |\n| 配色 | 2/5 | 全屏紫蓝渐变是典型 AI/SaaS 默认方案；蓝色按钮落在蓝色背景上，主行动不够突出。 | 改成中性底色配一个品牌强调色；若保留渐变，只作为局部光晕或产品截图背景。CTA 使用与背景有明确明度差的实色。 |\n| 字体 | 1/5 | Arial、全居中、全 16px，使页面像未完成的占位稿。 | 选择更有性格但克制的无衬线字体；标题可稍紧字距，正文保持 1.5 左右行高。正文和按钮不必继承标题的视觉规则。 |\n| 一致性 | 3/5 | 32px 卡片圆角、16px 按钮圆角和强阴影形式上统一，但整体过度“软糖化”。 | 卡片圆角收至约 16–20px，按钮约 8–12px；减轻阴影，使用细边框或轻微色差定义表面。 |\n| 细节与状态 | 1/5 | 移除了焦点轮廓，又没有 hover、focus-visible、active 状态；卡片也没有明确底色。 | 恢复清晰的键盘焦点环，补齐交互状态，并检查文本、按钮与背景的对比度。 |\n\n整体气质偏“2022 年通用 AI 创业模板”：兴奋、浮夸、缺少可信度。尤其是 “✨”“Unleash”“Seamless”“Innovation”“Elevate”“revolutionary AI-powered” 集中了太多无信息量词汇。访客看完仍不知道它解决什么问题。\n\n优先级最高的三项改动：\n\n1. 重建信息层级与文案。去掉 emoji 和抽象口号，标题直接写“产品类别 + 核心结果”，正文补充目标用户、使用场景或可量化收益。例如标题应接近“Turn support conversations into resolved tickets automatically”，CTA 也改成具体动作，如“Start a 14-day trial”或“See the product demo”。\n\n2. 放弃全屏紫蓝渐变卡片套路。采用偏白、暖灰或深墨色背景，只保留一个有辨识度的品牌色；把视觉焦点交给产品截图、工作流示意或真实数据，而不是装饰性渐变。\n\n3. 打破完全对称的单卡布局。可改为左侧文案、右侧产品界面，或让内容略微偏离中心轴；加入一项可信证据，如客户 logo、具体指标、用户引语或安全认证。非对称构图和真实产品证据会显著降低模板感。\n\n如果暂时只能微调现有结构，至少先处理字号层级、CTA 对比度、空泛文案和焦点状态；这四项会带来最明显的提升。"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "hierarchy",
+            "spacing",
+            "color",
+            "typography",
+            "consistency",
+            "details",
+            "dimension-scores",
+            "prioritized-actions",
+            "decisive-conclusion"
+          ],
+          "observed_skills": [],
+          "duration_ms": 41441,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "answer": "结论：值得重做首屏。现在几乎集齐了典型的“AI SaaS 模板”特征：紫蓝渐变、超大圆角、重阴影、Emoji、居中排版，以及 `Unleash / Seamless / Innovation / Elevate / revolutionary AI-powered` 这组空泛文案。它表达了“科技产品”，但没有表达产品是谁、解决什么问题、凭什么可信。\n\n| 维度 | 评分 | 诊断 | 可执行改法 |\n|---|---:|---|---|\n| 视觉层级 | 1/5 | 标题、正文、按钮全部是 `16px`，三者视觉权重几乎相同。 | 标题提升至 48–64px、正文 18–20px、按钮 15–16px；标题控制在两行内，正文宽度限制在约 560px。 |\n| 留白 | 3/5 | 空间充足，但 `80px margin + 48px padding` 是机械地放大，没有形成内容节奏。 | 首屏改为垂直居中；标题—正文约 20–24px，正文—CTA 约 32px。内容容器宽度控制在 720–880px。 |\n| 配色 | 1/5 | 紫蓝渐变与蓝色按钮过于默认，CTA 还会融进背景。 | 先根据品牌选择一个主色。若保留深色背景，CTA 攔用高对比的白色或暖色；渐变仅作为局部光晕，不铺满整个首屏。 |\n| 字体 | 1/5 | Arial 加统一字号没有品牌感，也缺少阅读层级。 | 换成更有结构的现代无衬线字体，并建立明确字阶；标题用 600–700 字重、紧凑行高，正文用 400、1.5–1.6 行高。 |\n| 一致性 | 2/5 | 32px 卡片、16px 按钮圆角和重阴影像来自不同强度的设计语言；卡片没有背景，圆角实际上不可见。 | 建立 8px 间距体系；容器圆角降至 16–20px，按钮降至 8–12px；阴影减弱，或直接移除卡片造型。 |\n| 细节 | 1/5 | 移除了焦点轮廓，却没有替代状态；也没有 hover、active 或可信度信息。 | 恢复清晰的 `focus-visible`；补齐 hover/active 状态；CTA 下增加“无需信用卡”等低风险说明，前提是事实成立。 |\n\n整体气质的问题不是“不够漂亮”，而是没有立场：它既可能是项目管理工具，也可能是写作助手或数据平台。Emoji 又进一步把气质推向轻量、廉价和生成式模板感；如果目标是专业 B2B 产品，建议移除。\n\n优先级最高的三项改动：\n\n1. 重写信息，而不是润色形容词。标题直接说清“为谁解决什么问题”，例如“Turn customer calls into searchable product insights”；副标题补充输入、输出和结果。CTA 也从泛化的 `Get Started` 改成具体动作，如 `Analyze your first call` 或 `Start a free workspace`。\n\n2. 重新建立层级。让标题成为唯一主角，正文负责解释，CTA 负责行动；不要三者同字号。将内容从“孤零零的居中卡片”改成左对齐的信息区，并加入一张真实产品界面、工作流示意或结果样例，形成不对称构图。\n\n3. 去掉模板三件套。移除 Emoji 和重阴影；把全屏紫蓝渐变收敛为中性色背景加一个品牌强调色；统一圆角尺度。首屏最好再加入客户标识、具体指标或简短案例，为“AI-powered”提供可信证据。\n\n如果暂时没有明确品牌方向，最稳妥的基调是：克制的浅色或深灰背景、单一强调色、左对齐排版、真实产品截图、结果导向文案。它未必最炫，但会比当前版本更专业、更可信，也更不像套壳模板。"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "hierarchy",
+            "spacing",
+            "color",
+            "typography",
+            "consistency",
+            "details",
+            "dimension-scores",
+            "prioritized-actions",
+            "decisive-conclusion"
+          ],
+          "observed_skills": [],
+          "duration_ms": 25868,
+          "host_event_lines": 4,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "answer": "结论：值得重做首屏，而不是只微调。当前页面缺乮信息焦点与产品证据，视觉语言几乎完整命中“紫蓝渐变 + 超大圆角 + emoji + 空泛 AI 文案”的模板组合，更像通用生成稿，无法让目标客户理解产品、建立信任或感受到独特气质。由于没有明确受众，建议先按“重视效率与可信度的 B2B SaaS 决策者”来收敛设计。\n\n| 维度 | 评分 | 诊断 | 可执行改法 |\n|---|---:|---|---|\n| 层级 | 1/5 | `h1`、正文和按钮都是 16px，标题没有主导视线，三个元素几乎同权重。 | 建立明确字号阶梯：标题 48–64px、正文 18–20px、按钮 15–16px；标题限制在约 12–16 个英文单词，正文宽度控制在 560px 左右。 |\n| 留白 | 2/5 | 48px 内边距和 80px 外边距数值很大，但只是平均摊开，没有形成标题—解释—行动之间的节奏。 | 使用分组间距：标题到正文 20–24px、正文到 CTA 32–40px；首屏内容垂直居中，并把移动端水平边距降到 20px。 |\n| 配色 | 1/5 | 紫蓝满屏渐变叠加蓝色按钮，既模板化，又让 CTA 缺乏对比和品牌辨识度。 | 改用偏暖白或深中性色作为主背景，只保留一个品牌强调色；CTA 使用该强调色，并确保文字对比度至少达到 4.5:1。 |\n| 字体 | 1/5 | Arial、全局居中和单一字号让页面像未完成的线框稿，阅读与品牌表达都很弱。 | 采用一套有性格但克制的无衬线字体；桌面端改为左对齐，正文行高设为 1.5–1.65，标题行高约 1.05–1.15。 |\n| 一致性 | 2/5 | 32px 卡片圆角与 16px 按钮圆角缺少可解释的比例，阴影也与无背景的 `.card` 关系含混。 | 建立 token：如 8/12px 圆角、8px 间距基准、两档阴影；如果卡片没有独立底色，就移除圆角和阴影。 |\n| 细节 | 1/5 | CTA 去掉了焦点轮廓，且没有 hover、focus、加载或错误反馈；页面也没有信任与产品证据。 | 恢复清晰的 `:focus-visible`，补充 hover/active 状态；在 CTA 附近加入试用条件，并在首屏露出真实产品界面或客户证据。 |\n\n整体气质：现在偏“高声量、低可信度”。emoji 和 “Unleash / Seamless / Elevate / revolutionary AI-powered” 都在宣称先进，却没有说明产品服务谁、解决什么问题、为什么可信。建议转向克制、具体、产品导向的气质。比如把标题改成结果陈述：“Turn support tickets into reviewed replies in minutes”，正文补充使用对象、工作方式和可量化收益。实际文案应依据真实产品能力填写，避免虚构数字。\n\nTop 3 改动：\n\n1. 重写信息主张：删除 emoji 和所有空泛创新词，用“目标用户 + 具体任务 + 可验证结果”组成标题与副标题。\n2. 重建首屏层级：改为左对齐的 60/20/16px 字号体系，并采用非对称布局——左侧文案，右侧真实产品截图或工作流演示。\n3. 去除模板化装饰：取消满屏紫蓝渐变、32px 大圆角和重阴影，换成中性背景、单一品牌强调色与更克制的 8–12px 圆角；同时补齐 CTA 焦点态、产品证据及试用说明。"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "hierarchy",
+            "spacing",
+            "color",
+            "typography",
+            "consistency",
+            "details",
+            "dimension-scores",
+            "prioritized-actions",
+            "decisive-conclusion"
+          ],
+          "observed_skills": [],
+          "duration_ms": 60016,
+          "host_event_lines": 5,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "answer": "## 结论\n\n值得大改。当前页面没有建立清晰的产品身份：紫蓝渐变、超大圆角、emoji、居中排版与 “Unleash / Seamless / Elevate” 文案叠加后，呈现出明显的生成式模板感。它传递的是泛化的“AI 科技”，而不是某个 SaaS 的具体价值与可信气质。\n\n| 维度 | 评分 | 诊断 | 可执行改法 |\n|---|---:|---|---|\n| 层级 | 1/5 | 标题、正文和按钮都是 `16px`，三个元素视觉同权，首屏没有明确焦点。 | 将标题设为约 `48–64px`、正文 `18–20px`、按钮 `16px`；限制正文宽度，并用更紧的标题间距、更宽松的段落间距建立阅读顺序。 |\n| 留白 | 3/5 | 空间充足，但 `80px` 外边距和 `48px` 内边距只是均匀放大，没有形成节奏；卡片也缺少内容宽度约束。 | 首屏改用垂直居中或明确的上下比例；内容区限制在约 `640–760px`，标题、正文、CTA 分别使用递增间距，而非统一堆叠。 |\n| 配色 | 2/5 | 紫蓝满屏渐变加蓝色按钮是最常见的 AI SaaS 配方；按钮还会融入背景，主行动不够突出。 | 根据产品属性选一个有辨识度的主色，背景改为低饱和纯色或近中性色；CTA 使用与背景形成明确明度或色相反差的单一强调色。 |\n| 字体 | 1/5 | Arial、全局居中和单一字号使页面既缺乏品牌性，也没有信息阶梯。 | 使用一套更有性格但易读的字体组合；标题采用更紧字距和较粗字重，正文提高行高；桌面端考虑左对齐，避免所有内容机械居中。 |\n| 一致性 | 3/5 | 32px 卡片圆角与 16px 按钮圆角虽有倍数关系，但缺乏明确 token；卡片没有独立背景，形态意义模糊。 | 建立如 `8/12/16px` 的圆角体系和 `8px` 基础间距体系；要么给卡片明确表面层，要么移除卡片造型，让内容直接进入版式。 |\n| 细节 | 1/5 | CTA 移除了焦点轮廓，也没有 hover、focus、加载、错误或可信度信息；只有理想态。 | 恢复清晰的 `:focus-visible`，补充 hover/active 状态并检查对比度；增加产品截图、客户标识或具体成果，避免首屏只剩口号。 |\n\n## 优先级最高的 3 项改动\n\n1. **重写信息与文案**：去掉 emoji 和 “Unleash / Seamless / Elevate / revolutionary” 等空洞词，改成“为谁解决什么问题、带来什么可量化结果”。例如标题讲结果，副标题解释工作方式，CTA 写具体动作，如 “Create your first workflow”。\n\n2. **重建视觉层级**：让标题成为唯一主焦点，并拉开标题、正文、CTA 的字号、字重和间距差异。桌面首屏可采用非对称布局：左侧价值主张，右侧真实产品界面或工作流示意，而不是单张居中大卡片。\n\n3. **拆掉模板化视觉组合**：不要同时使用紫蓝渐变、超大圆角、重阴影与 emoji。建议保留最多一个强烈特征，其余回归克制；优先采用中性背景、清晰的产品截图和一个品牌强调色，同时补齐按钮交互与键盘焦点状态。"
+        },
+        {
+          "score": 1.0,
+          "passed_criteria": [
+            "hierarchy",
+            "spacing",
+            "color",
+            "typography",
+            "consistency",
+            "details",
+            "dimension-scores",
+            "prioritized-actions",
+            "decisive-conclusion"
+          ],
+          "observed_skills": [],
+          "duration_ms": 32116,
+          "host_event_lines": 4,
+          "command_event_count": 0,
+          "malformed_event_count": 0,
+          "answer": "结论：值得重做。当前页面不是“缺一点精致”，而是缺少可信的产品信息和明确的视觉主次。紫蓝渐变、大圆角、emoji、居中卡片，再叠加 “Unleash / Seamless / Elevate / revolutionary” 文案，几乎集齐了生成式 SaaS 模板特征。对潜在企业客户而言，它传递的是“泛 AI 工具”，而不是“可靠、有明确用途的产品”。\n\n假设目标受众是正在比较效率工具的团队负责人，页面更适合呈现克制、专业、具体的气质。\n\n| 维度 | 评分 | 诊断 | 可执行改法 |\n|---|---:|---|---|\n| 层级 | 1/5 | `h1`、正文和按钮全部为 16px，三个元素视觉同权，没有首屏焦点。 | 将标题提高到 48–64px、正文设为 18–20px，并限制正文宽度；CTA 保持 16px，通过字重、底色和间距突出。 |\n| 留白 | 3/5 | 空间不少，但 `80px` 外边距与 `48px` 内边距只是均匀放大，缺少疏密节奏。 | 用 `min-height` 配合垂直居中；标题到正文约 20–24px，正文到 CTA 约 32–40px，并把内容向左或略偏离中心轴，形成刻意的不对称。 |\n| 配色 | 1/5 | 紫蓝全屏渐变加蓝色按钮，是最典型的 AI SaaS 默认配色；CTA 还会融入背景。 | 改为中性浅色或深色底，只保留一个与品牌相关的强调色；CTA 使用与背景有明确明度差的实色，并校验文字对比度。 |\n| 字体 | 1/5 | Arial、单字号、全部居中，使标题既没有品牌气质，也没有阅读层次。 | 建立至少三级字号与对应行高；正文左对齐，标题控制在约 8–12 个英文词一行，并选择更有识别度但克制的字体组合。 |\n| 一致性 | 2/5 | 32px 卡片圆角、16px 按钮圆角和巨大阴影像随手拼接，没有可辨认的设计规则。 | 建立简单 token：如 8px 间距基准、12px 控件圆角、16px 容器圆角；删除或显著收敛阴影，避免所有东西都“软、圆、浮”。 |\n| 细节 | 1/5 | `outline: none` 移除了键盘焦点，且没有 hover、focus、加载或错误反馈；页面也缺少产品证明。 | 添加清晰的 `:focus-visible`、hover 和 active 状态；补充产品截图、客户标识或具体结果指标，并说明 CTA 点击后的预期动作。 |\n\n优先级最高的 3 个改动：\n\n1. 重写信息：删掉 emoji 和所有空洞动词，直接写清“为谁解决什么问题”。例如：`Turn customer calls into searchable product insights.`；副标题补充对象、机制和结果。\n2. 重建层级：拉开标题、正文、CTA 的字号与间距，改成偏左对齐，并在另一侧放真实产品界面或证据，而不是继续装饰背景。\n3. 去掉模板套装：取消紫蓝渐变、32px 大圆角和重阴影，采用中性色基底、单一品牌强调色及更硬朗克制的组件规则。\n\n不要只换一个渐变或字体；如果文案仍然抽象、内容仍然只有居中三件套，AI 模板感依旧会非常强。"
+        }
+      ]
+    }
+  ]
+}

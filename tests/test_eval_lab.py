@@ -177,6 +177,17 @@ class EvalLabIntegrationTests(unittest.TestCase):
             self.assertEqual(report["cases"][0]["verdict"], "improvement")
             self.assertEqual(report["cases"][0]["attribution"], "verified")
             self.assertEqual(report["cases"][0]["skill_runs"][0]["command_event_count"], 1)
+            self.assertEqual(
+                report["cases"][0]["baseline_usage"],
+                {
+                    "input_tokens": 100,
+                    "cached_input_tokens": 40,
+                    "output_tokens": 10,
+                    "reasoning_output_tokens": 2,
+                },
+            )
+            self.assertEqual(report["cases"][0]["skill_usage"]["input_tokens"], 120)
+            self.assertEqual(report["cases"][0]["usage_delta"]["input_tokens"], 20)
 
     def test_controlled_injection_attributes_delta_to_exact_skill_content(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -202,6 +213,11 @@ class EvalLabIntegrationTests(unittest.TestCase):
             self.assertEqual(case["verdict"], "improvement")
             self.assertEqual(case["attribution"], "verified-injection")
             self.assertEqual(len(case["skill_sha256"]), 64)
+            self.assertEqual(case["skill_content_chars"], len("SIX_DIMENSION_CONTRACT"))
+            self.assertEqual(
+                case["skill_content_bytes"],
+                len("SIX_DIMENSION_CONTRACT".encode("utf-8")),
+            )
             self.assertEqual(case["baseline_runs"][0]["observed_skills"], [])
             self.assertEqual(case["skill_runs"][0]["observed_skills"], [])
 

@@ -37,3 +37,16 @@ if enabled:
 else:
     answer = "层级需要改进。"
 output.write_text(json.dumps({"answer": answer}, ensure_ascii=False), encoding="utf-8")
+print(
+    json.dumps(
+        {
+            "type": "turn.completed",
+            "usage": {
+                "input_tokens": 120 if enabled else 100,
+                "cached_input_tokens": 40,
+                "output_tokens": 12 if enabled else 10,
+                "reasoning_output_tokens": 2,
+            },
+        }
+    )
+)

@@ -11,6 +11,7 @@ Eval Lab 用成对运行比较“宿主原生回答”和“应用指定 Skill �
 - `activation: native` 通过每次调用的插件开关形成对照；只有宿主事件证明 baseline 未加载而 skill 条件已加载目标 Skill 时才标记为可归因。
 - 评分标准和 `minimum_delta` 在运行前写入案例。`direction` 表示原始方向，`verdict` 只有在达到预设阈值后才判为 improvement 或 regression。
 - 报告同时保存逐标准通过率、`gained_criteria` 和 `lost_criteria`，避免净分掩盖局部退化。
+- 真实 Codex 运行汇总每个条件的 input、cached input、output 和 reasoning tokens，并记录注入 Skill 的字符数与 UTF-8 字节数。总 token 差会受回答路径影响，不能单独视为静态提示开销。
 - 超时、配额和宿主失败记为 `execution_error`，不会被误判为质量退化。
 
 ## 运行
@@ -39,4 +40,4 @@ python experiments/eval-lab/run_eval_lab.py `
 
 ## 证据边界
 
-初次真实运行及解释见 [evidence/2026-07-14-initial.md](evidence/2026-07-14-initial.md)。它证明评测器能暴露同一次 Skill 运行中的具体增益和退化，但没有证明当前 Skill 达到进入 core 的净增益门槛。
+初次真实运行及解释见 [evidence/2026-07-14-initial.md](evidence/2026-07-14-initial.md)，两轮 R3 准入复跑见 [evidence/2026-07-14-admission-r3.md](evidence/2026-07-14-admission-r3.md)。评测器已经复现真实退化，但准入评审仍决定不将它并入 core；原因不只是分数，还包括自包含发布边界和运行成本。
