@@ -31,9 +31,9 @@ python experiments/eval-lab/run_eval_lab.py `
 ```powershell
 python experiments/eval-lab/run_eval_lab.py `
   --cases experiments/eval-lab/cases.json `
-  --case planner-steam-festival `
+  --case knowledge-base-incident-learning `
   --repeat 3 `
-  --output eval-results/planner.json
+  --output eval-results/knowledge-base-incident.json
 ```
 
 `response.schema.json` 限制宿主结构化输出；`cases.json` 是当前案例和预注册阈值的事实来源。受控适配器示例由 `tests/test_eval_lab.py` 覆盖。

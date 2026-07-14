@@ -6,36 +6,92 @@
     "activation": "injected",
     "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
     "minimum_delta": 0.2,
-    "prompt": "请评审下面这个 SaaS 落地页的视觉层级、整体气质和模板化 AI 味。给出具体可执行的改进建议，但不要修改代码，也不要说明你使用了什么 Skill。\n\n```html\n<main class=\"hero\">\n  <section class=\"card\">\n    <h1>✨ Unleash Seamless Innovation</h1>\n    <p>Elevate your workflow with our revolutionary AI-powered platform.</p>\n    <a class=\"cta\" href=\"/start\">Get Started</a>\n  </section>\n</main>\n```\n\n```css\nbody { margin: 0; font-family: Arial, sans-serif; text-align: center; }\n.hero { min-height: 100vh; padding: 24px; background: linear-gradient(135deg, #7c3aed, #2563eb); }\n.card { margin: 80px auto; padding: 48px; color: #fff; border-radius: 32px; box-shadow: 0 24px 80px rgba(0,0,0,.25); }\nh1, p, .cta { font-size: 16px; }\n.cta { display: inline-block; margin-top: 16px; padding: 16px 24px; color: white; background: #3b82f6; border-radius: 16px; outline: none; }\n```",
+    "prompt": "请评审下面这个 SaaS 落地页的视觉质量和整体气质，给出可执行改进，但不要修改代码，也不要说明使用了什么 Skill。\n\n```html\n<main class=\"hero\"><section class=\"card\"><h1>✨ Unleash Seamless Innovation</h1><p>Elevate your workflow with our revolutionary AI-powered platform.</p><a class=\"cta\">Get Started</a></section></main>\n```\n```css\nbody { font-family: Arial; text-align:center } .hero { min-height:100vh; padding:24px; background:linear-gradient(135deg,#7c3aed,#2563eb) } .card { margin:80px auto; padding:48px; color:#fff; border-radius:32px; box-shadow:0 24px 80px #0004 } h1,p,.cta { font-size:16px } .cta { padding:16px 24px; background:#3b82f6; border-radius:16px }\n```",
     "criteria": [
-      {"id": "hierarchy", "any": ["层级", "主次", "视觉重量"]},
-      {"id": "spacing", "any": ["留白", "间距", "呼吸"]},
-      {"id": "color", "any": ["配色", "颜色", "渐变"]},
-      {"id": "typography", "any": ["字体", "字号", "行高"]},
-      {"id": "consistency", "any": ["一致性", "圆角", "token"]},
-      {"id": "details", "any": ["细节", "状态", "hover", "focus", "空态", "错误态"]},
+      {"id": "context", "any": ["受众", "用户", "气质", "定位"]},
+      {"id": "six-dimensions", "all": ["层级", "留白", "配色", "字体", "一致性", "细节"]},
       {"id": "dimension-scores", "regex": "[1-5]/5", "min_matches": 6},
+      {"id": "template-diagnosis", "all": ["渐变", "圆角", "Unleash"]},
+      {"id": "states", "any": ["hover", "focus", "空态", "错误态", "加载态"]},
       {"id": "prioritized-actions", "any": ["Top 3", "top 3", "前三", "优先级"]},
-      {"id": "decisive-conclusion", "any": ["值得改", "不值得改", "结论"]}
+      {"id": "decisive-conclusion", "any": ["值得改", "不值得改", "结论"]},
+      {"id": "specific-css", "any": ["font-size", "line-height", "max-width", "box-shadow", "border-radius"]}
     ]
   },
   {
-    "id": "planner-steam-festival",
-    "plugin": "planner@tessera",
-    "skill": "planner",
+    "id": "taste-operations-dashboard",
+    "plugin": "taste@tessera",
+    "skill": "taste",
     "activation": "injected",
-    "skill_file": "../../pieces/planner/skills/planner/SKILL.md",
+    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
     "minimum_delta": 0.2,
-    "prompt": "我们要为一款独立解谜游戏设计两周的 Steam 新品节活动。预算 2 万元，团队只有 2 人，当前 demo 可玩 20 分钟，首要目标是增加愿望单。请给负责人一份可用于决定下一步的方案；不要搜索，也不要写代码。",
+    "prompt": "评审一个内部运营仪表盘：顶部有 12 个同尺寸 KPI 卡片，全部使用高饱和红黄绿；左侧导航宽 320px；表格有 18 列且每行都有 6 个彩色按钮；所有文字均为 14px，卡片间距 8px。使用者需要在值班时迅速发现异常。请给出审美与信息呈现改进，不写代码。",
     "criteria": [
-      {"id": "audience", "any": ["受众", "玩家", "目标人群"]},
-      {"id": "success-metrics", "any": ["成功指标", "愿望单增长", "转化率", "新增愿望单"]},
-      {"id": "multiple-directions", "regex": "方向\\s*[A-C一二三123]", "min_matches": 2},
-      {"id": "tradeoffs", "any": ["取舍", "代价", "优点", "缺点"]},
-      {"id": "decision-request", "any": ["拍板", "请选择", "你更倾向", "确认方向"]},
-      {"id": "risks", "any": ["风险", "未定项"]},
-      {"id": "constraints", "all": ["2 万", "2 人", "20 分钟"]},
-      {"id": "implementation-boundary", "any": ["落地拆解", "执行方", "确认后"]}
+      {"id": "operator-context", "all": ["值班", "异常"]},
+      {"id": "hierarchy", "any": ["层级", "主次", "视觉重量"]},
+      {"id": "density", "any": ["密度", "留白", "间距", "拥挤"]},
+      {"id": "semantic-color", "all": ["颜色", "异常"]},
+      {"id": "table-strategy", "any": ["列", "折叠", "固定", "详情", "渐进"]},
+      {"id": "six-scores", "regex": "[1-5]/5", "min_matches": 6},
+      {"id": "priorities", "any": ["Top 3", "top 3", "前三", "优先级"]},
+      {"id": "conclusion", "any": ["值得改", "不值得改", "结论"]}
+    ]
+  },
+  {
+    "id": "taste-ai-marketing-copy",
+    "plugin": "taste@tessera",
+    "skill": "taste",
+    "activation": "injected",
+    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "评审这组面向独立开发者的首页文案，目标是可信、克制、有技术判断：标题“Elevate Your Workflow with Seamless AI Innovation”，副标题“Unleash limitless productivity with our revolutionary platform”，按钮“Get Started”。指出问题并给出可直接替换的版本，不讨论页面代码。",
+    "criteria": [
+      {"id": "audience", "any": ["独立开发者", "开发者"]},
+      {"id": "tone", "all": ["可信", "克制"]},
+      {"id": "empty-language", "any": ["空洞", "套话", "AI 味", "营销腔"]},
+      {"id": "diagnoses-source-phrases", "all": ["Elevate", "Seamless", "Unleash"]},
+      {"id": "replacement-title", "any": ["替换版", "标题：", "标题:"]},
+      {"id": "replacement-subtitle", "any": ["副标题：", "副标题:"]},
+      {"id": "replacement-cta", "any": ["按钮：", "按钮:", "CTA"]},
+      {"id": "decision", "any": ["值得改", "结论", "必须改"]}
+    ]
+  },
+  {
+    "id": "taste-mobile-onboarding",
+    "plugin": "taste@tessera",
+    "skill": "taste",
+    "activation": "injected",
+    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "评审一套手机记账应用的新手引导：连续 7 屏，每屏居中插画、标题、两行说明和“下一步”；进度只显示“1/7”；主按钮和跳过按钮都用蓝色实心样式；权限申请、首次同步、同步失败没有单独状态。目标用户是不熟悉财务软件的普通人。请给出优先改进建议，不制作图片。",
+    "criteria": [
+      {"id": "user-context", "any": ["普通人", "新手", "认知负担"]},
+      {"id": "flow-length", "all": ["7", "步骤"]},
+      {"id": "action-hierarchy", "all": ["跳过", "主按钮"]},
+      {"id": "states", "all": ["权限", "同步", "失败"]},
+      {"id": "visual-dimensions", "any": ["层级", "留白", "配色", "一致性"]},
+      {"id": "six-scores", "regex": "[1-5]/5", "min_matches": 6},
+      {"id": "priorities", "any": ["Top 3", "top 3", "前三", "优先级"]},
+      {"id": "conclusion", "any": ["值得改", "不值得改", "结论"]}
+    ]
+  },
+  {
+    "id": "taste-technical-docs-home",
+    "plugin": "taste@tessera",
+    "skill": "taste",
+    "activation": "injected",
+    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "评审一个开源数据库的文档首页。它希望显得严谨、安静、适合长期阅读，但当前使用黑底霓虹紫渐变、三个浮动玻璃卡片、emoji 章节标题、正文 16px/行高 1.2、内容宽 1200px，代码块与正文对比度接近。给出具体改进顺序，不写代码。",
+    "criteria": [
+      {"id": "desired-character", "all": ["严谨", "安静"]},
+      {"id": "reading", "any": ["长期阅读", "可读性", "阅读"]},
+      {"id": "template-elements", "all": ["渐变", "玻璃", "emoji"]},
+      {"id": "typography", "all": ["行高", "宽度"]},
+      {"id": "contrast", "any": ["对比度", "代码块"]},
+      {"id": "six-scores", "regex": "[1-5]/5", "min_matches": 6},
+      {"id": "priorities", "any": ["Top 3", "top 3", "前三", "优先级"]},
+      {"id": "conclusion", "any": ["值得改", "不值得改", "结论"]}
     ]
   },
   {
@@ -45,7 +101,7 @@
     "activation": "injected",
     "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
     "minimum_delta": 0.2,
-    "prompt": "请把下面的散落信息整理成一个可长期维护、以后容易检索和继续补充的个人知识库产物。只输出建议产物，不要真的写文件。\n\n- 5 位访谈用户都说插件安装步骤太长。\n- 新的一键安装脚本已经把步骤从 3 条命令降到 1 条。\n- eval 运行仍需要 Python 3，但不需要 pip。\n- 用户常把插件安装依赖和 eval 运行依赖混为一谈。\n- 后续文档应该分别说明“安装要求”和“运行 eval 要求”。",
+    "prompt": "把下面散落信息整理成可长期维护、以后容易检索和继续补充的个人知识库产物。只输出建议产物，不要真的写文件。\n- 5 位访谈用户都说插件安装步骤太长。\n- 新的一键安装脚本把步骤从 3 条命令降到 1 条。\n- eval 运行仍需要 Python 3，但不需要 pip。\n- 用户常把插件安装依赖和 eval 运行依赖混为一谈。\n- 后续文档应分别说明安装要求和运行 eval 要求。",
     "criteria": [
       {"id": "multiple-files", "regex": "[a-z0-9-]+\\.md", "min_matches": 2},
       {"id": "frontmatter-title", "regex": "(?m)^title:", "min_matches": 2},
@@ -55,6 +111,82 @@
       {"id": "association-sections", "regex": "## 关联", "min_matches": 2},
       {"id": "backlinks", "regex": "\\[\\[[^\\]]+\\]\\]", "min_matches": 2},
       {"id": "installation-runtime-separation", "all": ["安装", "Python 3", "pip"]}
+    ]
+  },
+  {
+    "id": "knowledge-base-meeting-decisions",
+    "plugin": "knowledge-base@tessera",
+    "skill": "knowledge-base",
+    "activation": "injected",
+    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "把这段会议记录整理成以后能检索、复用和追踪的个人知识库产物，只展示建议文件内容：团队决定安装器默认只装 core；可选插件必须显式 --all；小林本周五前更新部署文档；尚未决定是否做自动升级；两周后根据新机器反馈复盘。",
+    "criteria": [
+      {"id": "multiple-files", "regex": "[a-z0-9-]+\\.md", "min_matches": 2},
+      {"id": "frontmatter", "regex": "(?m)^---$", "min_matches": 4},
+      {"id": "tags", "regex": "(?m)^tags:", "min_matches": 2},
+      {"id": "backlinks", "regex": "\\[\\[[^\\]]+\\]\\]", "min_matches": 2},
+      {"id": "decision", "all": ["默认", "core", "--all"]},
+      {"id": "action", "all": ["小林", "周五", "部署文档"]},
+      {"id": "open-question", "all": ["自动升级", "未决定"]},
+      {"id": "review", "all": ["两周", "复盘"]}
+    ]
+  },
+  {
+    "id": "knowledge-base-incident-learning",
+    "plugin": "knowledge-base@tessera",
+    "skill": "knowledge-base",
+    "activation": "injected",
+    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "将故障复盘信息整理成可长期复用的个人知识库产物，不写入磁盘：Windows Store 的 codex.exe 从 Python 子进程启动时 Access Denied；直接终端运行正常；改用 npm 的 codex.cmd 后恢复；resolve_codex 现在会逐个执行 --version 探测候选；需要保留一条排障手册供以后复现。",
+    "criteria": [
+      {"id": "multiple-files", "regex": "[a-z0-9-]+\\.md", "min_matches": 2},
+      {"id": "frontmatter", "regex": "(?m)^title:", "min_matches": 2},
+      {"id": "backlinks", "regex": "\\[\\[[^\\]]+\\]\\]", "min_matches": 2},
+      {"id": "symptom", "all": ["Access Denied", "codex.exe"]},
+      {"id": "workaround", "all": ["codex.cmd", "恢复"]},
+      {"id": "root-cause-boundary", "any": ["根因", "已知", "未知", "边界"]},
+      {"id": "runbook", "any": ["排障", "runbook", "步骤"]},
+      {"id": "probe", "all": ["resolve_codex", "--version"]}
+    ]
+  },
+  {
+    "id": "knowledge-base-research-synthesis",
+    "plugin": "knowledge-base@tessera",
+    "skill": "knowledge-base",
+    "activation": "injected",
+    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "整理以下相互冲突的调研摘录为个人知识库产物，不搜索也不写文件：资料 A 说插件正文只在调用时加载；资料 B 在 Claude 2.0.74 观察到启动即加载全文；资料 C 的 2.1.207 changelog 没提修复。需要区分事实、观察、未知项，并方便以后追加新版本验证。",
+    "criteria": [
+      {"id": "multiple-files", "regex": "[a-z0-9-]+\\.md", "min_matches": 2},
+      {"id": "frontmatter", "regex": "(?m)^tags:", "min_matches": 2},
+      {"id": "backlinks", "regex": "\\[\\[[^\\]]+\\]\\]", "min_matches": 2},
+      {"id": "sources", "all": ["资料 A", "资料 B", "资料 C"]},
+      {"id": "version-observation", "all": ["2.0.74", "2.1.207"]},
+      {"id": "epistemic-status", "all": ["事实", "观察", "未知"]},
+      {"id": "future-verification", "any": ["后续验证", "待验证", "新版本"]},
+      {"id": "no-false-resolution", "any": ["不能确认", "尚不确定", "未证明", "未知"]}
+    ]
+  },
+  {
+    "id": "knowledge-base-deduplicate-notes",
+    "plugin": "knowledge-base@tessera",
+    "skill": "knowledge-base",
+    "activation": "injected",
+    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "请重整这些已有笔记并给出最终建议文件内容，不实际写磁盘：install.md 记录“安装只需 Codex”；setup-notes.md 记录“安装无需 Python，但 eval 需要 Python 3”；python.md 记录“eval 不需要 pip”；index.md 同时链接 install.md 和 setup-notes.md。目标是消除重复但保留可检索性和旧链接迁移说明。",
+    "criteria": [
+      {"id": "canonical-files", "regex": "[a-z0-9-]+\\.md", "min_matches": 2},
+      {"id": "frontmatter", "regex": "(?m)^title:", "min_matches": 2},
+      {"id": "backlinks", "regex": "\\[\\[[^\\]]+\\]\\]", "min_matches": 2},
+      {"id": "deduplication", "any": ["合并", "去重", "重复"]},
+      {"id": "installation-boundary", "all": ["安装", "Codex", "无需 Python"]},
+      {"id": "eval-boundary", "all": ["eval", "Python 3", "pip"]},
+      {"id": "migration", "any": ["迁移", "重定向", "旧链接", "兼容"]},
+      {"id": "index-update", "all": ["index.md", "链接"]}
     ]
   }
 ]

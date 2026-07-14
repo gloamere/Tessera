@@ -9,11 +9,11 @@ import sys
 
 ROUTES = {
     "direct-small-edit": "direct",
-    "multi-intent": "planner",
+    "multi-intent": "knowledge-base",
     "evaluate-routing": "tessera-eval",
 }
 NATIVE_SKILLS = {
-    "multi-intent": ["planner", "knowledge-base"],
+    "multi-intent": ["knowledge-base"],
 }
 
 prompt = sys.stdin.read()

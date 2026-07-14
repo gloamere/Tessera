@@ -28,7 +28,7 @@ fi
 
 PLUGINS='tessera-core'
 if [ "$INSTALL_ALL" -eq 1 ]; then
-  PLUGINS='tessera-core taste planner knowledge-base'
+  PLUGINS='tessera-core taste knowledge-base'
 fi
 
 for plugin in $PLUGINS; do

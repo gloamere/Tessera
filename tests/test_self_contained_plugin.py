@@ -14,6 +14,23 @@ PLUGIN = ROOT / "pieces" / "tessera-core"
 
 
 class SelfContainedPluginTests(unittest.TestCase):
+    def test_active_release_surface_excludes_retired_planner(self) -> None:
+        planner = ROOT / "pieces" / "planner"
+        self.assertFalse(
+            planner.exists() and any(path.is_file() for path in planner.rglob("*"))
+        )
+        active_files = (
+            ROOT / ".claude-plugin" / "marketplace.json",
+            ROOT / ".agents" / "plugins" / "marketplace.json",
+            PLUGIN / "skills" / "tessera-eval" / "SKILL.md",
+            PLUGIN / "skills" / "tessera-eval" / "scripts" / "run_routing_eval.py",
+            PLUGIN / "skills" / "tessera-eval" / "references" / "routing-cases.json",
+            PLUGIN / "skills" / "tessera-eval" / "references" / "personal-routing-cases.json",
+            PLUGIN / "skills" / "tessera-eval" / "references" / "schemas" / "routing-output.schema.json",
+        )
+        for path in active_files:
+            self.assertNotIn("planner", path.read_text(encoding="utf-8"), path)
+
     def test_cached_plugin_copy_runs_without_repository_checkout(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             temp_root = Path(temp)

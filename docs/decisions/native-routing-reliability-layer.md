@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: native-routing-reliability-layer
-status: approved
+status: superseded
 created: 2026-07-14
 approved: 2026-07-14
 review: 原生调用评测连续不可观测，或30/90天个人数据证明该控制层没有净收益时重审
+superseded_by: current-runtime-architecture
 ---
 
 # Tessera 采用宿主原生路由优先的可靠性控制层

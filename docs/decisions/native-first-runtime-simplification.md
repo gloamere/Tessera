@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: native-first-runtime-simplification
-status: approved
+status: superseded
 created: 2026-07-14
 approved: 2026-07-14
 review: 宿主移除关键原生能力，或 native eval 证明精简后持续退化时重审
+superseded_by: current-runtime-architecture
 supersedes:
   - phase-1-scope
   - core-lifecycle-recipes-remediation

@@ -40,12 +40,10 @@
   },
   {
     "id": "product-directions",
-    "category": "specialist",
+    "category": "direct",
     "prompt": "给这个活动设计三个可供负责人拍板的玩法方向",
-    "expected_route": "planner",
-    "expected_skills": [
-      "planner"
-    ]
+    "expected_route": "direct",
+    "expected_skills": []
   },
   {
     "id": "host-plugin-install",
@@ -81,9 +79,8 @@
     "id": "multi-intent",
     "category": "multi-intent",
     "prompt": "调研竞品后做产品方案，并把结论沉淀成知识笔记",
-    "expected_route": "planner",
+    "expected_route": "knowledge-base",
     "expected_skills": [
-      "planner",
       "knowledge-base"
     ]
   },

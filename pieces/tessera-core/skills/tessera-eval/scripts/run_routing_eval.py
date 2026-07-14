@@ -36,7 +36,6 @@ FIRST_PARTY_SKILLS = {
     "tessera-eval",
     "taste",
     "knowledge-base",
-    "planner",
 }
 SKILL_PATH = re.compile(
     r"(?:^|[\\/])skills[\\/](?P<skill>[a-z0-9-]+)[\\/]SKILL\.md(?:$|[\s'\"`])",
@@ -95,7 +94,6 @@ def build_policy_prompt(case: dict[str, Any]) -> str:
 - direct：宿主直接完成
 - tessera-eval：运行、复跑或比较 Tessera 的 Skill 调用评测
 - taste / knowledge-base：对应明确的视觉评审与知识沉淀
-- planner：对应明确的游戏、内容、产品或活动方案与多方向比较
 
 插件生命周期、任务规划、模糊请求、多意图协调、高风险确认和外部能力选择都归宿主原生能力，route 选择 direct。不要参考任何预期答案，只根据请求本身判断。reason 用一句短句。
 

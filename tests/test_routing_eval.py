@@ -70,11 +70,11 @@ class RoutingEvalTests(unittest.TestCase):
             [
                 '{"item":{"command":"cat /p/skills/taste/SKILL.md"}}',
                 "not-json",
-                '{"item":{"command":"cat /p/skills/planner/SKILL.md"}}',
+                '{"item":{"command":"cat /p/skills/knowledge-base/SKILL.md"}}',
             ]
         )
         observed, malformed = parse_codex_events(events)
-        self.assertEqual(observed, ("planner", "taste"))
+        self.assertEqual(observed, ("knowledge-base", "taste"))
         self.assertEqual(malformed, 1)
 
     def test_native_distinguishes_verified_declared_and_conflict(self):
@@ -106,7 +106,7 @@ class RoutingEvalTests(unittest.TestCase):
             HostResult(
                 {"decision": "skill", "selected_skills": ["taste"], "reason": "x"},
                 10,
-                observed_skills=("planner",),
+                observed_skills=("knowledge-base",),
                 observation_source="host-events",
             ),
         )
@@ -144,7 +144,7 @@ class RoutingEvalTests(unittest.TestCase):
     def test_repeat_aggregation_tracks_stability(self):
         results = [
             {"id": "x", "passed": True, "outcome": "pass", "observed_skills": ["taste"]},
-            {"id": "x", "passed": False, "outcome": "wrong_route", "observed_skills": ["planner"]},
+            {"id": "x", "passed": False, "outcome": "wrong_route", "observed_skills": ["knowledge-base"]},
         ]
         aggregate = aggregate_cases(results, repeat=2)[0]
         self.assertEqual(aggregate["pass_rate"], 0.5)

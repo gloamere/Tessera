@@ -10,8 +10,7 @@
         "direct",
         "tessera-eval",
         "taste",
-        "knowledge-base",
-        "planner"
+        "knowledge-base"
       ]
     },
     "reason": {"type": "string"}

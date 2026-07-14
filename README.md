@@ -19,7 +19,6 @@ Tessera 是纯 Skills 市集：没有 hooks、常驻进程、数据库、私有�
 |---|---|---|---|
 | `tessera-core` | `tessera-eval` | 区分 policy 分类与可观察 native 调用，检查误调、漏调和稳定性 | 核心 |
 | `taste` | `taste` | UI、视觉、排版、配色与文案审美评审 | 可选 |
-| `planner` | `planner` | 游戏、内容、活动和产品方向策划 | 可选 |
 | `knowledge-base` | `knowledge-base` | Markdown + 双链知识沉淀 | 可选 |
 
 ```mermaid
@@ -27,7 +26,6 @@ flowchart LR
     U([用户任务]) --> H{Claude / Codex 原生选择}
     H --> D[直接处理]
     H --> T[taste]
-    H --> P[planner]
     H --> K[knowledge-base]
     C([Skill 或宿主变化]) --> E[tessera-eval]
     E --> R[可观察报告与边界建议]
@@ -55,7 +53,7 @@ Windows 一键安装核心插件：
 irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
 ```
 
-安装全部四个插件：
+安装全部三个插件：
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1))) -All
@@ -86,7 +84,7 @@ claude plugin install tessera-core@tessera --scope user
 claude plugin list --json
 ```
 
-按需安装 `taste@tessera`、`planner@tessera` 或 `knowledge-base@tessera`。交互会话中安装或启停后运行 `/reload-plugins`；其它生命周期动作使用 Claude 原生 `/plugin` 或 `claude plugin` 命令。
+按需安装 `taste@tessera` 或 `knowledge-base@tessera`。交互会话中安装或启停后运行 `/reload-plugins`；其它生命周期动作使用 Claude 原生 `/plugin` 或 `claude plugin` 命令。
 
 ## Eval
 
@@ -112,7 +110,7 @@ python scripts/run_routing_eval.py --host codex --mode native --cases pieces/tes
 
 ## 从 0.4 迁移
 
-0.5 删除了 `piece-router`、`tessera-setup`、`tessera-status`、`tessera-capabilities` 和 `tessera-doctor`，也删除了指令式本地 usage events；0.6 将 eval 运行器、案例和 schema 收入插件安装包，并提供一键安装器。替代方式：
+0.5 删除了 `piece-router`、`tessera-setup`、`tessera-status`、`tessera-capabilities` 和 `tessera-doctor`，也删除了指令式本地 usage events；0.6 将 eval 运行器、案例和 schema 收入插件安装包，并提供一键安装器；0.7 根据真实质量评审移除 `planner`，产品与活动策划回归宿主原生能力。替代方式：
 
 | 旧入口 | 替代方式 |
 |---|---|

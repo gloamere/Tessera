@@ -38,5 +38,5 @@ Eval Lab 的评测能力成立：`planner` 两轮分别得到 `-0.375` 和 `-0.2
 
 - Tessera 的安装和日常使用不增加依赖或命令面。
 - Eval Lab 可以继续快速修改案例与评分契约，不受 core 兼容性承诺约束。
-- `planner` 的真实退化作为后续 Skill 改进输入；修复前后应继续用本实验复跑，不在本决策中自动改写 Skill。
+- `planner` 的真实退化已触发删除决策；历史原始证据继续保留，不从实验记录中抹去。
 - 完整证据见 `experiments/eval-lab/evidence/2026-07-14-admission-r3.md`。

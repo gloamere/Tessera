@@ -33,5 +33,5 @@
   "name": "tessera-core",
   "repository": "https://github.com/gloamere/Tessera",
   "skills": "./skills/",
-  "version": "0.6.0+codex.20260714063655"
+  "version": "0.7.0+codex.20260714"
 }

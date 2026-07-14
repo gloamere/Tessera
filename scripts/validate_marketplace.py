@@ -21,11 +21,11 @@ EXPECTED_PLATFORMS = {
 EXPECTED_SKILLS = {
     "tessera-core": {"tessera-eval"},
     "taste": {"taste"},
-    "planner": {"planner"},
     "knowledge-base": {"knowledge-base"},
 }
-ROUTES = {"direct", "tessera-eval", "taste", "planner", "knowledge-base"}
+ROUTES = {"direct", "tessera-eval", "taste", "knowledge-base"}
 RETIRED_RUNTIME_NAMES = {
+    "planner",
     "piece-router",
     "tessera-setup",
     "tessera-status",
@@ -213,7 +213,7 @@ def validate_eval_cases(errors: list[str]) -> None:
                 errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效")
             skills = case.get("expected_skills")
             if not isinstance(skills, list) or any(
-                skill not in {"tessera-eval", "taste", "planner", "knowledge-base"}
+                skill not in {"tessera-eval", "taste", "knowledge-base"}
                 for skill in skills
             ):
                 errors.append(f"{relative(path)}: {case_id} 的 expected_skills 无效")
@@ -260,7 +260,7 @@ def main() -> int:
         print("Tessera 发布物校验失败:", file=sys.stderr)
         print("\n".join(f"- {error}" for error in errors), file=sys.stderr)
         return 1
-    print("校验通过：4 个插件、4 个运行时 Skill，双宿主发布物与 eval 案例一致。")
+    print("校验通过：3 个插件、3 个运行时 Skill，双宿主发布物与 eval 案例一致。")
     return 0
 
 

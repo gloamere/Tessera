@@ -1,6 +1,6 @@
 # Tessera 部署手册
 
-Tessera 只分发四个 Skill：核心 `tessera-eval`，以及可选的 `taste`、`planner`、`knowledge-base`。插件发现、安装、启停、刷新和卸载全部使用 Claude/Codex 原生功能。
+Tessera 只分发三个 Skill：核心 `tessera-eval`，以及可选的 `taste`、`knowledge-base`。插件发现、安装、启停、刷新和卸载全部使用 Claude/Codex 原生功能。
 
 ## Codex
 
@@ -59,9 +59,9 @@ Claude CLI 在当前验证机器不可用时，只验证双宿主发布物结构
 1. 普通代码、架构、高风险确认和插件生命周期请求不加载任何 Tessera 控制层 Skill。
 2. “评审这个页面的视觉层级和配色”加载 `taste`。
 3. “把会议记录整理成双链知识笔记”加载 `knowledge-base`。
-4. “给活动设计三个可拍板方向”加载 `planner`。
+4. “给活动设计三个可拍板方向”由宿主直接处理，不加载 Tessera Skill。
 5. “运行 tessera eval”加载 `tessera-eval`。
-6. 同时包含两个明确专业意图时，宿主可分别加载对应专业 Skill，不需要 router。
+6. 同时包含视觉评审与知识沉淀两个明确专业意图时，宿主可分别加载对应专业 Skill，不需要 router。
 
 ## 维护者验证
 
@@ -81,4 +81,4 @@ codex plugin list --json
 
 ## 升级与清理
 
-从 0.4 升级到 0.5 后，旧控制层 Skill 不再发布；0.6 起 eval 安装包自包含运行器、案例和 schema。重新添加 `tessera-core` 并新开会话即可。旧 `~/.tessera` usage 数据不会被迁移或自动删除；需要保留时先备份，不需要时由用户自行清理。
+从 0.4 升级到 0.5 后，旧控制层 Skill 不再发布；0.6 起 eval 安装包自包含运行器、案例和 schema；0.7 起不再发布 `planner`。重新添加 `tessera-core` 并新开会话即可；已安装的 `planner@tessera` 需要使用宿主原生插件管理器卸载。旧 `~/.tessera` usage 数据不会被迁移或自动删除；需要保留时先备份，不需要时由用户自行清理。
