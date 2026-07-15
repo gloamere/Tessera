@@ -11,9 +11,12 @@ ROUTES = {
     "direct-small-edit": "direct",
     "multi-intent": "knowledge-base",
     "evaluate-routing": "tessera-eval",
+    "frontend-design-system": "frontend-design",
+    "frontend-taste-handoff": "frontend-design",
 }
 NATIVE_SKILLS = {
     "multi-intent": ["knowledge-base"],
+    "frontend-taste-handoff": ["frontend-design", "taste"],
 }
 
 prompt = sys.stdin.read()

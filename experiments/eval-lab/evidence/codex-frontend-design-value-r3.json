@@ -1,0 +1,1066 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-15T02:47:16.944468+00:00",
+  "claim": "paired native skill utility with host-event attribution",
+  "adapter": "codex-cli",
+  "evidence": "native-host-events",
+  "cases_file": "D:\\Gloamere\\Tessera\\experiments\\eval-lab\\cases.json",
+  "repeat": 3,
+  "model": null,
+  "summary": {
+    "total": 5,
+    "improvements": 2,
+    "regressions": 0,
+    "no_change": 3,
+    "unverified": 0,
+    "execution_errors": 0,
+    "raw_improvements": 3,
+    "raw_regressions": 1,
+    "raw_ties": 1
+  },
+  "cases": [
+    {
+      "id": "frontend-design-b2b-dashboard",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+      "skill_sha256": "3db539e025269e5feded74431c3a6b02445b922c91f332dc71da632f495ea6bf",
+      "skill_content_chars": 1348,
+      "skill_content_bytes": 2724,
+      "baseline_score": 0.5,
+      "skill_score": 0.875,
+      "delta": 0.375,
+      "direction": "improvement",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 182315,
+        "cached_input_tokens": 114944,
+        "output_tokens": 4998,
+        "reasoning_output_tokens": 1224
+      },
+      "skill_usage": {
+        "input_tokens": 203743,
+        "cached_input_tokens": 148224,
+        "output_tokens": 4603,
+        "reasoning_output_tokens": 932
+      },
+      "usage_delta": {
+        "input_tokens": 21428,
+        "cached_input_tokens": 33280,
+        "output_tokens": -395,
+        "reasoning_output_tokens": -292
+      },
+      "baseline_criterion_rates": {
+        "operator-context": 1.0,
+        "semantic-tokens": 0.0,
+        "information-architecture": 0.333333,
+        "states": 0.0,
+        "responsive": 1.0,
+        "accessibility": 0.333333,
+        "stack-guidance": 1.0,
+        "anti-patterns": 0.666667
+      },
+      "skill_criterion_rates": {
+        "operator-context": 1.0,
+        "semantic-tokens": 0.666667,
+        "information-architecture": 0.333333,
+        "states": 0.666667,
+        "responsive": 1.0,
+        "accessibility": 1.0,
+        "stack-guidance": 1.0,
+        "anti-patterns": 1.0
+      },
+      "criterion_deltas": {
+        "operator-context": 0.0,
+        "semantic-tokens": 0.666667,
+        "information-architecture": 0.0,
+        "states": 0.666667,
+        "responsive": 0.0,
+        "accessibility": 0.666667,
+        "stack-guidance": 0.0,
+        "anti-patterns": 0.333333
+      },
+      "gained_criteria": [
+        "semantic-tokens",
+        "states",
+        "accessibility",
+        "anti-patterns"
+      ],
+      "lost_criteria": [],
+      "attribution": "verified-injection",
+      "verdict": "improvement",
+      "baseline_runs": [
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "operator-context",
+            "responsive",
+            "stack-guidance",
+            "anti-patterns"
+          ],
+          "observed_skills": [],
+          "duration_ms": 47113,
+          "host_event_lines": 9,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 52452,
+            "cached_input_tokens": 32256,
+            "output_tokens": 1408,
+            "reasoning_output_tokens": 217
+          },
+          "answer": "## 设计方向\n\n高密度、低干扰的值班工作台；浅色中性底，异常色只表达状态。默认首屏在 5 秒内回答：哪里异常、影响多大、是否扩大、该处理谁。\n\n## Design Tokens\n\n- 字体：`Inter, \"Noto Sans SC\", sans-serif`；数字/ID 用 `JetBrains Mono`。正文 14/20，辅助 12/18，页面标题 20/28，指标 28/34；表格数字等宽并右对齐。\n- 颜色：背景 `#F8FAFC`，卡片 `#FFFFFF`，主文 `#0F172A`，次文 `#64748B`，边框 `#E2E8F0`，品牌/焦点 `#0369A1`；正常 `#15803D`、警告 `#B45309`、严重 `#DC2626`、信息 `#2563EB`。状态同时使用图标、文字和颜色。\n- 间距：4px 基准；页面 24、区块 20、卡片 16、控件横向 12。圆角 8px，输入框/按钮高 36px；阴影仅用于浮层。\n- 内容最大宽度不限，主区域最小宽 0；图标统一 16/20px 线性 SVG，禁用 emoji。\n\n## 页面结构\n\n顶部栏 56px：产品名、环境、数据更新时间、刷新、值班人、通知。左侧导航 224px，可收至 64px。内容区依次为：\n\n1. 标题行：时间范围、自动刷新开关、分享视图。\n2. 异常摘要：严重异常、受影响客户、失败率、待处理告警四张指标卡；展示当前值、环比、迷你趋势和口径提示。\n3. 主分析区：左侧 2/3 为异常趋势图，支持按指标切换、阈值线、拖选时间；右侧为按严重度排序的告警流，显示时间、客户、异常类型、影响量与状态。\n4. 客户表：顶部固定筛选条，包含搜索、客户等级、区域、健康度、异常类型、负责人；已选条件显示可移除标签，并提供“清空”。表列为客户、健康度、关键指标、近24h异常、趋势、负责人、更新时间；整行进入详情，客户名保留显式链接。\n\n## 交互与状态\n\n筛选同步到 URL `searchParams`，支持刷新、分享和返回恢复；300ms 防抖，服务端分页/排序。告警可确认、指派、静默，危险操作二次确认并即时反馈。Loading 使用保持布局的骨架屏；Empty 区分“无数据”与“筛选无结果”；Error 保留旧数据并显示重试；disabled 降低对比但仍可读。Hover 只增强边框，Focus 使用 2px 蓝色外环。数据超过 2 分钟未更新时显示“数据可能过期”。\n\n## 响应式与无障碍\n\n≥1280px 使用完整布局；768–1279px 收起侧栏、主分析区改 3:2；<768px 顶栏精简，指标卡横向滚动，图表与告警上下排列，筛选进入底部抽屉，表格改客户摘要卡。点击目标至少 44px；完整键盘导航、语义表格、可见焦点、图表提供数据表替代；文本对比度 ≥4.5:1。遵循 `prefers-reduced-motion`，仅保留 150ms 淡入与颜色过渡。Next.js 中服务端获取首屏数据，交互组件局部 `use client`，图表动态加载并预留尺寸避免跳动。"
+        },
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "operator-context",
+            "responsive",
+            "accessibility",
+            "stack-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 43561,
+          "host_event_lines": 9,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 52812,
+            "cached_input_tokens": 32256,
+            "output_tokens": 1414,
+            "reasoning_output_tokens": 151
+          },
+          "answer": "**设计方向**\n\n高密度、冷静、行动优先。采用浅色中性底与蓝色主交互，红/橙仅表达异常等级。数据库匹配“实时运营/事故监控”模式；人工移除偏活泼的大字号、强动效与营销式区块，改为值班场景所需的紧凑扫描布局。\n\n**Design Tokens**\n\n- 字体：`Inter, Noto Sans SC, sans-serif`；数字/时间用 `IBM Plex Mono`。正文 14/20，辅助 12/18，页标题 24/32、600。\n- 色彩：`bg #F7F8FA`、`surface #FFF`、`text #172033`、`muted #667085`、`border #DDE2EA`、`primary #2457D6`、`critical #C9342C`、`warning #B25E09`、`success #16835B`。状态不可只靠颜色，必须配图标与文字。\n- 间距：4px 基准；常用 8/12/16/24/32。圆角 6px，卡片边框 1px，阴影仅用于浮层。控件高 36px，紧凑表格行高 44px。\n- 图标统一 16/20px 线性 SVG，不用 emoji；动效 120–180ms，仅 opacity/transform。\n\n**桌面布局（≥1200）**\n\n左侧固定导航 224px；顶部栏 56px，含环境、数据更新时间、全局搜索、值班身份。主区最大宽度不限，内边距 24px。\n\n页面从上到下：\n\n1. 标题与“最后更新/自动刷新”状态。\n2. 异常摘要条：严重、警告、受影响客户、待处理事件；点击即写入筛选条件。\n3. 主分析区：左侧 2/3 为 24h 异常趋势图，右侧 1/3 为按严重度排序的实时事件流。\n4. 客户工作台：吸顶筛选栏 + 客户表格。筛选包含关键词、严重度、客户分层、地区、负责人、更新时间；显示已选条件 Chip，支持“一键清除”和保存视图。\n5. 表格列：状态、客户、异常类型、核心指标/偏差、影响范围、持续时间、负责人、更新时间、操作。默认按严重度→持续时间排序；整行可进入详情，操作菜单不触发行跳转。\n\n**详情与交互**\n\n点击客户后进入独立详情页，保留返回时的筛选、排序和滚动位置。详情顶部固定展示状态、客户信息、负责人及“确认/指派/创建工单”；下方为指标趋势、异常时间线、影响对象、操作记录。图表 hover 与键盘聚焦均显示同一数据浮层。\n\n**响应式**\n\n768–1199：导航收为 64px，图表与事件流上下排列，隐藏低优先级表格列。<768：顶部导航，摘要卡横向滚动；筛选放入全屏抽屉；表格改为客户卡片，只保留状态、异常、影响、持续时间和负责人。触控目标至少 44px。\n\n**状态与实现约束**\n\nLoading 使用保持布局的骨架屏；Empty 区分“无数据”和“筛选无结果”；Error 保留旧数据并显示重试；disabled 降低对比且解释原因。hover、focus-visible、selected 明确区分，焦点环 2px。正文对比度≥4.5:1，完整键盘导航；支持 `prefers-reduced-motion`。Next.js App Router 中首屏数据由 Server Components 获取，趋势、事件流、表格分别用 Suspense 流式呈现；筛选写入 URL Search Params，便于刷新、分享与返回恢复。"
+        },
+        {
+          "score": 0.625,
+          "passed_criteria": [
+            "operator-context",
+            "information-architecture",
+            "responsive",
+            "stack-guidance",
+            "anti-patterns"
+          ],
+          "observed_skills": [],
+          "duration_ms": 60386,
+          "host_event_lines": 11,
+          "command_event_count": 6,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 77051,
+            "cached_input_tokens": 50432,
+            "output_tokens": 2176,
+            "reasoning_output_tokens": 856
+          },
+          "answer": "### 设计方向\n\n以事故管理界面的高可扫读结构为基准，去除营销式大字号、鲜艳色块和装饰动效；气质应冷静、紧凑、可信，让异常、客户和处置状态始终优先。\n\n### Design Tokens\n\n- 字体：`Inter, PingFang SC, sans-serif`；数据启用 `tabular-nums`。字号 12/14/16/20/28px，正文 14px、行高 1.5。\n- 色彩：背景 `#F6F8FB`，表面 `#FFFFFF`，主文字 `#172033`，次文字 `#667085`，边框 `#DDE3EA`，主色 `#2563EB`；危险 `#C9362B`、警告 `#B54708`、成功 `#067647`。状态必须同时使用图标、标签和颜色。\n- 间距采用 4px 基准：4/8/12/16/24/32；圆角 6/8/12px。仅浮层使用轻阴影，卡片默认靠边框分组。\n- 控件高度：桌面 36px，移动端至少 44px；内容区最大宽度 1600px。\n\n### 页面结构\n\n桌面端采用 224px 固定侧栏＋56px 顶栏。顶栏包含页面标题、值班班次、数据更新时间、全局搜索、通知和账户；异常发生时显示可关闭但不自动消失的告警横幅。\n\n主区首屏依次为：\n\n1. 四项 KPI：未处理异常、受影响客户、SLO 违约、近1小时新增；显示当前值、同比/环比、更新时间，卡片可进入预筛选列表。\n2. 12列布局：左侧8列为异常趋势图，右侧4列为按严重度排序的实时事件流；趋势图支持时间范围、阈值线、精确 tooltip，并提供文字摘要和表格替代。\n3. 客户表为核心工作区。顶部粘性筛选栏包含搜索、严重度、客户等级、区域、负责人、状态、时间范围；已选条件显示为可逐项移除的 chips，并提供“清除全部”和结果数。\n\n表格列：客户、健康度、当前异常、影响指标、最近变化、负责人、更新时间、操作。默认按严重度与更新时间排序；整行可进入 `/customers/[id]`，新页面保留筛选、排序和滚动位置。批量操作仅在勾选后出现。\n\n### 响应式与状态\n\n- ≥1280px：侧栏常驻，图表与事件流并排。\n- 768–1279px：侧栏收起为图标栏，图表上下排列，次要表格列隐藏。\n- <768px：顶栏＋抽屉导航；筛选进入底部面板，客户表改为卡片，仅保留异常、影响、负责人和更新时间。\n- Loading 使用等尺寸骨架避免跳动；Empty 区分“无数据”和“筛选无结果”；Error 说明原因并提供重试；Disabled、Hover、Pressed、Focus 均有明确状态。焦点环 2px，文本对比度≥4.5:1，完整键盘导航；动效仅用 opacity/transform、150–200ms，并支持 reduced-motion。\n\n### Next.js 实现约束\n\n使用 App Router；页面壳和首屏数据采用 Server Components，筛选、表格和图表为 Client Components。筛选条件同步 URL query，详情支持深链与返回恢复。图表动态加载，超过50行启用虚拟列表；时间、数字按 locale 格式化，刷新时保留旧数据并标记“更新中”。"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "operator-context",
+            "semantic-tokens",
+            "states",
+            "responsive",
+            "accessibility",
+            "stack-guidance",
+            "anti-patterns"
+          ],
+          "observed_skills": [],
+          "duration_ms": 35409,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 34751,
+            "cached_input_tokens": 25088,
+            "output_tokens": 1293,
+            "reasoning_output_tokens": 244
+          },
+          "answer": "设计方向：高密度、低干扰的“值班控制台”。数据库候选偏向企业可信感、深海军蓝与蓝色强调；人工移除落地页式徽章、轮播和脉冲动画，改为稳定扫描、异常优先的信息架构。未经过真实用户研究或可用性验证。\n\nTokens\n- 字体：Inter、PingFang SC、Microsoft YaHei、sans-serif；正文14/20，辅助12/18，标题20/28，数字使用 tabular-nums。\n- 颜色：background #F8FAFC；surface #FFFFFF；foreground #0F172A；muted #64748B；primary #075985；accent #0284C7；border #DCE3EA；success #15803D；warning #B45309；danger #B91C1C。状态不能只靠颜色，配合图标与文字。\n- 间距4/8/12/16/24/32；圆角6/8/12；阴影仅用于浮层；1px 边框承担分区。内容最大宽度1920px，页边距24px。\n\n页面结构\n1. 顶栏56px：平台名、数据更新时间、全局搜索、值班人、通知；“数据延迟”紧邻更新时间。\n2. 左侧导航220px，可收至64px：总览、异常、客户、报表、配置。\n3. 主区：页标题与时间范围/自动刷新；首屏四项核心指标；异常趋势图与严重度分布；异常队列；客户筛选结果。默认按严重度、影响客户数、发生时间排序。\n4. 异常行展示等级、指标偏差、客户、持续时间、负责人、状态；整行可进入详情，右侧保留“查看详情”明确操作。详情先用右侧抽屉快速判断，再进入完整客户页。\n\n组件与交互\n- 筛选栏：客户名、客户分层、区域、异常等级、负责人、状态；已选条件显示可移除标签，支持一键清空，并将条件同步到 URL。\n- 表格表头吸顶；支持排序、分页、列显隐与键盘上下行浏览。图表 hover/聚焦显示同一 tooltip，并提供“查看数据表”。\n- loading：保留布局的骨架屏；empty：说明当前筛选无结果并提供清空；error：指出失败模块、保留其他数据并可重试；disabled：降低对比且说明原因；hover：浅蓝底；focus：2px 蓝色外环；异常确认后显示操作者与时间。\n\n响应式\n- ≥1280：侧栏+双列图表+完整表格；768–1279：侧栏收起，图表单列，次要列隐藏；<768：底部主导航，筛选进入全屏抽屉，指标横向滚动，异常改为卡片列表，核心操作目标≥44px。\n\n无障碍与实现\n- 正文对比度≥4.5:1；完整键盘路径、跳至主内容、语义标题/表格、图标按钮 aria-label、错误信息与字段关联。\n- 动画120–180ms，仅 opacity/transform；reduced-motion 下取消位移与自动图表过渡。\n- Next.js 以 Server Components 获取首屏数据，筛选/表格/图表设为 Client Components；URL 保存筛选状态，动态导入图表，错误边界按模块隔离。\n\n主动避免：大面积渐变、发光卡片、玻璃拟态、无意义动效、仅靠红绿表达异常，以及把运营控制台做成营销落地页。"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "operator-context",
+            "semantic-tokens",
+            "information-architecture",
+            "responsive",
+            "accessibility",
+            "stack-guidance",
+            "anti-patterns"
+          ],
+          "observed_skills": [],
+          "duration_ms": 48960,
+          "host_event_lines": 13,
+          "command_event_count": 8,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 96365,
+            "cached_input_tokens": 72704,
+            "output_tokens": 1855,
+            "reasoning_output_tokens": 387
+          },
+          "answer": "### 设计方向\n\n“值班控制台”：高信息密度、冷静可信、异常优先。首屏应在 5 秒内回答“哪里异常、影响多大、该处理谁”。检索候选偏向企业信任型落地页，人工舍弃 Hero、徽章和指标动效，仅保留深蓝体系；图表采用“时序线＋异常标记＋阈值带”。\n\n### Tokens\n\n- 字体：`Inter, Noto Sans SC, sans-serif`；正文 14/20，辅助 12/18，标题 20/28；数字启用 `tabular-nums`。\n- 色彩：`background #F6F8FB`、`surface #FFFFFF`、`foreground #172033`、`muted #667085`、`primary #175CD3`、`accent #0E7490`、`border #DDE3EC`、`success #16803C`、`warning #B54708`、`danger #C4320A`、`info #175CD3`。状态不能只靠颜色，须配图标/文字。\n- 间距：4/8/12/16/24/32；圆角 6（控件）、8（卡片）、10（浮层）；阴影仅用于浮层。焦点环 `2px #175CD3 + 2px 白色间隔`。\n\n### 页面结构\n\n桌面端：56px 顶栏＋224px 侧栏；内容最大宽度 1600px。顶部依次为班次/数据更新时间、全局搜索、通知与账号。主区：\n\n1. 固定筛选条：时间范围、客户、区域、产品、严重度；显示已选条件，可一键清空并保存视图。\n2. 4 个摘要卡：严重异常、受影响客户、待处理、较上一周期变化；整卡可进入预筛列表。\n3. 8/4 栅格：左侧异常趋势图，阈值带、异常菱形标记、缩放与“查看数据表”；右侧异常队列，按严重度/影响排序。\n4. 客户表：客户、健康度、异常数、影响指标、最近事件、负责人、更新时间；表头吸顶，支持排序、复选、分页。单击行进入详情，保留筛选与滚动位置；名称使用真实链接，支持新标签打开。\n\n### 组件与状态\n\n筛选变更后立即更新结果，并显示结果数；耗时查询提供“应用筛选”模式。异常项包含严重度、时间、指标偏差、客户数及“查看详情”。Loading 使用等高骨架并预留图表空间；empty 区分“无异常”和“筛选无结果”；error 保留筛选并提供重试；disabled 降低对比度且说明原因；hover 只增强边框/底色；focus 始终可见；实时刷新用非打断提示。`prefers-reduced-motion` 下取消脉冲、位移和图表补间。\n\n### 响应式与实现\n\n≥1280 保持侧栏及双栏；768–1279 侧栏折叠为图标，图表与队列纵向排列；<768 改为顶栏＋抽屉筛选，摘要横向滚动，客户表转为信息卡，底部固定“筛选”按钮。触控目标至少 44px。\n\nNext.js 使用 Server Components 获取首屏数据，交互筛选/图表作为 Client Components；筛选同步 URL 参数，详情返回可恢复上下文；图表超千点降采样。语义化标题、表格与 `<nav>`；键盘可完成筛选、排序、进详情，图表同时提供可切换数据表，正文及控件满足 WCAG AA。主动避免紫粉渐变、玻璃拟态、巨型 KPI、仪表盘滥用、纯色图区分异常和持续闪烁告警。"
+        },
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "operator-context",
+            "states",
+            "responsive",
+            "accessibility",
+            "stack-guidance",
+            "anti-patterns"
+          ],
+          "observed_skills": [],
+          "duration_ms": 47607,
+          "host_event_lines": 11,
+          "command_event_count": 6,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 72627,
+            "cached_input_tokens": 50432,
+            "output_tokens": 1455,
+            "reasoning_output_tokens": 301
+          },
+          "answer": "设计方向：值班台式、高信息密度、低干扰。首屏优先回答“哪里异常、影响多大、下一步查谁”，避免营销式大标题、卡片海洋、紫粉渐变、持续脉冲动画和仅靠颜色告警。\n\nTokens：背景 #F8FAFC，表面 #FFFFFF，前景 #0F172A，次级文字 #475569，主色 #0369A1，强调 #0EA5E9，边框 #E2E8F0；成功 #15803D、警告 #B45309、危险 #DC2626、信息 #0369A1，状态均配图标与文字。字体使用 Inter；数据启用 tabular-nums。字号 12/14/16/20/28px，字重 400/500/600/700；间距 4/8/12/16/24/32px；圆角 6/8/12px；阴影仅用于浮层。正文对比度 ≥4.5:1，焦点环 2px #0369A1。\n\n桌面结构：56px 顶栏（产品、值班状态、时间范围、刷新时间、用户）；240px 侧栏；主区顶部为页面标题与全局筛选。其下依次为：①异常摘要条：严重/警告/恢复数量、受影响客户、最新异常；②趋势区：主时序图＋异常标记，可切指标但不自动轮播；③客户工作台：可搜索、按等级/地区/产品/异常类型筛选，显示已选条件与一键清除；④客户表格：客户、健康度、异常、关键指标变化、最近事件、负责人、更新时间，默认按严重度和新鲜度排序；⑤点击行打开右侧 420px 详情抽屉，保留筛选上下文，并提供“进入完整详情”。\n\n交互：异常卡、图表点和表格行共享选中状态；筛选更新 URL searchParams，支持复制与返回恢复。表头固定，列排序可读，批量操作仅在选择后出现。刷新不重置视图；新数据以“有 8 条更新”提示，由用户合并。\n\n状态：loading 用保持布局的骨架屏；empty 区分“无异常”与“筛选无结果”；error 显示失败范围、最后成功时间及重试；disabled 保留原因提示；hover 仅增强边框/底色；focus 清晰可见；reduced-motion 下移除位移、脉冲和图表绘制动画。\n\n响应式：≥1280px 完整布局；768–1279px 侧栏折叠、详情覆盖式；<768px 改为摘要横滑、筛选底部抽屉、客户卡片列表，核心操作触点 ≥44px。键盘支持跳到主内容、Tab 顺序、Esc 关闭抽屉；图表提供文字摘要与数据表。\n\nNext.js：页面采用 Server Component 获取首屏数据，筛选/表格/抽屉为 Client Components；Suspense 分区加载，错误边界按模块隔离。数据库候选偏企业营销页，其深蓝、克制、可信方向可用；已人工剔除 Hero、徽章轮播和指标动画，改为值班决策优先的运营工作台。"
+        }
+      ]
+    },
+    {
+      "id": "frontend-design-technical-docs",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+      "skill_sha256": "3db539e025269e5feded74431c3a6b02445b922c91f332dc71da632f495ea6bf",
+      "skill_content_chars": 1348,
+      "skill_content_bytes": 2724,
+      "baseline_score": 0.5,
+      "skill_score": 0.75,
+      "delta": 0.25,
+      "direction": "improvement",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 163507,
+        "cached_input_tokens": 96768,
+        "output_tokens": 3895,
+        "reasoning_output_tokens": 381
+      },
+      "skill_usage": {
+        "input_tokens": 139554,
+        "cached_input_tokens": 64512,
+        "output_tokens": 3990,
+        "reasoning_output_tokens": 768
+      },
+      "usage_delta": {
+        "input_tokens": -23953,
+        "cached_input_tokens": -32256,
+        "output_tokens": 95,
+        "reasoning_output_tokens": 387
+      },
+      "baseline_criterion_rates": {
+        "desired-character": 0.333333,
+        "reading-width": 0.0,
+        "typography-system": 1.0,
+        "semantic-tokens": 0.0,
+        "docs-structure": 1.0,
+        "contrast-focus": 0.333333,
+        "astro-guidance": 1.0,
+        "reject-mismatch": 1.0
+      },
+      "skill_criterion_rates": {
+        "desired-character": 0.666667,
+        "reading-width": 0.0,
+        "typography-system": 1.0,
+        "semantic-tokens": 1.0,
+        "docs-structure": 1.0,
+        "contrast-focus": 1.0,
+        "astro-guidance": 1.0,
+        "reject-mismatch": 0.666667
+      },
+      "criterion_deltas": {
+        "desired-character": 0.333334,
+        "reading-width": 0.0,
+        "typography-system": 0.0,
+        "semantic-tokens": 1.0,
+        "docs-structure": 0.0,
+        "contrast-focus": 0.666667,
+        "astro-guidance": 0.0,
+        "reject-mismatch": -0.333333
+      },
+      "gained_criteria": [
+        "desired-character",
+        "semantic-tokens",
+        "contrast-focus"
+      ],
+      "lost_criteria": [
+        "reject-mismatch"
+      ],
+      "attribution": "verified-injection",
+      "verdict": "improvement",
+      "baseline_runs": [
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "typography-system",
+            "docs-structure",
+            "astro-guidance",
+            "reject-mismatch"
+          ],
+          "observed_skills": [],
+          "duration_ms": 39351,
+          "host_event_lines": 10,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 52427,
+            "cached_input_tokens": 32256,
+            "output_tokens": 1256,
+            "reasoning_output_tokens": 64
+          },
+          "answer": "定位：面向开发者与运维人员的“参考入口”，气质是严谨、克制、可验证。首页优先帮助用户快速判断版本、找到任务入口并进入正文，不承担营销落地页职责。本地设计库建议“文档搜索 + 分类入口”，但其活泼块状、深色高对比方案与长期阅读冲突，故保留信息模式，重做视觉语言。\n\n设计系统\n\n- 色彩：默认浅色。背景 `#F7F7F5`，正文面 `#FFFFFF`，主文字 `#202322`，次文字 `#606763`，边框 `#D9DEDA`，品牌/链接用低饱和深青 `#176B63`，代码背景 `#F1F3F1`，错误 `#A23B3B`。深色模式使用炭灰而非纯黑；正文与交互状态均达到 WCAG AA。\n- 字体：正文采用系统无衬线栈；代码与参数使用等宽字体。正文 16px/1.7，说明 14px/1.6，H1 36px/1.2，H2 24px/1.35；正文栏宽 68–74ch。标题不用全等宽体。\n- 间距：4px 基准，常用 8/12/16/24/32/48/64；圆角 4–8px；阴影仅用于浮层。层级主要依靠留白、字号和细边框，不靠大色块。\n- 图标：统一线性 SVG，禁止 emoji。动效限 120–180ms 的颜色、透明度变化；遵循 `prefers-reduced-motion`。\n\n内容结构\n\n1. 顶栏：项目标识、Docs、API Reference、Guides、Community、GitHub；右侧提供版本选择、主题切换和搜索。\n2. 首屏：一句精确价值陈述；醒目的文档搜索；“快速开始”“安装”“迁移指南”三个文本型入口；明确当前稳定版与发布日期。\n3. 按任务浏览：部署、建模、查询、扩展、备份恢复、监控，每项含一句范围说明，避免营销式卡片墙。\n4. 新用户路径：安装 → 创建实例 → 首次查询 → 上线检查，以编号步骤呈现。\n5. 参考入口：SQL/API、配置、CLI、错误码、兼容性矩阵。\n6. 项目状态：最新版本、变更日志、安全公告、支持周期；数据必须标注更新时间。\n7. 页尾：许可证、贡献指南、治理、安全策略与社区渠道。\n\n实现约束\n\nAstro 采用内容优先与渐进增强：静态生成首页和文档，交互岛仅用于搜索、版本选择和主题切换；导航与核心内容在 JavaScript 失效时仍可用。以组件封装 Header、Search、TaskList、ReleaseStatus，并用 CSS 自定义属性集中管理 token。内容集合校验标题、摘要、版本和更新时间；版本化 URL 可稳定引用，旧链接设置重定向。桌面端内容最大宽度约 1200px；低于 768px 改为单栏，搜索保持首屏可见，点击目标至少 44px。覆盖 loading、empty、error、disabled、hover、focus-visible 状态；键盘顺序符合视觉顺序，提供跳至正文链接。控制字体与脚本体积，避免首屏轮播、视频背景、滚动吸附和装饰动画。"
+        },
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "desired-character",
+            "typography-system",
+            "docs-structure",
+            "contrast-focus",
+            "astro-guidance",
+            "reject-mismatch"
+          ],
+          "observed_skills": [],
+          "duration_ms": 44391,
+          "host_event_lines": 12,
+          "command_event_count": 6,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 58853,
+            "cached_input_tokens": 32256,
+            "output_tokens": 1370,
+            "reasoning_output_tokens": 117
+          },
+          "answer": "数据库候选给出玻璃拟态与橙色 CTA，但与“严谨、安静、长期阅读”冲突，故改为纸面感、低装饰的信息型系统。\n\n### 设计系统\n\n- 气质：克制、可信、可检索。以排版、留白和细边界建立层级，不用渐变、玻璃、强阴影或装饰动画。\n- 色彩：`surface #FCFCFA`、`surface-muted #F4F4F1`、`text #20211F`、`text-muted #62645F`、`border #D9DAD5`；品牌色用低饱和墨绿 `#356052`，仅用于链接、当前项和主按钮。错误/警告采用暗红、赭黄，并配文字或图标，不能只靠颜色。\n- 字体：正文优先系统 UI 字体；代码使用系统等宽字体。正文 16px/1.7，导航 14px，H1 36px，H2 24px，字重限 400/500/650。正文栏宽 68–72ch。\n- 空间：4px 基准，常用 8/12/16/24/32/48/64；圆角 4–6px。组件默认无阴影，浮层仅用细边框与轻微阴影。\n- 图标：统一 1.5px 线性 SVG，不用 emoji。\n\n### 首页结构\n\n1. 顶栏：项目标识、Docs、Guides、Reference、Community、版本选择、GitHub；搜索是最醒目的工具，而非营销按钮。\n2. 首屏：一句准确定位、一段能力边界说明；主行动“快速开始”，次行动“查看概念”。右侧放可复制的最小安装/连接示例，不放产品插画。\n3. 快速入口：安装、核心概念、查询语言、部署、迁移五类文本卡片，每项包含一句结果导向说明。\n4. 学习路径：新用户按“安装→建模→查询→生产部署”纵向阅读；已有用户直接进入 API/SQL Reference。\n5. 版本与信任：当前稳定版、发布日期、兼容范围、发布说明、安全策略。\n6. 社区与贡献：Issue、讨论区、贡献指南；页尾保留许可证、治理与仓库链接。\n\n### Astro 实现约束\n\n优先静态 HTML 与 Astro Content Collections；导航、目录、代码复制等仅做小型 islands，避免全页 hydration。用语义化 `header/nav/main/article/aside`，标题不跳级，提供 skip link；键盘顺序与视觉顺序一致，焦点环 2px，正文对比度至少 4.5:1。桌面采用顶栏＋主内容，文档内页再启用侧栏；移动端单列，导航折叠但搜索和版本始终可达，触控目标至少 44px。\n\n覆盖 hover、focus、active、disabled、loading、empty、error；错误状态必须给原因与恢复路径。动效仅限 120–180ms 的颜色/透明度变化，并遵循 `prefers-reduced-motion`。字体本地托管或使用系统字体；非首屏图片延迟加载并声明尺寸。深浅主题共用语义 token，浅色为默认，禁止简单反相。"
+        },
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "typography-system",
+            "docs-structure",
+            "astro-guidance",
+            "reject-mismatch"
+          ],
+          "observed_skills": [],
+          "duration_ms": 36191,
+          "host_event_lines": 9,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 52227,
+            "cached_input_tokens": 32256,
+            "output_tokens": 1269,
+            "reasoning_output_tokens": 200
+          },
+          "answer": "设计方向：把首页做成“维护者写给工程师的入口”，关键词是可信、克制、可扫描、耐读。Skill 本地设计库给出的玻璃拟态与橙色 CTA 和目标冲突，故仅保留其清晰层级建议，人工改为纸面感、低刺激体系。\n\n设计系统\n\n- 色彩：浅色默认。背景 `#F7F7F4`、正文 `#20211F`、次级文字 `#62645F`、边框 `#D8D9D3`；品牌色用低饱和墨绿 `#315C4C`，只用于链接、当前项和关键按钮。错误色选暗红。所有正文与交互状态满足 WCAG AA。\n- 字体：正文采用系统无衬线栈；标题不另换展示字体，以字重和留白建立层级；代码用等宽字体。正文 16–18px、行高 1.7，阅读栏宽 68–76ch；H1 40–48px，避免夸张字号。\n- 间距：4px 基准，常用 8/12/16/24/32/48/64；圆角 4–6px；阴影原则上不用，仅悬浮菜单可用极弱阴影。分区依靠留白和细边线，不依靠卡片堆叠。\n- 图标使用统一线性 SVG，不用 emoji；动效仅 120–180ms 的颜色或透明度变化，并尊重 `prefers-reduced-motion`。\n\n内容结构\n\n1. 顶栏：项目标志、版本选择、文档导航、GitHub、搜索；搜索是最醒目的工具，而非营销按钮。\n2. 首屏：一句准确价值主张、一句适用边界；提供“快速开始”和“查看概念”两个入口，并展示当前稳定版本。\n3. 快速路径：安装、首次连接、核心查询、部署四步，附可复制命令；不要轮播或大插画。\n4. 文档地图：概念、SQL/API、运维、迁移、客户端、贡献指南，按任务分组而非按团队组织。\n5. 可信信息：兼容性、发布节奏、支持周期、安全公告、基准测试方法；明确链接到证据与版本。\n6. 页尾：许可证、治理、行为准则、状态页、更新时间。\n\nAstro 实现约束\n\n以静态 HTML 和渐进增强为默认；导航、目录、版本信息由 Astro 内容集合生成，统一 schema 校验标题、描述、版本与更新时间。搜索、复制、版本切换才启用 island，避免整页 hydration。用 CSS 自定义属性集中管理颜色、排版、间距和状态；断点控制在约 640/960/1200px，移动端改为单栏并折叠目录。语义化使用 `header/nav/main/aside/footer`，提供跳到正文、可见焦点、键盘完整导航和至少 44px 交互目标。为搜索与版本数据覆盖 loading、empty、error；所有控件定义 disabled、hover、focus 状态。代码块可横向滚动但不得撑破页面；不自动播放、不使用玻璃模糊、渐变光晕或高饱和装饰。"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "typography-system",
+            "semantic-tokens",
+            "docs-structure",
+            "contrast-focus",
+            "astro-guidance",
+            "reject-mismatch"
+          ],
+          "observed_skills": [],
+          "duration_ms": 44879,
+          "host_event_lines": 10,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 50813,
+            "cached_input_tokens": 32256,
+            "output_tokens": 1355,
+            "reasoning_output_tokens": 181
+          },
+          "answer": "设计方向：采用“编辑型技术手册”而非 SaaS 落地页。关键词为克制、可信、可检索、低疲劳。首页优先帮助开发者快速判断版本、找到入口并开始使用，不做营销式大 Hero。数据库候选为 Glassmorphism、亮蓝/橙色、Hero+Features+CTA，与长期阅读及严谨语境冲突，故人工改为实体表面、低饱和蓝灰和文档导航结构；这只是设计匹配，不代表用户研究或可用性验证。\n\n设计 tokens：\n- 色彩：background `#F7F8F6`、surface `#FFFFFF`、foreground `#202522`、muted `#626A65`、primary `#315C4C`、accent `#526C88`、border `#D9DEDA`；success `#397052`、warning `#8A6728`、error `#9A4545`、focus `#315C4C`。正文与背景对比度至少 4.5:1。\n- 字体：正文使用系统 UI 字体栈，代码用 `ui-monospace`；正文 16px/1.7，辅助文字 14px，H1 36px/1.2，H2 24px/1.35。正文栏宽 68–74ch。\n- 间距采用 4、8、12、16、24、32、48、64；圆角 4/8px；边框 1px。避免大阴影，层级靠留白、字号和细边框建立。\n\n内容结构：顶部为项目标识、文档版本、全局搜索、GitHub；主体先展示一句明确定位及“快速开始”“迁移指南”两个入口，再依次为常用任务、核心概念、驱动与工具、部署运维、版本与兼容性、社区贡献。右侧仅在宽屏提供“本页导览”；页尾展示当前稳定版本、最近文档更新和编辑入口。代码示例必须标明语言、可复制，并提供输出或预期结果。\n\n组件与状态：搜索、版本选择器、任务卡片、提示框、代码块、目录链接统一使用 tokens。hover 只改变边框或浅色背景；focus 使用 2px 可见轮廓。loading 显示稳定尺寸骨架；empty 给出替代入口；error 说明原因及重试；disabled 同时降低颜色并禁止交互；当前导航项不能只靠颜色区分。动效限 120–180ms，`prefers-reduced-motion` 下取消非必要过渡。\n\n响应式：≥1200px 为左侧导航、正文、页内目录三栏；768–1199px 收起页内目录；<768px 导航变为可键盘操作的抽屉，正文单栏，搜索置顶，代码块横向滚动。交互目标至少 44×44px。\n\nAstro 约束：优先静态 HTML 与语义元素，仅搜索、导航抽屉、版本选择等交互使用 islands；避免全页 hydration。以布局和内容集合统一导航、版本元数据及 SEO；构建时校验失效链接、标题层级和代码语言。图标使用一致的 SVG 图标集并附可访问名称，不用 emoji。主动避免玻璃拟态、渐变光晕、霓虹、高饱和 CTA、漂浮卡片、过度圆角和娱乐化插画。"
+        },
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "desired-character",
+            "typography-system",
+            "semantic-tokens",
+            "docs-structure",
+            "contrast-focus",
+            "astro-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 38726,
+          "host_event_lines": 9,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 54902,
+            "cached_input_tokens": 16128,
+            "output_tokens": 1404,
+            "reasoning_output_tokens": 322
+          },
+          "answer": "设计方向：采用“编辑部式技术手册”，信息密度适中、低干扰、以检索与阅读连续性为核心。数据库候选是 Hero + Features + CTA、玻璃拟态、蓝橙高对比；前者过度营销，后两者与严谨安静的语境冲突，因此人工调整为文档索引结构、实体表面与低饱和蓝灰。本方案不是用户研究或可用性验证结论。\n\n设计 Tokens\n\n- 色彩：background `#F7F8FA`、surface `#FFFFFF`、foreground `#18212B`、muted `#5E6A77`、primary `#315C78`、accent `#527A67`、border `#D8DEE5`；success `#397252`、warning `#8A651F`、error `#A54646`、focus `#2F6F9F`。深色模式使用墨蓝灰底，避免纯黑。\n- 字体：正文优先 Source Sans 3/系统无衬线；标题使用同字体 600 字重；代码使用 Source Code Pro。正文 16px/1.75，阅读列宽 68–74ch。\n- 间距采用 4、8、12、16、24、32、48、64；圆角 4/8px；阴影仅用于悬浮导航，边框承担主要分层。\n\n内容结构\n\n顶部为项目标识、版本切换、全局搜索、GitHub；首屏不用大幅 Hero，只放一句数据库定位、稳定版提示与“快速开始”。随后依次为：安装与首个查询、核心概念、SQL/API 参考、运维与迁移、生态工具、版本与兼容性、社区贡献。桌面端左侧分组导航、中间正文、右侧页内目录；首页卡片按学习任务组织，不按营销功能堆叠。底部显示编辑日期、适用版本和反馈入口。\n\n组件与状态\n\n搜索支持快捷键、结果分组和无结果建议；版本警告紧邻标题。链接 hover 仅改变颜色并显示下划线，focus 使用 2px 可见轮廓；按钮 disabled 同时降低色彩并保留文字可辨性。loading 用静态骨架，empty 给出下一步，error 提供原因与重试。代码块支持复制反馈、横向滚动和语言标识。图标使用统一 SVG，不用 emoji。\n\n响应式与 Astro 约束\n\n≥1200px 三栏，768–1199px 收起右侧目录，<768px 导航进入可键盘操作的抽屉；触控目标至少 44px。保持标题层级、跳转链接、Landmark 与当前页 `aria-current`；正文和控件对比度至少 4.5:1。Astro 默认输出静态 HTML，只对搜索、版本选择和移动导航做岛屿水合；字体自托管并预加载关键字重，避免布局偏移。尊重 `prefers-reduced-motion`，关闭平滑滚动与非必要过渡。\n\n主动避免：霓虹、高饱和渐变、玻璃拟态、巨型口号、悬浮装饰、无意义动画、等权卡片海洋及默认深色“开发者感”。"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "desired-character",
+            "typography-system",
+            "semantic-tokens",
+            "docs-structure",
+            "contrast-focus",
+            "astro-guidance",
+            "reject-mismatch"
+          ],
+          "observed_skills": [],
+          "duration_ms": 69563,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 33839,
+            "cached_input_tokens": 16128,
+            "output_tokens": 1231,
+            "reasoning_output_tokens": 265
+          },
+          "answer": "检索候选偏向「Hero + Features + CTA、玻璃拟态、蓝橙配色」，与技术文档的长期阅读场景冲突；仅保留清晰层级思路，人工调整为克制的“编辑部式技术参考”方向。该结论是设计候选筛选，不代表用户研究或可用性验证。\n\n设计系统\n\n- 气质：严谨、安静、可信、可持续维护；以内容密度和检索效率为核心。\n- 色彩：`background #F7F7F5`、`surface #FFFFFF`、`foreground #202321`、`muted #626965`、`primary #315C4C`、`accent #8A6738`、`border #D9DDD8`；成功 `#39734F`、警告 `#8A6428`、错误 `#A3473F`、信息 `#426B83`。深色模式使用近黑灰绿，不做纯黑或高亮反色。\n- 字体：正文优先系统 UI 字体，中文 16px/1.75；标题 600 字重、紧凑行高；代码使用等宽字体。正文栏宽 `68ch`，避免超长行。\n- 间距：4px 基准，采用 8/12/16/24/32/48/64；圆角 4/8px；阴影只用于浮层，信息分组主要靠留白与细边框。\n\n内容结构\n\n顶部为项目标识、版本切换、全局搜索、GitHub；首屏直接呈现一句定位、稳定版入口和快速开始，不做营销式巨型 Hero。主体依次为：快速开始、核心概念、SQL/客户端入口、部署方式、迁移与升级、运维与故障处理、版本与兼容性。右侧放“最新稳定版、支持周期、发布说明”；底部提供贡献指南、安全策略和许可证。桌面端左侧常驻导航、正文居中、右侧页内目录；移动端折叠为可访问抽屉。\n\n组件与状态\n\n搜索、版本选择器、代码块、提示框、兼容性表格、面包屑统一使用上述 tokens。明确提供 loading 骨架、empty 建议入口、error 原因与重试、disabled 降低对比且禁止交互；hover 仅轻微底色变化，focus 使用 2px 高对比轮廓。代码复制需文字反馈。\n\nAstro 实现约束\n\n优先静态生成与语义 HTML；用 Astro Content Collections 管理版本、侧栏和元数据，仅对搜索、版本选择等必要组件做局部 hydration。导航顺序与 DOM 一致，支持键盘、跳至正文、ARIA 状态；正文对比度至少 4.5:1，触控目标至少 44px。断点建议 720/1080px，表格窄屏横向滚动。动画控制在 150ms 内，并遵守 `prefers-reduced-motion`。\n\n主动避免玻璃拟态、渐变光晕、霓虹、高饱和 CTA、漂浮卡片、娱乐化插画、过度动效，以及把文档首页做成 SaaS 营销模板。"
+        }
+      ]
+    },
+    {
+      "id": "frontend-design-mobile-checkout",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+      "skill_sha256": "3db539e025269e5feded74431c3a6b02445b922c91f332dc71da632f495ea6bf",
+      "skill_content_chars": 1348,
+      "skill_content_bytes": 2724,
+      "baseline_score": 0.5,
+      "skill_score": 0.5,
+      "delta": 0.0,
+      "direction": "tie",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 243766,
+        "cached_input_tokens": 142336,
+        "output_tokens": 5680,
+        "reasoning_output_tokens": 914
+      },
+      "skill_usage": {
+        "input_tokens": 181496,
+        "cached_input_tokens": 127232,
+        "output_tokens": 4231,
+        "reasoning_output_tokens": 707
+      },
+      "usage_delta": {
+        "input_tokens": -62270,
+        "cached_input_tokens": -15104,
+        "output_tokens": -1449,
+        "reasoning_output_tokens": -207
+      },
+      "baseline_criterion_rates": {
+        "checkout-steps": 1.0,
+        "semantic-tokens": 0.0,
+        "form-labels": 0.333333,
+        "recovery-states": 0.666667,
+        "touch-target": 0.0,
+        "responsive": 1.0,
+        "accessibility": 0.0,
+        "stack-guidance": 1.0
+      },
+      "skill_criterion_rates": {
+        "checkout-steps": 1.0,
+        "semantic-tokens": 0.0,
+        "form-labels": 0.333333,
+        "recovery-states": 1.0,
+        "touch-target": 0.666667,
+        "responsive": 0.666667,
+        "accessibility": 0.0,
+        "stack-guidance": 1.0
+      },
+      "criterion_deltas": {
+        "checkout-steps": 0.0,
+        "semantic-tokens": 0.0,
+        "form-labels": 0.0,
+        "recovery-states": 0.333333,
+        "touch-target": 0.666667,
+        "responsive": -0.333333,
+        "accessibility": 0.0,
+        "stack-guidance": 0.0
+      },
+      "gained_criteria": [
+        "recovery-states",
+        "touch-target"
+      ],
+      "lost_criteria": [
+        "responsive"
+      ],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "checkout-steps",
+            "recovery-states",
+            "responsive",
+            "stack-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 69523,
+          "host_event_lines": 13,
+          "command_event_count": 6,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 82724,
+            "cached_input_tokens": 52480,
+            "output_tokens": 1974,
+            "reasoning_output_tokens": 289
+          },
+          "answer": "设计方向：可信、克制、高效。资料库建议的玻璃拟态与营销页结构不适合高风险结账流程，人工调整为高对比实体表面、单一主操作和渐进披露；此规范是设计建议，不等同于用户研究结论。\n\n**Design tokens**\n- 色彩：`bg #F8FAFC`、`surface #FFF`、`text #0F172A`、`muted #475569`、`border #CBD5E1`、`primary #1D4ED8`、`primary-hover #1E40AF`、`error #B91C1C`、`success #15803D`、`focus #2563EB`；正文对比度≥4.5:1，状态不只靠颜色。\n- 字体：系统字体栈；12/14/16/18/24px，正文16px、行高1.5，价格使用等宽数字。\n- 间距：4/8px基准，字段间16、区块间24/32；圆角输入8、卡片12；边框1px，阴影仅用于桌面订单摘要。\n- 控件：高度≥48px；焦点环`2px + 2px offset`；动效150–200ms，仅opacity/transform，并尊重`prefers-reduced-motion`。\n\n**表单结构**\n顶部为“安全结账”与三步进度：地址→配送→支付；允许返回且保留数据。主体按顺序使用语义化`form`、`fieldset/legend`：\n1. 地址：姓名、手机号、国家/地区、街道、城市、省/州、邮编；使用可见标签、必填标记、`autocomplete`和`inputMode`。\n2. 配送：单选卡展示方式、预计送达、费用；无可用方式时说明原因，并提供“修改地址”。\n3. 支付：支付方式单选；卡信息交由合规支付组件承载，账单地址默认复用，可展开修改。\n4. 提交前显示订单摘要、优惠、运费、税费和总额；主按钮写明“支付 ¥X”，不使用含糊的“继续”。\n\n**状态与恢复**\n- 校验在blur或提交后触发；字段下方给出“原因＋修复方法”，关联`aria-describedby`。多错误时顶部显示可聚焦摘要及字段锚点，随后聚焦首个错误。\n- 提交中锁定重复支付并显示按钮内进度，但允许安全取消；保留所有输入。\n- 地址/配送加载失败：原位错误＋重试；支付失败：明确“未扣款/状态待确认”、失败原因、重试、换支付方式和联系客服。超时先查询订单状态，避免盲目重提。\n- 覆盖loading、empty、error、disabled、hover、pressed、focus、success；通知用`aria-live`，不抢焦点。刷新/返回后从session草稿恢复，敏感支付数据不持久化。\n\n**React + Tailwind / 响应式**\n移动端单列、16px边距，底部粘性总价与CTA，并用`pb-[calc(...+env(safe-area-inset-bottom))]`防遮挡。`md`起增加24px边距；`lg`起采用`minmax(0,1fr) 360px`双栏，订单摘要右侧`sticky`。限制内容宽度，375px及横屏无横向滚动。用受控步骤状态或表单状态机区分编辑、校验、提交、结果；组件只引用语义token映射的Tailwind类，避免散落色值。错误边界按地址、配送、支付区块隔离，不能让单区异常摧毁整页。"
+        },
+        {
+          "score": 0.625,
+          "passed_criteria": [
+            "checkout-steps",
+            "form-labels",
+            "recovery-states",
+            "responsive",
+            "stack-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 97568,
+          "host_event_lines": 12,
+          "command_event_count": 6,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 80641,
+            "cached_input_tokens": 37376,
+            "output_tokens": 1870,
+            "reasoning_output_tokens": 336
+          },
+          "answer": "设计方向：可信、克制、高效。规则库推荐的玻璃拟态与结账场景冲突，改用高对比平面卡片、清晰价格层级和单一主操作。\n\n**设计 Token**\n\n- 色彩：`surface #FFF`、`canvas #F8FAFC`、`text #0F172A`、`muted #475569`、`border #CBD5E1`、`primary #2563EB`、`primary-hover #1D4ED8`、`danger #B91C1C`、`success #15803D`、`focus #60A5FA`；正文对比度 ≥4.5:1，状态不得只靠颜色。\n- 字体：系统无衬线；12/14/16/18/24px，正文至少16px、行高1.5；价格使用等宽数字。\n- 间距：4px 基准，常用8/12/16/24/32；移动端页边距16px。\n- 圆角：输入框/按钮8px，卡片12px；边框1px；阴影仅用于悬浮订单摘要。\n- 控件高 ≥48px；图标统一使用同一套 SVG。动效150–200ms，仅变更颜色、透明度；支持 `prefers-reduced-motion`。\n\n**表单结构**\n\n单页分三段并显示“地址 → 配送 → 支付”进度：\n\n1. 地址：姓名、手机号、国家/地区、详细地址、城市、省份、邮编；使用持久标签、必填标记、`autocomplete` 与 `tel/address-*` 类型。账单地址默认同配送地址，按需展开。\n2. 配送：单选卡展示方式、预计日期与费用；不可用选项保留并解释原因。\n3. 支付：优先托管支付组件；方式以单选切换，卡号、有效期、安全码分组。不得保存安全码。\n\n底部先列商品小计、运费、税费、总计，再放唯一主按钮“支付 ¥X”；桌面端订单摘要置右。返回上一步须保留所有输入。\n\n**状态与恢复**\n\n字段在失焦后校验；错误紧邻字段，说明“原因＋修复方法”。提交失败时顶部显示可聚焦的错误摘要并链接到字段，自动聚焦首个错误。提交中锁定按钮、保留金额并显示进度，防止重复支付；超时或网络失败提供“重试”，且不清空表单。支付被拒显示可操作原因，并提供“更换支付方式”。地址草稿存本地；成功后进入不可重复提交的确认页。Toast 仅作补充，使用 `aria-live`。覆盖 idle、focus、hover、pressed、valid、invalid、loading、disabled、offline、timeout、success；订单加载用等高骨架避免布局跳动。\n\n**React + Tailwind 响应式**\n\n移动端单列、自然纵向滚动，底部支付栏 `sticky` 并预留安全区及内容底距；`md` 起双列，表单约 2/3、摘要约 1/3 且吸顶。375px 与横屏不得横向滚动；`max-w-6xl mx-auto` 控制桌面宽度。用语义化 `fieldset/legend/label`、原生单选与按钮；错误通过 `aria-describedby` 关联。将颜色、间距、圆角映射为 Tailwind 主题变量，组件只引用语义 token，不散落十六进制值。"
+        },
+        {
+          "score": 0.375,
+          "passed_criteria": [
+            "checkout-steps",
+            "responsive",
+            "stack-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 67470,
+          "host_event_lines": 17,
+          "command_event_count": 10,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 80401,
+            "cached_input_tokens": 52480,
+            "output_tokens": 1836,
+            "reasoning_output_tokens": 289
+          },
+          "answer": "设计方向：可信、克制、低认知负担。设计库返回的玻璃拟态与结账场景冲突，改用高对比实体表面、清晰分组和单一主行动。\n\n**Design tokens**\n\n- 色彩：`surface #FFF`、`canvas #F8FAFC`、`text #0F172A`、`muted #475569`、`border #CBD5E1`、`primary #2563EB`、`primary-hover #1D4ED8`、`danger #B91C1C`、`success #15803D`；正文对比度≥4.5:1，状态不能只靠颜色表达。\n- 字体：系统无衬线；12/14/16/18/24px，正文移动端≥16px；价格使用等宽数字。行高1.5。\n- 间距：4px 基准，常用8/12/16/24/32；页面边距16，桌面24–32。\n- 圆角：输入框8、卡片12、按钮10；边框1px；仅订单摘要使用轻阴影。\n- 控件：高度≥48px；焦点环2–3px；动效150–200ms，仅用透明度/颜色，支持`prefers-reduced-motion`。\n\n**表单结构**\n\n单页三段递进：①联系与地址：姓名、手机号、国家/地区、街道、城市、省/州、邮编；使用持久标签、必填标记、`autocomplete`及语义化`type`。②配送：可选卡片展示方式、预计日期、费用，默认选择合理选项。③支付：方式切换、支付字段、账单地址复用。底部订单摘要列商品、优惠、运费、税费和总计；主按钮写明“支付 ¥X”。允许返回编辑且保留全部输入，地址与支付组使用`fieldset/legend`。\n\n**状态与恢复**\n\n初始、编辑中、校验中、提交中、成功、可恢复失败、不可恢复失败。失焦后校验；字段错误紧邻输入，提交多错时顶部给错误摘要及锚点，并聚焦首个错误。提交中锁定重复支付但不清空表单，按钮显示进度。网络超时保留草稿并提供“重试”；支付拒绝说明原因、允许换卡；库存或价格变化展示差异并要求确认；会话过期先恢复本地非敏感字段。错误用`role=\"alert\"`，成功/异步消息用`aria-live=\"polite\"`。空购物车提供返回购物按钮；禁用态同时使用原生`disabled`与说明。\n\n**React + Tailwind / 响应式**\n\n移动端单列，步骤标题常驻、底部支付栏`sticky`并预留安全区和内容底垫；避免遮挡错误。`md`起正文与订单摘要双栏，摘要右侧粘性；最大宽度约1120px。用语义 token 映射 Tailwind CSS 变量，避免组件内散落色值。表单状态由字段级状态与提交状态分离，稳定ID作为列表key；失败重试保持幂等。完整键盘操作，视觉顺序等于Tab顺序；hover仅增强，不能承载必要信息。验证375px、横屏、200%缩放及弱网场景。"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "checkout-steps",
+            "recovery-states",
+            "touch-target",
+            "stack-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 35256,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 33747,
+            "cached_input_tokens": 16128,
+            "output_tokens": 1104,
+            "reasoning_output_tokens": 175
+          },
+          "answer": "设计方向：可信、低压、可恢复。数据库候选给出蓝/橙配色，但“Hero + CTA”和玻璃拟态不适合高风险结账流程；人工改为单列分步表单、实色卡片、清晰边界，减少装饰与认知负担。此为模式匹配与设计判断，不代表真实用户研究或可用性验证。\n\n设计 token\n\n- 色彩：background `#F8FAFC`、surface `#FFFFFF`、foreground `#172033`、muted `#64748B`、primary `#2563EB`、accent `#EA580C`（仅优惠/提示）、border `#CBD5E1`、success `#15803D`、warning `#B45309`、error `#B91C1C`、focus `#2563EB`。\n- 字体：Inter/系统无衬线；正文 16/24，辅助 14/20，标题 24/32、600；金额使用等宽数字。\n- 间距：4、8、12、16、24、32；控件高至少 48px，触控目标至少 44×44px；圆角 8px，卡片 12px；阴影仅用于底部结算栏。\n\n表单结构\n\n顶部为“购物车—配送—支付”进度与返回购物车；正文依次为：地址、配送方式、支付方式、订单复核。每段使用 `fieldset + legend`，标签常驻，必填项明确；地址支持自动填充但可手改。配送选项显示日期、费用与限制；支付选项采用单选卡，敏感字段不持久化。移动端底部固定“应付金额 + 提交订单”，提交前展示税费、运费及条款；错误摘要置于当前步骤顶部，并将焦点移至摘要，链接到具体字段。\n\n状态与恢复\n\n- loading：局部骨架或按钮内进度，保留已填内容。\n- empty：无配送/支付方式时说明原因并给“修改地址/更换方式”。\n- error：字段错误就地提示；网络或支付失败说明是否扣款，保留地址与选择，提供重试、换支付方式和联系客服；生成幂等提交标识，防止重复下单。\n- disabled：仅在请求中或必要数据缺失时使用，并说明原因。\n- hover：仅增强边框/底色，不承载唯一信息；focus：2px 高对比焦点环；success：订单号、确认渠道与后续动作。\n- reduced-motion：遵循 `prefers-reduced-motion`，取消位移和自动滚动动画。\n\nReact + Tailwind：按步骤拆分受控组件，服务端错误映射回字段；用语义 HTML、`aria-describedby`、`aria-live=\"polite\"`，错误摘要用 `role=\"alert\"`。默认单列；`md` 起双栏，左侧表单、右侧粘性订单摘要，底部按钮改入摘要。避免玻璃拟态、轮播、隐藏费用、仅靠颜色报错和过度圆角卡片化。"
+        },
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "checkout-steps",
+            "recovery-states",
+            "responsive",
+            "stack-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 53063,
+          "host_event_lines": 18,
+          "command_event_count": 12,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 111105,
+            "cached_input_tokens": 94976,
+            "output_tokens": 2026,
+            "reasoning_output_tokens": 385
+          },
+          "answer": "设计方向：可信、克制、低焦虑；让用户始终知道“填到哪、为何失败、如何继续”。本地数据库命中电商，但其霓虹紫、动态落地页和大幅动画与结账场景冲突，人工改为安静的交易界面；这不是用户研究或真实可用性验证。\n\n**Tokens**\n- 色彩：background `#F7F8FA`、surface `#FFFFFF`、foreground `#172033`、muted `#667085`、primary `#176B4D`、primary-hover `#12543D`、accent `#E8F3EE`、border `#D0D5DD`、focus `#2563EB`、success `#16794B`、warning `#B54708`、error `#B42318`；正文对比度≥4.5:1，状态不只靠颜色。\n- 字体：系统无衬线；12/14/16/20/24px，正文16px、行高1.5，价格使用等宽数字。\n- 间距：4/8/12/16/24/32px；圆角输入框10px、卡片12px、主按钮12px；控件高≥48px；阴影仅用于桌面订单摘要 `0 4px 16px rgb(16 24 40 / 8%)`。\n\n**结构**\n单页分段：页首“安全结账”与返回购物车 → 1 地址（姓名、电话、地区、详细地址；支持浏览器自动填充）→ 2 配送（单选卡：日期、费用、说明）→ 3 支付（单选方式；敏感字段交给支付组件）→ 优惠/订单摘要 → 同意条款与“支付 ¥金额”。每组用 `fieldset/legend`；标签常驻，必填明确，复杂字段给辅助文字。移动端底部固定唯一主 CTA，并为正文预留底部空间；自动保存非敏感草稿，返回后保留输入与滚动位置。\n\n**状态与恢复**\n- loading：配送/支付加载显示定高骨架；提交按钮显示进度、保持原宽并禁用，防重复支付。\n- empty：无可配送或无支付方式时说明原因，提供“修改地址/选择其他方式/联系客服”。\n- error：失焦后行内校验；多错误时顶部摘要链接到字段并聚焦首错。网络失败保留全部数据，说明原因，提供“重试”；支付失败不得暗示已扣款，提供重试、换方式和帮助入口。错误用 `role=\"alert\"`，非紧急进度用 `aria-live=\"polite\"`。\n- disabled：语义 `disabled`、降低强调且不可点击；hover 仅增强边框/底色；focus 使用2–3px高对比焦点环；成功明确回执和订单号。\n- reduced-motion：关闭位移与骨架闪烁，仅保留即时颜色/透明度反馈；普通过渡150–200ms且不引发布局偏移。\n\n**React + Tailwind 响应式**\n默认单列、16px边距、`min-h-dvh`；`md` 增至24px；`lg` 使用“表单 + 360px粘性订单摘要”双列，内容宽≤1120px。375px及横屏不得横向滚动；固定栏考虑 `env(safe-area-inset-bottom)`。用受控步骤状态与独立请求状态，错误绑定 `aria-describedby/aria-invalid`，Tab顺序与视觉顺序一致，图标统一用SVG而非emoji。主动避免：步骤藏进模态框、强迫注册、倒计时制造焦虑、霓虹渐变、玻璃拟态、悬浮动画及仅用红框表示失败。"
+        },
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "checkout-steps",
+            "form-labels",
+            "recovery-states",
+            "touch-target",
+            "responsive",
+            "stack-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 34800,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 36644,
+            "cached_input_tokens": 16128,
+            "output_tokens": 1101,
+            "reasoning_output_tokens": 147
+          },
+          "answer": "设计方向：可信、低干扰、可恢复。数据库候选的蓝/橙配色可用于清晰主次，但 “Hero + CTA” 与玻璃拟态不适合高风险结账场景；人工调整为实体卡片、单列任务流，避免透明层、营销横幅、默认深色及过度动效。此为设计规范，不代表用户研究或可用性验证。\n\nToken：`bg #F8FAFC`、`surface #FFFFFF`、`fg #172033`、`muted #64748B`、`primary #2563EB`、`accent #C2410C`、`border #CBD5E1`、`success #15803D`、`warning #A16207`、`error #B91C1C`、`focus #2563EB`；正文/背景对比≥4.5:1。字体 Inter，中文回退 `system-ui`；字号 14/16/20/28px，行高 1.5/1.4/1.25。间距 4/8/12/16/24/32px；圆角输入框 8px、卡片 12px；阴影仅桌面摘要卡使用轻量一级。\n\n表单结构：顶部返回、标题与“安全结账”；进度显示“地址—配送—支付”，同时提供文字而非只靠颜色。单列依次为：联系信息；收货地址（姓名、电话、地区、详细地址、邮编，支持地址建议但允许手填）；配送方式单选（费用、时效、截止时间）；支付方式单选及对应字段；订单摘要、优惠码；同意项；底部“支付 ¥金额”。字段标签常驻，必填标记明确；按组保存草稿，返回不丢失内容。错误在字段下说明原因和修复方法，提交后聚焦首个错误，并提供顶部错误摘要。\n\n状态：loading 用骨架屏并保留布局；empty 明示购物车为空并返回购物车；error 区分字段、配送失效、库存变化、支付失败，保留输入和选择，给出重试、换支付方式或联系客服；支付结果未知时禁止重复扣款，先查询订单状态。disabled 同时降低视觉权重并说明原因；hover 仅增强边框/底色；focus 使用 2px 外环且不被遮挡；成功后显示订单号与下一步。提交按钮请求中锁定并显示进度；网络恢复后提示继续。`prefers-reduced-motion` 下取消位移和循环动画。\n\n响应式与实现：<768px 单列，订单摘要可折叠，底部固定支付栏需避让安全区且不遮挡错误；触控目标≥44×44px。≥768px 使用 7/5 双栏，摘要 `sticky`，但 DOM 顺序仍保持表单后摘要。React 将每段设为独立 fieldset，原生 label、legend、radio 与 autocomplete；错误用 `aria-describedby`，异步提示用克制的 live region。Tailwind 将上述 token 写入 theme/CSS variables，统一 `focus-visible`、`disabled`、断点和 reduced-motion 变体，避免散落任意色值与尺寸。"
+        }
+      ]
+    },
+    {
+      "id": "frontend-design-analytics-charts",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+      "skill_sha256": "3db539e025269e5feded74431c3a6b02445b922c91f332dc71da632f495ea6bf",
+      "skill_content_chars": 1348,
+      "skill_content_bytes": 2724,
+      "baseline_score": 0.5,
+      "skill_score": 0.625,
+      "delta": 0.125,
+      "direction": "improvement",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 214138,
+        "cached_input_tokens": 165376,
+        "output_tokens": 4285,
+        "reasoning_output_tokens": 654
+      },
+      "skill_usage": {
+        "input_tokens": 206715,
+        "cached_input_tokens": 114944,
+        "output_tokens": 4796,
+        "reasoning_output_tokens": 1254
+      },
+      "usage_delta": {
+        "input_tokens": -7423,
+        "cached_input_tokens": -50432,
+        "output_tokens": 511,
+        "reasoning_output_tokens": 600
+      },
+      "baseline_criterion_rates": {
+        "chart-selection": 0.0,
+        "semantic-color": 1.0,
+        "chart-a11y": 0.0,
+        "non-color-channel": 0.666667,
+        "live-performance": 1.0,
+        "states": 0.666667,
+        "tokens": 0.333333,
+        "react-guidance": 0.666667
+      },
+      "skill_criterion_rates": {
+        "chart-selection": 0.0,
+        "semantic-color": 1.0,
+        "chart-a11y": 0.333333,
+        "non-color-channel": 0.666667,
+        "live-performance": 1.0,
+        "states": 0.666667,
+        "tokens": 0.0,
+        "react-guidance": 1.0
+      },
+      "criterion_deltas": {
+        "chart-selection": 0.0,
+        "semantic-color": 0.0,
+        "chart-a11y": 0.333333,
+        "non-color-channel": 0.0,
+        "live-performance": 0.0,
+        "states": 0.0,
+        "tokens": -0.333333,
+        "react-guidance": 0.333333
+      },
+      "gained_criteria": [
+        "chart-a11y",
+        "react-guidance"
+      ],
+      "lost_criteria": [
+        "tokens"
+      ],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "semantic-color",
+            "live-performance",
+            "tokens",
+            "react-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 33203,
+          "host_event_lines": 10,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 52181,
+            "cached_input_tokens": 47360,
+            "output_tokens": 1142,
+            "reasoning_output_tokens": 124
+          },
+          "answer": "设计方向：高信息密度、冷静可信。采用浅色不透明面板，拒绝检索候选中的大面积玻璃模糊——它会削弱图表对比度并增加渲染成本；仅保留细边框和轻层级。\n\n统一设计系统：8px 间距基线；面板圆角 8px、边框 `#E2E8F0`、背景 `#F8FAFC`、正文 `#1E293B`、次级文字 `#64748B`；Inter/系统无衬线字体，数字启用等宽数字。主色蓝 `#2563EB` 表示正常与选中，黄 `#D97706` 表示警告，红 `#DC2626` 表示严重，灰表示未知/无数据。颜色全部封装为语义 token，亮暗主题保持含义一致。\n\n- 24 小时时序趋势：多折线图，默认展示请求量、延迟等同量纲指标；量纲不同则拆图，避免双 Y 轴。附阈值虚线、当前值和环比摘要；可拖拽框选时间、滚轮缩放、图例开关序列，悬停/键盘移动显示同一时刻十字准线与精确值。\n- 服务错误率比较：按错误率降序的水平条形图，条尾同时显示百分比与请求基数，避免低流量服务被误判；提供 Top N、环境和时间窗筛选。阈值以下用中性蓝，超阈值才转黄/红，不使用彩虹色区分服务。\n- 当前告警分布：严重级别用环形图，中心显示告警总数；旁侧固定展示各级数量与占比。若需要比较服务归属，改用排序条形图，避免多层饼图。点击分区联动过滤告警列表，并提供“清除筛选”。\n\n无障碍：所有图表附可聚焦摘要与等价数据表；颜色之外增加线型、图案、标签和图标编码；正文/图形对比度至少 4.5:1/3:1；操作支持键盘、可见焦点及屏幕阅读器名称。实时刷新用非打断式状态文本，严重告警才谨慎播报。\n\n性能：React 中让图表组件按数据域拆分并 memo；共享一次数据订阅，批量节流刷新至 1–2 秒，窗口化长列表。保留最近 24 小时的降采样数据，缩放后再请求明细；优先 Canvas/WebGL，大量点位禁用逐点动画、阴影和模糊。覆盖 skeleton、空、错误、禁用、hover、focus 状态；`prefers-reduced-motion` 下关闭过渡和脉冲。"
+        },
+        {
+          "score": 0.625,
+          "passed_criteria": [
+            "semantic-color",
+            "non-color-channel",
+            "live-performance",
+            "states",
+            "react-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 44032,
+          "host_event_lines": 10,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 52300,
+            "cached_input_tokens": 32256,
+            "output_tokens": 1283,
+            "reasoning_output_tokens": 196
+          },
+          "answer": "设计方向：面向运维人员的冷静、高密度监控台。采用 12 栏响应式网格：趋势图占 8 栏，错误率占 4 栏，告警分布占 4 栏；窄屏改为纵向排列。避免玻璃拟态与大面积模糊，以保证数据清晰度和渲染性能。\n\n图表选择\n\n- 24 小时时序趋势：多序列折线图，时间轴固定为 24 小时；用面积淡填充表达总量，仅关键阈值使用水平虚线。序列超过 5 条时默认显示 Top 5，其余通过图例筛选。\n- 服务错误率比较：横向条形图，按错误率降序，条尾同时显示百分比与请求样本量；增加目标阈值线，避免仅凭条长误判小样本服务。\n- 当前告警分布：按严重级别使用堆叠横条或分段条，并列出各级数量。不要用饼图：角度难比较，且颜色对色觉用户不友好。\n\n统一设计系统\n\n使用 4px 基础间距；卡片间距 16px、内边距 20px、圆角 8px、边框 1px。字体采用 Inter/系统无衬线，数值启用等宽数字；标题 16/600，关键指标 28/600，辅助信息 12–14px。背景 `#F8FAFC`、卡片 `#FFFFFF`、正文 `#1E293B`、弱文本 `#64748B`、边框 `#CBD5E1`、焦点环 `#2563EB`。蓝色表示普通数据，绿色表示健康，琥珀色表示警告，红色仅表示严重/失败；颜色必须同时配合标签、图形纹理或线型，不单独承载含义。\n\n交互\n\n统一时间范围、服务和环境筛选器；悬停显示同一时间点的对齐提示框，点击图例切换序列，框选时间段放大并提供“重置”。点击错误率或告警分段进入过滤后的明细。实时刷新时保留用户缩放和筛选，显示“最后更新”与暂停按钮，不让新数据造成布局跳动。\n\n无障碍与状态\n\n所有图表提供可聚焦标题、文字摘要和可切换的数据表；键盘可访问图例、数据点及筛选器，焦点清晰，正文对比度至少 4.5:1。覆盖 loading、empty、error、disabled、hover、focus；支持 `prefers-reduced-motion`，关闭折线绘制及数字滚动动画。\n\n性能\n\n按固定时间桶聚合，限制可见点数并用 LTTB 等方式降采样；仅更新变化序列，缓存计算与格式化结果。大数据表虚拟化，图表离屏时暂停刷新；优先 Canvas，静态少量数据可用 SVG。刷新采用批处理和节流，避免每条事件触发 React 全树重渲染。"
+        },
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "semantic-color",
+            "non-color-channel",
+            "live-performance",
+            "states"
+          ],
+          "observed_skills": [],
+          "duration_ms": 63140,
+          "host_event_lines": 15,
+          "command_event_count": 10,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 109657,
+            "cached_input_tokens": 85760,
+            "output_tokens": 1860,
+            "reasoning_output_tokens": 334
+          },
+          "answer": "设计方向：面向运维人员的高密度、低干扰监控台；不采用检索结果中的玻璃拟态与营销页结构，因为透明模糊会削弱数据对比并增加渲染成本。\n\n- **24 小时时序趋势**：多折线图，默认展示核心指标，最多同时 4 条；X 轴按小时、Y 轴明确单位，阈值用虚线和淡色区间表示。悬停显示同一时刻的对齐提示框，支持图例显隐、拖拽缩放、框选时间段及“恢复 24h”；实时追加时保留用户当前视窗，不强制跳回末端。\n- **服务错误率比较**：按错误率降序的水平条形图，条末显示百分比，并附请求量，避免低流量服务被误判。提供“错误率/错误数”切换、服务筛选和阈值参考线；服务较多时虚拟滚动，不使用雷达图或 3D 图。\n- **当前告警分布**：按严重级别的 100% 堆叠横条，旁列各级数量与占比；若需查看来源，再切换为按服务分组的普通横条。点击分段联动过滤告警列表。类别超过 5 个时归入“其他”，不依赖饼图表达细小差异。\n\n**统一设计系统**：8px 间距基线；卡片间距 16/24，圆角 8，边框 1px。字体使用 Inter/系统无衬线，数字启用等宽数字；标题、指标、辅助文字三级层级。背景 `#F8FAFC`，正文 `#172033`，网格 `#D9E1EC`；信息蓝 `#2563EB`、正常青绿 `#0F8A72`、警告琥珀 `#B86B00`、严重红 `#C9362B`、无数据灰。颜色始终配合标签、纹理或图形，不让红绿成为唯一编码。\n\n**状态与交互**：统一覆盖 loading 骨架、empty 说明、error 重试、disabled、hover、键盘 focus；筛选条件写入 URL，刷新频率可暂停，并显示“最后更新于”。动画仅用于 150ms 状态过渡；开启 reduced-motion 时取消折线绘制与数值滚动。\n\n**无障碍与性能**：文本及关键图形对比度至少 4.5:1；图表具备标题、摘要、可聚焦图例和等价数据表，提示框可由键盘触发，触控目标至少 44px。数据先聚合降采样，屏幕每序列控制在约 500–1000 点；WebSocket 更新批量到每秒一次，图表组件按需加载，稳定 props 并隔离重渲染，性能优化以前后 Profiler 数据为依据。"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 0.625,
+          "passed_criteria": [
+            "semantic-color",
+            "non-color-channel",
+            "live-performance",
+            "states",
+            "react-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 52982,
+          "host_event_lines": 13,
+          "command_event_count": 8,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 97670,
+            "cached_input_tokens": 62464,
+            "output_tokens": 1753,
+            "reasoning_output_tokens": 399
+          },
+          "answer": "设计方向：面向值班运维的高密度、低干扰监控台。数据库建议时序折线及异常标记；其 Glassmorphism/营销页结构与持续读数场景冲突，人工改为实体卡片、弱边框和稳定布局，未代表真实用户研究。\n\n统一系统\n\n- 字体：Inter、系统无衬线；数值启用 tabular-nums。间距 4/8/12/16/24；圆角 8；1px 边框。\n- 色彩：background `#F8FAFC`、surface `#FFFFFF`、foreground `#172033`、muted `#64748B`、border `#CBD5E1`、primary `#2563EB`、accent `#7C3AED`；success `#16803C`、warning `#B45309`、critical `#C62828`。颜色只表达语义，不按图表随意换色。\n\n图表\n\n1. 24 小时趋势：多序列折线图，最多 5 条；异常点用菱形和文字标记，告警区间用低透明色带。默认 15 分钟聚合，保留原始值查询；避免平滑曲线掩盖尖峰。\n2. 服务错误率：按错误率降序的水平点图，左侧服务名、右侧精确百分比；加入统一 SLO 阈值线。点形与颜色共同区分正常、警告、超标，比饼图或仪表盘更利于跨服务比较。\n3. 当前告警分布：按 P0–P3 排序的单条水平堆叠条，下方列数量与占比；点击分段过滤告警列表。类别超过 5 个时改为排序条形图，不用难比较的小扇区。\n\n交互与状态：共享时间范围、服务筛选和图例；悬停十字线显示同一时刻值，键盘可逐点移动；支持暂停实时刷新、缩放及“一键回到实时”。明确提供 loading 骨架、empty 引导、error 重试、disabled 原因；hover 不引起位移，focus 使用 2px 高对比焦点环。筛选变化保留图表尺寸，避免跳动。\n\n无障碍：正文对比度 ≥4.5:1；不只依赖颜色，配合线型、形状、标签；每图有标题、摘要和可切换数据表，异常与告警另列文本清单。实时变化不自动抢焦点；播报节流，紧急告警才使用 `aria-live=\"assertive\"`。reduced-motion 下关闭扫线、脉冲和自动平移动画。\n\nReact/性能：图表区分别设 Error Boundary；订阅与筛选状态分离，稳定 props、批量刷新。少于 1000 点可用 SVG，更多点改 Canvas 并按像素下采样；只保留 24 小时环形缓冲，后台标签页降频。窄屏改为单列，点图允许横向查看，关键数值始终先于图形呈现。主动避免玻璃模糊、发光渐变、全屏动效和红绿二元编码。"
+        },
+        {
+          "score": 0.5,
+          "passed_criteria": [
+            "semantic-color",
+            "live-performance",
+            "states",
+            "react-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 41723,
+          "host_event_lines": 9,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 54858,
+            "cached_input_tokens": 34304,
+            "output_tokens": 1483,
+            "reasoning_output_tokens": 452
+          },
+          "answer": "设计方向：高密度、低干扰、可快速扫读的运维监控台。数据库候选偏落地页与玻璃拟态，和实时诊断场景冲突，因此人工改为纯色卡片、清晰边界、少装饰；这只是设计推导，未替代用户研究或可用性测试。\n\n统一系统：`background #F8FAFC`、`surface #FFFFFF`、`foreground #172033`、`muted #64748B`、`primary #2563EB`、`accent #7C3AED`、`border #D8E0EA`；状态色为正常 `#16835B`、警告 `#B45309`、严重 `#C62828`、信息 `#2563EB`。字体采用 Inter/系统无衬线，数字启用等宽特性；间距 4/8/12/16/24，圆角 8px。状态色只表达状态，不用于装饰。\n\n图表选择：\n\n- 24 小时趋势：折线图，异常区间用淡色背景带，附当前值、峰值和更新时间；不以面积渐变制造虚假权重。默认显示最近 24 小时，可切换 1h/6h/24h，并支持十字准线、共享提示框、拖拽缩放和一键复位。\n- 服务错误率：按错误率降序的水平条形图，显示百分比、请求量及 SLO 阈值线；条长负责比较，红色仅标记越界服务。点击服务联动过滤趋势与告警。\n- 当前告警分布：严重/警告/信息的单条堆叠条形图，旁列绝对数量和占比；数据少时仍显示计数。避免饼图，因为相近比例难比较。点击分段进入筛选结果。\n\n无障碍：图表提供标题、时间范围、文本摘要和可访问数据表；颜色之外同时使用标签、线型或图案。正文对比度≥4.5:1，图形边界≥3:1；所有分段和筛选可用键盘操作，焦点环 2px，目标至少 44×44px。提示框可通过焦点触发，不只依赖悬停。\n\n状态：loading 使用固定尺寸骨架；empty 说明时间范围与恢复动作；error 保留最后成功数据并标注陈旧时间；disabled 降低强调但保持可读；hover/focus 不改变布局；`prefers-reduced-motion` 下关闭折线绘制和数值滚动动画。\n\nReact/性能：流数据使用固定长度环形缓冲，按 `requestAnimationFrame` 批量刷新；组件按数据域拆分并 memo 化，避免整页重渲染。高频或超过约 2,000 点时先降采样并转 Canvas，SVG 保留给低密度图；后台标签页降低刷新频率。窄屏改为纵向卡片，条形图保留标签并允许横向查看，不压缩到不可读。"
+        },
+        {
+          "score": 0.625,
+          "passed_criteria": [
+            "semantic-color",
+            "chart-a11y",
+            "non-color-channel",
+            "live-performance",
+            "react-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 62350,
+          "host_event_lines": 9,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 54187,
+            "cached_input_tokens": 18176,
+            "output_tokens": 1560,
+            "reasoning_output_tokens": 403
+          },
+          "answer": "设计方向：面向值班运维人员，强调高信息密度、快速扫读与克制警戒。采用“总览指标条 → 24h 趋势 → 错误率比较 / 告警分布”结构。数据库候选偏 Glassmorphism 与营销页结构，和实时监控冲突；人工改为实色面板、弱阴影、无背景模糊，避免炫光、大面积渐变和默认深色造成的信息噪声。\n\n**统一 Tokens**\n\n- 背景 `#F8FAFC`、面板 `#FFFFFF`、前景 `#172033`、次要文字 `#64748B`、边框 `#D8E0EA`\n- 主色 `#2563EB`；健康 `#15803D`、警告 `#B45309`、严重 `#C62828`、信息 `#0369A1`\n- 颜色只表达状态，不按服务随机着色；同时使用标签、图形或线型区分。正文 14px、数值等宽字体、标题 16px/600；间距 4/8/12/16/24px，圆角 8px。\n\n**图表选择**\n\n1. **24 小时时序趋势**：折线图，默认 5 分钟聚合；主线显示当前值，细虚线显示阈值，可选淡色置信区间。固定时间轴与单位，断点留空而非补零；末端标注最新值。\n2. **服务错误率比较**：按错误率降序的水平条形图，比雷达图更易比较。统一 0–100% 轴，条尾同时显示百分比与请求量，低流量服务注明样本不足；阈值线区分正常、警告、严重。\n3. **当前告警分布**：按严重级别分段的水平堆叠条，旁列各级数量与总数；支持切换“按服务/告警类型”。不采用饼图，避免小扇区难比较及仅靠颜色识别。\n\n**交互与状态**\n\n悬停或键盘聚焦显示同一 tooltip；趋势图支持十字线、时间刷选、缩放复位与“暂停实时更新”，图例按钮可显隐序列且保持可聚焦。Loading 用稳定骨架；Empty 说明时间范围内无数据；Error 显示失败范围与重试；Disabled 降低饱和度并说明原因；Hover 增强边框，Focus 使用 2px 主色外环。不得把“无数据”表现为健康。\n\n**无障碍与响应式**\n\n正文对比度≥4.5:1，状态色配文字/纹理；图表提供标题、摘要、数据表入口及键盘操作说明。实时变化不持续播报，仅严重新告警进入节制的 `aria-live`。触控目标≥44px；窄屏改为单列，比较图允许纵向滚动，不横向压缩标签。`prefers-reduced-motion` 下取消折线补间、闪烁和自动滚动。\n\n**React 性能约束**\n\n数据先聚合并按像素宽度降采样；稳定 props、记忆化派生数据，实时批次经 `requestAnimationFrame` 合并。常规规模用 SVG，单图超过约 5,000 点切 Canvas；tooltip 独立更新，避免整页重渲染。暂停页签、不可见图表及离屏动画更新。"
+        }
+      ]
+    },
+    {
+      "id": "frontend-design-settings-refactor",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+      "skill_sha256": "3db539e025269e5feded74431c3a6b02445b922c91f332dc71da632f495ea6bf",
+      "skill_content_chars": 1348,
+      "skill_content_bytes": 2724,
+      "baseline_score": 0.875,
+      "skill_score": 0.75,
+      "delta": -0.125,
+      "direction": "regression",
+      "minimum_delta": 0.2,
+      "baseline_usage": {
+        "input_tokens": 155682,
+        "cached_input_tokens": 71424,
+        "output_tokens": 4098,
+        "reasoning_output_tokens": 346
+      },
+      "skill_usage": {
+        "input_tokens": 123202,
+        "cached_input_tokens": 73472,
+        "output_tokens": 3730,
+        "reasoning_output_tokens": 540
+      },
+      "usage_delta": {
+        "input_tokens": -32480,
+        "cached_input_tokens": 2048,
+        "output_tokens": -368,
+        "reasoning_output_tokens": 194
+      },
+      "baseline_criterion_rates": {
+        "information-architecture": 1.0,
+        "action-hierarchy": 1.0,
+        "required-states": 1.0,
+        "semantic-tokens": 0.0,
+        "responsive": 1.0,
+        "accessibility": 1.0,
+        "vue-guidance": 1.0,
+        "delivery-priority": 0.666667
+      },
+      "skill_criterion_rates": {
+        "information-architecture": 1.0,
+        "action-hierarchy": 1.0,
+        "required-states": 0.0,
+        "semantic-tokens": 0.666667,
+        "responsive": 1.0,
+        "accessibility": 1.0,
+        "vue-guidance": 1.0,
+        "delivery-priority": 0.333333
+      },
+      "criterion_deltas": {
+        "information-architecture": 0.0,
+        "action-hierarchy": 0.0,
+        "required-states": -1.0,
+        "semantic-tokens": 0.666667,
+        "responsive": 0.0,
+        "accessibility": 0.0,
+        "vue-guidance": 0.0,
+        "delivery-priority": -0.333334
+      },
+      "gained_criteria": [
+        "semantic-tokens"
+      ],
+      "lost_criteria": [
+        "required-states",
+        "delivery-priority"
+      ],
+      "attribution": "verified-injection",
+      "verdict": "no_change",
+      "baseline_runs": [
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "information-architecture",
+            "action-hierarchy",
+            "required-states",
+            "responsive",
+            "accessibility",
+            "vue-guidance",
+            "delivery-priority"
+          ],
+          "observed_skills": [],
+          "duration_ms": 57958,
+          "host_event_lines": 10,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 51720,
+            "cached_input_tokens": 23040,
+            "output_tokens": 1404,
+            "reasoning_output_tokens": 114
+          },
+          "answer": "本地设计库返回了偏营销页的玻璃拟态方案，与高频设置任务冲突；仅保留其专业、清晰的方向，人工调整为低装饰、强层级、风险分区。以下是设计约束，不代表已完成用户研究或可用性验证。\n\n### 信息架构\n\n- 顶部：页面标题、简短说明、全局状态（“有未保存更改 / 保存失败 / 已保存”）。\n- 主体采用“左侧分组导航 + 右侧表单”：账户、通知、隐私、集成等；每组独立标题、说明与字段区，避免无限单列。\n- 右侧内容宽度 680–760px；字段按相关性分组，标签、帮助文本、错误信息垂直排列。\n- 底部使用粘性操作栏：次要“取消更改”，主要“保存更改”。无变更时保存禁用。\n- “危险区域”独立置底，以边框和标题区分；删除使用破坏性按钮，必须二次确认并要求输入名称，不与保存并列。\n\n### Design tokens\n\n- 色彩：`bg #F8FAFC`、`surface #FFFFFF`、`text #0F172A`、`muted #64748B`、`border #CBD5E1`、`primary #2563EB`、`danger #DC2626`、`success #15803D`、`warning #B45309`；正文对比度至少 4.5:1。\n- 间距采用 4px 基线：4/8/12/16/24/32/48；字段间 20–24，分组间 32–40。\n- 字号：标题 28/36、组标题 18/28、正文 14–16/22–24、辅助 13/20；中文优先系统无衬线字体栈。\n- 圆角 6/8/12px；边框 1px；阴影仅用于粘性操作栏或弹窗，禁用玻璃模糊。\n- 焦点环：2px 主色、2px 外偏移；动效 120–180ms，仅透明度与位移。\n\n### 组件状态\n\n- 初始加载：保留页面骨架，字段用等高 skeleton，操作栏禁用并标注“正在加载设置”。\n- 空状态：说明暂无可配置项及原因，不展示无意义保存按钮。\n- 校验失败：字段失焦及提交时校验；红色边框、文字错误和顶部错误摘要联动，聚焦首个错误，不能只靠颜色。\n- 保存中：按钮显示进度与“正在保存”，锁定重复提交，但允许读取字段。\n- 网络失败：保留用户输入和脏状态，页内错误条提供“重试”；禁止误报成功。\n- 未保存：持续显示状态；切换分组、路由离开或关闭页面前确认。保存成功以非阻塞状态消息反馈，并清除脏标记。\n- 覆盖默认、hover、focus-visible、disabled、只读及破坏性确认状态。\n\n### 响应式与无障碍\n\n- ≥1024px 使用双栏；768–1023px 收窄导航；<768px 将导航改为顶部选择器，表单单列，操作栏固定底部且按钮可满宽。\n- 点击目标至少 44×44px；不得因横向滚动隐藏字段或错误。\n- 使用语义化 `form/fieldset/legend`；每个控件具备明确 `label`、帮助文本与 `aria-describedby`，错误摘要使用 `role=\"alert\"`，保存结果用 `aria-live=\"polite\"`。\n- 键盘顺序符合视觉顺序；弹窗捕获焦点、Esc 可关闭并归还触发点。支持 200% 缩放及 `prefers-reduced-motion`，后者关闭非必要过渡。"
+        },
+        {
+          "score": 0.875,
+          "passed_criteria": [
+            "information-architecture",
+            "action-hierarchy",
+            "required-states",
+            "responsive",
+            "accessibility",
+            "vue-guidance",
+            "delivery-priority"
+          ],
+          "observed_skills": [],
+          "duration_ms": 55966,
+          "host_event_lines": 10,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 52064,
+            "cached_input_tokens": 17152,
+            "output_tokens": 1358,
+            "reasoning_output_tokens": 103
+          },
+          "answer": "设计方向：本地设计库建议 SaaS 靛蓝体系与轻量层次；“玻璃拟态、营销页结构”不适合高频设置任务，人工调整为克制、稳定、表单优先的实色界面。此方案是设计约束，不等同于用户研究或可用性验证。\n\n### 信息架构\n\n- 顶部：返回/面包屑、页面标题、简短说明；右侧显示“已保存 / 有未保存更改”。\n- 主体：桌面端采用“左侧分类导航 + 右侧内容”，分类按账户、通知、隐私、安全、集成组织；每类拆成有标题和说明的设置组，避免无边界长表单。\n- 常规操作置于底部粘性操作栏：“取消更改”为次级，“保存更改”为唯一主按钮。\n- “危险区域”独立置底，以红色边框和解释文案隔离；删除使用次级危险按钮，进入确认对话框后才出现最终红色主操作，并要求输入名称或密码。\n\n### Design token\n\n- 色彩：`bg #F8FAFC`、`surface #FFF`、`text #172033`、`muted #64748B`、`border #D8E0EA`、`primary #4F46E5`、`success #15803D`、`warning #B45309`、`danger #B91C1C`、`focus #4338CA`；正文对比度至少 4.5:1。\n- 字体：系统中文字体栈；标题 28/36、组标题 18/28、正文 14/22、辅助 12/18，字重 400/600。\n- 间距采用 4px 基线：4、8、12、16、24、32、48；内容宽度 760px；控件高 40px；圆角 8px，卡片 12px；阴影仅用于粘性栏和对话框。\n\n### 组件与状态\n\n- `SettingsNav`、`SettingsSection`、`FieldRow`、`InlineAlert`、`SaveBar`、`DangerZone`、`ConfirmDialog`。\n- 页面加载：保留结构的骨架屏，控件不可操作。空态：说明暂无可配置项及下一步。\n- 字段覆盖默认、hover、focus-visible、disabled、只读、校验中、错误；校验失败就地显示具体原因，并在提交后聚焦首个错误。\n- 保存中锁定重复提交并显示进度；成功提示简短且不清空上下文；网络失败保留用户输入，提供重试。离开、切换分类或关闭页面时若有脏数据，弹出未保存确认。\n- Vue 中以单一表单状态计算 `isDirty/isValid/isSubmitting`，复杂校验优先 VeeValidate；不直接修改 props，通过事件更新。\n\n### 响应式与无障碍\n\n- ≥1024px 双栏；768–1023px 左栏收窄；<768px 分类改为顶部选择器，字段纵向排列，底部保存栏固定且尊重安全区。\n- 使用语义化 `form/fieldset/legend`；每个控件有可见 `label`，错误通过 `aria-describedby` 关联，异步结果用适度的 `aria-live`。\n- 完整键盘导航、清晰焦点环、对话框焦点锁定与关闭后焦点归还；点击目标至少 44×44px。图标不以 emoji 代替，不能只靠颜色表达状态；遵循 `prefers-reduced-motion`，禁用非必要位移动画。"
+        },
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "information-architecture",
+            "action-hierarchy",
+            "required-states",
+            "responsive",
+            "accessibility",
+            "vue-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 52041,
+          "host_event_lines": 10,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 51898,
+            "cached_input_tokens": 31232,
+            "output_tokens": 1336,
+            "reasoning_output_tokens": 129
+          },
+          "answer": "本地资料库建议“叙事滚动、绿色主色、衬线标题”，与高频操作型设置页不匹配；仅采用其扁平、低动效方向，改为中性、可信、风险清晰的系统界面。\n\n### 信息架构\n\n- 页首：标题、说明、保存状态；不把“成功”做成永久横幅。\n- 主体采用“左侧分组导航＋右侧表单”：账户、通知、隐私、安全、集成等。每组为独立 `section`，包含标题、用途说明和相关字段；长表单支持锚点定位。\n- 底部粘性操作栏：未修改时显示“已保存”且保存按钮禁用；修改后显示“有未保存的更改”，主按钮“保存更改”，次按钮“放弃更改”。\n- “危险操作”独立置底，用红色边界与说明隔离；删除为低频危险按钮，点击后进入确认对话框，并要求输入名称或密码，不与保存并列、不同权重。\n\n### Design tokens\n\n- 色彩：`bg #F8FAFC`、`surface #FFF`、`text #172033`、`muted #64748B`、`border #D8DEE8`、`primary #2563EB`、`success #15803D`、`warning #A16207`、`danger #B42318`；状态不能只靠颜色。\n- 间距采用 4px 基准：4/8/12/16/24/32/48；内容最大宽度 1120px，表单栏约 720px。\n- 字号 14/16/20/28px，正文行高 1.5；系统无衬线字体。圆角 6/10px；边框 1px；焦点环 2px，并与背景保持明显对比。\n- 动效 150–200ms，仅用于颜色、透明度和轻微位移；禁止布局抖动。\n\n### 组件与状态\n\n`SettingsSection`、`FieldGroup`、`InlineMessage`、`SaveBar`、`DangerZone`、`ConfirmDialog`。Vue 中以服务端快照和表单草稿派生 `dirty`，避免手工维护失真。\n\n- 初次加载：保留页面骨架，字段骨架屏且不可编辑。\n- 保存中：按钮显示进度并防重复提交，字段保持可读。\n- 校验失败：字段下方给出具体原因，顶部提供错误摘要并聚焦首个错误。\n- 网络失败：保留用户输入，显示可重试提示，不伪报成功。\n- 成功：短暂状态提示并更新快照；读屏器可获知。\n- 空态说明为何为空及下一步；disabled、hover、focus 均有独立视觉状态。\n- 离页时若 `dirty`，触发路由守卫及关闭页面提示。\n\n### 响应式与无障碍\n\n≥1024px 双栏；768–1023px 导航缩窄；<768px 改为顶部下拉或分组目录，表单单列，操作栏贴底且按钮可换行。触控目标至少 44×44px。\n\n使用语义化标题、`nav/main/section`、显式 `label` 与 `fieldset/legend`；错误通过 `aria-describedby` 关联，异步结果用 `aria-live`，对话框锁定焦点并支持 Esc。键盘顺序遵循视觉顺序；文本与背景对比至少 4.5:1；`prefers-reduced-motion` 下移除非必要动画。"
+        }
+      ],
+      "skill_runs": [
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "information-architecture",
+            "action-hierarchy",
+            "semantic-tokens",
+            "responsive",
+            "accessibility",
+            "vue-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 49663,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 33634,
+            "cached_input_tokens": 14080,
+            "output_tokens": 1229,
+            "reasoning_output_tokens": 177
+          },
+          "answer": "检索将其匹配为通用 SaaS，但给出的「Hero + CTA、玻璃拟态、双 CTA」与设置页冲突；人工调整为克制、实体表面、风险分层的管理界面。此方案是设计推导，不代表真实用户研究或可用性验证。\n\n**信息架构**\n\n- 页头：标题、用途说明、保存状态；桌面端右侧放唯一主操作“保存更改”。\n- 按任务分组：账户资料 → 偏好设置 → 通知与隐私；每组使用带标题、说明的 Section，不再平铺。\n- “危险操作”独立置底，以边框和说明隔离。删除默认使用次要描边按钮，点击后进入确认对话框；确认按钮才使用 destructive，且不能与保存并列同权。\n- 有未保存变更时显示粘性操作条：“有未保存的更改 / 放弃 / 保存”；离页时二次确认。\n\n**Design tokens**\n\n- 颜色：background `#F7F8FA`、surface `#FFFFFF`、foreground `#172033`、muted `#667085`、primary `#4F46E5`、accent `#0F766E`、border `#D9DEE7`、success `#15803D`、warning `#B45309`、error/destructive `#B42318`、focus `#4F46E5`。\n- 字体：系统中文无衬线栈；正文 14/22，辅助 12/18，组标题 16/24·600，页标题 24/32·700。\n- 间距采用 4/8/12/16/24/32；控件高 40，触控目标至少 44×44；圆角 8，卡片 12；阴影仅用于粘性条和对话框。\n\n**组件与状态**\n\n- `SettingsSection`、`FieldRow`、输入/选择/开关、`InlineMessage`、`UnsavedBar`、`ConfirmDialog`。\n- loading：保留布局的骨架屏，保存按钮禁用并显示进度；empty：说明为何无可配置项及下一步；校验失败：字段边框、文字和错误摘要同步出现并聚焦首错；网络失败：保留用户输入，页内错误条提供重试；成功：非阻塞提示并更新“已保存”时间。\n- disabled 必须同时降低视觉强调并说明原因；hover 只增强边框/底色；focus 使用 2px 可见焦点环；删除处理中锁定重复提交。不可只靠颜色表达状态。\n\n**响应式与无障碍**\n\n≥1024px 内容宽 760–880px；768–1023px 单列卡片；<768px 去除卡片外层装饰，字段标签置顶，粘性操作条铺底，按钮可全宽但保存仍为唯一主按钮。使用语义化 `form/fieldset/legend`；标签、说明、错误通过 `for` 与 `aria-describedby` 关联；对话框锁定焦点并支持 Esc；状态消息用适当 `aria-live`；键盘顺序符合视觉顺序；正文对比度至少 4.5:1。`prefers-reduced-motion` 下取消位移与缩放，仅保留即时颜色变化。Vue 中以单一 dirty/submit 状态源驱动路由守卫和按钮状态，避免各字段自行维护保存状态。\n\n主动避免：玻璃拟态、营销页 Hero/CTA、每组选项都套卡片、成功提示泛滥，以及用红色装饰整块危险区造成持续警报。"
+        },
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "information-architecture",
+            "action-hierarchy",
+            "responsive",
+            "accessibility",
+            "vue-guidance",
+            "delivery-priority"
+          ],
+          "observed_skills": [],
+          "duration_ms": 31570,
+          "host_event_lines": 7,
+          "command_event_count": 2,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 34736,
+            "cached_input_tokens": 25088,
+            "output_tokens": 1099,
+            "reasoning_output_tokens": 142
+          },
+          "answer": "设计方向：克制、可信、任务导向。数据库命中 SaaS/靛蓝配色，但其 Hero、玻璃拟态与绿色 CTA 不适合高频设置表单；人工改为实色分区、低装饰、单一靛蓝主操作，避免落地页结构、悬浮玻璃卡、保存与删除同权重。\n\n**信息架构**\n\n桌面端采用“左侧分类导航＋右侧内容区”：账户、偏好、通知、安全；每类按语义拆成带标题和说明的 section，而非每项一张卡。页面底部设置粘性操作栏，仅在有改动时出现“未保存更改”，主按钮为“保存更改”，次按钮为“放弃”。“删除账户”置于末尾独立危险区，红色描边按钮；点击后用确认对话框要求输入账户名，不能与保存并列。\n\n**Tokens**\n\n- 色彩：background `#F8FAFC`、surface `#FFFFFF`、foreground `#172033`、muted `#64748B`、primary `#4F46E5`、accent `#0F766E`、border `#D7DEE8`、success `#15803D`、warning `#B45309`、danger `#B91C1C`、focus `#6366F1`。\n- 字体：优先系统中文字体；标题 24/32、分组标题 16/24、正文 14/22、辅助文字 13/20，字重 400/600。\n- 间距：4、8、12、16、24、32、48；内容宽 760px；控件高 40px；圆角 8px，危险确认框 12px；阴影仅用于粘性栏和对话框。\n\n**组件与状态**\n\n字段含 label、可选说明、控件、就地错误；校验失败保留输入并聚焦首个错误，顶部汇总并提供锚点。初始 loading 用与表单同构的骨架屏；无可配置项显示 empty 说明及返回入口；网络失败保留草稿，显示可重试错误横幅。保存中按钮显示进度并 disabled，成功用非阻塞状态提示；失败不得清空修改。所有按钮、输入、开关明确 hover、focus-visible、disabled；离页或刷新且有未保存变更时确认。Vue 中以单一 dirty 状态、字段级错误映射和异步提交状态驱动界面，避免多份状态漂移。\n\n**响应式与无障碍**\n\n≥1024px 双栏；768–1023px 收窄导航；<768px 分类改为顶部下拉，section 单列，操作栏固定底部且按钮可纵向排列。触控目标至少 44×44px。label 与控件显式关联；错误通过 `aria-describedby`，动态结果用合适的 live region；对话框锁定焦点并返回触发点。全流程支持键盘，正文对比度≥4.5:1、图形/边界≥3:1；不只靠颜色表达状态。`prefers-reduced-motion` 下取消位移与非必要动画，仅保留即时状态切换。"
+        },
+        {
+          "score": 0.75,
+          "passed_criteria": [
+            "information-architecture",
+            "action-hierarchy",
+            "semantic-tokens",
+            "responsive",
+            "accessibility",
+            "vue-guidance"
+          ],
+          "observed_skills": [],
+          "duration_ms": 42368,
+          "host_event_lines": 9,
+          "command_event_count": 4,
+          "malformed_event_count": 0,
+          "usage": {
+            "input_tokens": 54832,
+            "cached_input_tokens": 34304,
+            "output_tokens": 1402,
+            "reasoning_output_tokens": 221
+          },
+          "answer": "设计方向：克制、可信、任务导向。数据库命中 SaaS、清晰分组与靛蓝主色，但推荐的 Hero、玻璃拟态不适合高频设置任务，人工改为实体表面、低装饰、强状态反馈；这只是设计候选校正，不代表用户研究或可用性验证。\n\n**信息架构**\n\n- 页首：标题、简短说明、保存状态（“已保存 / 有未保存更改 / 保存失败”）。\n- 内容按“账户、通知、隐私、安全”等任务分组；桌面端左侧锚点导航，右侧为分区卡片。每项包含标签、说明、控件和就地反馈，避免无差别平铺。\n- 主操作区固定在内容底部：`保存更改`为唯一主按钮，`取消更改`为次按钮；仅有变更且校验通过时启用。\n- “危险区域”独立置底，用红色边框与说明隔离。删除为描边危险按钮，点击后进入确认对话框；要求输入名称或明确二次确认，不与保存并列。\n\n**Design tokens**\n\n- 色彩：`background #F8FAFC`、`surface #FFFFFF`、`foreground #172033`、`muted #64748B`、`primary #4F46E5`、`accent #0F766E`、`border #D8DEE9`、`success #15803D`、`warning #B45309`、`error/destructive #B91C1C`、`focus #4338CA`。\n- 字体：系统无衬线；正文16/24，辅助14/20，页标题28/36、600，分区标题18/28、600。\n- 间距：4、8、12、16、24、32、48；控件高40，触控目标至少44×44；圆角控件8、卡片12、对话框16；阴影仅用于悬浮层。\n\n**组件与状态**\n\n- Loading：保留页面骨架，禁用编辑和保存，使用文本提示；不得用整页旋转器遮断结构。\n- Empty：分组无可配项时说明原因及可执行入口。\n- 校验失败：字段下方显示具体错误，提交后聚焦首个错误并在页首给错误摘要。\n- 网络失败：保留本地输入，页首错误条提供“重试”，不得误报成功。\n- 未保存：页首持续提示；离开路由、关闭页面前确认。保存中按钮显示进度且防重复提交；成功提示用短暂 `aria-live`，同时更新持久状态文字。\n- Disabled 必须说明原因；hover 仅增强边框/底色；focus 使用2px高对比焦点环；危险确认不可默认聚焦删除。\n\n**响应式与 Vue 约束**\n\n≥1024px 双栏；768–1023px 收窄导航；<768px 改为单列与可折叠分组，底部操作栏吸附但不遮内容，危险区域仍置末。Vue 中以单一 dirty 状态驱动保存与离开守卫，字段错误和请求状态分离，提交期间锁定重复请求。\n\n所有控件使用原生语义、可见 `label`、键盘顺序与错误关联；正文对比度≥4.5:1，非文字控件≥3:1；颜色不单独传达状态；`prefers-reduced-motion` 下取消位移和非必要过渡。主动避免玻璃拟态、渐变大标题、彩色卡片堆叠，以及保存与删除同权重的模板化布局。"
+        }
+      ]
+    }
+  ]
+}

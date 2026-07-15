@@ -188,5 +188,100 @@
       {"id": "migration", "any": ["迁移", "重定向", "旧链接", "兼容"]},
       {"id": "index-update", "all": ["index.md", "链接"]}
     ]
+  },
+  {
+      "id": "frontend-design-b2b-dashboard",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "minimum_delta": 0.2,
+      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个 Next.js B2B 运营分析平台设计响应式 dashboard。使用者需要在值班时快速发现异常、筛选客户并进入详情。请在 1400 个中文字符内给出可直接交给前端实现的设计系统与页面规范，不写完整代码，也不要说明使用了什么 Skill。",
+    "criteria": [
+      {"id": "operator-context", "all": ["值班", "异常"]},
+      {"id": "semantic-tokens", "all": ["primary", "background", "foreground", "accent"]},
+      {"id": "information-architecture", "all": ["KPI", "筛选", "详情"]},
+      {"id": "states", "all": ["loading", "empty", "error"]},
+      {"id": "responsive", "any": ["375", "768", "1024", "断点", "响应式"]},
+      {"id": "accessibility", "all": ["键盘", "focus", "对比度"]},
+      {"id": "stack-guidance", "any": ["Next.js", "Server Component", "Suspense", "动态导入"]},
+      {"id": "anti-patterns", "any": ["避免", "不要", "反模式"]}
+    ]
+  },
+  {
+      "id": "frontend-design-technical-docs",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "minimum_delta": 0.2,
+      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个开源数据库重新设计技术文档首页，目标是严谨、安静、适合长期阅读；当前技术栈是 Astro。请在 1400 个中文字符内形成设计系统、内容结构和实现约束。不要采用霓虹、高饱和或娱乐化视觉，不写完整代码。",
+    "criteria": [
+      {"id": "desired-character", "all": ["严谨", "安静"]},
+      {"id": "reading-width", "any": ["阅读宽度", "max-width", "65ch", "75ch"]},
+      {"id": "typography-system", "all": ["标题", "正文", "代码"]},
+      {"id": "semantic-tokens", "all": ["background", "foreground", "border", "accent"]},
+      {"id": "docs-structure", "all": ["搜索", "导航", "文档"]},
+      {"id": "contrast-focus", "all": ["对比度", "focus"]},
+      {"id": "astro-guidance", "any": ["Astro", "Island", "island", "客户端 JavaScript"]},
+      {"id": "reject-mismatch", "any": ["避免霓虹", "不采用霓虹", "拒绝高饱和", "克制"]}
+    ]
+  },
+  {
+      "id": "frontend-design-mobile-checkout",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "minimum_delta": 0.2,
+      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为移动优先的电商结账页建立设计与交互规范，技术栈是 React + Tailwind。用户需要填写地址、选择配送和支付，并能从失败中恢复。请在 1400 个中文字符内输出设计 token、表单结构、状态和响应式实现建议，不写完整代码。",
+    "criteria": [
+      {"id": "checkout-steps", "all": ["地址", "配送", "支付"]},
+      {"id": "semantic-tokens", "all": ["primary", "background", "destructive", "ring"]},
+      {"id": "form-labels", "all": ["label", "错误", "字段"]},
+      {"id": "recovery-states", "all": ["失败", "重试", "loading"]},
+      {"id": "touch-target", "any": ["44", "触控", "touch"]},
+      {"id": "responsive", "any": ["375", "768", "移动优先", "断点"]},
+      {"id": "accessibility", "all": ["键盘", "focus", "屏幕阅读器"]},
+      {"id": "stack-guidance", "all": ["React", "Tailwind"]}
+    ]
+  },
+  {
+      "id": "frontend-design-analytics-charts",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "minimum_delta": 0.2,
+      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个 React 实时监控页面设计三类数据展示：24 小时时序趋势、服务错误率比较、当前告警分布。请在 1400 个中文字符内给出图表选择、颜色语义、交互、无障碍和性能约束，并纳入统一设计系统，不写完整代码。",
+    "criteria": [
+      {"id": "chart-selection", "all": ["折线", "柱", "分布"]},
+      {"id": "semantic-color", "all": ["错误", "告警", "颜色"]},
+      {"id": "chart-a11y", "all": ["图例", "tooltip", "颜色"]},
+      {"id": "non-color-channel", "any": ["不能只依赖颜色", "不只依赖颜色", "形状", "纹理"]},
+      {"id": "live-performance", "any": ["节流", "批量", "虚拟化", "重渲染"]},
+      {"id": "states", "all": ["loading", "empty", "error"]},
+      {"id": "tokens", "any": ["token", "变量", "semantic"]},
+      {"id": "react-guidance", "any": ["React", "memo", "useMemo", "动态导入"]}
+    ]
+  },
+  {
+      "id": "frontend-design-settings-refactor",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "injected",
+    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "minimum_delta": 0.2,
+      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。系统性重构一个 Vue 设置页：目前所有选项平铺在单列中，保存和删除同权重，只有成功态，没有加载、校验失败、网络失败和未保存变更提示。请在 1400 个中文字符内输出信息架构、设计 token、组件状态、响应式和无障碍约束，不写完整代码。",
+    "criteria": [
+      {"id": "information-architecture", "any": ["分组", "分区", "渐进披露", "导航"]},
+      {"id": "action-hierarchy", "all": ["保存", "删除", "危险"]},
+      {"id": "required-states", "all": ["加载", "校验失败", "网络失败", "未保存"]},
+      {"id": "semantic-tokens", "all": ["primary", "destructive", "background", "border"]},
+      {"id": "responsive", "any": ["375", "768", "断点", "响应式"]},
+      {"id": "accessibility", "all": ["键盘", "focus", "错误"]},
+      {"id": "vue-guidance", "any": ["Vue", "computed", "异步组件", "组件"]},
+      {"id": "delivery-priority", "any": ["优先级", "P0", "先"]}
+    ]
   }
 ]

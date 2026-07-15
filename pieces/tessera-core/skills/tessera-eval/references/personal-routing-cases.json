@@ -18,10 +18,12 @@
   {
     "id": "personal-dev-feature-implementation",
     "profile": "development",
-    "category": "direct",
-    "prompt": "给现有 CLI 增加一个只读的 --json 输出选项并补测试",
-    "expected_route": "direct",
-    "expected_skills": []
+    "category": "specialist",
+    "prompt": "为现有 Next.js 管理后台设计并实现一个响应式设置页，先建立设计 token、交互状态和无障碍约束",
+    "expected_route": "frontend-design",
+    "expected_skills": [
+      "frontend-design"
+    ]
   },
   {
     "id": "personal-dev-bug-diagnosis",
@@ -102,8 +104,10 @@
     "profile": "development",
     "category": "multi-intent",
     "prompt": "分别检查后端性能瓶颈、前端可访问性和测试覆盖，并汇总结论",
-    "expected_route": "direct",
-    "expected_skills": []
+    "expected_route": "frontend-design",
+    "expected_skills": [
+      "frontend-design"
+    ]
   },
   {
     "id": "personal-dev-lifecycle",

@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "原生 Skill 调用评测与可选专业工作流",
-    "version": "3.0.0"
+    "version": "3.1.0"
   },
   "plugins": [
     {
@@ -20,6 +20,13 @@
       "source": "./pieces/taste",
       "description": "审美评审:UI/视觉/文案反套路",
       "version": "0.2.0+codex.20260714",
+      "strict": true
+    },
+    {
+      "name": "frontend-design",
+      "source": "./pieces/frontend-design",
+      "description": "前端设计系统：设计 token、页面结构、UX/响应式/无障碍与技术栈实现约束",
+      "version": "0.1.0+codex.20260715",
       "strict": true
     },
     {

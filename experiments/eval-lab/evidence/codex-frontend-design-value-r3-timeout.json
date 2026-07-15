@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-15T02:09:43.369185+00:00",
+  "claim": "paired native skill utility with host-event attribution",
+  "adapter": "codex-cli",
+  "evidence": "native-host-events",
+  "cases_file": "D:\\Gloamere\\Tessera\\experiments\\eval-lab\\cases.json",
+  "repeat": 3,
+  "model": null,
+  "summary": {
+    "total": 5,
+    "improvements": 0,
+    "regressions": 0,
+    "no_change": 0,
+    "unverified": 0,
+    "execution_errors": 5,
+    "raw_improvements": 0,
+    "raw_regressions": 0,
+    "raw_ties": 0
+  },
+  "cases": [
+    {
+      "id": "frontend-design-b2b-dashboard",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "native",
+      "skill_sha256": null,
+      "skill_content_chars": null,
+      "skill_content_bytes": null,
+      "attribution": "unverified",
+      "verdict": "execution_error",
+      "error": "Command '['C:\\\\Users\\\\ttoSt\\\\AppData\\\\Roaming\\\\npm\\\\codex.cmd', 'exec', '--ephemeral', '--sandbox', 'read-only', '--skip-git-repo-check', '--output-schema', 'D:\\\\Gloamere\\\\Tessera\\\\experiments\\\\eval-lab\\\\response.schema.json', '--output-last-message', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-eval-lab-01bbzoq3\\\\last-message.json', '--cd', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-frontend-eval-39549636ae8b4d379b4e0b4de872a9db', '--json', '-c', 'plugins.\\\\\"frontend-design@tessera\\\\\".enabled=false', '-']' timed out after 120 seconds"
+    },
+    {
+      "id": "frontend-design-technical-docs",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "native",
+      "skill_sha256": null,
+      "skill_content_chars": null,
+      "skill_content_bytes": null,
+      "attribution": "unverified",
+      "verdict": "execution_error",
+      "error": "Command '['C:\\\\Users\\\\ttoSt\\\\AppData\\\\Roaming\\\\npm\\\\codex.cmd', 'exec', '--ephemeral', '--sandbox', 'read-only', '--skip-git-repo-check', '--output-schema', 'D:\\\\Gloamere\\\\Tessera\\\\experiments\\\\eval-lab\\\\response.schema.json', '--output-last-message', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-eval-lab-bnje09kd\\\\last-message.json', '--cd', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-frontend-eval-39549636ae8b4d379b4e0b4de872a9db', '--json', '-c', 'plugins.\\\\\"frontend-design@tessera\\\\\".enabled=false', '-']' timed out after 120 seconds"
+    },
+    {
+      "id": "frontend-design-mobile-checkout",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "native",
+      "skill_sha256": null,
+      "skill_content_chars": null,
+      "skill_content_bytes": null,
+      "attribution": "unverified",
+      "verdict": "execution_error",
+      "error": "Command '['C:\\\\Users\\\\ttoSt\\\\AppData\\\\Roaming\\\\npm\\\\codex.cmd', 'exec', '--ephemeral', '--sandbox', 'read-only', '--skip-git-repo-check', '--output-schema', 'D:\\\\Gloamere\\\\Tessera\\\\experiments\\\\eval-lab\\\\response.schema.json', '--output-last-message', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-eval-lab-oc_3fre6\\\\last-message.json', '--cd', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-frontend-eval-39549636ae8b4d379b4e0b4de872a9db', '--json', '-c', 'plugins.\\\\\"frontend-design@tessera\\\\\".enabled=false', '-']' timed out after 120 seconds"
+    },
+    {
+      "id": "frontend-design-analytics-charts",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "native",
+      "skill_sha256": null,
+      "skill_content_chars": null,
+      "skill_content_bytes": null,
+      "attribution": "unverified",
+      "verdict": "execution_error",
+      "error": "Command '['C:\\\\Users\\\\ttoSt\\\\AppData\\\\Roaming\\\\npm\\\\codex.cmd', 'exec', '--ephemeral', '--sandbox', 'read-only', '--skip-git-repo-check', '--output-schema', 'D:\\\\Gloamere\\\\Tessera\\\\experiments\\\\eval-lab\\\\response.schema.json', '--output-last-message', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-eval-lab-7ga9old7\\\\last-message.json', '--cd', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-frontend-eval-39549636ae8b4d379b4e0b4de872a9db', '--json', '-c', 'plugins.\\\\\"frontend-design@tessera\\\\\".enabled=false', '-']' timed out after 120 seconds"
+    },
+    {
+      "id": "frontend-design-settings-refactor",
+      "plugin": "frontend-design@tessera",
+      "skill": "frontend-design",
+      "activation": "native",
+      "skill_sha256": null,
+      "skill_content_chars": null,
+      "skill_content_bytes": null,
+      "attribution": "unverified",
+      "verdict": "execution_error",
+      "error": "Command '['C:\\\\Users\\\\ttoSt\\\\AppData\\\\Roaming\\\\npm\\\\codex.cmd', 'exec', '--ephemeral', '--sandbox', 'read-only', '--skip-git-repo-check', '--output-schema', 'D:\\\\Gloamere\\\\Tessera\\\\experiments\\\\eval-lab\\\\response.schema.json', '--output-last-message', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-eval-lab-tf25menj\\\\last-message.json', '--cd', 'C:\\\\Users\\\\ttoSt\\\\AppData\\\\Local\\\\Temp\\\\tessera-frontend-eval-39549636ae8b4d379b4e0b4de872a9db', '--json', '-c', 'plugins.\\\\\"frontend-design@tessera\\\\\".enabled=false', '-']' timed out after 120 seconds"
+    }
+  ]
+}

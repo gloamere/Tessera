@@ -18,6 +18,7 @@ Tessera 是纯 Skills 市集：没有 hooks、常驻进程、数据库、私有�
 | 插件 | Skill | 用途 | 安装策略 |
 |---|---|---|---|
 | `tessera-core` | `tessera-eval` | 区分 policy 分类与可观察 native 调用，检查误调、漏调和稳定性 | 核心 |
+| `frontend-design` | `frontend-design` | 本地 UI/UX 数据库、设计系统、响应式/无障碍与技术栈实现约束 | 可选；构建阶段使用 |
 | `taste` | `taste` | UI、视觉、排版、配色与文案审美评审 | 可选；真实价值评审保留 |
 | `knowledge-base` | `knowledge-base` | Markdown + 双链知识沉淀 | 可选；真实价值评审保留 |
 
@@ -25,6 +26,8 @@ Tessera 是纯 Skills 市集：没有 hooks、常驻进程、数据库、私有�
 flowchart LR
     U([用户任务]) --> H{Claude / Codex 原生选择}
     H --> D[直接处理]
+    H --> F[frontend-design]
+    F -->|成品审美复核| T[taste]
     H --> T[taste]
     H --> K[knowledge-base]
     C([Skill 或宿主变化]) --> E[tessera-eval]
@@ -53,7 +56,7 @@ Windows 一键安装核心插件：
 irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
 ```
 
-安装全部三个插件：
+安装全部四个插件：
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1))) -All
@@ -84,7 +87,9 @@ claude plugin install tessera-core@tessera --scope user
 claude plugin list --json
 ```
 
-按需安装 `taste@tessera` 或 `knowledge-base@tessera`。交互会话中安装或启停后运行 `/reload-plugins`；其它生命周期动作使用 Claude 原生 `/plugin` 或 `claude plugin` 命令。
+按需安装 `frontend-design@tessera`、`taste@tessera` 或 `knowledge-base@tessera`。交互会话中安装或启停后运行 `/reload-plugins`；其它生命周期动作使用 Claude 原生 `/plugin` 或 `claude plugin` 命令。
+
+前端组合采用顺序边界：新页面、设计系统或系统性重构先用 `frontend-design` 形成 token、结构、状态和技术栈约束；有成品后再按需用 `taste` 做审美与去模板化复核。纯审美评审不必加载前者，用户研究与转化实验也不由两者冒充。`frontend-design` 的本地搜索仅依赖 Python 3 标准库，PowerShell 与 POSIX 包装脚本分别覆盖 Windows、macOS 和 Linux。
 
 ## Eval
 
@@ -132,7 +137,7 @@ macOS / Linux 使用 `sh scripts/run_native_eval.sh`。报告默认写入 `eval-
 
 已有 `~/.tessera` 数据不会被代码主动删除；不再需要时由用户自行备份或清理。
 
-详见 [部署手册](docs/DEPLOYMENT.md)、[当前运行时架构](docs/decisions/current-runtime-architecture.md) 与 [专业 Skill 组合决策](docs/decisions/professional-skill-portfolio.md)。历史演进仍保留在已标记 `superseded` 的 ADR 中。
+详见 [部署手册](docs/DEPLOYMENT.md)、[当前运行时架构](docs/decisions/frontend-design-core-admission.md) 与 [专业 Skill 组合决策](docs/decisions/professional-skill-portfolio.md)。历史演进仍保留在已标记 `superseded` 的 ADR 中。
 
 ## 许可
 

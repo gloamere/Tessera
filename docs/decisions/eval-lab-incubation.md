@@ -21,6 +21,7 @@ Eval Lab 的评测能力成立：`planner` 两轮分别得到 `-0.375` 和 `-0.2
 - 受控注入依赖其他插件仓库中的精确 `SKILL.md`，并入 core 后无法在不复制内容或探测兄弟插件缓存的前提下保持自包含；
 - 两轮共 36 次真实调用约耗时 28.9 分钟，适合维护者按需评审，不适合作为用户默认插件能力；
 - 后续五案例价值评审中，`taste` 与 `knowledge-base` 各有一个 improvement、零 regression；这支持保留专业 Skill，但不改变 Eval Lab 依赖仓库 Skill 文件、运行昂贵且不适合进入 core 的判断。
+- `frontend-design` 的五案例 R3 得到两个 improvement、三个 no_change、零 regression，30 次调用约 25 分钟；它支持插件准入，也再次证明质量对照应保持维护者实验而非用户默认运行面。
 
 ## 已完成的准入检查
 

@@ -21,9 +21,10 @@ EXPECTED_PLATFORMS = {
 EXPECTED_SKILLS = {
     "tessera-core": {"tessera-eval"},
     "taste": {"taste"},
+    "frontend-design": {"frontend-design"},
     "knowledge-base": {"knowledge-base"},
 }
-ROUTES = {"direct", "tessera-eval", "taste", "knowledge-base"}
+ROUTES = {"direct", "tessera-eval", "taste", "frontend-design", "knowledge-base"}
 RETIRED_RUNTIME_NAMES = {
     "planner",
     "piece-router",
@@ -213,7 +214,7 @@ def validate_eval_cases(errors: list[str]) -> None:
                 errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效")
             skills = case.get("expected_skills")
             if not isinstance(skills, list) or any(
-                skill not in {"tessera-eval", "taste", "knowledge-base"}
+                skill not in {"tessera-eval", "taste", "frontend-design", "knowledge-base"}
                 for skill in skills
             ):
                 errors.append(f"{relative(path)}: {case_id} 的 expected_skills 无效")
@@ -229,6 +230,34 @@ def validate_eval_cases(errors: list[str]) -> None:
             errors.append(
                 f"{relative(path)}: 必须保持 25 个案例及 15/10 profile，实际 {profiles}"
             )
+
+
+def validate_frontend_design(errors: list[str]) -> None:
+    plugin = PIECES / "frontend-design"
+    skill = plugin / "skills" / "frontend-design"
+    required = (
+        plugin / "LICENSE.upstream",
+        skill / "SKILL.md",
+        skill / "references" / "UPSTREAM.md",
+        skill / "references" / "quick-reference.md",
+        skill / "references" / "pro-rules.md",
+        skill / "scripts" / "core.py",
+        skill / "scripts" / "design_system.py",
+        skill / "scripts" / "search.py",
+        skill / "scripts" / "validate_data.py",
+        skill / "scripts" / "run.ps1",
+        skill / "scripts" / "run.sh",
+        skill / "scripts" / "tests" / "test_core.py",
+    )
+    for path in required:
+        if not path.is_file():
+            errors.append(f"{relative(path)}: frontend-design 核心资产缺失")
+    data_files = list((skill / "data").rglob("*.csv"))
+    if len(data_files) != 35:
+        errors.append(f"frontend-design: 应包含 35 个上游核心数据表，实际 {len(data_files)}")
+    skill_path = skill / "SKILL.md"
+    if skill_path.is_file() and len(skill_path.read_text(encoding="utf-8").splitlines()) > 70:
+        errors.append(f"{relative(skill_path)}: 超过 70 行上下文预算")
 
 
 def main() -> int:
@@ -262,6 +291,7 @@ def main() -> int:
         for piece_id in sorted(set(claude) & set(codex) & set(EXPECTED_SKILLS)):
             validate_piece(piece_id, claude[piece_id], codex[piece_id], errors)
         validate_eval_cases(errors)
+        validate_frontend_design(errors)
         for installer in (ROOT / "install.ps1", ROOT / "install.sh"):
             if not installer.is_file():
                 errors.append(f"{relative(installer)}: 缺少一键安装入口")
@@ -272,7 +302,8 @@ def main() -> int:
         print("Tessera 发布物校验失败:", file=sys.stderr)
         print("\n".join(f"- {error}" for error in errors), file=sys.stderr)
         return 1
-    print("校验通过：3 个插件、3 个运行时 Skill，双宿主发布物与 eval 案例一致。")
+    count = len(EXPECTED_SKILLS)
+    print(f"校验通过：{count} 个插件、{count} 个运行时 Skill，双宿主发布物与 eval 案例一致。")
     return 0
 
 

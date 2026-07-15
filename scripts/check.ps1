@@ -30,6 +30,7 @@ Invoke-CheckedPython -Arguments @(
     '--case', 'direct-small-edit',
     '--case', 'multi-intent',
     '--case', 'evaluate-routing',
+    '--case', 'frontend-design-system',
     '--adapter-executable', $python.Source,
     '--adapter-arg', 'tests/fixtures/fake_eval_host.py',
     '--output', 'eval-results/ci-routing.json'
@@ -38,7 +39,7 @@ Invoke-CheckedPython -Arguments @(
     'scripts/run_routing_eval.py',
     '--host', 'claude',
     '--mode', 'native',
-    '--case', 'multi-intent',
+    '--case', 'frontend-taste-handoff',
     '--repeat', '3',
     '--suggest-tuning',
     '--adapter-executable', $python.Source,

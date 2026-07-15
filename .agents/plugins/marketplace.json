@@ -29,6 +29,18 @@
       "category": "Productivity"
     },
     {
+      "name": "frontend-design",
+      "source": {
+        "source": "local",
+        "path": "./pieces/frontend-design"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
       "name": "knowledge-base",
       "source": {
         "source": "local",

@@ -22,7 +22,10 @@ class EvalLabIntegrationTests(unittest.TestCase):
                 encoding="utf-8"
             )
         )
-        self.assertEqual({case["skill"] for case in cases}, {"taste", "knowledge-base"})
+        self.assertEqual(
+            {case["skill"] for case in cases},
+            {"taste", "frontend-design", "knowledge-base"},
+        )
         for case in cases:
             skill_file = (
                 ROOT / "experiments" / "eval-lab" / case["skill_file"]

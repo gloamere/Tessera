@@ -21,13 +21,14 @@ fi
   --case direct-small-edit \
   --case multi-intent \
   --case evaluate-routing \
+  --case frontend-design-system \
   --adapter-executable "$PYTHON_BIN" \
   --adapter-arg tests/fixtures/fake_eval_host.py \
   --output eval-results/ci-routing.json
 "$PYTHON_BIN" scripts/run_routing_eval.py \
   --host claude \
   --mode native \
-  --case multi-intent \
+  --case frontend-taste-handoff \
   --repeat 3 \
   --suggest-tuning \
   --adapter-executable "$PYTHON_BIN" \

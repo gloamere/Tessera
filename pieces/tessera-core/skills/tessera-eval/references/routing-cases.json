@@ -23,6 +23,32 @@
     "expected_skills": []
   },
   {
+    "id": "frontend-design-system",
+    "category": "specialist",
+    "prompt": "为新的 B2B 数据平台建立完整设计系统，并按现有 Next.js 栈设计响应式 dashboard、交互状态和无障碍约束",
+    "expected_route": "frontend-design",
+    "expected_skills": [
+      "frontend-design"
+    ]
+  },
+  {
+    "id": "frontend-taste-handoff",
+    "category": "multi-intent",
+    "prompt": "先为这个 React 落地页建立设计 token 和响应式组件规范，完成实现后再评审视觉是否有模板味",
+    "expected_route": "frontend-design",
+    "expected_skills": [
+      "frontend-design",
+      "taste"
+    ]
+  },
+  {
+    "id": "frontend-ux-research-boundary",
+    "category": "direct",
+    "prompt": "访谈五位用户并设计可用性测试，验证他们是否理解结账流程",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
     "id": "knowledge-capture",
     "category": "specialist",
     "prompt": "把这些研究结论整理成可复用的双链笔记",

@@ -1,6 +1,6 @@
 # Tessera 部署手册
 
-Tessera 只分发三个 Skill：核心 `tessera-eval`，以及可选的 `taste`、`knowledge-base`。插件发现、安装、启停、刷新和卸载全部使用 Claude/Codex 原生功能。
+Tessera 分发四个独立 Skill：核心 `tessera-eval`，以及可选的 `frontend-design`、`taste`、`knowledge-base`。插件发现、安装、启停、刷新和卸载全部使用 Claude/Codex 原生功能。
 
 ## Codex
 
@@ -10,7 +10,7 @@ Tessera 只分发三个 Skill：核心 `tessera-eval`，以及可选的 `taste`�
 irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
 ```
 
-安装全部三个插件：
+安装全部四个插件：
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1))) -All
@@ -20,7 +20,7 @@ irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
 # macOS / Linux，默认只安装 core
 curl -fsSL https://raw.githubusercontent.com/gloamere/Tessera/main/install.sh | sh
 
-# 安装全部三个插件
+# 安装全部四个插件
 curl -fsSL https://raw.githubusercontent.com/gloamere/Tessera/main/install.sh | sh -s -- --all
 ```
 
@@ -50,18 +50,20 @@ Claude CLI 在当前验证机器不可用时，只验证双宿主发布物结构
 
 ## 自包含边界
 
-`tessera-core` 的安装包内含 eval 运行器、15 个核心案例、25 个个人案例和两个输出 schema。Skill 从自身安装路径启动，不查找 Tessera 仓库，报告写入当前项目。插件安装只依赖 Codex/Claude；实际运行 eval 还需要系统可调用 Python 3，但不需要任何第三方 Python 包。
+`tessera-core` 的安装包内含 eval 运行器、18 个核心案例、25 个个人案例和两个输出 schema。`frontend-design` 自包含 35 个本地 CSV 数据表、标准库搜索/设计系统脚本及 PowerShell/POSIX 包装器。Skill 从自身安装路径启动，不查找 Tessera 仓库，报告写入当前项目。插件安装只依赖 Codex/Claude；实际运行 eval 或前端设计搜索还需要系统可调用 Python 3，但不需要第三方 Python 包。POSIX 包装器支持 macOS 与 Linux。
 
 ## Smoke test
 
 新会话中验证：
 
 1. 普通代码、架构、高风险确认和插件生命周期请求不加载任何 Tessera 控制层 Skill。
-2. “评审这个页面的视觉层级和配色”加载 `taste`。
-3. “把会议记录整理成双链知识笔记”加载 `knowledge-base`。
-4. “给活动设计三个可拍板方向”由宿主直接处理，不加载 Tessera Skill。
-5. “运行 tessera eval”加载 `tessera-eval`。
-6. 同时包含视觉评审与知识沉淀两个明确专业意图时，宿主可分别加载对应专业 Skill，不需要 router。
+2. “为这个 Next.js dashboard 建立设计系统和响应式实现约束”加载 `frontend-design`。
+3. “评审这个已完成页面的视觉层级和配色”加载 `taste`。
+4. 同时要求从零设计与最终审美复核时，先运行 `frontend-design`，实现或方案成形后再运行 `taste`。
+5. “把会议记录整理成双链知识笔记”加载 `knowledge-base`。
+6. “给活动设计三个可拍板方向”由宿主直接处理，不加载 Tessera Skill。
+7. “运行 tessera eval”加载 `tessera-eval`。
+8. 用户研究、访谈和转化实验由宿主直接处理；`frontend-design` 的数据库候选不能冒充用户证据。
 
 ## 维护者验证
 

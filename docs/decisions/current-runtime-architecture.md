@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: current-runtime-architecture
-status: approved
+status: superseded
 created: 2026-07-14
 approved: 2026-07-14
 review: 宿主原生能力或专业 Skill 价值评审出现新证据时重审
+superseded_by: frontend-design-core-admission
 supersedes:
   - native-first-runtime-simplification
   - native-routing-reliability-layer

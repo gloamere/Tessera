@@ -1,0 +1,269 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-15T01:55:14.725126+00:00",
+  "host": "codex",
+  "mode": "native",
+  "repeat": 3,
+  "timeout_seconds": 45,
+  "claim": "observable native skill invocation",
+  "cases_file": "D:\\Gloamere\\Tessera\\pieces\\tessera-core\\skills\\tessera-eval\\references\\routing-cases.json",
+  "model": null,
+  "adapter": "codex-cli",
+  "summary": {
+    "total": 9,
+    "completed": 9,
+    "passed": 9,
+    "pass_rate": 1.0,
+    "route_accuracy": 1.0,
+    "verified": 9,
+    "verified_pass_rate": 1.0,
+    "over_route": 0,
+    "missed_route": 0,
+    "multi_intent_error": 0,
+    "wrong_route": 0,
+    "execution_error": 0,
+    "median_duration_ms": 22237,
+    "total_duration_ms": 212934,
+    "stable_cases": 3,
+    "case_count": 3
+  },
+  "cases": [
+    {
+      "id": "frontend-design-system",
+      "attempts": 3,
+      "expected_attempts": 3,
+      "passed_attempts": 3,
+      "pass_rate": 1.0,
+      "stable": true,
+      "outcomes": {
+        "pass": 3
+      },
+      "verifications": {
+        "verified": 3
+      }
+    },
+    {
+      "id": "frontend-taste-handoff",
+      "attempts": 3,
+      "expected_attempts": 3,
+      "passed_attempts": 3,
+      "pass_rate": 1.0,
+      "stable": true,
+      "outcomes": {
+        "pass": 3
+      },
+      "verifications": {
+        "verified": 3
+      }
+    },
+    {
+      "id": "frontend-ux-research-boundary",
+      "attempts": 3,
+      "expected_attempts": 3,
+      "passed_attempts": 3,
+      "pass_rate": 1.0,
+      "stable": true,
+      "outcomes": {
+        "pass": 3
+      },
+      "verifications": {
+        "verified": 3
+      }
+    }
+  ],
+  "results": [
+    {
+      "id": "frontend-design-system",
+      "category": "specialist",
+      "prompt": "为新的 B2B 数据平台建立完整设计系统，并按现有 Next.js 栈设计响应式 dashboard、交互状态和无障碍约束",
+      "expected_skills": [
+        "frontend-design"
+      ],
+      "declared_skills": [],
+      "observed_skills": [
+        "frontend-design"
+      ],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "该任务涉及完整设计系统、Next.js 响应式界面、交互状态和无障碍约束，因此加载 UI 路由技能及前端设计专业技能；现已按限制停止，未修改文件、安装依赖或执行设计内容。",
+      "duration_ms": 27511,
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "id": "frontend-design-system",
+      "category": "specialist",
+      "prompt": "为新的 B2B 数据平台建立完整设计系统，并按现有 Next.js 栈设计响应式 dashboard、交互状态和无障碍约束",
+      "expected_skills": [
+        "frontend-design"
+      ],
+      "declared_skills": [],
+      "observed_skills": [
+        "frontend-design"
+      ],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "该任务涉及完整设计系统、Next.js 响应式 dashboard、交互状态与无障碍约束，因此加载 UI 路由 Skill 和负责设计系统及实现约束的专业 Skill。",
+      "duration_ms": 35187,
+      "error": null,
+      "attempt": 2
+    },
+    {
+      "id": "frontend-design-system",
+      "category": "specialist",
+      "prompt": "为新的 B2B 数据平台建立完整设计系统，并按现有 Next.js 栈设计响应式 dashboard、交互状态和无障碍约束",
+      "expected_skills": [
+        "frontend-design"
+      ],
+      "declared_skills": [],
+      "observed_skills": [
+        "frontend-design"
+      ],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "任务需要为 Next.js B2B dashboard 建立设计系统及响应式、交互状态和无障碍约束，因此采用 UI 路由技能与前端设计专业技能。",
+      "duration_ms": 32924,
+      "error": null,
+      "attempt": 3
+    },
+    {
+      "id": "frontend-taste-handoff",
+      "category": "multi-intent",
+      "prompt": "先为这个 React 落地页建立设计 token 和响应式组件规范，完成实现后再评审视觉是否有模板味",
+      "expected_skills": [
+        "frontend-design",
+        "taste"
+      ],
+      "declared_skills": [],
+      "observed_skills": [
+        "frontend-design",
+        "taste"
+      ],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "已实际加载：ui-skills-root 用于选择最小 UI Skill 上下文，frontend-design:frontend-design 用于设计 token 与响应式组件规范，taste:taste 用于实现后的模板味视觉评审；现按执行限制停止。",
+      "duration_ms": 19940,
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "id": "frontend-taste-handoff",
+      "category": "multi-intent",
+      "prompt": "先为这个 React 落地页建立设计 token 和响应式组件规范，完成实现后再评审视觉是否有模板味",
+      "expected_skills": [
+        "frontend-design",
+        "taste"
+      ],
+      "declared_skills": [],
+      "observed_skills": [
+        "frontend-design",
+        "taste"
+      ],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "任务需要先建立 UI 设计系统与响应式实现规范，再进行模板味视觉评审，因此加载了 UI 路由、前端设计和审美评审三个专业 Skill。",
+      "duration_ms": 22237,
+      "error": null,
+      "attempt": 2
+    },
+    {
+      "id": "frontend-taste-handoff",
+      "category": "multi-intent",
+      "prompt": "先为这个 React 落地页建立设计 token 和响应式组件规范，完成实现后再评审视觉是否有模板味",
+      "expected_skills": [
+        "frontend-design",
+        "taste"
+      ],
+      "declared_skills": [],
+      "observed_skills": [
+        "frontend-design",
+        "taste"
+      ],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "任务需要先建立 React 落地页的设计 token 与响应式实现规范，再进行去模板味视觉评审；已完成必要 Skill 加载并按要求立即停止。",
+      "duration_ms": 22424,
+      "error": null,
+      "attempt": 3
+    },
+    {
+      "id": "frontend-ux-research-boundary",
+      "category": "direct",
+      "prompt": "访谈五位用户并设计可用性测试，验证他们是否理解结账流程",
+      "expected_skills": [],
+      "declared_skills": [],
+      "observed_skills": [],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "用户访谈与可用性测试设计属于产品研究方案策划，因此实际加载了 planner:planner，并按执行限制立即停止。",
+      "duration_ms": 16599,
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "id": "frontend-ux-research-boundary",
+      "category": "direct",
+      "prompt": "访谈五位用户并设计可用性测试，验证他们是否理解结账流程",
+      "expected_skills": [],
+      "declared_skills": [],
+      "observed_skills": [],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "该任务属于需先确定研究方向再落地的非代码 UX 研究方案设计；已实际加载 planner:planner，并按限制立即停止。",
+      "duration_ms": 16833,
+      "error": null,
+      "attempt": 2
+    },
+    {
+      "id": "frontend-ux-research-boundary",
+      "category": "direct",
+      "prompt": "访谈五位用户并设计可用性测试，验证他们是否理解结账流程",
+      "expected_skills": [],
+      "declared_skills": [],
+      "observed_skills": [],
+      "decision": "skill",
+      "verification": "verified",
+      "observation_source": "host-events",
+      "malformed_events": 0,
+      "passed": true,
+      "outcome": "pass",
+      "reason": "该任务需要设计用户访谈与可用性测试方案，属于产品方案策划；已实际加载 planner:planner，并按执行限制立即停止。",
+      "duration_ms": 19279,
+      "error": null,
+      "attempt": 3
+    }
+  ],
+  "tuning_candidates": []
+}
