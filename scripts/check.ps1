@@ -22,10 +22,35 @@ function Invoke-CheckedPython {
     }
 }
 
-Invoke-CheckedPython scripts/validate_marketplace.py
-Invoke-CheckedPython -m unittest discover -s tests -p 'test_*.py'
-Invoke-CheckedPython scripts/run_routing_eval.py --host claude --case direct-small-edit --case multi-intent --case evaluate-routing --adapter-executable $python.Source --adapter-arg tests/fixtures/fake_eval_host.py --output eval-results/ci-routing.json
-Invoke-CheckedPython scripts/run_routing_eval.py --host claude --mode native --case multi-intent --repeat 3 --suggest-tuning --adapter-executable $python.Source --adapter-arg tests/fixtures/fake_eval_host.py --output eval-results/ci-native.json
-Invoke-CheckedPython scripts/run_routing_eval.py --host codex --mode native --cases pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json --dry-run
+Invoke-CheckedPython -Arguments @('scripts/validate_marketplace.py')
+Invoke-CheckedPython -Arguments @('-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py')
+Invoke-CheckedPython -Arguments @(
+    'scripts/run_routing_eval.py',
+    '--host', 'claude',
+    '--case', 'direct-small-edit',
+    '--case', 'multi-intent',
+    '--case', 'evaluate-routing',
+    '--adapter-executable', $python.Source,
+    '--adapter-arg', 'tests/fixtures/fake_eval_host.py',
+    '--output', 'eval-results/ci-routing.json'
+)
+Invoke-CheckedPython -Arguments @(
+    'scripts/run_routing_eval.py',
+    '--host', 'claude',
+    '--mode', 'native',
+    '--case', 'multi-intent',
+    '--repeat', '3',
+    '--suggest-tuning',
+    '--adapter-executable', $python.Source,
+    '--adapter-arg', 'tests/fixtures/fake_eval_host.py',
+    '--output', 'eval-results/ci-native.json'
+)
+Invoke-CheckedPython -Arguments @(
+    'scripts/run_routing_eval.py',
+    '--host', 'codex',
+    '--mode', 'native',
+    '--cases', 'pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json',
+    '--dry-run'
+)
 
 Write-Host 'All Tessera checks passed.'
