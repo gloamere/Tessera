@@ -36,6 +36,8 @@ Windows 使用 `run.ps1`，macOS/Linux 使用 `run.sh`，两者只调用 Python 
 
 准入时 native routing 三场景各重复三轮，9/9 verified；五类前端任务的受控内容 R3 得到 2 个 improvement、3 个 no_change、0 regression。设置重构有 `-0.125` 的非显著原始波动，包含一项评分词法假阴性与交付优先级波动，必须保留并在内容变更时复跑。完整证据见 `experiments/eval-lab/evidence/2026-07-15-frontend-design-admission.md`。
 
+安装后的六个独立桌面任务继续暴露执行成本：核心路由正确，但复杂规格题重复读取缓存与仓库副本、扇出外部 UI Skill/子任务/多领域检索，回答达到 3260–8555 字符。0.1.1 保留数据核心，改为单副本、两次检索、单份参考、无规格子代理和默认紧凑交付；详见 `experiments/eval-lab/evidence/2026-07-15-frontend-design-field-report.md`。
+
 ## 当前 Module 与 seam
 
 - **宿主原生选择**：普通任务、计划、确认、委派、生命周期和外部能力。

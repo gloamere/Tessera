@@ -153,6 +153,20 @@ class FrontendDesignTests(unittest.TestCase):
         self.assertIn("taste", text)
         self.assertIn("用户研究", text)
 
+    def test_skill_enforces_field_report_execution_budget(self) -> None:
+        text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        for requirement in (
+            "不巡检工作区",
+            "本次最先读取的这份 `SKILL.md`",
+            "检索预算最多两次",
+            "不启动子代理",
+            "固定紧凑结构",
+            "不超过 2200",
+            "不给目录树",
+            "不再生成第二套设计系统",
+        ):
+            self.assertIn(requirement, text)
+
 
 if __name__ == "__main__":
     unittest.main()
