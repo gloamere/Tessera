@@ -234,8 +234,20 @@ def validate_eval_cases(errors: list[str]) -> None:
 def main() -> int:
     errors: list[str] = []
     try:
+        version_path = ROOT / "VERSION"
+        distribution_version = version_path.read_text(encoding="utf-8").strip()
+        if not distribution_version:
+            errors.append("VERSION: 分发版本不能为空")
         claude_path = ROOT / ".claude-plugin" / "marketplace.json"
         codex_path = ROOT / ".agents" / "plugins" / "marketplace.json"
+        claude_marketplace = read_json(claude_path)
+        metadata = claude_marketplace.get("metadata")
+        marketplace_version = metadata.get("version") if isinstance(metadata, dict) else None
+        if marketplace_version != distribution_version:
+            errors.append(
+                ".claude-plugin/marketplace.json: metadata.version "
+                f"应与 VERSION ({distribution_version}) 一致"
+            )
         claude = marketplace_entries(claude_path, errors)
         codex = marketplace_entries(codex_path, errors)
         if set(claude) != set(codex):

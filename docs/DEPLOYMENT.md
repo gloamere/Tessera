@@ -66,18 +66,21 @@ Claude CLI 在当前验证机器不可用时，只验证双宿主发布物结构
 ## 维护者验证
 
 ```powershell
-python scripts/validate_marketplace.py
-python -m unittest discover -s tests -p 'test_*.py'
-python scripts/run_routing_eval.py --host codex --mode policy --dry-run
-python scripts/run_routing_eval.py --host codex --mode native --cases pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json --dry-run
+python -m pip install -r requirements-dev.txt
+./scripts/check.ps1
 codex plugin marketplace add ./
 codex plugin add tessera-core@tessera
 codex plugin list --json
+./scripts/run_native_eval.ps1
 ```
+
+macOS / Linux 对应使用 `sh scripts/check.sh` 与 `sh scripts/run_native_eval.sh`。
 
 真实行为验收使用 native 模式。只有宿主事件或可信 transcript 才能成为 `verified`；policy、CI fixture、模型自报和 dry-run 都不能替代真实宿主证据。
 
 `scripts/validate_marketplace.py` 只检查 Tessera 自己的双宿主发布物：marketplace 插件集合、manifest name/version、piece 元数据、Skill frontmatter、精简能力集合和 eval 案例/schema。运行时安装与启用状态由宿主原生界面负责。
+
+分发版本以根目录 `VERSION` 为事实来源，并必须与 Claude marketplace 的 `metadata.version` 一致。创建同名 `v<version>` tag 后，GitHub Actions 会重新执行完整验证并生成 Release；版本不一致时发布失败。
 
 ## 升级与清理
 

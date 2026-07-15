@@ -34,6 +34,11 @@ class ArchitectureDocsTests(unittest.TestCase):
             self.assertEqual(status.group(1), "superseded")
             self.assertEqual(superseded_by.group(1), replacement)
 
+    def test_readme_points_to_current_decisions(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("docs/decisions/current-runtime-architecture.md", readme)
+        self.assertIn("docs/decisions/professional-skill-portfolio.md", readme)
+
 
 if __name__ == "__main__":
     unittest.main()

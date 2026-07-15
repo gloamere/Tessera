@@ -102,11 +102,21 @@ Claude 没有可信适配器时只支持 dry-run，并报告 `unavailable`；CI 
 ## 开发验证
 
 ```powershell
-python scripts/validate_marketplace.py
-python -m unittest discover -s tests -p 'test_*.py'
-python scripts/run_routing_eval.py --host codex --mode policy --dry-run
-python scripts/run_routing_eval.py --host codex --mode native --cases pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json --dry-run
+python -m pip install -r requirements-dev.txt
+./scripts/check.ps1
 ```
+
+macOS / Linux 使用 `sh scripts/check.sh`。完整检查会验证双宿主发布物、运行单元测试、执行 fixture eval，并确认个人场景 native 计划可生成。
+
+真实 Codex native eval 不进入普通 CI，因为 fixture、dry-run 和模型自报都不能替代已安装插件环境中的宿主事件。维护者在已登录 Codex CLI、已安装目标插件的新环境中手动运行：
+
+```powershell
+./scripts/run_native_eval.ps1
+```
+
+macOS / Linux 使用 `sh scripts/run_native_eval.sh`。报告默认写入 `eval-results/codex-native.json`。
+
+分发版本以根目录 `VERSION` 为事实来源；推送同名 `v<version>` tag 时，发布工作流会先运行完整检查，再生成 GitHub Release。
 
 ## 从 0.4 迁移
 
@@ -122,7 +132,7 @@ python scripts/run_routing_eval.py --host codex --mode native --cases pieces/tes
 
 已有 `~/.tessera` 数据不会被代码主动删除；不再需要时由用户自行备份或清理。
 
-详见 [部署手册](docs/DEPLOYMENT.md)、[原生路由优先决策](docs/decisions/native-routing-reliability-layer.md) 与 [运行时精简决策](docs/decisions/native-first-runtime-simplification.md)。
+详见 [部署手册](docs/DEPLOYMENT.md)、[当前运行时架构](docs/decisions/current-runtime-architecture.md) 与 [专业 Skill 组合决策](docs/decisions/professional-skill-portfolio.md)。历史演进仍保留在已标记 `superseded` 的 ADR 中。
 
 ## 许可
 
