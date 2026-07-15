@@ -72,6 +72,7 @@ class InstallerTests(unittest.TestCase):
             source = (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
             for token in (
                 "ubuntu-latest",
+                "macos-latest",
                 "windows-latest",
                 "scripts/check.sh",
                 "scripts/check.ps1",

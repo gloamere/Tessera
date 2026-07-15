@@ -106,7 +106,7 @@ python -m pip install -r requirements-dev.txt
 ./scripts/check.ps1
 ```
 
-macOS / Linux 使用 `sh scripts/check.sh`。完整检查会验证双宿主发布物、运行单元测试、执行 fixture eval，并确认个人场景 native 计划可生成。
+macOS / Linux 使用 `sh scripts/check.sh`。完整检查会验证双宿主发布物、运行单元测试、执行 fixture eval，并确认个人场景 native 计划可生成；GitHub Actions 在 Ubuntu、macOS 和 Windows 三个平台执行同一检查面。
 
 真实 Codex native eval 不进入普通 CI，因为 fixture、dry-run 和模型自报都不能替代已安装插件环境中的宿主事件。维护者在已登录 Codex CLI、已安装目标插件的新环境中手动运行：
 
