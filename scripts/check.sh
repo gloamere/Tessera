@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 set -eu
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
 
 if [ -n "${PYTHON:-}" ]; then
   PYTHON_BIN=$PYTHON

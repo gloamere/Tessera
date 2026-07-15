@@ -62,6 +62,8 @@ class InstallerTests(unittest.TestCase):
                 "fake_eval_host.py",
                 "personal-routing-cases.json",
                 "--dry-run",
+                "PYTHONUTF8",
+                "PYTHONIOENCODING",
             ):
                 self.assertIn(token, source, f"{name} is missing {token}")
 

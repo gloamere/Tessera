@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 set -eu
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
 
 REPEAT=${1:-3}
 OUTPUT=${2:-eval-results/codex-native.json}
