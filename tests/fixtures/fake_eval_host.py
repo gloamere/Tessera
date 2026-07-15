@@ -9,13 +9,17 @@ import sys
 
 ROUTES = {
     "direct-small-edit": "direct",
-    "multi-intent": "knowledge-base",
+    "multi-intent": "product-planning",
     "evaluate-routing": "tessera-eval",
     "frontend-design-system": "frontend-design",
     "frontend-taste-handoff": "frontend-design",
+    "finance-reconciliation": "finance-ops",
+    "growth-campaign-loop": "growth-ops",
+    "product-planning-prd": "product-planning",
+    "business-ops-runbook": "business-ops",
 }
 NATIVE_SKILLS = {
-    "multi-intent": ["knowledge-base"],
+    "multi-intent": ["product-planning", "knowledge-base"],
     "frontend-taste-handoff": ["frontend-design", "taste"],
 }
 

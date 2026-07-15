@@ -1,0 +1,16 @@
+{
+  "name": "finance-ops",
+  "description": "财务运营拼图：预算、对账、月结、现金流与差异分析，默认只读并要求人工签核",
+  "version": "0.1.0+codex.20260715",
+  "author": { "name": "van" },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "财务运营",
+    "shortDescription": "预算、对账、月结和差异分析",
+    "longDescription": "生成可追溯、可勾稽并等待财务人员签核的预算、对账、月结、现金流和差异分析产物。",
+    "developerName": "Tessera",
+    "category": "Productivity",
+    "capabilities": ["Analysis", "Write"],
+    "defaultPrompt": "生成一份可复核的财务工作底稿。"
+  }
+}

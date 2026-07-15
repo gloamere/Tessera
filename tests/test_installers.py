@@ -18,7 +18,8 @@ class InstallerTests(unittest.TestCase):
                 self.assertIn(token, source)
             self.assertIn("plugin add", source)
             self.assertIn("plugin list --json", source)
-            self.assertIn("frontend-design", source)
+            for plugin in ("frontend-design", "finance-ops", "growth-ops", "product-planning", "business-ops"):
+                self.assertIn(plugin, source)
             self.assertNotIn("planner", source)
             self.assertNotIn("pip install", source)
             self.assertNotIn("git clone", source)

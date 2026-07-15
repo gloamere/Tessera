@@ -1,0 +1,4 @@
+interface:
+  display_name: "产品策划"
+  short_description: "证据、方案权衡、指标与风险"
+  default_prompt: "使用 $product-planning 把这个产品想法形成可拍板的方案。"

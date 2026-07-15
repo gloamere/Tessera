@@ -55,7 +55,7 @@ class SelfContainedPluginTests(unittest.TestCase):
                 check=False,
             )
             self.assertEqual(default.returncode, 0, default.stderr)
-            self.assertIn("cases=18", default.stdout)
+            self.assertIn("cases=23", default.stdout)
 
             personal = subprocess.run(
                 [

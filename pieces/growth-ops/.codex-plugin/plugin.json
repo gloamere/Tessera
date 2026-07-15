@@ -1,0 +1,16 @@
+{
+  "name": "growth-ops",
+  "description": "增长运营拼图：活动、周报、实验和复盘闭环",
+  "version": "0.1.0+codex.20260715",
+  "author": { "name": "van" },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "增长运营",
+    "shortDescription": "活动、周报、实验与复盘闭环",
+    "longDescription": "把增长活动、内容计划和运营数据连接到明确的基线、指标、实验与复盘决策。",
+    "developerName": "Tessera",
+    "category": "Productivity",
+    "capabilities": ["Analysis", "Write"],
+    "defaultPrompt": "把这个运营目标转成可衡量的执行闭环。"
+  }
+}

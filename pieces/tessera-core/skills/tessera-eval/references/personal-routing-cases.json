@@ -128,18 +128,18 @@
   {
     "id": "personal-product-directions",
     "profile": "product",
-    "category": "direct",
+    "category": "specialist",
     "prompt": "为这个个人效率工具给出三个可供拍板的发展方向",
-    "expected_route": "direct",
-    "expected_skills": []
+    "expected_route": "product-planning",
+    "expected_skills": ["product-planning"]
   },
   {
     "id": "personal-product-competitor-research",
     "profile": "product",
-    "category": "multi-intent",
+    "category": "specialist",
     "prompt": "先调研同类产品，再基于证据形成产品方向建议",
-    "expected_route": "direct",
-    "expected_skills": []
+    "expected_route": "product-planning",
+    "expected_skills": ["product-planning"]
   },
   {
     "id": "personal-product-knowledge-capture",
@@ -174,10 +174,10 @@
   {
     "id": "personal-product-option-comparison",
     "profile": "product",
-    "category": "direct",
-    "prompt": "为活动机制设计三个方向，列出目标、核心机制和关键取舍",
-    "expected_route": "direct",
-    "expected_skills": []
+    "category": "specialist",
+    "prompt": "为产品的团队协作机制设计三个方向，列出目标、核心机制、成功指标、风险和关键取舍",
+    "expected_route": "product-planning",
+    "expected_skills": ["product-planning"]
   },
   {
     "id": "personal-product-ambiguous-project",

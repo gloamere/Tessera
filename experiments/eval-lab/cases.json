@@ -283,5 +283,62 @@
       {"id": "vue-guidance", "any": ["Vue", "computed", "异步组件", "组件"]},
       {"id": "delivery-priority", "any": ["优先级", "P0", "先"]}
     ]
+  },
+  {
+    "id": "product-planning-team-accounts",
+    "plugin": "product-planning@tessera",
+    "skill": "product-planning",
+    "activation": "injected",
+    "skill_file": "../../pieces/product-planning/skills/product-planning/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "我们做的是面向 5–30 人小团队的知识管理 SaaS。访谈中，管理员希望统一付费和回收离职成员权限，普通成员担心团队管理员能看到私人笔记；工程团队只有 2 人，本季度最多投入 5 周。请形成团队账号功能的可拍板产品方案，不写代码，也不要说明使用了什么 Skill。",
+    "criteria": [
+      {"id": "user-segments", "all": ["管理员", "普通成员"]},
+      {"id": "privacy-boundary", "all": ["私人笔记", "权限"]},
+      {"id": "multiple-options", "any": ["方案 A", "方案A", "选项 A", "选项A"]},
+      {"id": "tradeoffs", "any": ["取舍", "优点", "缺点", "代价"]},
+      {"id": "scope", "all": ["范围内", "范围外"]},
+      {"id": "success-metrics", "all": ["基线", "目标", "时间窗口", "护栏"]},
+      {"id": "risks", "all": ["风险", "缓解"]},
+      {"id": "open-questions", "all": ["开放问题", "验证"]}
+    ]
+  },
+  {
+    "id": "product-planning-onboarding-research",
+    "plugin": "product-planning@tessera",
+    "skill": "product-planning",
+    "activation": "injected",
+    "skill_file": "../../pieces/product-planning/skills/product-planning/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "整理一组记账 App 新手研究并形成下一步产品建议：8 名受访者中 5 人不知道首次应该记什么，3 人在权限页退出；数据上首日记账完成率 28%，完成首笔的人次周留存 42%，未完成者 9%；团队可做一个两周迭代。不要搜索，不写代码。",
+    "criteria": [
+      {"id": "evidence-separation", "all": ["8", "5", "3", "28%", "42%", "9%"]},
+      {"id": "bias-or-limit", "any": ["样本", "偏差", "局限"]},
+      {"id": "problem-not-solution", "any": ["问题", "机会"]},
+      {"id": "options", "any": ["方案 A", "方案A", "选项 A", "选项A"]},
+      {"id": "recommendation", "any": ["建议", "推荐", "拍板"]},
+      {"id": "success-metrics", "all": ["基线", "目标", "时间窗口", "护栏"]},
+      {"id": "risks", "all": ["风险", "缓解"]},
+      {"id": "experiment", "all": ["假设", "验证", "停止"]}
+    ]
+  },
+  {
+    "id": "product-planning-roadmap-tradeoff",
+    "plugin": "product-planning@tessera",
+    "skill": "product-planning",
+    "activation": "injected",
+    "skill_file": "../../pieces/product-planning/skills/product-planning/SKILL.md",
+    "minimum_delta": 0.2,
+    "prompt": "我们只有 3 名工程师，下季度候选事项有：企业 SSO（2 个已签客户续约依赖它）、全文搜索重做（支持工单第二多）、AI 摘要（销售最常被问到但没有使用证据）、移动端离线（活跃用户请求多但预计占 8 周）。请给出 Now/Next/Later 路线图和负责人需要拍板的取舍，不写实施代码。",
+    "criteria": [
+      {"id": "roadmap-format", "all": ["Now", "Next", "Later"]},
+      {"id": "customer-evidence", "all": ["SSO", "续约", "搜索", "工单"]},
+      {"id": "ai-uncertainty", "all": ["AI 摘要", "没有使用证据"]},
+      {"id": "offline-constraint", "all": ["离线", "8 周"]},
+      {"id": "tradeoffs", "any": ["取舍", "不做", "延后"]},
+      {"id": "success-metrics", "all": ["基线", "目标", "时间窗口", "护栏"]},
+      {"id": "risks", "all": ["风险", "缓解"]},
+      {"id": "decision-request", "any": ["拍板", "决策", "批准"]}
+    ]
   }
 ]

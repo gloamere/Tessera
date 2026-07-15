@@ -24,7 +24,7 @@ class EvalLabIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             {case["skill"] for case in cases},
-            {"taste", "frontend-design", "knowledge-base"},
+            {"taste", "frontend-design", "knowledge-base", "product-planning"},
         )
         for case in cases:
             skill_file = (

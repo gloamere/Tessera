@@ -13,7 +13,7 @@ class ArchitectureDocsTests(unittest.TestCase):
     def test_current_index_points_to_current_runtime_decisions(self) -> None:
         index = (ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8")
         for decision in (
-            "frontend-design-core-admission",
+            "business-workflow-suite-admission",
             "professional-skill-portfolio",
             "self-contained-plugin-distribution",
             "eval-lab-incubation",
@@ -25,6 +25,7 @@ class ArchitectureDocsTests(unittest.TestCase):
             "native-routing-reliability-layer": "current-runtime-architecture",
             "native-first-runtime-simplification": "current-runtime-architecture",
             "current-runtime-architecture": "frontend-design-core-admission",
+            "frontend-design-core-admission": "business-workflow-suite-admission",
         }
         for decision, replacement in expected.items():
             text = (DECISIONS / f"{decision}.md").read_text(encoding="utf-8")
@@ -37,7 +38,7 @@ class ArchitectureDocsTests(unittest.TestCase):
 
     def test_readme_points_to_current_decisions(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn("docs/decisions/frontend-design-core-admission.md", readme)
+        self.assertIn("docs/decisions/business-workflow-suite-admission.md", readme)
         self.assertIn("docs/decisions/professional-skill-portfolio.md", readme)
 
 

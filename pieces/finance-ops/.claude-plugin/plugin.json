@@ -1,0 +1,6 @@
+{
+  "name": "finance-ops",
+  "description": "财务运营拼图：预算、对账、月结、现金流与差异分析，默认只读并要求人工签核",
+  "version": "0.1.0+codex.20260715",
+  "author": { "name": "van" }
+}

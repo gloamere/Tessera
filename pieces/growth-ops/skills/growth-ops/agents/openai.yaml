@@ -1,0 +1,4 @@
+interface:
+  display_name: "增长运营"
+  short_description: "活动、周报、实验与复盘闭环"
+  default_prompt: "使用 $growth-ops 把这个运营目标转成可衡量的执行闭环。"

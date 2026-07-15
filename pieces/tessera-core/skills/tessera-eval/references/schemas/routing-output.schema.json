@@ -11,7 +11,11 @@
         "tessera-eval",
         "taste",
         "frontend-design",
-        "knowledge-base"
+        "knowledge-base",
+        "finance-ops",
+        "growth-ops",
+        "product-planning",
+        "business-ops"
       ]
     },
     "reason": {"type": "string"}

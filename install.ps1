@@ -25,7 +25,7 @@ if ($LASTEXITCODE -ne 0) {
 
 $plugins = @('tessera-core')
 if ($All) {
-    $plugins += @('taste', 'frontend-design', 'knowledge-base')
+    $plugins += @('taste', 'frontend-design', 'knowledge-base', 'finance-ops', 'growth-ops', 'product-planning', 'business-ops')
 }
 foreach ($plugin in $plugins) {
     & $codex.Source plugin add "$plugin@tessera"

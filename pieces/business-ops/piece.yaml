@@ -1,0 +1,13 @@
+id: business-ops
+kind: skill
+summary: 企业运营拼图：将供应商、SOP、变更、产能和风险形成可审批、可执行的运营产物。
+when_to_use:
+  - 供应商评估、续约比较、合同要点与运营风险审查
+  - 编写或优化 SOP、runbook、RACI 与升级路径
+  - 变更管理、容量规划、资源配置、合规台账和管理层状态报告
+avoid_when: 增长活动与内容运营、财务会计工作、产品方向策划或技术实施本身
+platforms: { claude: native, codex: native, gemini: unsupported, domestic: unsupported }
+external_deps: []
+inspired_by:
+  - anthropics/knowledge-work-plugins/operations
+upgrade_policy: notify-only

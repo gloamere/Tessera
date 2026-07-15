@@ -23,8 +23,15 @@ EXPECTED_SKILLS = {
     "taste": {"taste"},
     "frontend-design": {"frontend-design"},
     "knowledge-base": {"knowledge-base"},
+    "finance-ops": {"finance-ops"},
+    "growth-ops": {"growth-ops"},
+    "product-planning": {"product-planning"},
+    "business-ops": {"business-ops"},
 }
-ROUTES = {"direct", "tessera-eval", "taste", "frontend-design", "knowledge-base"}
+ROUTES = {
+    "direct", "tessera-eval", "taste", "frontend-design", "knowledge-base",
+    "finance-ops", "growth-ops", "product-planning", "business-ops",
+}
 RETIRED_RUNTIME_NAMES = {
     "planner",
     "piece-router",
@@ -214,7 +221,7 @@ def validate_eval_cases(errors: list[str]) -> None:
                 errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效")
             skills = case.get("expected_skills")
             if not isinstance(skills, list) or any(
-                skill not in {"tessera-eval", "taste", "frontend-design", "knowledge-base"}
+                skill not in set().union(*EXPECTED_SKILLS.values())
                 for skill in skills
             ):
                 errors.append(f"{relative(path)}: {case_id} 的 expected_skills 无效")

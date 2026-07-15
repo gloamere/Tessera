@@ -1,0 +1,4 @@
+interface:
+  display_name: "财务运营"
+  short_description: "预算、对账、月结和差异分析"
+  default_prompt: "使用 $finance-ops 生成一份可复核的财务工作底稿。"

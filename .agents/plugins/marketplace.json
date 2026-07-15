@@ -51,6 +51,30 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Productivity"
+    },
+    {
+      "name": "finance-ops",
+      "source": { "source": "local", "path": "./pieces/finance-ops" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    },
+    {
+      "name": "growth-ops",
+      "source": { "source": "local", "path": "./pieces/growth-ops" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    },
+    {
+      "name": "product-planning",
+      "source": { "source": "local", "path": "./pieces/product-planning" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    },
+    {
+      "name": "business-ops",
+      "source": { "source": "local", "path": "./pieces/business-ops" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
     }
   ]
 }

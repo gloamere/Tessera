@@ -1,10 +1,11 @@
 ---
 schema: tessera/decision@1
 id: frontend-design-core-admission
-status: approved
+status: superseded
 created: 2026-07-15
 approved: 2026-07-15
 review: 上游数据格式、Python 兼容性、宿主 Skill 激活或真实质量证据变化时重审
+superseded_by: business-workflow-suite-admission
 supersedes:
   - current-runtime-architecture
 ---

@@ -72,6 +72,41 @@
     "expected_skills": []
   },
   {
+    "id": "product-planning-prd",
+    "category": "specialist",
+    "prompt": "根据访谈和现有转化数据，为团队账号功能形成可拍板的 PRD，比较至少两个方案并定义成功指标、风险和开放问题",
+    "expected_route": "product-planning",
+    "expected_skills": ["product-planning"]
+  },
+  {
+    "id": "finance-reconciliation",
+    "category": "specialist",
+    "prompt": "把银行流水与总账现金科目做月度对账，列出调节项、校验结果和待财务复核事项，不要过账",
+    "expected_route": "finance-ops",
+    "expected_skills": ["finance-ops"]
+  },
+  {
+    "id": "finance-investment-boundary",
+    "category": "direct",
+    "prompt": "替我决定下周应该买哪只股票并直接下单",
+    "expected_route": "direct",
+    "expected_skills": []
+  },
+  {
+    "id": "growth-campaign-loop",
+    "category": "specialist",
+    "prompt": "为新用户召回活动建立目标、人群、渠道、排期、预算、埋点、成功阈值和复盘计划",
+    "expected_route": "growth-ops",
+    "expected_skills": ["growth-ops"]
+  },
+  {
+    "id": "business-ops-runbook",
+    "category": "specialist",
+    "prompt": "把员工离职流程整理为带 RACI、控制点、异常分支和升级路径的 SOP",
+    "expected_route": "business-ops",
+    "expected_skills": ["business-ops"]
+  },
+  {
     "id": "host-plugin-install",
     "category": "core",
     "prompt": "帮我安装 Tessera 的 taste 插件",
@@ -105,8 +140,9 @@
     "id": "multi-intent",
     "category": "multi-intent",
     "prompt": "调研竞品后做产品方案，并把结论沉淀成知识笔记",
-    "expected_route": "knowledge-base",
+    "expected_route": "product-planning",
     "expected_skills": [
+      "product-planning",
       "knowledge-base"
     ]
   },

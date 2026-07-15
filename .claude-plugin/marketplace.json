@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "原生 Skill 调用评测与可选专业工作流",
-    "version": "3.1.1"
+    "version": "3.2.0"
   },
   "plugins": [
     {
@@ -34,6 +34,34 @@
       "source": "./pieces/knowledge-base",
       "description": "知识库:markdown + 双链轻量管理",
       "version": "0.2.0+codex.20260714",
+      "strict": true
+    },
+    {
+      "name": "finance-ops",
+      "source": "./pieces/finance-ops",
+      "description": "财务运营：预算、对账、月结、现金流和差异分析",
+      "version": "0.1.0+codex.20260715",
+      "strict": true
+    },
+    {
+      "name": "growth-ops",
+      "source": "./pieces/growth-ops",
+      "description": "增长运营：活动、周报、实验和复盘闭环",
+      "version": "0.1.0+codex.20260715",
+      "strict": true
+    },
+    {
+      "name": "product-planning",
+      "source": "./pieces/product-planning",
+      "description": "产品策划：研究、方案权衡、PRD、指标和风险",
+      "version": "0.1.0+codex.20260715",
+      "strict": true
+    },
+    {
+      "name": "business-ops",
+      "source": "./pieces/business-ops",
+      "description": "企业运营：供应商、SOP、变更、产能和运营风险",
+      "version": "0.1.0+codex.20260715",
       "strict": true
     }
   ]

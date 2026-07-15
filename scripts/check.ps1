@@ -31,6 +31,10 @@ Invoke-CheckedPython -Arguments @(
     '--case', 'multi-intent',
     '--case', 'evaluate-routing',
     '--case', 'frontend-design-system',
+    '--case', 'finance-reconciliation',
+    '--case', 'growth-campaign-loop',
+    '--case', 'product-planning-prd',
+    '--case', 'business-ops-runbook',
     '--adapter-executable', $python.Source,
     '--adapter-arg', 'tests/fixtures/fake_eval_host.py',
     '--output', 'eval-results/ci-routing.json'

@@ -21,6 +21,10 @@ Tessera 是纯 Skills 市集：没有 hooks、常驻进程、数据库、私有�
 | `frontend-design` | `frontend-design` | 本地 UI/UX 数据库、设计系统、响应式/无障碍与技术栈实现约束 | 可选；构建阶段使用 |
 | `taste` | `taste` | UI、视觉、排版、配色与文案审美评审 | 可选；真实价值评审保留 |
 | `knowledge-base` | `knowledge-base` | Markdown + 双链知识沉淀 | 可选；真实价值评审保留 |
+| `finance-ops` | `finance-ops` | 预算、对账、月结、现金流与差异分析 | 可选；默认只读、人工签核 |
+| `growth-ops` | `growth-ops` | 增长活动、周报、实验与复盘闭环 | 可选 |
+| `product-planning` | `product-planning` | 产品研究、方案权衡、PRD、指标与风险 | 可选；真实 R3 通过 |
+| `business-ops` | `business-ops` | 供应商、SOP、变更、容量与运营风险 | 可选 |
 
 ```mermaid
 flowchart LR
@@ -30,6 +34,10 @@ flowchart LR
     F -->|成品审美复核| T[taste]
     H --> T[taste]
     H --> K[knowledge-base]
+    H --> P[product-planning]
+    H --> G[growth-ops]
+    H --> B[business-ops]
+    H --> FIO[finance-ops]
     C([Skill 或宿主变化]) --> E[tessera-eval]
     E --> R[可观察报告与边界建议]
 ```
@@ -56,7 +64,7 @@ Windows 一键安装核心插件：
 irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
 ```
 
-安装全部四个插件：
+安装全部八个插件：
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1))) -All
@@ -87,9 +95,11 @@ claude plugin install tessera-core@tessera --scope user
 claude plugin list --json
 ```
 
-按需安装 `frontend-design@tessera`、`taste@tessera` 或 `knowledge-base@tessera`。交互会话中安装或启停后运行 `/reload-plugins`；其它生命周期动作使用 Claude 原生 `/plugin` 或 `claude plugin` 命令。
+按需安装 `frontend-design@tessera`、`taste@tessera`、`knowledge-base@tessera`、`finance-ops@tessera`、`growth-ops@tessera`、`product-planning@tessera` 或 `business-ops@tessera`。交互会话中安装或启停后运行 `/reload-plugins`；其它生命周期动作使用 Claude 原生 `/plugin` 或 `claude plugin` 命令。
 
 前端组合采用顺序边界：新页面、设计系统或系统性重构先用 `frontend-design` 形成 token、结构、状态和技术栈约束；有成品后再按需用 `taste` 做审美与去模板化复核。纯审美评审不必加载前者，用户研究与转化实验也不由两者冒充。`frontend-design` 的本地搜索仅依赖 Python 3 标准库，PowerShell 与 POSIX 包装脚本分别覆盖 Windows、macOS 和 Linux。
+
+业务组合也按工作产物分工：`product-planning` 负责产品方向和 PRD，`growth-ops` 负责活动、指标与复盘，`business-ops` 负责内部流程、供应商和容量，`finance-ops` 负责可复核的财务工作底稿。它们不因同时安装就一起加载；涉及表格、文档和知识沉淀时继续调用宿主已有能力。`finance-ops` 不付款、不过账、不申报，也不替代财务、税务、审计或投资专业判断。
 
 ## Eval
 
@@ -125,7 +135,7 @@ macOS / Linux 使用 `sh scripts/run_native_eval.sh`。报告默认写入 `eval-
 
 ## 从 0.4 迁移
 
-0.5 删除了 `piece-router`、`tessera-setup`、`tessera-status`、`tessera-capabilities` 和 `tessera-doctor`，也删除了指令式本地 usage events；0.6 将 eval 运行器、案例和 schema 收入插件安装包，并提供一键安装器；0.7 根据真实质量评审移除 `planner`，产品与活动策划回归宿主原生能力。替代方式：
+0.5 删除了 `piece-router`、`tessera-setup`、`tessera-status`、`tessera-capabilities` 和 `tessera-doctor`，也删除了指令式本地 usage events；0.6 将 eval 运行器、案例和 schema 收入插件安装包；0.7 根据真实质量评审移除旧 `planner`；3.2 以四个边界明确的业务工作流替代万能策划，并保留旧失败证据。替代方式：
 
 | 旧入口 | 替代方式 |
 |---|---|
@@ -137,7 +147,7 @@ macOS / Linux 使用 `sh scripts/run_native_eval.sh`。报告默认写入 `eval-
 
 已有 `~/.tessera` 数据不会被代码主动删除；不再需要时由用户自行备份或清理。
 
-详见 [部署手册](docs/DEPLOYMENT.md)、[当前运行时架构](docs/decisions/frontend-design-core-admission.md) 与 [专业 Skill 组合决策](docs/decisions/professional-skill-portfolio.md)。历史演进仍保留在已标记 `superseded` 的 ADR 中。
+详见 [部署手册](docs/DEPLOYMENT.md)、[当前运行时架构](docs/decisions/business-workflow-suite-admission.md) 与 [专业 Skill 历史评审](docs/decisions/professional-skill-portfolio.md)。历史演进仍保留在已标记 `superseded` 的 ADR 中。
 
 ## 许可
 
