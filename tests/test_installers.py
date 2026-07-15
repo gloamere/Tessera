@@ -74,6 +74,7 @@ class InstallerTests(unittest.TestCase):
                 "scripts/check.sh",
                 "scripts/check.ps1",
                 "requirements-dev.txt",
+                "cache-dependency-path: requirements-dev.txt",
             ):
                 self.assertIn(token, source, f"{name} is missing {token}")
 
