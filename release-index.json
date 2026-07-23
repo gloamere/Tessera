@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "name": "gloamere-codex-plugins",
+  "version": "4.0.0-beta.1",
+  "tag": "v4.0.0-beta.1",
+  "repository": "https://github.com/gloamere/codex-plugins",
+  "releaseURL": "https://github.com/gloamere/codex-plugins/releases/tag/v4.0.0-beta.1",
+  "marketplace": "gloamere",
+  "installProfiles": {
+    "eval": [
+      "gloamere-eval"
+    ],
+    "complete": [
+      "gloamere-eval",
+      "gloamere-workflows"
+    ]
+  },
+  "manifest": "release-manifest.json",
+  "manifestURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0-beta.1/release-manifest.json",
+  "plugins": [
+    {
+      "id": "gloamere-eval",
+      "displayName": "Gloamere Eval",
+      "version": "1.0.0-beta.1",
+      "maturity": "beta",
+      "archive": "gloamere-eval-1.0.0-beta.1.zip",
+      "archiveURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0-beta.1/gloamere-eval-1.0.0-beta.1.zip",
+      "checksum": "gloamere-eval-1.0.0-beta.1.zip.sha256",
+      "checksumURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0-beta.1/gloamere-eval-1.0.0-beta.1.zip.sha256"
+    },
+    {
+      "id": "gloamere-workflows",
+      "displayName": "Gloamere Workflows",
+      "version": "1.0.0-beta.1",
+      "maturity": "beta",
+      "archive": "gloamere-workflows-1.0.0-beta.1.zip",
+      "archiveURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0-beta.1/gloamere-workflows-1.0.0-beta.1.zip",
+      "checksum": "gloamere-workflows-1.0.0-beta.1.zip.sha256",
+      "checksumURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0-beta.1/gloamere-workflows-1.0.0-beta.1.zip.sha256"
+    }
+  ]
+}

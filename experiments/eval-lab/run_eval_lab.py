@@ -132,7 +132,7 @@ def run_codex(
     codex_executable: str | None,
 ) -> dict[str, Any]:
     executable = resolve_codex(codex_executable)
-    with tempfile.TemporaryDirectory(prefix="tessera-eval-lab-") as temp:
+    with tempfile.TemporaryDirectory(prefix="gloamere-eval-lab-") as temp:
         output = Path(temp) / "last-message.json"
         enabled = "true" if condition == "skill" else "false"
         quoted_plugin = f'\\"{plugin}\\"' if executable.lower().endswith((".cmd", ".bat")) else f'"{plugin}"'

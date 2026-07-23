@@ -1,1 +1,1 @@
-PyYAML==6.0.2
+# Repository checks use only the Python 3 standard library.

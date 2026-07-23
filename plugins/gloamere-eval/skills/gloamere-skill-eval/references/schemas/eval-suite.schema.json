@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Gloamere Skill Eval suite",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "suite_id",
+    "description",
+    "plugin_id",
+    "execution_policy",
+    "cases"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "suite_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plugin_id": {
+      "$ref": "#/definitions/stable_id"
+    },
+    "execution_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repeat",
+        "independent_batches"
+      ],
+      "properties": {
+        "repeat": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "independent_batches": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "properties": {
+              "expected_skills": {
+                "minItems": 1
+              }
+            }
+          },
+          {
+            "properties": {
+              "forbidden_skills": {
+                "minItems": 1
+              }
+            }
+          }
+        ],
+        "required": [
+          "id",
+          "plugin_id",
+          "prompt",
+          "expected_skills",
+          "forbidden_skills",
+          "language",
+          "tags"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plugin_id": {
+            "$ref": "#/definitions/stable_id"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_skills": {
+            "$ref": "#/definitions/skill_ids"
+          },
+          "forbidden_skills": {
+            "$ref": "#/definitions/skill_ids"
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2
+          },
+          "tags": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "stable_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "skill_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/stable_id"
+      },
+      "uniqueItems": true
+    }
+  }
+}

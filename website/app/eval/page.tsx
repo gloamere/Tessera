@@ -53,7 +53,7 @@ export default function EvalPage() {
           <PageHero
             route="Plugin route / Eval"
             title="Measure what Codex actually loaded."
-            summary="Gloamere Eval binds a target to its plugin, path, and content SHA before observing native Codex activation. Evidence gaps stay visible instead of becoming false accuracy."
+            summary="Gloamere Eval binds the plugin manifest, Skill, and agent configuration to exact paths and SHAs before observing native Codex activation. Evidence gaps stay visible instead of becoming false accuracy."
             aside={<EvidenceTrace compact />}
           >
             <HeroActions
@@ -78,7 +78,8 @@ export default function EvalPage() {
                   <h3>Lock the installed identity.</h3>
                   <p>
                     Record plugin ID and version, installed and enabled state,
-                    the absolute Skill path, relative path, and content SHA-256.
+                    plus path-bound SHA-256 values for the manifest, Skill, and
+                    agent configuration.
                   </p>
                 </div>
               </li>

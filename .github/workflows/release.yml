@@ -1,4 +1,4 @@
-name: Publish release
+name: Publish Gloamere release
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   validate:
-    name: Validate on ${{ matrix.os }}
+    name: Complete checks (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -23,13 +23,11 @@ jobs:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: requirements-dev.txt
-      - name: Verify tag matches distribution version
-        run: >-
-          python -c "import os, pathlib, sys;
-          expected = 'v' + pathlib.Path('VERSION').read_text(encoding='utf-8').strip();
-          actual = os.environ['GITHUB_REF_NAME'];
-          sys.exit(0) if actual == expected else
-          sys.exit(f'Tag {actual} does not match VERSION ({expected}).')"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+      - name: Install supported Codex CLI
+        run: npm install --global @openai/codex@0.145.0
       - name: Install development dependencies
         run: python -m pip install -r requirements-dev.txt
       - name: Validate release contents (POSIX)
@@ -39,18 +37,113 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/check.ps1
+      - name: Test isolated plugin lifecycle and legacy migration
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./scripts/test_plugin_lifecycle.ps1 -IncludeLegacyMigration
+
+  brand-site:
+    name: Validate brand site
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install website dependencies
+        run: npm ci
+      - name: Test website
+        run: npm test
+      - name: Lint website
+        run: npm run lint
+      - name: Audit production dependencies
+        run: npm audit --audit-level=high
 
   release:
-    needs: validate
+    name: Build and publish archives
+    needs: [validate, brand-site]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Create GitHub release
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install development dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Match Git tag to release manifest
+        shell: bash
+        run: |
+          manifest_tag="$(python -c 'import json; print(json.load(open("release-manifest.json", encoding="utf-8"))["distribution"]["tag"])')"
+          if [ "$GITHUB_REF_NAME" != "$manifest_tag" ]; then
+            echo "Git tag $GITHUB_REF_NAME does not match release manifest tag $manifest_tag" >&2
+            exit 1
+          fi
+      - name: Require current native release evidence
+        run: python scripts/validate_release_evidence.py --require
+      - name: Revalidate release metadata
+        run: |
+          python scripts/generate_release_files.py --check
+          python scripts/validate_marketplace.py
+      - name: Build deterministic plugin archives
+        run: python scripts/package_release.py --output-dir dist
+      - name: Verify exact release asset set
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          release = json.loads(Path("release-manifest.json").read_text(encoding="utf-8"))
+          expected = {
+              name
+              for plugin in release["plugins"]
+              for name in (plugin["archive"], plugin["checksum"])
+          }
+          expected.update(
+              {
+                  release["distribution"]["releaseManifestAsset"],
+                  release["distribution"]["releaseIndex"],
+              }
+          )
+          actual = {path.name for path in Path("dist").iterdir() if path.is_file()}
+          if actual != expected:
+              raise SystemExit(f"Release assets differ: expected={sorted(expected)}, actual={sorted(actual)}")
+          for field in ("releaseManifestAsset", "releaseIndex"):
+              name = release["distribution"][field]
+              if Path("dist", name).read_bytes() != Path(name).read_bytes():
+                  raise SystemExit(f"Release metadata differs from repository: {name}")
+          for plugin in release["plugins"]:
+              archive = Path("dist", plugin["archive"])
+              checksum = Path("dist", plugin["checksum"]).read_text(encoding="utf-8")
+              digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+              if checksum != f"{digest}  {archive.name}\n":
+                  raise SystemExit(f"Checksum mismatch for {archive.name}")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Gloamere-${{ github.ref_name }}
+          path: dist/
+          if-no-files-found: error
+      - name: Create GitHub prerelease
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 ||
-          gh release create "$GITHUB_REF_NAME"
-          --verify-tag
-          --generate-notes
-          --title "Tessera $GITHUB_REF_NAME"
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" \
+              --verify-tag \
+              --prerelease \
+              --generate-notes \
+              --title "Gloamere Codex Plugins $GITHUB_REF_NAME"
+          fi
+          gh release upload "$GITHUB_REF_NAME" \
+            dist/*.zip \
+            dist/*.sha256 \
+            dist/*.json \
+            --clobber

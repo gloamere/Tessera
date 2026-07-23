@@ -153,9 +153,9 @@ export function EvidenceTrace({ compact = false }: { compact?: boolean }) {
         </li>
         <li className="trace-node">
           <span className="trace-step">target lock</span>
-          <code>plugin / path / SHA</code>
+          <code>manifest / Skill / agent SHA</code>
           <strong>gloamere-workflows</strong>
-          <small>SKILL.md · 11b8…8409</small>
+          <small>Three path-bound files</small>
         </li>
         <li className="trace-node trace-node-result">
           <span className="trace-step">observation</span>
@@ -222,8 +222,8 @@ export function InstallPanel({
           <strong>Default installer:</strong> installs Gloamere Eval.
         </p>
         <p>
-          <strong>Legacy safety:</strong> detects old <code>@tessera</code>{" "}
-          selectors but never removes, disables, or modifies them.
+          <strong>Legacy safety:</strong> detects old 3.x selectors but never
+          removes, disables, or modifies them.
         </p>
         <a href={`${REPOSITORY_URL}#install-the-pinned-beta`}>
           PowerShell, macOS, and Linux installer commands

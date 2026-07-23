@@ -85,9 +85,9 @@ export default function Home() {
                 <p className="plugin-id">gloamere-eval</p>
                 <h3>Measure what Codex actually loaded.</h3>
                 <p>
-                  Lock plugin identity to an absolute path and content SHA,
-                  observe native Codex events, and keep missing evidence out of
-                  the accuracy score.
+                  Lock the plugin manifest, Skill, and agent configuration to
+                  exact paths and SHAs, observe native Codex events, and keep
+                  missing evidence out of the accuracy score.
                 </p>
                 <ul className="inline-facts" aria-label="Eval capabilities">
                   <li>inspect</li>

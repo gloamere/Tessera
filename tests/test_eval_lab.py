@@ -24,7 +24,12 @@ class EvalLabIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             {case["skill"] for case in cases},
-            {"taste", "frontend-design", "knowledge-base", "product-planning"},
+            {
+                "gloamere-ui-system",
+                "gloamere-visual-review",
+                "gloamere-knowledge-capture",
+                "gloamere-product-decision",
+            },
         )
         for case in cases:
             skill_file = (
@@ -75,9 +80,9 @@ class EvalLabIntegrationTests(unittest.TestCase):
     def test_reports_verified_improvement_from_paired_runs(self) -> None:
         cases = [
             {
-                "id": "taste-contract",
-                "plugin": "taste@tessera",
-                "skill": "taste",
+                "id": "gloamere-visual-review-contract",
+                "plugin": "gloamere-workflows@gloamere",
+                "skill": "gloamere-visual-review",
                 "prompt": "评审这个页面。",
                 "minimum_delta": 0.25,
                 "criteria": [
@@ -99,9 +104,9 @@ class EvalLabIntegrationTests(unittest.TestCase):
     def test_reports_verified_regression_from_paired_runs(self) -> None:
         cases = [
             {
-                "id": "taste-regression",
-                "plugin": "taste@tessera",
-                "skill": "taste",
+                "id": "gloamere-visual-review-regression",
+                "plugin": "gloamere-workflows@gloamere",
+                "skill": "gloamere-visual-review",
                 "prompt": "SIMULATE_REGRESSION",
                 "minimum_delta": 0.25,
                 "criteria": [
@@ -121,9 +126,9 @@ class EvalLabIntegrationTests(unittest.TestCase):
     def test_repeats_each_condition_and_reports_median_scores(self) -> None:
         cases = [
             {
-                "id": "taste-repeat",
-                "plugin": "taste@tessera",
-                "skill": "taste",
+                "id": "gloamere-visual-review-repeat",
+                "plugin": "gloamere-workflows@gloamere",
+                "skill": "gloamere-visual-review",
                 "prompt": "评审这个页面。",
                 "minimum_delta": 0.25,
                 "criteria": [
@@ -143,9 +148,9 @@ class EvalLabIntegrationTests(unittest.TestCase):
     def test_codex_mode_uses_per_run_plugin_toggle_and_host_events(self) -> None:
         cases = [
             {
-                "id": "taste-codex",
-                "plugin": "taste@tessera",
-                "skill": "taste",
+                "id": "gloamere-visual-review-codex",
+                "plugin": "gloamere-workflows@gloamere",
+                "skill": "gloamere-visual-review",
                 "prompt": "评审这个页面。",
                 "minimum_delta": 0.25,
                 "criteria": [
@@ -212,8 +217,8 @@ class EvalLabIntegrationTests(unittest.TestCase):
             cases = [
                 {
                     "id": "controlled-injection",
-                    "plugin": "taste@tessera",
-                    "skill": "taste",
+                    "plugin": "gloamere-workflows@gloamere",
+                    "skill": "gloamere-visual-review",
                     "activation": "injected",
                     "skill_file": str(skill_file),
                     "prompt": "CONTROLLED_INJECTION_TEST",
@@ -241,8 +246,8 @@ class EvalLabIntegrationTests(unittest.TestCase):
         cases = [
             {
                 "id": "regex-count",
-                "plugin": "taste@tessera",
-                "skill": "taste",
+                "plugin": "gloamere-workflows@gloamere",
+                "skill": "gloamere-visual-review",
                 "prompt": "REGEX_CRITERIA_TEST",
                 "minimum_delta": 0.5,
                 "criteria": [
@@ -258,8 +263,8 @@ class EvalLabIntegrationTests(unittest.TestCase):
 
     def test_can_select_one_case_for_targeted_reruns(self) -> None:
         base_case = {
-            "plugin": "taste@tessera",
-            "skill": "taste",
+            "plugin": "gloamere-workflows@gloamere",
+            "skill": "gloamere-visual-review",
             "prompt": "评审这个页面。",
             "minimum_delta": 0.25,
             "criteria": [{"id": "hierarchy", "any": ["层级"]}],
@@ -273,8 +278,8 @@ class EvalLabIntegrationTests(unittest.TestCase):
         cases = [
             {
                 "id": "host-error",
-                "plugin": "taste@tessera",
-                "skill": "taste",
+                "plugin": "gloamere-workflows@gloamere",
+                "skill": "gloamere-visual-review",
                 "prompt": "SIMULATE_EXECUTION_ERROR",
                 "minimum_delta": 0.25,
                 "criteria": [{"id": "hierarchy", "any": ["层级"]}],
@@ -289,8 +294,8 @@ class EvalLabIntegrationTests(unittest.TestCase):
         cases = [
             {
                 "id": "small-positive-delta",
-                "plugin": "taste@tessera",
-                "skill": "taste",
+                "plugin": "gloamere-workflows@gloamere",
+                "skill": "gloamere-visual-review",
                 "prompt": "评审这个页面。",
                 "minimum_delta": 0.75,
                 "criteria": [

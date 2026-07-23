@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Gloamere Skill Eval native observation response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "selected_skills",
+    "reason"
+  ],
+  "properties": {
+    "selected_skills": {
+      "type": "array",
+      "description": "Frontmatter names of Skills actually loaded by Codex.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "reason": {
+      "type": "string"
+    }
+  }
+}

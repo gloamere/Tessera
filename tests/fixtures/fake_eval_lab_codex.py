@@ -12,8 +12,14 @@ if not arguments or arguments[0] != "exec":
     raise SystemExit("expected codex exec")
 
 overrides = [arguments[index + 1] for index, value in enumerate(arguments[:-1]) if value == "-c"]
-enabled_overrides = {'plugins."taste@tessera".enabled=true', 'plugins.\\"taste@tessera\\".enabled=true'}
-disabled_overrides = {'plugins."taste@tessera".enabled=false', 'plugins.\\"taste@tessera\\".enabled=false'}
+enabled_overrides = {
+    'plugins."gloamere-workflows@gloamere".enabled=true',
+    'plugins.\\"gloamere-workflows@gloamere\\".enabled=true',
+}
+disabled_overrides = {
+    'plugins."gloamere-workflows@gloamere".enabled=false',
+    'plugins.\\"gloamere-workflows@gloamere\\".enabled=false',
+}
 if enabled_overrides.intersection(overrides):
     enabled = True
 elif disabled_overrides.intersection(overrides):
@@ -29,7 +35,10 @@ if enabled:
         json.dumps(
             {
                 "item": {
-                    "command": "Get-Content C:\\fake\\skills\\taste\\SKILL.md"
+                    "command": (
+                        "Get-Content "
+                        "C:\\fake\\skills\\gloamere-visual-review\\SKILL.md"
+                    )
                 }
             }
         )

@@ -1,31 +1,46 @@
 param(
-    [ValidateRange(1, 20)]
-    [int]$Repeat = 3,
-    [string]$Output = 'eval-results/codex-native.json'
+    [Parameter(Mandatory = $true)]
+    [string]$Suite,
+    [Parameter(Mandatory = $true)]
+    [string]$TargetLock,
+    [ValidateRange(1, 10)]
+    [Nullable[int]]$Repeat,
+    [ValidateRange(1, 86400)]
+    [int]$Timeout = 45,
+    [string]$Output,
+    [string]$Model,
+    [string]$Workspace,
+    [string[]]$Case,
+    [switch]$IncludePrompts
 )
 
 $ErrorActionPreference = 'Stop'
-$env:PYTHONUTF8 = '1'
-$env:PYTHONIOENCODING = 'utf-8'
+$runner = Join-Path $PSScriptRoot '..\plugins\gloamere-eval\skills\gloamere-skill-eval\scripts\run.ps1'
+$runnerArgs = @(
+    'native',
+    '--suite', $Suite,
+    '--target-lock', $TargetLock,
+    '--timeout', "$Timeout"
+)
 
-$python = Get-Command python -ErrorAction SilentlyContinue
-if (-not $python) {
-    $python = Get-Command python3 -ErrorAction SilentlyContinue
+if ($null -ne $Repeat) {
+    $runnerArgs += @('--repeat', "$Repeat")
 }
-if (-not $python) {
-    throw 'Python 3 was not found.'
+foreach ($caseId in $Case) {
+    $runnerArgs += @('--case', $caseId)
 }
-if (-not (Get-Command codex -ErrorAction SilentlyContinue) -and -not (Get-Command codex.cmd -ErrorAction SilentlyContinue)) {
-    throw 'Codex CLI was not found. Install and sign in to Codex before running native eval.'
+if ($Output) {
+    $runnerArgs += @('--output', $Output)
+}
+if ($Model) {
+    $runnerArgs += @('--model', $Model)
+}
+if ($Workspace) {
+    $runnerArgs += @('--workspace', $Workspace)
+}
+if ($IncludePrompts) {
+    $runnerArgs += '--include-prompts'
 }
 
-& $python.Source scripts/run_routing_eval.py `
-    --host codex `
-    --mode native `
-    --cases pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json `
-    --repeat $Repeat `
-    --suggest-tuning `
-    --output $Output
-if ($LASTEXITCODE -ne 0) {
-    throw "Native eval failed with exit code $LASTEXITCODE."
-}
+& $runner @runnerArgs
+exit $LASTEXITCODE

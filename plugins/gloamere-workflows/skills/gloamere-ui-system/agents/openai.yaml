@@ -1,0 +1,6 @@
+interface:
+  display_name: "Gloamere UI 系统"
+  short_description: "将产品语境转成可实现的前端设计系统、状态与技术栈约束方案"
+  default_prompt: "使用 $gloamere-ui-system 为这个界面建立设计系统、关键状态和技术栈约束。"
+policy:
+  allow_implicit_invocation: true

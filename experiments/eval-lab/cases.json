@@ -1,10 +1,10 @@
 [
   {
-    "id": "taste-landing-page-review",
-    "plugin": "taste@tessera",
-    "skill": "taste",
+    "id": "gloamere-visual-review-landing-page",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-visual-review",
     "activation": "injected",
-    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-visual-review/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "请评审下面这个 SaaS 落地页的视觉质量和整体气质，给出可执行改进，但不要修改代码，也不要说明使用了什么 Skill。\n\n```html\n<main class=\"hero\"><section class=\"card\"><h1>✨ Unleash Seamless Innovation</h1><p>Elevate your workflow with our revolutionary AI-powered platform.</p><a class=\"cta\">Get Started</a></section></main>\n```\n```css\nbody { font-family: Arial; text-align:center } .hero { min-height:100vh; padding:24px; background:linear-gradient(135deg,#7c3aed,#2563eb) } .card { margin:80px auto; padding:48px; color:#fff; border-radius:32px; box-shadow:0 24px 80px #0004 } h1,p,.cta { font-size:16px } .cta { padding:16px 24px; background:#3b82f6; border-radius:16px }\n```",
     "criteria": [
@@ -19,11 +19,11 @@
     ]
   },
   {
-    "id": "taste-operations-dashboard",
-    "plugin": "taste@tessera",
-    "skill": "taste",
+    "id": "gloamere-visual-review-operations-dashboard",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-visual-review",
     "activation": "injected",
-    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-visual-review/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "评审一个内部运营仪表盘：顶部有 12 个同尺寸 KPI 卡片，全部使用高饱和红黄绿；左侧导航宽 320px；表格有 18 列且每行都有 6 个彩色按钮；所有文字均为 14px，卡片间距 8px。使用者需要在值班时迅速发现异常。请给出审美与信息呈现改进，不写代码。",
     "criteria": [
@@ -38,11 +38,11 @@
     ]
   },
   {
-    "id": "taste-ai-marketing-copy",
-    "plugin": "taste@tessera",
-    "skill": "taste",
+    "id": "gloamere-visual-review-ai-marketing-copy",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-visual-review",
     "activation": "injected",
-    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-visual-review/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "评审这组面向独立开发者的首页文案，目标是可信、克制、有技术判断：标题“Elevate Your Workflow with Seamless AI Innovation”，副标题“Unleash limitless productivity with our revolutionary platform”，按钮“Get Started”。指出问题并给出可直接替换的版本，不讨论页面代码。",
     "criteria": [
@@ -57,11 +57,11 @@
     ]
   },
   {
-    "id": "taste-mobile-onboarding",
-    "plugin": "taste@tessera",
-    "skill": "taste",
+    "id": "gloamere-visual-review-mobile-onboarding",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-visual-review",
     "activation": "injected",
-    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-visual-review/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "评审一套手机记账应用的新手引导：连续 7 屏，每屏居中插画、标题、两行说明和“下一步”；进度只显示“1/7”；主按钮和跳过按钮都用蓝色实心样式；权限申请、首次同步、同步失败没有单独状态。目标用户是不熟悉财务软件的普通人。请给出优先改进建议，不制作图片。",
     "criteria": [
@@ -76,11 +76,11 @@
     ]
   },
   {
-    "id": "taste-technical-docs-home",
-    "plugin": "taste@tessera",
-    "skill": "taste",
+    "id": "gloamere-visual-review-technical-docs-home",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-visual-review",
     "activation": "injected",
-    "skill_file": "../../pieces/taste/skills/taste/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-visual-review/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "评审一个开源数据库的文档首页。它希望显得严谨、安静、适合长期阅读，但当前使用黑底霓虹紫渐变、三个浮动玻璃卡片、emoji 章节标题、正文 16px/行高 1.2、内容宽 1200px，代码块与正文对比度接近。给出具体改进顺序，不写代码。",
     "criteria": [
@@ -95,11 +95,11 @@
     ]
   },
   {
-    "id": "knowledge-base-research-notes",
-    "plugin": "knowledge-base@tessera",
-    "skill": "knowledge-base",
+    "id": "gloamere-knowledge-capture-research-notes",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-knowledge-capture",
     "activation": "injected",
-    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-knowledge-capture/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "把下面散落信息整理成可长期维护、以后容易检索和继续补充的个人知识库产物。只输出建议产物，不要真的写文件。\n- 5 位访谈用户都说插件安装步骤太长。\n- 新的一键安装脚本把步骤从 3 条命令降到 1 条。\n- eval 运行仍需要 Python 3，但不需要 pip。\n- 用户常把插件安装依赖和 eval 运行依赖混为一谈。\n- 后续文档应分别说明安装要求和运行 eval 要求。",
     "criteria": [
@@ -114,11 +114,11 @@
     ]
   },
   {
-    "id": "knowledge-base-meeting-decisions",
-    "plugin": "knowledge-base@tessera",
-    "skill": "knowledge-base",
+    "id": "gloamere-knowledge-capture-meeting-decisions",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-knowledge-capture",
     "activation": "injected",
-    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-knowledge-capture/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "把这段会议记录整理成以后能检索、复用和追踪的个人知识库产物，只展示建议文件内容：团队决定安装器默认只装 core；可选插件必须显式 --all；小林本周五前更新部署文档；尚未决定是否做自动升级；两周后根据新机器反馈复盘。",
     "criteria": [
@@ -133,11 +133,11 @@
     ]
   },
   {
-    "id": "knowledge-base-incident-learning",
-    "plugin": "knowledge-base@tessera",
-    "skill": "knowledge-base",
+    "id": "gloamere-knowledge-capture-incident-learning",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-knowledge-capture",
     "activation": "injected",
-    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-knowledge-capture/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "将故障复盘信息整理成可长期复用的个人知识库产物，不写入磁盘：Windows Store 的 codex.exe 从 Python 子进程启动时 Access Denied；直接终端运行正常；改用 npm 的 codex.cmd 后恢复；resolve_codex 现在会逐个执行 --version 探测候选；需要保留一条排障手册供以后复现。",
     "criteria": [
@@ -152,13 +152,13 @@
     ]
   },
   {
-    "id": "knowledge-base-research-synthesis",
-    "plugin": "knowledge-base@tessera",
-    "skill": "knowledge-base",
+    "id": "gloamere-knowledge-capture-research-synthesis",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-knowledge-capture",
     "activation": "injected",
-    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-knowledge-capture/SKILL.md",
     "minimum_delta": 0.2,
-    "prompt": "整理以下相互冲突的调研摘录为个人知识库产物，不搜索也不写文件：资料 A 说插件正文只在调用时加载；资料 B 在 Claude 2.0.74 观察到启动即加载全文；资料 C 的 2.1.207 changelog 没提修复。需要区分事实、观察、未知项，并方便以后追加新版本验证。",
+    "prompt": "整理以下相互冲突的调研摘录为个人知识库产物，不搜索也不写文件：资料 A 说插件正文只在调用时加载；资料 B 在旧版宿主 2.0.74 观察到启动即加载全文；资料 C 的 2.1.207 changelog 没提修复。需要区分事实、观察、未知项，并方便以后追加新版本验证。",
     "criteria": [
       {"id": "multiple-files", "regex": "[a-z0-9-]+\\.md", "min_matches": 2},
       {"id": "frontmatter", "regex": "(?m)^tags:", "min_matches": 2},
@@ -171,11 +171,11 @@
     ]
   },
   {
-    "id": "knowledge-base-deduplicate-notes",
-    "plugin": "knowledge-base@tessera",
-    "skill": "knowledge-base",
+    "id": "gloamere-knowledge-capture-deduplicate-notes",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-knowledge-capture",
     "activation": "injected",
-    "skill_file": "../../pieces/knowledge-base/skills/knowledge-base/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-knowledge-capture/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "请重整这些已有笔记并给出最终建议文件内容，不实际写磁盘：install.md 记录“安装只需 Codex”；setup-notes.md 记录“安装无需 Python，但 eval 需要 Python 3”；python.md 记录“eval 不需要 pip”；index.md 同时链接 install.md 和 setup-notes.md。目标是消除重复但保留可检索性和旧链接迁移说明。",
     "criteria": [
@@ -190,13 +190,13 @@
     ]
   },
   {
-      "id": "frontend-design-b2b-dashboard",
-      "plugin": "frontend-design@tessera",
-      "skill": "frontend-design",
+      "id": "gloamere-ui-system-b2b-dashboard",
+      "plugin": "gloamere-workflows@gloamere",
+      "skill": "gloamere-ui-system",
       "activation": "injected",
-    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-ui-system/SKILL.md",
     "minimum_delta": 0.2,
-      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个 Next.js B2B 运营分析平台设计响应式 dashboard。使用者需要在值班时快速发现异常、筛选客户并进入详情。请在 1400 个中文字符内给出可直接交给前端实现的设计系统与页面规范，不写完整代码，也不要说明使用了什么 Skill。",
+      "prompt": "请使用 gloamere-ui-system Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个 Next.js B2B 运营分析平台设计响应式 dashboard。使用者需要在值班时快速发现异常、筛选客户并进入详情。请在 1400 个中文字符内给出可直接交给前端实现的设计系统与页面规范，不写完整代码，也不要说明使用了什么 Skill。",
     "criteria": [
       {"id": "operator-context", "all": ["值班", "异常"]},
       {"id": "semantic-tokens", "all": ["primary", "background", "foreground", "accent"]},
@@ -209,13 +209,13 @@
     ]
   },
   {
-      "id": "frontend-design-technical-docs",
-      "plugin": "frontend-design@tessera",
-      "skill": "frontend-design",
+      "id": "gloamere-ui-system-technical-docs",
+      "plugin": "gloamere-workflows@gloamere",
+      "skill": "gloamere-ui-system",
       "activation": "injected",
-    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-ui-system/SKILL.md",
     "minimum_delta": 0.2,
-      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个开源数据库重新设计技术文档首页，目标是严谨、安静、适合长期阅读；当前技术栈是 Astro。请在 1400 个中文字符内形成设计系统、内容结构和实现约束。不要采用霓虹、高饱和或娱乐化视觉，不写完整代码。",
+      "prompt": "请使用 gloamere-ui-system Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个开源数据库重新设计技术文档首页，目标是严谨、安静、适合长期阅读；当前技术栈是 Astro。请在 1400 个中文字符内形成设计系统、内容结构和实现约束。不要采用霓虹、高饱和或娱乐化视觉，不写完整代码。",
     "criteria": [
       {"id": "desired-character", "all": ["严谨", "安静"]},
       {"id": "reading-width", "any": ["阅读宽度", "max-width", "65ch", "75ch"]},
@@ -228,13 +228,13 @@
     ]
   },
   {
-      "id": "frontend-design-mobile-checkout",
-      "plugin": "frontend-design@tessera",
-      "skill": "frontend-design",
+      "id": "gloamere-ui-system-mobile-checkout",
+      "plugin": "gloamere-workflows@gloamere",
+      "skill": "gloamere-ui-system",
       "activation": "injected",
-    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-ui-system/SKILL.md",
     "minimum_delta": 0.2,
-      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为移动优先的电商结账页建立设计与交互规范，技术栈是 React + Tailwind。用户需要填写地址、选择配送和支付，并能从失败中恢复。请在 1400 个中文字符内输出设计 token、表单结构、状态和响应式实现建议，不写完整代码。",
+      "prompt": "请使用 gloamere-ui-system Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为移动优先的电商结账页建立设计与交互规范，技术栈是 React + Tailwind。用户需要填写地址、选择配送和支付，并能从失败中恢复。请在 1400 个中文字符内输出设计 token、表单结构、状态和响应式实现建议，不写完整代码。",
     "criteria": [
       {"id": "checkout-steps", "all": ["地址", "配送", "支付"]},
       {"id": "semantic-tokens", "all": ["primary", "background", "destructive", "ring"]},
@@ -247,13 +247,13 @@
     ]
   },
   {
-      "id": "frontend-design-analytics-charts",
-      "plugin": "frontend-design@tessera",
-      "skill": "frontend-design",
+      "id": "gloamere-ui-system-analytics-charts",
+      "plugin": "gloamere-workflows@gloamere",
+      "skill": "gloamere-ui-system",
       "activation": "injected",
-    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-ui-system/SKILL.md",
     "minimum_delta": 0.2,
-      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个 React 实时监控页面设计三类数据展示：24 小时时序趋势、服务错误率比较、当前告警分布。请在 1400 个中文字符内给出图表选择、颜色语义、交互、无障碍和性能约束，并纳入统一设计系统，不写完整代码。",
+      "prompt": "请使用 gloamere-ui-system Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。为一个 React 实时监控页面设计三类数据展示：24 小时时序趋势、服务错误率比较、当前告警分布。请在 1400 个中文字符内给出图表选择、颜色语义、交互、无障碍和性能约束，并纳入统一设计系统，不写完整代码。",
     "criteria": [
       {"id": "chart-selection", "all": ["折线", "柱", "分布"]},
       {"id": "semantic-color", "all": ["错误", "告警", "颜色"]},
@@ -266,13 +266,13 @@
     ]
   },
   {
-      "id": "frontend-design-settings-refactor",
-      "plugin": "frontend-design@tessera",
-      "skill": "frontend-design",
+      "id": "gloamere-ui-system-settings-refactor",
+      "plugin": "gloamere-workflows@gloamere",
+      "skill": "gloamere-ui-system",
       "activation": "injected",
-    "skill_file": "../../pieces/frontend-design/skills/frontend-design/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-ui-system/SKILL.md",
     "minimum_delta": 0.2,
-      "prompt": "请使用 frontend-design Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。系统性重构一个 Vue 设置页：目前所有选项平铺在单列中，保存和删除同权重，只有成功态，没有加载、校验失败、网络失败和未保存变更提示。请在 1400 个中文字符内输出信息架构、设计 token、组件状态、响应式和无障碍约束，不写完整代码。",
+      "prompt": "请使用 gloamere-ui-system Skill。直接回答，不检查工作区、不修改文件、不提问；除该 Skill 要求的本地只读搜索外不要调用工具。系统性重构一个 Vue 设置页：目前所有选项平铺在单列中，保存和删除同权重，只有成功态，没有加载、校验失败、网络失败和未保存变更提示。请在 1400 个中文字符内输出信息架构、设计 token、组件状态、响应式和无障碍约束，不写完整代码。",
     "criteria": [
       {"id": "information-architecture", "any": ["分组", "分区", "渐进披露", "导航"]},
       {"id": "action-hierarchy", "all": ["保存", "删除", "危险"]},
@@ -285,11 +285,11 @@
     ]
   },
   {
-    "id": "product-planning-team-accounts",
-    "plugin": "product-planning@tessera",
-    "skill": "product-planning",
+    "id": "gloamere-product-decision-team-accounts",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-product-decision",
     "activation": "injected",
-    "skill_file": "../../pieces/product-planning/skills/product-planning/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-product-decision/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "我们做的是面向 5–30 人小团队的知识管理 SaaS。访谈中，管理员希望统一付费和回收离职成员权限，普通成员担心团队管理员能看到私人笔记；工程团队只有 2 人，本季度最多投入 5 周。请形成团队账号功能的可拍板产品方案，不写代码，也不要说明使用了什么 Skill。",
     "criteria": [
@@ -304,11 +304,11 @@
     ]
   },
   {
-    "id": "product-planning-onboarding-research",
-    "plugin": "product-planning@tessera",
-    "skill": "product-planning",
+    "id": "gloamere-product-decision-onboarding-research",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-product-decision",
     "activation": "injected",
-    "skill_file": "../../pieces/product-planning/skills/product-planning/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-product-decision/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "整理一组记账 App 新手研究并形成下一步产品建议：8 名受访者中 5 人不知道首次应该记什么，3 人在权限页退出；数据上首日记账完成率 28%，完成首笔的人次周留存 42%，未完成者 9%；团队可做一个两周迭代。不要搜索，不写代码。",
     "criteria": [
@@ -323,11 +323,11 @@
     ]
   },
   {
-    "id": "product-planning-roadmap-tradeoff",
-    "plugin": "product-planning@tessera",
-    "skill": "product-planning",
+    "id": "gloamere-product-decision-roadmap-tradeoff",
+    "plugin": "gloamere-workflows@gloamere",
+    "skill": "gloamere-product-decision",
     "activation": "injected",
-    "skill_file": "../../pieces/product-planning/skills/product-planning/SKILL.md",
+    "skill_file": "../../plugins/gloamere-workflows/skills/gloamere-product-decision/SKILL.md",
     "minimum_delta": 0.2,
     "prompt": "我们只有 3 名工程师，下季度候选事项有：企业 SSO（2 个已签客户续约依赖它）、全文搜索重做（支持工单第二多）、AI 摘要（销售最常被问到但没有使用证据）、移动端离线（活跃用户请求多但预计占 8 周）。请给出 Now/Next/Later 路线图和负责人需要拍板的取舍，不写实施代码。",
     "criteria": [

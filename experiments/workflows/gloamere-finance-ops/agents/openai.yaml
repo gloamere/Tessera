@@ -1,0 +1,6 @@
+interface:
+  display_name: "Gloamere 财务运营"
+  short_description: "为预算、预测、对账和月结生成可追溯且可复核的财务工作底稿"
+  default_prompt: "使用 $gloamere-finance-ops 准备一份保留来源、公式和复核点的财务工作底稿。"
+policy:
+  allow_implicit_invocation: true

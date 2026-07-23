@@ -1,0 +1,718 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Gloamere Skill Eval report v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "producer",
+    "command",
+    "event_adapter",
+    "execution_provenance",
+    "release_evidence_eligible",
+    "preflight",
+    "suite",
+    "target_lock",
+    "environment",
+    "privacy",
+    "repeat",
+    "independent_batches",
+    "timeout_seconds",
+    "summary",
+    "cases"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 3
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "plugin_id",
+        "plugin_version"
+      ],
+      "properties": {
+        "id": {
+          "const": "gloamere-skill-eval"
+        },
+        "plugin_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plugin_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "command": {
+      "const": "native"
+    },
+    "event_adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "schema_version"
+      ],
+      "properties": {
+        "id": {
+          "const": "codex-exec-jsonl"
+        },
+        "schema_version": {
+          "const": 1
+        }
+      }
+    },
+    "execution_provenance": {
+      "enum": [
+        "codex_cli",
+        "fixture_adapter"
+      ]
+    },
+    "release_evidence_eligible": {
+      "type": "boolean"
+    },
+    "preflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_status",
+        "reasons"
+      ],
+      "properties": {
+        "evidence_status": {
+          "$ref": "#/definitions/evidence_status"
+        },
+        "reasons": {
+          "$ref": "#/definitions/string_array"
+        }
+      }
+    },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suite_id",
+        "plugin_id",
+        "execution_policy",
+        "sha256"
+      ],
+      "properties": {
+        "suite_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plugin_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "execution_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repeat",
+            "independent_batches"
+          ],
+          "properties": {
+            "repeat": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "independent_batches": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            }
+          }
+        },
+        "sha256": {
+          "$ref": "#/definitions/sha256"
+        }
+      }
+    },
+    "target_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "targets"
+      ],
+      "properties": {
+        "sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/report_target"
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "codex_version",
+        "model",
+        "python_version",
+        "platform"
+      ],
+      "properties": {
+        "codex_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "python_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "platform": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompts_included",
+        "absolute_paths_included"
+      ],
+      "properties": {
+        "prompts_included": {
+          "type": "boolean"
+        },
+        "absolute_paths_included": {
+          "const": false
+        }
+      }
+    },
+    "repeat": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "independent_batches": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "summary": {
+      "$ref": "#/definitions/summary"
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/report_case"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "execution_provenance": {
+            "const": "codex_cli"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "release_evidence_eligible": {
+            "const": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "release_evidence_eligible": {
+            "const": false
+          }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "string_array": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "nullable_rate": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_status": {
+      "enum": [
+        "verified",
+        "unobservable",
+        "unavailable",
+        "identity_conflict",
+        "execution_error"
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail",
+        null
+      ]
+    },
+    "count_map": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "report_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_id",
+        "plugin_id",
+        "plugin_selector",
+        "plugin_version",
+        "installed",
+        "enabled",
+        "plugin_manifest_relative_path",
+        "plugin_manifest_sha256",
+        "skill_name",
+        "relative_path",
+        "sha256",
+        "agent_config_relative_path",
+        "agent_config_sha256"
+      ],
+      "properties": {
+        "target_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plugin_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plugin_selector": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "plugin_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "installed": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "enabled": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "plugin_manifest_relative_path": {
+          "const": ".codex-plugin/plugin.json"
+        },
+        "plugin_manifest_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "skill_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relative_path": {
+          "type": "string",
+          "pattern": "^skills/[^/]+/SKILL\\.md$"
+        },
+        "sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "agent_config_relative_path": {
+          "type": "string",
+          "pattern": "^skills/[^/]+/agents/openai\\.yaml$"
+        },
+        "agent_config_sha256": {
+          "$ref": "#/definitions/sha256"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_count",
+        "attempt_count",
+        "scored_attempts",
+        "unscored_attempts",
+        "passed_attempts",
+        "failed_attempts",
+        "unobservable_attempts",
+        "unavailable_attempts",
+        "identity_conflicts",
+        "execution_errors",
+        "evidence_coverage",
+        "conditional_accuracy",
+        "evidence_statuses",
+        "stable_cases"
+      ],
+      "properties": {
+        "case_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "attempt_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scored_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unscored_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "passed_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unobservable_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unavailable_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "identity_conflicts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "execution_errors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidence_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "conditional_accuracy": {
+          "$ref": "#/definitions/nullable_rate"
+        },
+        "evidence_statuses": {
+          "$ref": "#/definitions/count_map"
+        },
+        "stable_cases": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "report_case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "plugin_id",
+        "language",
+        "tags",
+        "prompt_sha256",
+        "expected_skills",
+        "forbidden_skills",
+        "attempt_count",
+        "expected_attempts",
+        "scored_attempts",
+        "unscored_attempts",
+        "passed_attempts",
+        "failed_attempts",
+        "evidence_coverage",
+        "conditional_accuracy",
+        "stable",
+        "evidence_statuses",
+        "verdicts",
+        "attempts"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plugin_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tags": {
+          "$ref": "#/definitions/string_array"
+        },
+        "prompt_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "expected_skills": {
+          "$ref": "#/definitions/string_array"
+        },
+        "forbidden_skills": {
+          "$ref": "#/definitions/string_array"
+        },
+        "attempt_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expected_attempts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scored_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unscored_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "passed_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed_attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidence_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "conditional_accuracy": {
+          "$ref": "#/definitions/nullable_rate"
+        },
+        "stable": {
+          "type": "boolean"
+        },
+        "evidence_statuses": {
+          "$ref": "#/definitions/count_map"
+        },
+        "verdicts": {
+          "$ref": "#/definitions/count_map"
+        },
+        "attempts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/attempt"
+          }
+        }
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "batch_id",
+        "attempt",
+        "prompt_sha256",
+        "expected_skills",
+        "forbidden_skills",
+        "expected_target_ids",
+        "forbidden_target_ids",
+        "declared_skills",
+        "declared_target_ids",
+        "unbound_declared_skills",
+        "observed_skills",
+        "observed_target_ids",
+        "unbound_skill_names",
+        "evidence_status",
+        "verdict",
+        "reason",
+        "duration_ms",
+        "event_diagnostics",
+        "usage"
+      ],
+      "properties": {
+        "batch_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prompt_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "expected_skills": {
+          "$ref": "#/definitions/string_array"
+        },
+        "forbidden_skills": {
+          "$ref": "#/definitions/string_array"
+        },
+        "expected_target_ids": {
+          "$ref": "#/definitions/string_array"
+        },
+        "forbidden_target_ids": {
+          "$ref": "#/definitions/string_array"
+        },
+        "declared_skills": {
+          "$ref": "#/definitions/string_array"
+        },
+        "declared_target_ids": {
+          "$ref": "#/definitions/string_array"
+        },
+        "unbound_declared_skills": {
+          "$ref": "#/definitions/string_array"
+        },
+        "observed_skills": {
+          "$ref": "#/definitions/string_array"
+        },
+        "observed_target_ids": {
+          "$ref": "#/definitions/string_array"
+        },
+        "unbound_skill_names": {
+          "$ref": "#/definitions/string_array"
+        },
+        "evidence_status": {
+          "$ref": "#/definitions/evidence_status"
+        },
+        "verdict": {
+          "$ref": "#/definitions/verdict"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "event_diagnostics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "complete",
+            "event_count",
+            "malformed_lines",
+            "unknown_event_types",
+            "unknown_item_types",
+            "rejected_target_references",
+            "terminal_event"
+          ],
+          "properties": {
+            "complete": {
+              "type": "boolean"
+            },
+            "event_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "malformed_lines": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unknown_event_types": {
+              "$ref": "#/definitions/string_array"
+            },
+            "unknown_item_types": {
+              "$ref": "#/definitions/string_array"
+            },
+            "rejected_target_references": {
+              "$ref": "#/definitions/string_array"
+            },
+            "terminal_event": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "usage": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_status": {
+                "const": "verified"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "verdict": {
+                "enum": [
+                  "pass",
+                  "fail"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "verdict": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

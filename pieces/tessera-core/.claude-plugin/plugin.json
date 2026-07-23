@@ -1,8 +1,0 @@
-{
-  "author": {
-    "name": "van"
-  },
-  "description": "Tessera 轻量评测层:验证 Codex/Claude 原生 Skill 调用与边界稳定性",
-  "name": "tessera-core",
-  "version": "0.7.0+codex.20260714"
-}

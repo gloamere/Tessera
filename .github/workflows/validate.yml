@@ -1,4 +1,4 @@
-name: Validate marketplace
+name: Validate Gloamere plugins
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate:
-    name: ${{ matrix.os }}
+  validate-platforms:
+    name: Complete checks (${{ matrix.os }}, Python 3.12)
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -21,6 +21,11 @@ jobs:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: requirements-dev.txt
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+      - name: Install supported Codex CLI
+        run: npm install --global @openai/codex@0.145.0
       - name: Install development dependencies
         run: python -m pip install -r requirements-dev.txt
       - name: Run complete validation (POSIX)
@@ -30,3 +35,61 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/check.ps1
+      - name: Smoke Eval launcher in Windows PowerShell 5.1
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          ./plugins/gloamere-eval/skills/gloamere-skill-eval/scripts/run.ps1 --help
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Smoke Eval launcher in PowerShell 7
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./plugins/gloamere-eval/skills/gloamere-skill-eval/scripts/run.ps1 --help
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Test isolated plugin lifecycle and legacy migration
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./scripts/test_plugin_lifecycle.ps1 -IncludeLegacyMigration
+
+  validate-python:
+    name: Python ${{ matrix.python-version }} (Ubuntu)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.13', '3.14']
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install development dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run complete validation
+        run: sh scripts/check.sh
+
+  validate-site:
+    name: Brand site (Node 22)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.13.0'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install site dependencies
+        working-directory: website
+        run: npm ci
+      - name: Build and server-render public routes
+        working-directory: website
+        run: npm test
+      - name: Lint site
+        working-directory: website
+        run: npm run lint
+      - name: Audit site dependencies
+        working-directory: website
+        run: npm audit --audit-level=high

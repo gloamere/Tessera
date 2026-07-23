@@ -1,6 +1,7 @@
+[CmdletBinding()]
 param(
-    [string]$Source = 'gloamere/Tessera',
-    [string]$Ref = 'main',
+    [string]$Source = 'gloamere/codex-plugins',
+    [string]$Ref = 'v4.0.0-beta.1',
     [switch]$All
 )
 
@@ -11,39 +12,91 @@ if (-not $codex) {
     $codex = Get-Command codex -ErrorAction SilentlyContinue
 }
 if (-not $codex) {
-    throw 'Codex CLI was not found. Install and sign in to Codex before installing Tessera.'
+    throw 'Codex CLI was not found. Install and sign in to Codex before installing Gloamere.'
 }
 
-$marketplaceArgs = @('plugin', 'marketplace', 'add', $Source)
-if (-not (Test-Path -LiteralPath $Source) -and $Ref) {
-    $marketplaceArgs += @('--ref', $Ref)
-}
-& $codex.Source @marketplaceArgs
-if ($LASTEXITCODE -ne 0) {
-    throw "Failed to add Tessera marketplace from $Source."
-}
+function Invoke-Codex {
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Arguments
+    )
 
-$plugins = @('tessera-core')
-if ($All) {
-    $plugins += @('taste', 'frontend-design', 'knowledge-base', 'finance-ops', 'growth-ops', 'product-planning', 'business-ops')
-}
-foreach ($plugin in $plugins) {
-    & $codex.Source plugin add "$plugin@tessera"
+    & $codex.Source @Arguments
     if ($LASTEXITCODE -ne 0) {
-        throw "Failed to install $plugin@tessera."
+        throw "Codex command failed with exit code ${LASTEXITCODE}: codex $($Arguments -join ' ')"
     }
 }
 
-$installed = & $codex.Source plugin list --json | ConvertFrom-Json
+function Get-PluginCatalogJson {
+    $output = & $codex.Source plugin list --json
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to inspect installed Codex plugins (exit code ${LASTEXITCODE})."
+    }
+    return ($output -join [Environment]::NewLine)
+}
+
+# v3 and v4 use different marketplace identities. Coexisting installs can
+# expose duplicate skills, so migration remains an explicit user action.
+$beforeInstall = Get-PluginCatalogJson
+$legacySelectors = @()
+try {
+    $catalog = $beforeInstall | ConvertFrom-Json
+    $legacySelectors = @(
+        $catalog.installed |
+            Where-Object { $_.pluginId -like '*@tessera' } |
+            ForEach-Object { $_.pluginId } |
+            Sort-Object -Unique
+    )
+}
+catch {
+    $legacySelectors = @(
+        [regex]::Matches(
+            $beforeInstall,
+            '"pluginId"\s*:\s*"([^"]+@tessera)"'
+        ) |
+            ForEach-Object { $_.Groups[1].Value } |
+            Sort-Object -Unique
+    )
+}
+if ($legacySelectors.Count -gt 0) {
+    Write-Warning (
+        "Legacy Tessera plugins detected: $($legacySelectors -join ', '). " +
+        'No installation changes were made.'
+    )
+    Write-Host 'Run these migration steps manually:'
+    foreach ($selector in $legacySelectors) {
+        Write-Host "  1. codex plugin remove $selector"
+    }
+    Write-Host '  2. codex plugin marketplace remove tessera'
+    Write-Host '  3. Re-run this pinned Gloamere installer'
+    throw 'Legacy plugins must be migrated first. See MIGRATION.md.'
+}
+
+$marketplaceArgs = @('plugin', 'marketplace', 'add', $Source)
+if (-not (Test-Path -LiteralPath $Source)) {
+    $marketplaceArgs += @('--ref', $Ref)
+}
+Invoke-Codex -Arguments $marketplaceArgs
+
+$plugins = @('gloamere-eval')
+if ($All) {
+    $plugins += 'gloamere-workflows'
+}
+
+foreach ($plugin in $plugins) {
+    Invoke-Codex -Arguments @('plugin', 'add', "$plugin@gloamere")
+}
+
+$afterInstall = Get-PluginCatalogJson
 $missing = @(
     $plugins | Where-Object {
-        $selector = "$_@tessera"
-        -not ($installed.installed | Where-Object { $_.pluginId -eq $selector -and $_.installed })
+        $selector = [regex]::Escape("$($_)@gloamere")
+        $afterInstall -notmatch ('"pluginId"\s*:\s*"' + $selector + '"')
     }
 )
 if ($missing.Count -gt 0) {
     throw "Codex did not report these plugins as installed: $($missing -join ', ')"
 }
 
-Write-Host "Tessera installed: $($plugins -join ', ')"
+Write-Host "Gloamere installed from ${Source}@${Ref}: $($plugins -join ', ')"
 Write-Host 'Start a new Codex task to load the installed skills.'

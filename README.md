@@ -1,154 +1,136 @@
-<div align="center">
+# Gloamere Codex Plugins
 
-# 🧩 Tessera
+Evidence-led evaluation and focused professional workflows for Codex.
 
-**Claude / Codex 原生 Skills 之上的轻量评测与专业工作流。**
+> `4.0.0-beta.1` is a Beta candidate with a planned
+> `v4.0.0-beta.1` tag; it has not been published. The tag workflow will refuse
+> to publish until current native evidence passes the release gate. The
+> repository, marketplace, plugin IDs, and installation commands changed from
+> the 3.x legacy installation. Read [MIGRATION.md](MIGRATION.md) before
+> upgrading.
 
-宿主负责 Skill 发现、计划、确认、委派和插件生命周期；Tessera 只验证原生调用，并提供少量可选专业 Skill。
+## Plugins
 
-[![CI](https://github.com/gloamere/Tessera/actions/workflows/validate.yml/badge.svg)](https://github.com/gloamere/Tessera/actions/workflows/validate.yml)
-![License](https://img.shields.io/github/license/gloamere/Tessera?color=blue)
+| Plugin | Bundled skills | Purpose |
+| --- | --- | --- |
+| `gloamere-eval` | `gloamere-skill-eval` | Inspect, lint, and evaluate Codex skill routing while distinguishing observable evidence from model claims |
+| `gloamere-workflows` | `gloamere-ui-system`, `gloamere-visual-review`, `gloamere-knowledge-capture`, `gloamere-product-decision` | Opt-in UI, visual review, knowledge capture, and product-decision workflows |
 
-</div>
+Both plugins are Codex-only, self-contained, and installed independently.
+They do not add hooks, MCP servers, background processes, telemetry, or a
+second task-routing layer. Codex remains responsible for skill discovery,
+planning, confirmation, delegation, and plugin lifecycle.
 
-Tessera 是纯 Skills 市集：没有 hooks、常驻进程、数据库、私有任务后端或自建插件管理器。普通任务直接由 Claude/Codex 处理；明确的专业请求由宿主按 Skill description 原生选择。
+## Planned pinned-beta installation
 
-## 能力
+The commands below become valid only after `v4.0.0-beta.1` passes the release
+gate and is published. They intentionally target the immutable tag, never
+`main`.
 
-| 插件 | Skill | 用途 | 安装策略 |
-|---|---|---|---|
-| `tessera-core` | `tessera-eval` | 区分 policy 分类与可观察 native 调用，检查误调、漏调和稳定性 | 核心 |
-| `frontend-design` | `frontend-design` | 本地 UI/UX 数据库、设计系统、响应式/无障碍与技术栈实现约束 | 可选；构建阶段使用 |
-| `taste` | `taste` | UI、视觉、排版、配色与文案审美评审 | 可选；真实价值评审保留 |
-| `knowledge-base` | `knowledge-base` | Markdown + 双链知识沉淀 | 可选；真实价值评审保留 |
-| `finance-ops` | `finance-ops` | 预算、对账、月结、现金流与差异分析 | 可选；默认只读、人工签核 |
-| `growth-ops` | `growth-ops` | 增长活动、周报、实验与复盘闭环 | 可选 |
-| `product-planning` | `product-planning` | 产品研究、方案权衡、PRD、指标与风险 | 可选；真实 R3 通过 |
-| `business-ops` | `business-ops` | 供应商、SOP、变更、容量与运营风险 | 可选 |
-
-```mermaid
-flowchart LR
-    U([用户任务]) --> H{Claude / Codex 原生选择}
-    H --> D[直接处理]
-    H --> F[frontend-design]
-    F -->|成品审美复核| T[taste]
-    H --> T[taste]
-    H --> K[knowledge-base]
-    H --> P[product-planning]
-    H --> G[growth-ops]
-    H --> B[business-ops]
-    H --> FIO[finance-ops]
-    C([Skill 或宿主变化]) --> E[tessera-eval]
-    E --> R[可观察报告与边界建议]
-```
-
-## 原生优先边界
-
-以下能力直接使用宿主功能，Tessera 不再包装：
-
-- Skill 发现与调用。
-- 会话计划、Goal、用户确认和子代理委派。
-- 插件浏览、安装、刷新、启用、禁用与卸载。
-- 已安装插件和当前启用状态查看。
-- 外部工具、MCP、连接器和浏览器能力选择。
-
-仓库只在 CI 中检查 Claude/Codex marketplace、manifest 和 Skill frontmatter 是否一致；不会在用户会话中维护第二份运行时能力目录。
-
-## 安装
-
-### Codex
-
-Windows 一键安装核心插件：
+Windows PowerShell installs `gloamere-eval`:
 
 ```powershell
-irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/gloamere/codex-plugins/v4.0.0-beta.1/install.ps1 | iex
 ```
 
-安装全部八个插件：
+Install both plugins:
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/Tessera/main/install.ps1))) -All
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/codex-plugins/v4.0.0-beta.1/install.ps1))) -All
 ```
 
-macOS / Linux：
+macOS or Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gloamere/Tessera/main/install.sh | sh
-curl -fsSL https://raw.githubusercontent.com/gloamere/Tessera/main/install.sh | sh -s -- --all
+curl -fsSL https://raw.githubusercontent.com/gloamere/codex-plugins/v4.0.0-beta.1/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/gloamere/codex-plugins/v4.0.0-beta.1/install.sh | sh -s -- --all
 ```
 
-脚本只调用 Codex 原生 marketplace/plugin 命令并验证安装结果。若不希望执行远程脚本，可手动运行：
+`release-manifest.json` names these profiles `eval` (the default) and
+`complete` (`-All` / `--all`). Both published plugins currently have `beta`
+maturity.
 
-```powershell
-codex plugin marketplace add gloamere/Tessera --ref main
-codex plugin add tessera-core@tessera
+The equivalent manual installation is:
+
+```bash
+codex plugin marketplace add gloamere/codex-plugins --ref v4.0.0-beta.1
+codex plugin add gloamere-eval@gloamere
+codex plugin add gloamere-workflows@gloamere
 codex plugin list --json
 ```
 
-无需 clone Tessera 仓库。安装后新开任务；插件启停与卸载使用 Codex 原生插件浏览器或 `codex plugin` 命令。
+The installers use only native Codex plugin commands. If a 3.x legacy selector
+is present, they stop before changing anything and print the manual
+“remove old plugin → remove old marketplace → rerun Gloamere install” sequence.
+They never remove, disable, or modify a legacy installation themselves.
 
-### Claude Code
+## Use
 
-```powershell
-claude plugin marketplace add gloamere/Tessera
-claude plugin install tessera-core@tessera --scope user
-claude plugin list --json
-```
+Example prompts:
 
-按需安装 `frontend-design@tessera`、`taste@tessera`、`knowledge-base@tessera`、`finance-ops@tessera`、`growth-ops@tessera`、`product-planning@tessera` 或 `business-ops@tessera`。交互会话中安装或启停后运行 `/reload-plugins`；其它生命周期动作使用 Claude 原生 `/plugin` 或 `claude plugin` 命令。
+- “Use Gloamere Eval to inspect this repository’s Codex skill-routing surface.”
+- “Run a native Gloamere Eval check and explain the evidence level.”
+- “Use Gloamere Workflows to define a coherent UI system for this product.”
+- “Capture this product decision as a durable, linked project record.”
 
-前端组合采用顺序边界：新页面、设计系统或系统性重构先用 `frontend-design` 形成 token、结构、状态和技术栈约束；有成品后再按需用 `taste` 做审美与去模板化复核。纯审美评审不必加载前者，用户研究与转化实验也不由两者冒充。`frontend-design` 的本地搜索仅依赖 Python 3 标准库，PowerShell 与 POSIX 包装脚本分别覆盖 Windows、macOS 和 Linux。
+The Eval runtime uses the Python 3.10+ standard library, inspects the plugins
+actually installed by the user, and writes requested reports to the selected
+location. It does not ship a business-specific benchmark suite. Workflows load
+only when their descriptions match the task; installing the bundle does not
+load all four skills on every turn.
 
-业务组合也按工作产物分工：`product-planning` 负责产品方向和 PRD，`growth-ops` 负责活动、指标与复盘，`business-ops` 负责内部流程、供应商和容量，`finance-ops` 负责可复核的财务工作底稿。它们不因同时安装就一起加载；涉及表格、文档和知识沉淀时继续调用宿主已有能力。`finance-ops` 不付款、不过账、不申报，也不替代财务、税务、审计或投资专业判断。
-
-## Eval
-
-安装后直接说“运行 tessera eval”或“用个人场景复测原生 Skill 调用”。`tessera-eval` 会从自身插件目录加载运行器、schema 和案例，报告写入当前项目的 `eval-results/`。不需要 Tessera checkout 或 pip；运行 eval 的机器只需能调用 Python 3 标准库。
-
-报告严格区分：
-
-- `verified`：宿主事件或可信 transcript 观察到调用。
-- `declared-only`：只有模型自报，不算真实调用通过。
-- `unobservable`：没有足够证据。
-- `conflict`：模型声明与宿主证据冲突。
-
-Claude 没有可信适配器时只支持 dry-run，并报告 `unavailable`；CI 假宿主只验证脚本和 schema，不作为模型准确率。
-
-## 开发验证
+## Develop and verify
 
 ```powershell
 python -m pip install -r requirements-dev.txt
 ./scripts/check.ps1
+python scripts/validate_release_evidence.py
 ```
 
-macOS / Linux 使用 `sh scripts/check.sh`。完整检查会验证双宿主发布物、运行单元测试、执行 fixture eval，并确认个人场景 native 计划可生成；GitHub Actions 在 Ubuntu、macOS 和 Windows 三个平台执行同一检查面。
+On macOS or Linux:
 
-真实 Codex native eval 不进入普通 CI，因为 fixture、dry-run 和模型自报都不能替代已安装插件环境中的宿主事件。维护者在已登录 Codex CLI、已安装目标插件的新环境中手动运行：
-
-```powershell
-./scripts/run_native_eval.ps1
+```bash
+python3 -m pip install -r requirements-dev.txt
+sh scripts/check.sh
+python3 scripts/validate_release_evidence.py
 ```
 
-macOS / Linux 使用 `sh scripts/run_native_eval.sh`。报告默认写入 `eval-results/codex-native.json`。
+The same check surface runs on Ubuntu, macOS, and Windows, with Python
+3.10–3.14 coverage and launcher smoke tests in Windows PowerShell 5.1 and
+PowerShell 7. The platform matrix pins Codex CLI `0.145.0`; Windows also
+exercises first install, repeat install, upgrade, disable/enable, uninstall,
+and detect-only 3.x migration in an isolated `CODEX_HOME`. A tagged release
+also builds one deterministic ZIP and SHA-256 sidecar for each plugin.
 
-分发版本以根目录 `VERSION` 为事实来源；推送同名 `v<version>` tag 时，发布工作流会先运行完整检查，再生成 GitHub Release。
+`release-manifest.json` is the release source of truth, including plugin
+maturity and the `eval` / `complete` installation profiles.
+`scripts/generate_release_files.py` derives the Codex marketplace and
+`release-index.json`; CI runs it with `--check`. `VERSION`, plugin manifests,
+installer defaults, archive names, and the Git tag are checked mirrors. Never
+publish installers from `main`; use the immutable tag.
 
-## 从 0.4 迁移
+The ordinary evidence check reports `pending` without failing while native
+reports are absent. A tag release runs
+`python scripts/validate_release_evidence.py --require`; fixture adapters,
+prompt plaintext, stale target identities, incomplete batches, and metrics
+below the manifest thresholds block publication.
 
-0.5 删除了 `piece-router`、`tessera-setup`、`tessera-status`、`tessera-capabilities` 和 `tessera-doctor`，也删除了指令式本地 usage events；0.6 将 eval 运行器、案例和 schema 收入插件安装包；0.7 根据真实质量评审移除旧 `planner`；3.2 以四个边界明确的业务工作流替代万能策划，并保留旧失败证据。替代方式：
+## Documentation
 
-| 旧入口 | 替代方式 |
-|---|---|
-| router / recipe / 子代理规则 | 宿主原生计划、Goal、确认与委派 |
-| setup | 宿主原生插件管理器和 CLI |
-| status / capabilities | 宿主原生插件列表和插件浏览器 |
-| doctor / remediation | 宿主诊断；Tessera 仓库结构由 `validate_marketplace.py` 检查 |
-| usage events | native eval 报告与人工维护的代表案例 |
+- [Architecture](docs/ARCHITECTURE.md)
+- [Deployment and release](docs/DEPLOYMENT.md)
+- [Generated release index](release-index.json)
+- [v4 migration](MIGRATION.md)
+- [v4 architecture decision](docs/decisions/codex-only-v4-release.md)
+- [Workflows provenance and third-party boundary](plugins/gloamere-workflows/PROVENANCE.md)
+- [Support](SUPPORT.md)
+- [Security](SECURITY.md)
+- [Privacy](docs/PRIVACY.md)
+- [Terms](docs/TERMS.md)
 
-已有 `~/.tessera` 数据不会被代码主动删除；不再需要时由用户自行备份或清理。
+Historical ADRs and evaluation evidence remain in the repository for
+traceability. They do not define the current public release surface.
 
-详见 [部署手册](docs/DEPLOYMENT.md)、[当前运行时架构](docs/decisions/business-workflow-suite-admission.md) 与 [专业 Skill 历史评审](docs/decisions/professional-skill-portfolio.md)。历史演进仍保留在已标记 `superseded` 的 ADR 中。
+## License
 
-## 许可
-
-[MIT](LICENSE) © 2026 gloamere
+[MIT](LICENSE) © 2026 Gloamere

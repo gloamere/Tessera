@@ -1,35 +1,51 @@
 #!/usr/bin/env sh
 set -eu
-export PYTHONUTF8=1
-export PYTHONIOENCODING=utf-8
 
-REPEAT=${1:-3}
-OUTPUT=${2:-eval-results/codex-native.json}
-
-case "$REPEAT" in
-  ''|*[!0-9]*|0) echo 'Repeat must be a positive integer.' >&2; exit 2 ;;
-esac
-
-if [ -n "${PYTHON:-}" ]; then
-  PYTHON_BIN=$PYTHON
-elif command -v python3 >/dev/null 2>&1; then
-  PYTHON_BIN=python3
-elif command -v python >/dev/null 2>&1; then
-  PYTHON_BIN=python
-else
-  echo 'Python 3 was not found.' >&2
-  exit 127
+if [ "$#" -lt 2 ] || [ "$#" -gt 4 ]; then
+  echo 'Usage: run_native_eval.sh <suite.json> <target-lock.json> [repeat] [output.json]' >&2
+  exit 2
 fi
 
-if ! command -v codex >/dev/null 2>&1; then
-  echo 'Codex CLI was not found. Install and sign in to Codex before running native eval.' >&2
-  exit 127
+SUITE=$1
+TARGET_LOCK=$2
+REPEAT=${3:-}
+OUTPUT=${4:-}
+
+if [ -n "$REPEAT" ]; then
+  case "$REPEAT" in
+    *[!0-9]*) echo 'Repeat must be an integer from 1 to 10.' >&2; exit 2 ;;
+  esac
+  if [ "$REPEAT" -lt 1 ] || [ "$REPEAT" -gt 10 ]; then
+    echo 'Repeat must be an integer from 1 to 10.' >&2
+    exit 2
+  fi
 fi
 
-"$PYTHON_BIN" scripts/run_routing_eval.py \
-  --host codex \
-  --mode native \
-  --cases pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json \
-  --repeat "$REPEAT" \
-  --suggest-tuning \
-  --output "$OUTPUT"
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+RUNNER="$SCRIPT_DIR/../plugins/gloamere-eval/skills/gloamere-skill-eval/scripts/run.sh"
+
+if [ -n "$REPEAT" ] && [ -n "$OUTPUT" ]; then
+  exec sh "$RUNNER" native \
+    --suite "$SUITE" \
+    --target-lock "$TARGET_LOCK" \
+    --repeat "$REPEAT" \
+    --output "$OUTPUT"
+fi
+
+if [ -n "$OUTPUT" ]; then
+  exec sh "$RUNNER" native \
+    --suite "$SUITE" \
+    --target-lock "$TARGET_LOCK" \
+    --output "$OUTPUT"
+fi
+
+if [ -n "$REPEAT" ]; then
+  exec sh "$RUNNER" native \
+    --suite "$SUITE" \
+    --target-lock "$TARGET_LOCK" \
+    --repeat "$REPEAT"
+fi
+
+exec sh "$RUNNER" native \
+  --suite "$SUITE" \
+  --target-lock "$TARGET_LOCK"

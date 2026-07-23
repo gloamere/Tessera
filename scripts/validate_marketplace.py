@@ -1,50 +1,67 @@
-"""Validate Tessera's slim dual-host release surface."""
+"""Validate the Codex-only Gloamere release surface."""
 
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import re
 import sys
 from typing import Any
-
-import yaml
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PIECES = ROOT / "pieces"
-EXPECTED_PLATFORMS = {
-    "claude": "native",
-    "codex": "native",
-    "gemini": "unsupported",
-    "domestic": "unsupported",
+RELEASE_MANIFEST = ROOT / "release-manifest.json"
+MARKETPLACE = ROOT / ".agents" / "plugins" / "marketplace.json"
+PLUGINS_ROOT = ROOT / "plugins"
+SEMVER = re.compile(
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+    r"(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?"
+    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+)
+HEX_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
+EXPECTED_PLUGIN_IDS = {"gloamere-eval", "gloamere-workflows"}
+EXPECTED_INSTALL_PROFILES = {
+    "eval": ["gloamere-eval"],
+    "complete": ["gloamere-eval", "gloamere-workflows"],
 }
-EXPECTED_SKILLS = {
-    "tessera-core": {"tessera-eval"},
-    "taste": {"taste"},
-    "frontend-design": {"frontend-design"},
-    "knowledge-base": {"knowledge-base"},
-    "finance-ops": {"finance-ops"},
-    "growth-ops": {"growth-ops"},
-    "product-planning": {"product-planning"},
-    "business-ops": {"business-ops"},
+EXPECTED_PLUGIN_MATURITY = "beta"
+REQUIRED_TOP_LEVEL_FIELDS = {
+    "name",
+    "version",
+    "description",
+    "author",
+    "homepage",
+    "repository",
+    "license",
+    "keywords",
+    "skills",
+    "interface",
 }
-ROUTES = {
-    "direct", "tessera-eval", "taste", "frontend-design", "knowledge-base",
-    "finance-ops", "growth-ops", "product-planning", "business-ops",
-}
-RETIRED_RUNTIME_NAMES = {
-    "planner",
-    "piece-router",
-    "tessera-setup",
-    "tessera-status",
-    "tessera-capabilities",
-    "tessera-doctor",
-    "usage_events.py",
+REQUIRED_INTERFACE_FIELDS = {
+    "displayName",
+    "shortDescription",
+    "longDescription",
+    "developerName",
+    "category",
+    "capabilities",
+    "websiteURL",
+    "privacyPolicyURL",
+    "termsOfServiceURL",
+    "defaultPrompt",
+    "brandColor",
+    "composerIcon",
+    "logo",
+    "screenshots",
 }
 
 
 def relative(path: Path) -> str:
-    return path.relative_to(ROOT).as_posix()
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -54,263 +71,633 @@ def read_json(path: Path) -> dict[str, Any]:
     return value
 
 
-def read_yaml(path: Path) -> Any:
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+def require_https(value: Any, label: str, errors: list[str]) -> None:
+    if not isinstance(value, str):
+        errors.append(f"{label}: 必须是 HTTPS URL")
+        return
+    parsed = urlparse(value)
+    if parsed.scheme != "https" or not parsed.netloc:
+        errors.append(f"{label}: 必须是 HTTPS URL")
 
 
-def marketplace_entries(path: Path, errors: list[str]) -> dict[str, dict[str, Any]]:
-    marketplace = read_json(path)
+def parse_frontmatter(path: Path, errors: list[str]) -> dict[str, str]:
+    text = path.read_text(encoding="utf-8")
+    normalized = text.replace("\r\n", "\n")
+    if not normalized.startswith("---\n"):
+        errors.append(f"{relative(path)}: 缺少 YAML frontmatter")
+        return {}
+    end = normalized.find("\n---", 4)
+    if end < 0:
+        errors.append(f"{relative(path)}: YAML frontmatter 未闭合")
+        return {}
+    raw = normalized[4:end]
+    fields: dict[str, str] = {}
+    for name in ("name", "description"):
+        match = re.search(rf"^{name}:\s*(.*?)\s*$", raw, re.MULTILINE)
+        if not match or not match.group(1):
+            errors.append(f"{relative(path)}: frontmatter 缺少 {name}")
+            continue
+        fields[name] = match.group(1).strip("'\"")
+    return fields
+
+
+def marketplace_entries(
+    marketplace: dict[str, Any], errors: list[str]
+) -> dict[str, dict[str, Any]]:
     items = marketplace.get("plugins")
     if not isinstance(items, list):
-        errors.append(f"{relative(path)}: plugins 必须是数组")
+        errors.append(f"{relative(MARKETPLACE)}: plugins 必须是数组")
         return {}
     entries: dict[str, dict[str, Any]] = {}
     for item in items:
         if not isinstance(item, dict) or not isinstance(item.get("name"), str):
-            errors.append(f"{relative(path)}: 每个插件必须有字符串 name")
+            errors.append(f"{relative(MARKETPLACE)}: 每个插件必须有字符串 name")
             continue
         name = item["name"]
         if name in entries:
-            errors.append(f"{relative(path)}: 插件 {name} 重复")
+            errors.append(f"{relative(MARKETPLACE)}: 插件 {name} 重复")
         entries[name] = item
     return entries
 
 
-def parse_frontmatter(path: Path, errors: list[str]) -> dict[str, Any]:
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---\n"):
-        errors.append(f"{relative(path)}: 缺少 YAML frontmatter")
+def release_plugins(
+    release: dict[str, Any], errors: list[str]
+) -> dict[str, dict[str, Any]]:
+    items = release.get("plugins")
+    if not isinstance(items, list):
+        errors.append(f"{relative(RELEASE_MANIFEST)}: plugins 必须是数组")
         return {}
-    try:
-        _, raw, _ = text.split("---", 2)
-        value = yaml.safe_load(raw)
-    except (ValueError, yaml.YAMLError) as exc:
-        errors.append(f"{relative(path)}: frontmatter 无效: {exc}")
-        return {}
-    if not isinstance(value, dict):
-        errors.append(f"{relative(path)}: frontmatter 必须是对象")
-        return {}
-    if not isinstance(value.get("name"), str) or not value["name"]:
-        errors.append(f"{relative(path)}: frontmatter 缺少 name")
-    if not isinstance(value.get("description"), str) or not value["description"].strip():
-        errors.append(f"{relative(path)}: frontmatter 缺少 description")
-    return value
+    plugins: dict[str, dict[str, Any]] = {}
+    for item in items:
+        if not isinstance(item, dict) or not isinstance(item.get("id"), str):
+            errors.append(f"{relative(RELEASE_MANIFEST)}: 每个插件必须有字符串 id")
+            continue
+        plugin_id = item["id"]
+        if plugin_id in plugins:
+            errors.append(f"{relative(RELEASE_MANIFEST)}: 插件 {plugin_id} 重复")
+        plugins[plugin_id] = item
+    return plugins
 
 
-def validate_piece(
-    piece_id: str,
-    claude_entry: dict[str, Any],
-    codex_entry: dict[str, Any],
+def validate_install_profiles(
+    distribution: dict[str, Any],
+    plugins: dict[str, dict[str, Any]],
     errors: list[str],
 ) -> None:
-    piece_dir = PIECES / piece_id
-    expected_source = f"./pieces/{piece_id}"
-    if claude_entry.get("source") != expected_source:
-        errors.append(f"{piece_id}: Claude source 应为 {expected_source}")
-    codex_source = codex_entry.get("source")
-    if not isinstance(codex_source, dict) or codex_source.get("path") != expected_source:
-        errors.append(f"{piece_id}: Codex source 应为 {expected_source}")
-
-    version = claude_entry.get("version")
-    if not isinstance(version, str) or not version:
-        errors.append(f"{piece_id}: Claude marketplace 缺少 version")
-    for host in ("claude", "codex"):
-        manifest_path = piece_dir / f".{host}-plugin" / "plugin.json"
-        if not manifest_path.is_file():
-            errors.append(f"{piece_id}: 缺少 {relative(manifest_path)}")
-            continue
-        manifest = read_json(manifest_path)
-        if manifest.get("name") != piece_id:
-            errors.append(f"{relative(manifest_path)}: name 不匹配")
-        if manifest.get("version") != version:
-            errors.append(f"{relative(manifest_path)}: version 与 marketplace 不一致")
-
-    piece_path = piece_dir / "piece.yaml"
-    piece = read_yaml(piece_path) if piece_path.is_file() else None
-    if not isinstance(piece, dict):
-        errors.append(f"{piece_id}: 缺少或无效的 piece.yaml")
-    else:
-        for field in ("id", "kind", "summary", "when_to_use", "avoid_when", "platforms", "external_deps"):
-            if field not in piece:
-                errors.append(f"{relative(piece_path)}: 缺少 {field}")
-        if piece.get("id") != piece_id:
-            errors.append(f"{relative(piece_path)}: id 不匹配")
-        if piece.get("platforms") != EXPECTED_PLATFORMS:
-            errors.append(f"{relative(piece_path)}: platforms 与双宿主边界不一致")
-
-    skill_paths = sorted((piece_dir / "skills").glob("*/SKILL.md"))
-    actual_skills: set[str] = set()
-    for skill_path in skill_paths:
-        frontmatter = parse_frontmatter(skill_path, errors)
-        if isinstance(frontmatter.get("name"), str):
-            actual_skills.add(frontmatter["name"])
-        text = skill_path.read_text(encoding="utf-8")
-        for retired in RETIRED_RUNTIME_NAMES:
-            if retired in text:
-                errors.append(f"{relative(skill_path)}: 包含已移除运行时入口 {retired}")
-    if actual_skills != EXPECTED_SKILLS[piece_id]:
+    profiles = distribution.get("installProfiles")
+    if not isinstance(profiles, dict):
         errors.append(
-            f"{piece_id}: Skill 集合应为 {sorted(EXPECTED_SKILLS[piece_id])}，实际 {sorted(actual_skills)}"
+            f"{relative(RELEASE_MANIFEST)}: distribution.installProfiles 必须是对象"
         )
+        return
 
-    command_names = {path.stem for path in (piece_dir / "commands").glob("*.md")}
-    expected_commands = {"tessera-eval"} if piece_id == "tessera-core" else set()
-    if command_names != expected_commands:
+    if profiles != EXPECTED_INSTALL_PROFILES:
         errors.append(
-            f"{piece_id}: Claude command 集合应为 {sorted(expected_commands)}，实际 {sorted(command_names)}"
+            f"{relative(RELEASE_MANIFEST)}: distribution.installProfiles 应为 "
+            f"{EXPECTED_INSTALL_PROFILES!r}，实际 {profiles!r}"
         )
-
-
-def validate_eval_cases(errors: list[str]) -> None:
-    eval_root = PIECES / "tessera-core" / "skills" / "tessera-eval"
-    required_runtime = (
-        eval_root / "scripts" / "run_routing_eval.py",
-        eval_root / "scripts" / "run.ps1",
-        eval_root / "scripts" / "run.sh",
-        eval_root / "references" / "routing-cases.json",
-        eval_root / "references" / "personal-routing-cases.json",
-        eval_root / "references" / "schemas" / "routing-output.schema.json",
-        eval_root / "references" / "schemas" / "native-invocation-output.schema.json",
-    )
-    for path in required_runtime:
-        if not path.is_file():
-            errors.append(f"{relative(path)}: 自包含 eval 运行资产缺失")
-
-    for cache_dir in eval_root.rglob("__pycache__"):
-        errors.append(f"{relative(cache_dir)}: 插件包不得包含 Python 字节码缓存")
-
-    runner_path = eval_root / "scripts" / "run_routing_eval.py"
-    if runner_path.is_file():
-        runner = runner_path.read_text(encoding="utf-8")
-        for forbidden in ("import yaml", "ROOT / \"tests\"", "requirements-dev.txt"):
-            if forbidden in runner:
-                errors.append(f"{relative(runner_path)}: 包含仓库或第三方运行时依赖 {forbidden!r}")
-
-    schema_path = eval_root / "references" / "schemas" / "routing-output.schema.json"
-    schema = read_json(schema_path)
-    enum = schema.get("properties", {}).get("route", {}).get("enum")
-    if not isinstance(enum, list) or set(enum) != ROUTES:
-        errors.append(f"{relative(schema_path)}: route enum 与精简能力面不一致")
-
-    native_schema_path = eval_root / "references" / "schemas" / "native-invocation-output.schema.json"
-    native_schema = read_json(native_schema_path)
-    decisions = native_schema.get("properties", {}).get("decision", {}).get("enum")
-    if decisions != ["direct", "skill"]:
-        errors.append(f"{relative(native_schema_path)}: decision 只能是 direct/skill")
-
-    for filename in ("routing-cases.json", "personal-routing-cases.json"):
-        path = eval_root / "references" / filename
-        cases = json.loads(path.read_text(encoding="utf-8"))
-        if not isinstance(cases, list) or not cases:
-            errors.append(f"{relative(path)}: 必须是非空数组")
+    for profile_name, plugin_ids in profiles.items():
+        if not isinstance(profile_name, str) or not profile_name:
+            errors.append(
+                f"{relative(RELEASE_MANIFEST)}: install profile 名称必须是非空字符串"
+            )
             continue
-        seen: set[str] = set()
-        profiles = {"development": 0, "product": 0}
-        for case in cases:
-            if not isinstance(case, dict):
-                errors.append(f"{relative(path)}: 案例必须是对象")
-                continue
-            case_id = case.get("id")
-            if not isinstance(case_id, str) or not case_id:
-                errors.append(f"{relative(path)}: 案例缺少 id")
-                continue
-            if case_id in seen:
-                errors.append(f"{relative(path)}: 案例 {case_id} 重复")
-            seen.add(case_id)
-            if case.get("expected_route") not in ROUTES:
-                errors.append(f"{relative(path)}: {case_id} 的 expected_route 无效")
-            skills = case.get("expected_skills")
-            if not isinstance(skills, list) or any(
-                skill not in set().union(*EXPECTED_SKILLS.values())
-                for skill in skills
-            ):
-                errors.append(f"{relative(path)}: {case_id} 的 expected_skills 无效")
-            if filename == "personal-routing-cases.json":
-                profile = case.get("profile")
-                if profile not in profiles:
-                    errors.append(f"{relative(path)}: {case_id} 的 profile 无效")
-                else:
-                    profiles[profile] += 1
-        if filename == "personal-routing-cases.json" and (
-            len(cases) != 25 or profiles != {"development": 15, "product": 10}
+        if (
+            not isinstance(plugin_ids, list)
+            or any(not isinstance(plugin_id, str) for plugin_id in plugin_ids)
         ):
             errors.append(
-                f"{relative(path)}: 必须保持 25 个案例及 15/10 profile，实际 {profiles}"
+                f"{relative(RELEASE_MANIFEST)}: installProfiles.{profile_name} "
+                "必须是插件 ID 数组"
+            )
+            continue
+        if len(plugin_ids) != len(set(plugin_ids)):
+            errors.append(
+                f"{relative(RELEASE_MANIFEST)}: installProfiles.{profile_name} "
+                "不得包含重复插件"
+            )
+        unknown = set(plugin_ids) - set(plugins)
+        if unknown:
+            errors.append(
+                f"{relative(RELEASE_MANIFEST)}: installProfiles.{profile_name} "
+                f"包含未发布插件 {sorted(unknown)}"
             )
 
 
-def validate_frontend_design(errors: list[str]) -> None:
-    plugin = PIECES / "frontend-design"
-    skill = plugin / "skills" / "frontend-design"
+def validate_release_identity(
+    release: dict[str, Any], errors: list[str]
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    if release.get("schemaVersion") != 1:
+        errors.append(f"{relative(RELEASE_MANIFEST)}: schemaVersion 必须为 1")
+
+    distribution = release.get("distribution")
+    if not isinstance(distribution, dict):
+        errors.append(f"{relative(RELEASE_MANIFEST)}: distribution 必须是对象")
+        distribution = {}
+
+    version = distribution.get("version")
+    if not isinstance(version, str) or not SEMVER.fullmatch(version):
+        errors.append(f"{relative(RELEASE_MANIFEST)}: distribution.version 不是有效 SemVer")
+    root_version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    if root_version != version:
+        errors.append(
+            f"VERSION: 应镜像 release-manifest.json 的分发版本 {version!r}，实际 {root_version!r}"
+        )
+    if distribution.get("tag") != f"v{version}":
+        errors.append(f"{relative(RELEASE_MANIFEST)}: distribution.tag 必须为 v{version}")
+    if os.environ.get("GITHUB_REF_TYPE") == "tag":
+        actual_tag = os.environ.get("GITHUB_REF_NAME")
+        if actual_tag != distribution.get("tag"):
+            errors.append(
+                f"Git tag {actual_tag!r} 与 release manifest "
+                f"{distribution.get('tag')!r} 不一致"
+            )
+    if distribution.get("name") != "gloamere-codex-plugins":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: distribution.name 必须为 gloamere-codex-plugins"
+        )
+    if distribution.get("marketplace") != "gloamere":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: distribution.marketplace 必须为 gloamere"
+        )
+    if distribution.get("marketplaceDisplayName") != "Gloamere":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: marketplaceDisplayName 必须为 Gloamere"
+        )
+    if distribution.get("releaseManifestAsset") != "release-manifest.json":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: releaseManifestAsset 必须为 release-manifest.json"
+        )
+    if distribution.get("releaseIndex") != "release-index.json":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: releaseIndex 必须为 release-index.json"
+        )
+    repository = distribution.get("repository")
+    if repository != "https://github.com/gloamere/codex-plugins":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: distribution.repository 与公开仓库不一致"
+        )
+
+    legacy = release.get("legacy")
+    if not isinstance(legacy, dict) or legacy.get("behavior") != "detect-only":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: legacy.behavior 必须为 detect-only"
+        )
+    elif (
+        legacy.get("marketplace") != "tessera"
+        or legacy.get("migrationGuide") != "MIGRATION.md"
+    ):
+        errors.append(f"{relative(RELEASE_MANIFEST)}: legacy 迁移元数据不完整")
+
+    plugins = release_plugins(release, errors)
+    if set(plugins) != EXPECTED_PLUGIN_IDS:
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: 只能发布 {sorted(EXPECTED_PLUGIN_IDS)}，"
+            f"实际 {sorted(plugins)}"
+        )
+    validate_install_profiles(distribution, plugins, errors)
+    return distribution, plugins
+
+
+def validate_asset_path(
+    plugin_dir: Path, value: Any, label: str, errors: list[str]
+) -> None:
+    if not isinstance(value, str) or not value.startswith("./"):
+        errors.append(f"{label}: 必须是以 ./ 开头的插件内相对路径")
+        return
+    target = (plugin_dir / value[2:]).resolve()
+    try:
+        target.relative_to(plugin_dir.resolve())
+    except ValueError:
+        errors.append(f"{label}: 不得逃逸插件目录")
+        return
+    if not target.is_file():
+        errors.append(f"{label}: 文件不存在 ({relative(target)})")
+    elif target.suffix.lower() != ".png" or target.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
+        errors.append(f"{label}: 必须引用有效 PNG 文件")
+
+
+def validate_plugin(
+    plugin_id: str,
+    release_entry: dict[str, Any],
+    marketplace_entry: dict[str, Any],
+    repository: str,
+    errors: list[str],
+) -> None:
+    version = release_entry.get("version")
+    if not isinstance(version, str) or not SEMVER.fullmatch(version):
+        errors.append(f"{plugin_id}: release version 不是有效 SemVer")
+    if release_entry.get("maturity") != EXPECTED_PLUGIN_MATURITY:
+        errors.append(
+            f"{plugin_id}: maturity 必须为 {EXPECTED_PLUGIN_MATURITY}"
+        )
+
+    expected_path = f"plugins/{plugin_id}"
+    if release_entry.get("path") != expected_path:
+        errors.append(f"{plugin_id}: release path 必须为 {expected_path}")
+    expected_archive = f"{plugin_id}-{version}.zip"
+    if release_entry.get("archive") != expected_archive:
+        errors.append(f"{plugin_id}: archive 必须为 {expected_archive}")
+    if release_entry.get("checksum") != f"{expected_archive}.sha256":
+        errors.append(f"{plugin_id}: checksum 文件名与 archive 不一致")
+
+    plugin_dir = ROOT / expected_path
+    if not plugin_dir.is_dir():
+        errors.append(f"{plugin_id}: 插件目录不存在")
+        return
+
+    source = marketplace_entry.get("source")
+    expected_source = f"./{expected_path}"
+    if (
+        not isinstance(source, dict)
+        or source.get("source") != "local"
+        or source.get("path") != expected_source
+    ):
+        errors.append(f"{plugin_id}: marketplace source 必须指向 {expected_source}")
+    policy = release_entry.get("policy")
+    if policy != {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL",
+    }:
+        errors.append(f"{plugin_id}: release policy 不完整")
+    if marketplace_entry.get("policy") != policy:
+        errors.append(f"{plugin_id}: marketplace policy 未从 release manifest 生成")
+    category = release_entry.get("category")
+    if not isinstance(category, str) or not category:
+        errors.append(f"{plugin_id}: release category 不能为空")
+    if marketplace_entry.get("category") != category:
+        errors.append(f"{plugin_id}: marketplace category 未从 release manifest 生成")
+
+    manifest_path = plugin_dir / ".codex-plugin" / "plugin.json"
+    if not manifest_path.is_file():
+        errors.append(f"{plugin_id}: 缺少 {relative(manifest_path)}")
+        return
+    manifest = read_json(manifest_path)
+    missing_top = REQUIRED_TOP_LEVEL_FIELDS - set(manifest)
+    if missing_top:
+        errors.append(f"{relative(manifest_path)}: 缺少字段 {sorted(missing_top)}")
+    if manifest.get("name") != plugin_id:
+        errors.append(f"{relative(manifest_path)}: name 不匹配")
+    if manifest.get("version") != version:
+        errors.append(f"{relative(manifest_path)}: version 未镜像 release manifest")
+    if manifest.get("repository") != repository:
+        errors.append(f"{relative(manifest_path)}: repository 与 release manifest 不一致")
+    if manifest.get("license") != "MIT":
+        errors.append(f"{relative(manifest_path)}: license 必须为 MIT")
+    if not (plugin_dir / "LICENSE").is_file():
+        errors.append(f"{plugin_id}: 发布包缺少 LICENSE")
+    if not isinstance(manifest.get("description"), str) or not manifest[
+        "description"
+    ].strip():
+        errors.append(f"{relative(manifest_path)}: description 不能为空")
+    if manifest.get("skills") != "./skills/":
+        errors.append(f"{relative(manifest_path)}: skills 必须为 ./skills/")
+    if (
+        not isinstance(manifest.get("keywords"), list)
+        or not manifest["keywords"]
+        or any(not isinstance(item, str) or not item for item in manifest["keywords"])
+    ):
+        errors.append(f"{relative(manifest_path)}: keywords 必须是非空数组")
+    require_https(manifest.get("homepage"), f"{relative(manifest_path)} homepage", errors)
+
+    author = manifest.get("author")
+    if (
+        not isinstance(author, dict)
+        or author.get("name") != "Gloamere"
+        or not author.get("url")
+    ):
+        errors.append(f"{relative(manifest_path)}: author 必须标识 Gloamere 及 URL")
+    else:
+        require_https(author["url"], f"{relative(manifest_path)} author.url", errors)
+
+    interface = manifest.get("interface")
+    if not isinstance(interface, dict):
+        errors.append(f"{relative(manifest_path)}: interface 必须是对象")
+        interface = {}
+    missing_interface = REQUIRED_INTERFACE_FIELDS - set(interface)
+    if missing_interface:
+        errors.append(
+            f"{relative(manifest_path)}: interface 缺少字段 {sorted(missing_interface)}"
+        )
+    if interface.get("developerName") != "Gloamere":
+        errors.append(f"{relative(manifest_path)}: developerName 必须为 Gloamere")
+    if interface.get("displayName") != release_entry.get("displayName"):
+        errors.append(f"{relative(manifest_path)}: displayName 未镜像 release manifest")
+    if interface.get("category") != category:
+        errors.append(f"{relative(manifest_path)}: category 未镜像 release manifest")
+    for field, limit in (
+        ("displayName", 30),
+        ("shortDescription", 30),
+        ("developerName", 80),
+    ):
+        value = interface.get(field)
+        if not isinstance(value, str) or not value.strip() or len(value) > limit:
+            errors.append(f"{relative(manifest_path)}: {field} 必须为 1-{limit} 个字符")
+    if (
+        not isinstance(interface.get("longDescription"), str)
+        or not interface["longDescription"].strip()
+    ):
+        errors.append(f"{relative(manifest_path)}: longDescription 不能为空")
+    if (
+        not isinstance(interface.get("capabilities"), list)
+        or not interface["capabilities"]
+        or any(not isinstance(item, str) for item in interface["capabilities"])
+    ):
+        errors.append(f"{relative(manifest_path)}: capabilities 必须是非空字符串数组")
+    prompts = interface.get("defaultPrompt")
+    if (
+        not isinstance(prompts, list)
+        or not prompts
+        or any(not isinstance(item, str) or not item.strip() for item in prompts)
+    ):
+        errors.append(f"{relative(manifest_path)}: defaultPrompt 必须是非空字符串数组")
+    if not isinstance(interface.get("brandColor"), str) or not HEX_COLOR.fullmatch(
+        interface["brandColor"]
+    ):
+        errors.append(f"{relative(manifest_path)}: brandColor 必须是六位十六进制颜色")
+    elif interface["brandColor"].upper() != "#8B74D6":
+        errors.append(f"{relative(manifest_path)}: brandColor 必须使用 Gloamere 紫色")
+    for field in ("websiteURL", "privacyPolicyURL", "termsOfServiceURL"):
+        require_https(
+            interface.get(field), f"{relative(manifest_path)} interface.{field}", errors
+        )
+    for field in ("composerIcon", "logo"):
+        validate_asset_path(
+            plugin_dir,
+            interface.get(field),
+            f"{relative(manifest_path)} interface.{field}",
+            errors,
+        )
+    screenshots = interface.get("screenshots")
+    if not isinstance(screenshots, list) or not screenshots:
+        errors.append(f"{relative(manifest_path)}: screenshots 必须是非空数组")
+    else:
+        for index, screenshot in enumerate(screenshots):
+            validate_asset_path(
+                plugin_dir,
+                screenshot,
+                f"{relative(manifest_path)} interface.screenshots[{index}]",
+                errors,
+            )
+
+    skill_dirs = {
+        path.name for path in (plugin_dir / "skills").iterdir() if path.is_dir()
+    }
+    declared_skills = release_entry.get("skills")
+    if (
+        not isinstance(declared_skills, list)
+        or any(not isinstance(item, str) for item in declared_skills)
+        or set(declared_skills) != skill_dirs
+    ):
+        errors.append(
+            f"{plugin_id}: release skills 与插件目录不一致，"
+            f"声明 {declared_skills!r}，实际 {sorted(skill_dirs)}"
+        )
+    for skill_name in sorted(skill_dirs):
+        skill_path = plugin_dir / "skills" / skill_name / "SKILL.md"
+        if not skill_path.is_file():
+            errors.append(f"{plugin_id}: 缺少 {relative(skill_path)}")
+            continue
+        frontmatter = parse_frontmatter(skill_path, errors)
+        if frontmatter.get("name") != skill_name:
+            errors.append(
+                f"{relative(skill_path)}: frontmatter name 必须与目录名 {skill_name} 一致"
+            )
+
+def validate_eval_runtime(errors: list[str]) -> None:
+    skill = (
+        PLUGINS_ROOT
+        / "gloamere-eval"
+        / "skills"
+        / "gloamere-skill-eval"
+    )
     required = (
-        plugin / "LICENSE.upstream",
-        skill / "SKILL.md",
-        skill / "references" / "UPSTREAM.md",
-        skill / "references" / "quick-reference.md",
-        skill / "references" / "pro-rules.md",
-        skill / "scripts" / "core.py",
-        skill / "scripts" / "design_system.py",
-        skill / "scripts" / "search.py",
-        skill / "scripts" / "validate_data.py",
+        skill / "scripts" / "run_routing_eval.py",
         skill / "scripts" / "run.ps1",
         skill / "scripts" / "run.sh",
-        skill / "scripts" / "tests" / "test_core.py",
+        skill / "references" / "schemas" / "eval-suite.schema.json",
+        skill / "references" / "schemas" / "target-lock.schema.json",
+        skill / "references" / "schemas" / "native-invocation-output.schema.json",
+        skill / "references" / "schemas" / "report.schema.json",
     )
     for path in required:
         if not path.is_file():
-            errors.append(f"{relative(path)}: frontend-design 核心资产缺失")
-    data_files = list((skill / "data").rglob("*.csv"))
-    if len(data_files) != 35:
-        errors.append(f"frontend-design: 应包含 35 个上游核心数据表，实际 {len(data_files)}")
-    skill_path = skill / "SKILL.md"
-    if skill_path.is_file() and len(skill_path.read_text(encoding="utf-8").splitlines()) > 70:
-        errors.append(f"{relative(skill_path)}: 超过 70 行上下文预算")
+            errors.append(f"{relative(path)}: 自包含 Eval 运行资产缺失")
+    runner = skill / "scripts" / "run_routing_eval.py"
+    if runner.is_file():
+        source = runner.read_text(encoding="utf-8")
+        for forbidden in ("import yaml", "site-packages", "requirements-dev.txt"):
+            if forbidden in source:
+                errors.append(
+                    f"{relative(runner)}: 包含第三方或仓库运行时依赖 {forbidden!r}"
+                )
+    for schema in (skill / "references" / "schemas").glob("*.json"):
+        read_json(schema)
+
+
+def validate_installers(
+    distribution: dict[str, Any],
+    plugins: dict[str, dict[str, Any]],
+    errors: list[str],
+) -> None:
+    repository = distribution.get("repository", "")
+    shorthand = repository.removeprefix("https://github.com/")
+    tag = distribution.get("tag", "")
+    profiles = distribution.get("installProfiles")
+    eval_profile = profiles.get("eval", []) if isinstance(profiles, dict) else []
+    complete_profile = (
+        profiles.get("complete", []) if isinstance(profiles, dict) else []
+    )
+    for installer in (ROOT / "install.ps1", ROOT / "install.sh"):
+        if not installer.is_file():
+            errors.append(f"{relative(installer)}: 缺少安装入口")
+            continue
+        source = installer.read_text(encoding="utf-8")
+        for token in (
+            shorthand,
+            tag,
+            "plugin list --json",
+            "@gloamere",
+            "@tessera",
+            "MIGRATION.md",
+            "marketplace",
+            "add",
+        ):
+            if token not in source:
+                errors.append(f"{relative(installer)}: 缺少发布约束 {token!r}")
+        for plugin_id in plugins:
+            if plugin_id not in source:
+                errors.append(f"{relative(installer)}: 缺少插件 {plugin_id}")
+
+        if installer.suffix == ".ps1":
+            default_matches = re.findall(
+                r"(?m)^\$plugins\s*=\s*@\(([^)]*)\)\s*$",
+                source,
+            )
+            additions = re.findall(
+                r"(?m)^\s*\$plugins\s*\+=\s*'([a-z0-9-]+)'\s*$",
+                source,
+            )
+            if len(default_matches) != 1 or "if ($All)" not in source:
+                errors.append(
+                    f"{relative(installer)}: 无法确认默认与 -All 安装 profile"
+                )
+            else:
+                default_plugins = re.findall(
+                    r"'([a-z0-9-]+)'", default_matches[0]
+                )
+                complete_plugins = default_plugins + additions
+                if default_plugins != eval_profile:
+                    errors.append(
+                        f"{relative(installer)}: 默认插件 {default_plugins!r} "
+                        f"未镜像 installProfiles.eval {eval_profile!r}"
+                    )
+                if complete_plugins != complete_profile:
+                    errors.append(
+                        f"{relative(installer)}: -All 插件 {complete_plugins!r} "
+                        f"未镜像 installProfiles.complete {complete_profile!r}"
+                    )
+        else:
+            assignments = re.findall(
+                r"(?m)^\s*PLUGINS='([^']*)'\s*$",
+                source,
+            )
+            if len(assignments) != 2 or "--all)" not in source:
+                errors.append(
+                    f"{relative(installer)}: 无法确认默认与 --all 安装 profile"
+                )
+            else:
+                default_plugins = assignments[0].split()
+                complete_plugins = assignments[1].split()
+                if default_plugins != eval_profile:
+                    errors.append(
+                        f"{relative(installer)}: 默认插件 {default_plugins!r} "
+                        f"未镜像 installProfiles.eval {eval_profile!r}"
+                    )
+                if complete_plugins != complete_profile:
+                    errors.append(
+                        f"{relative(installer)}: --all 插件 {complete_plugins!r} "
+                        f"未镜像 installProfiles.complete {complete_profile!r}"
+                    )
+        if re.search(
+            r"(?m)^\s*(?:&\s+\$codex\S*|codex)\s+plugin\s+remove\b",
+            source,
+        ):
+            errors.append(f"{relative(installer)}: 不得自动卸载旧插件")
+        if re.search(
+            r"(?m)^\s*(?:&\s+\$codex\S*|codex)\s+plugin\s+"
+            r"marketplace\s+remove\b",
+            source,
+        ):
+            errors.append(f"{relative(installer)}: 不得自动移除旧 marketplace")
+
+
+def validate_public_docs(
+    distribution: dict[str, Any],
+    plugins: dict[str, dict[str, Any]],
+    errors: list[str],
+) -> None:
+    common_tokens = (
+        distribution.get("version", ""),
+        distribution.get("tag", ""),
+        distribution.get("repository", "").removeprefix("https://github.com/"),
+        "gloamere-eval@gloamere",
+        "gloamere-workflows@gloamere",
+    )
+    for document in (ROOT / "README.md", ROOT / "docs" / "DEPLOYMENT.md"):
+        source = document.read_text(encoding="utf-8")
+        for token in common_tokens:
+            if token not in source:
+                errors.append(f"{relative(document)}: 缺少当前发布值 {token!r}")
+    deployment = (ROOT / "docs" / "DEPLOYMENT.md").read_text(encoding="utf-8")
+    for field in ("releaseManifestAsset", "releaseIndex"):
+        value = distribution.get(field)
+        if not isinstance(value, str) or value not in deployment:
+            errors.append(f"docs/DEPLOYMENT.md: 缺少发布元数据资产 {value!r}")
+    for plugin in plugins.values():
+        for field in ("archive", "checksum"):
+            value = plugin.get(field)
+            if not isinstance(value, str) or value not in deployment:
+                errors.append(
+                    f"docs/DEPLOYMENT.md: 缺少 release manifest 的 {field} {value!r}"
+                )
 
 
 def main() -> int:
     errors: list[str] = []
     try:
-        version_path = ROOT / "VERSION"
-        distribution_version = version_path.read_text(encoding="utf-8").strip()
-        if not distribution_version:
-            errors.append("VERSION: 分发版本不能为空")
-        claude_path = ROOT / ".claude-plugin" / "marketplace.json"
-        codex_path = ROOT / ".agents" / "plugins" / "marketplace.json"
-        claude_marketplace = read_json(claude_path)
-        metadata = claude_marketplace.get("metadata")
-        marketplace_version = metadata.get("version") if isinstance(metadata, dict) else None
-        if marketplace_version != distribution_version:
+        release = read_json(RELEASE_MANIFEST)
+        distribution, plugins = validate_release_identity(release, errors)
+        marketplace = read_json(MARKETPLACE)
+        if marketplace.get("name") != distribution.get("marketplace"):
+            errors.append(f"{relative(MARKETPLACE)}: name 未镜像 release manifest")
+        interface = marketplace.get("interface")
+        if (
+            not isinstance(interface, dict)
+            or interface.get("displayName")
+            != distribution.get("marketplaceDisplayName")
+        ):
+            errors.append(f"{relative(MARKETPLACE)}: displayName 未镜像 release manifest")
+        entries = marketplace_entries(marketplace, errors)
+        if set(entries) != set(plugins):
             errors.append(
-                ".claude-plugin/marketplace.json: metadata.version "
-                f"应与 VERSION ({distribution_version}) 一致"
+                f"{relative(MARKETPLACE)}: 插件集合应为 {sorted(plugins)}，"
+                f"实际 {sorted(entries)}"
             )
-        claude = marketplace_entries(claude_path, errors)
-        codex = marketplace_entries(codex_path, errors)
-        if set(claude) != set(codex):
-            errors.append("Claude 与 Codex marketplace 插件集合不一致")
-        if set(claude) != set(EXPECTED_SKILLS):
+
+        plugin_dirs = {
+            path.name for path in PLUGINS_ROOT.iterdir() if path.is_dir()
+        }
+        if plugin_dirs != set(plugins):
             errors.append(
-                f"marketplace 应包含 {sorted(EXPECTED_SKILLS)}，实际 {sorted(set(claude) | set(codex))}"
+                f"plugins/: 只能包含发布插件 {sorted(plugins)}，实际 {sorted(plugin_dirs)}"
             )
-        piece_dirs = {path.name for path in PIECES.iterdir() if path.is_dir()}
-        if piece_dirs != set(EXPECTED_SKILLS):
-            errors.append(f"pieces/ 集合与目标发布面不一致: {sorted(piece_dirs)}")
-        for piece_id in sorted(set(claude) & set(codex) & set(EXPECTED_SKILLS)):
-            validate_piece(piece_id, claude[piece_id], codex[piece_id], errors)
-        validate_eval_cases(errors)
-        validate_frontend_design(errors)
-        for installer in (ROOT / "install.ps1", ROOT / "install.sh"):
-            if not installer.is_file():
-                errors.append(f"{relative(installer)}: 缺少一键安装入口")
-    except (OSError, ValueError, json.JSONDecodeError, yaml.YAMLError) as exc:
+        active_manifests = {
+            relative(path)
+            for path in ROOT.rglob("plugin.json")
+            if path.parent.name == ".codex-plugin"
+        }
+        expected_manifests = {
+            f"plugins/{plugin_id}/.codex-plugin/plugin.json"
+            for plugin_id in plugins
+        }
+        if active_manifests != expected_manifests:
+            errors.append(
+                "Codex manifest 集合与双插件发布面不一致: "
+                f"{sorted(active_manifests)}"
+            )
+        if (ROOT / ".claude-plugin" / "marketplace.json").exists():
+            errors.append(".claude-plugin/marketplace.json: v4 不得继续发布 Claude marketplace")
+
+        repository = distribution.get("repository", "")
+        for plugin_id in sorted(set(plugins) & set(entries)):
+            validate_plugin(
+                plugin_id,
+                plugins[plugin_id],
+                entries[plugin_id],
+                repository,
+                errors,
+            )
+        validate_eval_runtime(errors)
+        validate_installers(distribution, plugins, errors)
+        validate_public_docs(distribution, plugins, errors)
+
+        if not (ROOT / "MIGRATION.md").is_file():
+            errors.append("MIGRATION.md: 缺少 v4 迁移说明")
+        for document in ("docs/PRIVACY.md", "docs/TERMS.md"):
+            if not (ROOT / document).is_file():
+                errors.append(f"{document}: 公开 manifest 引用的文档不存在")
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
         errors.append(str(exc))
 
     if errors:
-        print("Tessera 发布物校验失败:", file=sys.stderr)
+        print("Gloamere 发布物校验失败:", file=sys.stderr)
         print("\n".join(f"- {error}" for error in errors), file=sys.stderr)
         return 1
-    count = len(EXPECTED_SKILLS)
-    print(f"校验通过：{count} 个插件、{count} 个运行时 Skill，双宿主发布物与 eval 案例一致。")
+    print(
+        "校验通过：release manifest、2 个 Codex 插件、品牌元数据、"
+        "成熟度、安装 profile、固定 tag 安装入口与迁移边界一致。"
+    )
     return 0
 
 

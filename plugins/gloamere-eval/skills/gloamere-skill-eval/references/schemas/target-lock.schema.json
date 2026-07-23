@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Gloamere Skill Eval target lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "catalog",
+    "targets",
+    "conflicts",
+    "errors"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observable",
+        "source",
+        "codex_version",
+        "error"
+      ],
+      "properties": {
+        "observable": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "codex_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_id",
+          "plugin_id",
+          "plugin_selector",
+          "plugin_version",
+          "installed",
+          "enabled",
+          "plugin_root",
+          "plugin_manifest_path",
+          "plugin_manifest_sha256",
+          "skill_name",
+          "skill_path",
+          "relative_path",
+          "sha256",
+          "agent_config_path",
+          "agent_config_relative_path",
+          "agent_config_sha256"
+        ],
+        "properties": {
+          "target_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plugin_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plugin_selector": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "plugin_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "installed": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "enabled": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "plugin_root": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plugin_manifest_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plugin_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "skill_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skill_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "relative_path": {
+            "type": "string",
+            "pattern": "^skills/[^/]+/SKILL\\.md$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "agent_config_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "agent_config_relative_path": {
+            "type": "string",
+            "pattern": "^skills/[^/]+/agents/openai\\.yaml$"
+          },
+          "agent_config_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

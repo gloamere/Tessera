@@ -68,7 +68,7 @@ test("home and plugin routes state the release and evidence boundaries", async (
 
   assert.match(home, /v4\.0\.0-beta\.1/);
   assert.match(home, /prompt_sha256/);
-  assert.match(home, /plugin \/ path \/ SHA/);
+  assert.match(home, /manifest \/ Skill \/ agent SHA/);
   assert.match(home, /evidence_status/);
   assert.match(home, /not a published native-admission result/i);
   assert.match(home, /codex plugin add gloamere-eval@gloamere/);

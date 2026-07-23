@@ -1,0 +1,6 @@
+interface:
+  display_name: "Gloamere 视觉评审"
+  short_description: "基于使用语境评审界面层级、排版、色彩、一致性与关键状态"
+  default_prompt: "使用 $gloamere-visual-review 评审这个界面，并给出按优先级排序的修改建议。"
+policy:
+  allow_implicit_invocation: true

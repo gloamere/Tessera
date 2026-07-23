@@ -1,4 +1,4 @@
-"""Development wrapper for the self-contained tessera-eval runner."""
+"""Development wrapper for the self-contained gloamere-skill-eval runner."""
 
 from pathlib import Path
 import runpy
@@ -6,10 +6,10 @@ import runpy
 
 RUNNER = (
     Path(__file__).resolve().parents[1]
-    / "pieces"
-    / "tessera-core"
+    / "plugins"
+    / "gloamere-eval"
     / "skills"
-    / "tessera-eval"
+    / "gloamere-skill-eval"
     / "scripts"
     / "run_routing_eval.py"
 )

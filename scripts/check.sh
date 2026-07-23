@@ -14,34 +14,22 @@ else
   exit 127
 fi
 
+CHECK_TMP=$(mktemp -d "${TMPDIR:-/tmp}/gloamere-check.XXXXXX")
+cleanup() {
+  rm -rf -- "$CHECK_TMP"
+}
+trap cleanup EXIT HUP INT TERM
+TARGET_LOCK="$CHECK_TMP/target-lock.json"
+
+"$PYTHON_BIN" scripts/generate_release_files.py --check
 "$PYTHON_BIN" scripts/validate_marketplace.py
 "$PYTHON_BIN" -m unittest discover -s tests -p 'test_*.py'
-"$PYTHON_BIN" scripts/run_routing_eval.py \
-  --host claude \
-  --case direct-small-edit \
-  --case multi-intent \
-  --case evaluate-routing \
-  --case frontend-design-system \
-  --case finance-reconciliation \
-  --case growth-campaign-loop \
-  --case product-planning-prd \
-  --case business-ops-runbook \
-  --adapter-executable "$PYTHON_BIN" \
-  --adapter-arg tests/fixtures/fake_eval_host.py \
-  --output eval-results/ci-routing.json
-"$PYTHON_BIN" scripts/run_routing_eval.py \
-  --host claude \
-  --mode native \
-  --case frontend-taste-handoff \
-  --repeat 3 \
-  --suggest-tuning \
-  --adapter-executable "$PYTHON_BIN" \
-  --adapter-arg tests/fixtures/fake_eval_host.py \
-  --output eval-results/ci-native.json
-"$PYTHON_BIN" scripts/run_routing_eval.py \
-  --host codex \
-  --mode native \
-  --cases pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json \
-  --dry-run
+"$PYTHON_BIN" scripts/run_routing_eval.py inspect \
+  --plugin-root plugins/gloamere-eval \
+  --plugin-root plugins/gloamere-workflows \
+  --marketplace gloamere \
+  --output "$TARGET_LOCK"
+"$PYTHON_BIN" scripts/run_routing_eval.py lint \
+  --target-lock "$TARGET_LOCK"
 
-echo 'All Tessera checks passed.'
+echo 'All Gloamere checks passed.'

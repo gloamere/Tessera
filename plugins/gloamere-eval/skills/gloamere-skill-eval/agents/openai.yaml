@@ -1,0 +1,6 @@
+interface:
+  display_name: "Gloamere Skill 评测"
+  short_description: "Inspect and run evidence-bound Codex Skill routing evaluations"
+  default_prompt: "Use $gloamere-skill-eval to inspect and validate this Codex Skill evaluation suite."
+policy:
+  allow_implicit_invocation: false

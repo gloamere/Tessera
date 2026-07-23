@@ -1,4 +1,0 @@
-interface:
-  display_name: "企业运营"
-  short_description: "供应商、SOP、变更与容量规划"
-  default_prompt: "使用 $business-ops 把这个内部运营问题形成可审批的执行方案。"

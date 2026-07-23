@@ -1,45 +1,76 @@
-# 当前架构索引
+# Current architecture
 
-本页只描述当前事实；历史演进保留在 `docs/decisions/`，不得从较早 ADR 推断现行运行时。
+This page describes the Gloamere 4.x public release. Historical ADRs remain
+available as evidence, but only
+[codex-only-v4-release](decisions/codex-only-v4-release.md) defines the current
+packaging and brand boundary.
 
-## 当前发布面
+## Release surface
 
-| Module | Interface | 状态 |
+| Module | Interface | Runtime boundary |
 | --- | --- | --- |
-| `tessera-core` / `tessera-eval` | policy/native 路由评测与 JSON 报告 | 核心、自包含 |
-| `frontend-design` | 本地设计知识检索、设计系统与技术栈实现约束 | 可选，独立安装 |
-| `taste` | UI、视觉、排版、配色与文案审美评审 | 可选，独立安装 |
-| `knowledge-base` | Markdown 原子笔记与双链知识沉淀 | 可选，独立安装 |
-| `finance-ops` | 预算、对账、月结、现金流和差异分析 | 可选，独立安装；默认只读 |
-| `growth-ops` | 活动、周报、实验和复盘闭环 | 可选，独立安装 |
-| `product-planning` | 产品研究、方案权衡、PRD、指标和风险 | 可选，独立安装 |
-| `business-ops` | 供应商、SOP、变更、容量和运营风险 | 可选，独立安装 |
-| Claude/Codex 原生能力 | 普通任务、计划、确认、委派、插件生命周期、文件工具与外部能力 | 宿主负责 |
-| `experiments/eval-lab` | 维护者运行的真实任务质量对照 | 实验，不发布 |
+| `gloamere-eval` | `gloamere-skill-eval` and local JSON reports | Self-contained Python 3 standard-library runner; no telemetry or service |
+| `gloamere-workflows` | Four independently routed professional skills | Instructions plus bundled local UI reference data and helper scripts |
+| Codex native capabilities | Skill selection, plans, approvals, delegation, plugin lifecycle, tools, and connectors | Owned by Codex; Gloamere does not wrap or duplicate them |
+| `experiments/` | Maintainer-only evaluation evidence | Not included in plugin manifests or release archives |
 
-双宿主 marketplace 与安装器构成发布 seam；`scripts/validate_marketplace.py` 验证它们和 `pieces/` 的插件集合一致。插件之间没有硬运行时依赖。组合任务按产物阶段串联，不能因安装齐全而全部加载。
+The public marketplace exposes exactly two plugins:
 
-## 当前有效 ADR
+```text
+gloamere
+├── gloamere-eval
+└── gloamere-workflows
+```
 
-- [business-workflow-suite-admission](decisions/business-workflow-suite-admission.md)：当前 Module、Interface、四个业务工作流与组合边界的事实来源。
-- [frontend-design-core-admission](decisions/frontend-design-core-admission.md)：前端核心准入的历史证据，现已被取代。
-- [professional-skill-portfolio](decisions/professional-skill-portfolio.md)：`taste`、`knowledge-base` 保留与 `planner` 删除的价值证据。
-- [self-contained-plugin-distribution](decisions/self-contained-plugin-distribution.md)：插件自包含与安装 seam。
-- [eval-lab-incubation](decisions/eval-lab-incubation.md)：质量实验保持仓库内，不进入 core。
-- [remove-heavy-pieces](decisions/remove-heavy-pieces.md)：不引入重型任务后端或语义代码服务。
-- [tessera-context-hygiene](decisions/tessera-context-hygiene.md)：Skill 上下文成本边界。
-- [taste-skill-source](decisions/taste-skill-source.md)：`taste` 来源记录。
-- [codex-cli-access](decisions/codex-cli-access.md)：Codex CLI 调用约束。
+Installing `gloamere-workflows` makes four skill descriptions discoverable. It
+does not force all four skills into every task. Codex loads a skill only when
+the request matches that skill’s boundary.
 
-## 已被取代的决策链
+## Release seams
 
-`phase-1-scope` → `tessera-routing-principles` → `native-routing-reliability-layer` → `native-first-runtime-simplification` → `current-runtime-architecture` → `frontend-design-core-admission` → `business-workflow-suite-admission`。
+```mermaid
+flowchart LR
+    R["release-manifest.json"] --> V["VERSION"]
+    R --> G["Deterministic generator"]
+    G --> M["Codex marketplace"]
+    G --> X["Release index"]
+    R --> P["Plugin manifests"]
+    R --> I["Pinned-tag installers"]
+    R --> Z["Two ZIP archives + SHA-256"]
+    C["Three-platform checks"] --> R
+    C --> M
+    C --> P
+    C --> I
+    C --> Z
+```
 
-setup/status/doctor/capability registry、piece admission router、个人控制层和仓库内旧 eval 的 ADR 都已标记 `superseded`。阅读这些文件只能用于理解历史，不能恢复已删除 Interface。
+`release-manifest.json` is authoritative for the distribution version, Git tag,
+repository, marketplace policy, plugin versions, paths, skill sets, archive
+names, and legacy detection policy. The generator writes the marketplace and
+release index deterministically. Other files are checked mirrors because Codex
+and GitHub consume their native formats directly.
 
-## 维护规则
+Each ZIP contains one top-level plugin directory and its
+`.codex-plugin/plugin.json`, `skills/`, assets, references, and helper scripts.
+Python caches and repository-only tests or experiments are excluded.
 
-1. 新增或恢复插件必须先证明相对宿主原生能力的净收益。
-2. 删除 Module 时同步 marketplace、安装器、运行案例、schema、文档与验证器。
-3. 改变当前运行时后新增 ADR，并把被取代 ADR 显式标记为 `superseded`。
-4. 真实失败 evidence 保留；产品删除不删除历史实验记录。
+## Compatibility boundary
+
+Gloamere 4.x is Codex-only. It has no active legacy marketplace, manifest, or
+installer. When the installer finds a 3.x selector, it reports the manual
+migration sequence and stops before changing state. Side-by-side comparison
+belongs in a separate `CODEX_HOME`; it is not an accepted routing baseline.
+See [MIGRATION.md](../MIGRATION.md) for user-controlled cleanup.
+
+## Maintainer rules
+
+1. Change `release-manifest.json` first, then update all checked mirrors in the
+   same change.
+2. Do not add a third public plugin without a new accepted ADR and routing
+   evidence.
+3. Do not publish from a mutable branch. Installer URLs and marketplace Git
+   sources must use the release tag.
+4. Preserve historical ADRs and evidence verbatim. New architecture replaces
+   their authority without rewriting their record.
+5. Keep plugin runtime assets self-contained and keep Eval free of third-party
+   runtime dependencies.

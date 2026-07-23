@@ -1,0 +1,6 @@
+interface:
+  display_name: "Gloamere 增长闭环"
+  short_description: "围绕人群、渠道、指标、预算与复盘建立可衡量的增长实验闭环"
+  default_prompt: "使用 $gloamere-growth-loop 把这个增长目标设计成有基线、指标和复盘规则的实验。"
+policy:
+  allow_implicit_invocation: true

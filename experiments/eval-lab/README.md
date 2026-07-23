@@ -2,7 +2,7 @@
 
 Eval Lab 用成对运行比较“宿主原生回答”和“应用指定 Skill 后的回答”，回答一个比路由评测更窄的问题：某个 Skill 是否真的改善了任务结果。
 
-它目前是仓库级实验，不属于 `tessera-core`，也不会随 Tessera 插件安装。确定性适配器只验证评测器本身；质量结论必须来自真实宿主运行。
+它目前是仓库级实验，不属于 `gloamere-eval` 发布包，也不会随插件安装。确定性适配器只验证评测器本身；质量结论必须来自真实 Codex 运行。
 
 ## 方法
 
@@ -31,13 +31,13 @@ python experiments/eval-lab/run_eval_lab.py `
 ```powershell
 python experiments/eval-lab/run_eval_lab.py `
   --cases experiments/eval-lab/cases.json `
-  --case knowledge-base-incident-learning `
+  --case gloamere-knowledge-capture-incident-learning `
   --repeat 3 `
-  --output eval-results/knowledge-base-incident.json
+  --output eval-results/gloamere-knowledge-capture-incident.json
 ```
 
 `response.schema.json` 限制宿主结构化输出；`cases.json` 是当前案例和预注册阈值的事实来源。受控适配器示例由 `tests/test_eval_lab.py` 覆盖。
 
 ## 证据边界
 
-初次真实运行及解释见 [evidence/2026-07-14-initial.md](evidence/2026-07-14-initial.md)，两轮 R3 准入复跑见 [evidence/2026-07-14-admission-r3.md](evidence/2026-07-14-admission-r3.md)，三个专业 Skill 的组合评审见 [evidence/2026-07-14-professional-skill-value-review.md](evidence/2026-07-14-professional-skill-value-review.md)，`frontend-design` 的功能、路由、失败尝试与五场景 R3 见 [evidence/2026-07-15-frontend-design-admission.md](evidence/2026-07-15-frontend-design-admission.md)，首轮六个独立桌面任务的减负修正见 [evidence/2026-07-15-frontend-design-field-report.md](evidence/2026-07-15-frontend-design-field-report.md)。评测器已经复现真实增益与退化，但仍不并入 core；原因还包括自包含发布边界和运行成本。
+以下链接是保持原文不变的 3.x 历史证据，不代表 4.0 当前身份或 SHA：初次真实运行及解释见 [evidence/2026-07-14-initial.md](evidence/2026-07-14-initial.md)，两轮 R3 准入复跑见 [evidence/2026-07-14-admission-r3.md](evidence/2026-07-14-admission-r3.md)，三个专业 Skill 的组合评审见 [evidence/2026-07-14-professional-skill-value-review.md](evidence/2026-07-14-professional-skill-value-review.md)，旧 UI Skill 的功能、路由、失败尝试与五场景 R3 见 [evidence/2026-07-15-frontend-design-admission.md](evidence/2026-07-15-frontend-design-admission.md)，首轮六个独立桌面任务的减负修正见 [evidence/2026-07-15-frontend-design-field-report.md](evidence/2026-07-15-frontend-design-field-report.md)。这些证据不能跨 4.0 的新 Skill ID 或内容 SHA 继承。

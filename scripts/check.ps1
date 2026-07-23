@@ -22,40 +22,37 @@ function Invoke-CheckedPython {
     }
 }
 
-Invoke-CheckedPython -Arguments @('scripts/validate_marketplace.py')
-Invoke-CheckedPython -Arguments @('-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py')
-Invoke-CheckedPython -Arguments @(
-    'scripts/run_routing_eval.py',
-    '--host', 'claude',
-    '--case', 'direct-small-edit',
-    '--case', 'multi-intent',
-    '--case', 'evaluate-routing',
-    '--case', 'frontend-design-system',
-    '--case', 'finance-reconciliation',
-    '--case', 'growth-campaign-loop',
-    '--case', 'product-planning-prd',
-    '--case', 'business-ops-runbook',
-    '--adapter-executable', $python.Source,
-    '--adapter-arg', 'tests/fixtures/fake_eval_host.py',
-    '--output', 'eval-results/ci-routing.json'
-)
-Invoke-CheckedPython -Arguments @(
-    'scripts/run_routing_eval.py',
-    '--host', 'claude',
-    '--mode', 'native',
-    '--case', 'frontend-taste-handoff',
-    '--repeat', '3',
-    '--suggest-tuning',
-    '--adapter-executable', $python.Source,
-    '--adapter-arg', 'tests/fixtures/fake_eval_host.py',
-    '--output', 'eval-results/ci-native.json'
-)
-Invoke-CheckedPython -Arguments @(
-    'scripts/run_routing_eval.py',
-    '--host', 'codex',
-    '--mode', 'native',
-    '--cases', 'pieces/tessera-core/skills/tessera-eval/references/personal-routing-cases.json',
-    '--dry-run'
-)
+$checkTemp = Join-Path (
+    [System.IO.Path]::GetTempPath()
+) ("gloamere-check-" + [guid]::NewGuid().ToString('N'))
+[void](New-Item -ItemType Directory -Path $checkTemp)
 
-Write-Host 'All Tessera checks passed.'
+try {
+    $targetLock = Join-Path $checkTemp 'target-lock.json'
+
+    Invoke-CheckedPython -Arguments @('scripts/generate_release_files.py', '--check')
+    Invoke-CheckedPython -Arguments @('scripts/validate_marketplace.py')
+    Invoke-CheckedPython -Arguments @(
+        '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py'
+    )
+    Invoke-CheckedPython -Arguments @(
+        'scripts/run_routing_eval.py',
+        'inspect',
+        '--plugin-root', 'plugins/gloamere-eval',
+        '--plugin-root', 'plugins/gloamere-workflows',
+        '--marketplace', 'gloamere',
+        '--output', $targetLock
+    )
+    Invoke-CheckedPython -Arguments @(
+        'scripts/run_routing_eval.py',
+        'lint',
+        '--target-lock', $targetLock
+    )
+}
+finally {
+    if (Test-Path -LiteralPath $checkTemp) {
+        Remove-Item -LiteralPath $checkTemp -Recurse -Force
+    }
+}
+
+Write-Host 'All Gloamere checks passed.'

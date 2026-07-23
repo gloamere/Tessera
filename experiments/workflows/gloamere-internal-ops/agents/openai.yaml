@@ -1,0 +1,6 @@
+interface:
+  display_name: "Gloamere 内部运营"
+  short_description: "为供应商、SOP、RACI、变更与容量规划建立可审批的运营方案"
+  default_prompt: "使用 $gloamere-internal-ops 把这个内部运营问题整理成有审批、升级和回退的方案。"
+policy:
+  allow_implicit_invocation: true
