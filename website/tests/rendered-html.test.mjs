@@ -160,6 +160,9 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   assert.match(css, /\.flow-main/);
   assert.match(css, /body:has\(\.home-main\)[\s\S]*?overflow:\s*hidden/);
   assert.match(css, /\.home-main[\s\S]*?height:\s*calc\(100svh - 5\.9rem\)/);
+  assert.match(css, /--shell-width:\s*132rem/);
+  assert.match(css, /\.header-inner[\s\S]*?width:\s*min\(var\(--shell-width\), 100%\)/);
+  assert.match(css, /\.commercial-showcase[\s\S]*?width:\s*min\(var\(--shell-width\), calc\(100% - \(2 \* var\(--shell-pad\)\)\)\)/);
   assert.doesNotMatch(css, /backdrop-filter:\s*blur/);
   assert.match(css, /--archive:\s*#e8dcc5/i);
   assert.match(css, /border:\s*3px double var\(--rule-dark\)/);
