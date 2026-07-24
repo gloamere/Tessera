@@ -5,6 +5,7 @@ import { T } from "./i18n";
 import { l } from "./locale";
 import {
   BetaBoundary,
+  EvidenceFlow,
   EvidenceTrace,
   HeroActions,
   InstallPanel,
@@ -61,6 +62,8 @@ export default function Home() {
           <p><span><T value={l("License", "许可证")} /></span><strong>MIT</strong></p>
         </section>
 
+        <EvidenceFlow />
+
         <section className="routes-section">
           <div className="section-heading">
             <p className="eyebrow"><T value={l("Two routes, one principle", "两条路径，一个原则")} /></p>
@@ -72,7 +75,11 @@ export default function Home() {
           </div>
           <div className="plugin-routes">
             <article className="plugin-route glass">
-              <div className="route-index">EVAL</div>
+              <header className="route-record-header">
+                <span>CASE / GM-EVAL-001</span>
+                <strong><T value={l("Release candidate", "发布候选")} /></strong>
+              </header>
+              <div className="route-index">01</div>
               <div className="route-content">
                 <p className="plugin-id">gloamere-eval</p>
                 <h3><T value={l("Measure what Codex actually loaded.", "评测 Codex 实际加载了什么。")} /></h3>
@@ -83,13 +90,21 @@ export default function Home() {
                 <ul className="inline-facts" aria-label="Eval capabilities">
                   <li>inspect</li><li>lint</li><li>native</li><li>schema v3</li>
                 </ul>
+                <dl className="route-metadata">
+                  <div><dt><T value={l("Evidence", "证据")} /></dt><dd><T value={l("Codex native event stream", "Codex 原生事件流")} /></dd></div>
+                  <div><dt><T value={l("Execution", "执行")} /></dt><dd><T value={l("Local Codex CLI", "本地 Codex CLI")} /></dd></div>
+                </dl>
                 <Link className="text-link" href="/eval">
                   <T value={l("Explore Gloamere Eval", "了解 Gloamere Eval")} />
                 </Link>
               </div>
             </article>
             <article className="plugin-route glass">
-              <div className="route-index">FLOW</div>
+              <header className="route-record-header">
+                <span>CASE / GM-FLOW-001</span>
+                <strong><T value={l("Four stable Skills", "四个稳定 Skill")} /></strong>
+              </header>
+              <div className="route-index">02</div>
               <div className="route-content">
                 <p className="plugin-id">gloamere-workflows</p>
                 <h3><T value={l("Load a focused workflow when its boundary matches.", "只在边界匹配时加载专注工作流。")} /></h3>
@@ -100,6 +115,10 @@ export default function Home() {
                 <ul className="skill-ribbon" aria-label="Bundled workflow Skills">
                   {workflowSkills.map((skill) => <li key={skill}>{skill.replace("gloamere-", "")}</li>)}
                 </ul>
+                <dl className="route-metadata">
+                  <div><dt><T value={l("Discovery", "发现")} /></dt><dd><T value={l("Skill description boundary", "Skill 描述边界")} /></dd></div>
+                  <div><dt><T value={l("Loading", "加载")} /></dt><dd><T value={l("Only when the task fits", "仅在任务匹配时")} /></dd></div>
+                </dl>
                 <Link className="text-link" href="/workflows">
                   <T value={l("Explore Gloamere Workflows", "了解 Gloamere Workflows")} />
                 </Link>

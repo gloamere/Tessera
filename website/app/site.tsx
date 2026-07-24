@@ -178,6 +178,112 @@ export function EvidenceTrace({ compact = false }: { compact?: boolean }) {
   );
 }
 
+export function EvidenceFlow() {
+  const stages = [
+    {
+      index: "01",
+      label: l("Fingerprint the case", "为案例生成指纹"),
+      detail: l(
+        "Store the prompt hash by default; keep the raw prompt out of the report.",
+        "默认保存提示词哈希，不把提示词原文写入报告。",
+      ),
+      field: "prompt_sha256",
+      value: "96f3…d221",
+    },
+    {
+      index: "02",
+      label: l("Lock the target", "锁定目标身份"),
+      detail: l(
+        "Bind plugin ID, version, full Skill path, and file SHA before execution.",
+        "执行前绑定插件 ID、版本、完整 Skill 路径与文件 SHA。",
+      ),
+      field: "target_lock",
+      value: "path + SHA-256",
+    },
+    {
+      index: "03",
+      label: l("Observe native events", "观察原生事件"),
+      detail: l(
+        "Read the recognized Codex event stream; incomplete or unknown evidence fails closed.",
+        "读取可识别的 Codex 事件流；不完整或未知证据一律关闭评分。",
+      ),
+      field: "codex_events",
+      value: "complete",
+    },
+    {
+      index: "04",
+      label: l("Separate evidence from verdict", "分离证据与结论"),
+      detail: l(
+        "Only verified evidence receives pass or fail. Every other state returns a null verdict.",
+        "只有 verified 证据得到 pass 或 fail；其他状态的 verdict 均为 null。",
+      ),
+      field: "evidence_status",
+      value: "verified / pass",
+    },
+  ];
+
+  return (
+    <section className="evidence-flow-section" aria-labelledby="evidence-flow-title">
+      <header className="flow-heading">
+        <div>
+          <p className="eyebrow"><T value={l("Native evidence route", "原生证据路径")} /></p>
+          <h2 id="evidence-flow-title">
+            <T value={l("A verdict has a chain of custody.", "每个结论都有完整保管链。")} />
+          </h2>
+        </div>
+        <p>
+          <T value={l(
+            "The sequence is deliberate: identity is fixed before Codex runs, and scoring begins only after the evidence stream is complete.",
+            "顺序不可颠倒：先固定身份，再运行 Codex；只有事件证据完整后才开始评分。",
+          )} />
+        </p>
+      </header>
+
+      <div className="flow-sheet">
+        <div className="flow-register" aria-hidden="true">
+          <span>REGISTER / GM-NATIVE-001</span>
+          <span>SCHEMA / V3</span>
+          <span>POLICY / FAIL CLOSED</span>
+        </div>
+        <ol className="flow-main">
+          {stages.map((stage) => (
+            <li className="flow-stage" key={stage.index}>
+              <span className="flow-index">{stage.index}</span>
+              <div className="flow-stage-copy">
+                <h3><T value={stage.label} /></h3>
+                <p><T value={stage.detail} /></p>
+              </div>
+              <div className="flow-field">
+                <code>{stage.field}</code>
+                <strong>{stage.value}</strong>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="flow-exceptions">
+          <p className="flow-exception-label">
+            <T value={l("Fail-closed exits", "关闭评分出口")} />
+          </p>
+          <div>
+            <span><code>identity_conflict</code><b>verdict = null</b></span>
+            <small><T value={l("Lock or installed identity disagrees.", "锁文件与已安装身份不一致。")} /></small>
+          </div>
+          <div>
+            <span><code>unobservable</code><b>verdict = null</b></span>
+            <small><T value={l("Event stream is unknown, malformed, or truncated.", "事件流未知、畸形或被截断。")} /></small>
+          </div>
+        </div>
+
+        <footer className="flow-footnote">
+          <span><T value={l("Evidence status", "证据状态")} /> ≠ <T value={l("routing verdict", "路由结论")} /></span>
+          <span><T value={l("Illustrative contract, not an admission result.", "契约示意，并非准入结果。")} /></span>
+        </footer>
+      </div>
+    </section>
+  );
+}
+
 export function InstallPanel({
   plugin = "both",
 }: {

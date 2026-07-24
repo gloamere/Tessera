@@ -80,6 +80,9 @@ test("home and plugin routes state the release and evidence boundaries", async (
   assert.match(home, /prompt_sha256/);
   assert.match(home, /manifest \/ Skill \/ agent SHA/);
   assert.match(home, /evidence_status/);
+  assert.match(home, /A verdict has a chain of custody/);
+  assert.match(home, /identity_conflict/);
+  assert.match(home, /Codex native event stream/);
   assert.match(home, /not a published native-admission result/i);
   assert.match(home, /codex plugin add gloamere-eval@gloamere/);
   assert.match(home, /codex plugin add gloamere-workflows@gloamere/);
@@ -135,11 +138,17 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   assert.equal(packageJson.scripts.build, "vinext build");
   assert.equal(packageJson.scripts["build:static"], "node scripts/build-static.mjs");
   assert.equal(packageJson.scripts.start, "vinext start");
+  assert.ok(packageJson.dependencies["@fontsource/playfair-display"]);
+  assert.ok(packageJson.dependencies["@fontsource/ibm-plex-sans-condensed"]);
+  assert.ok(packageJson.dependencies["@fontsource/ibm-plex-mono"]);
   assert.doesNotMatch(layout, /next\/font|Starter Project|favicon\.svg/);
   assert.doesNotMatch(page, /codex-preview|SkeletonPreview/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /ui-monospace/);
+  assert.match(css, /"Playfair Display"/);
+  assert.match(css, /"IBM Plex Sans Condensed"/);
+  assert.match(css, /\.flow-main/);
   assert.doesNotMatch(css, /backdrop-filter:\s*blur/);
   assert.match(css, /--archive:\s*#e8dcc5/i);
   assert.match(css, /border:\s*3px double var\(--rule-dark\)/);
