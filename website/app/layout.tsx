@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { I18nProvider } from "./i18n";
 
 export const metadata: Metadata = {
   // A fixed production origin prevents private preview hosts from becoming
@@ -34,10 +35,10 @@ export const metadata: Metadata = {
     siteName: "Gloamere",
     images: [
       {
-        url: "/og.png",
+        url: "/og-ios.png",
         width: 1728,
         height: 910,
-        alt: "An evidence trail connecting Codex evaluation stages to the Gloamere mark.",
+        alt: "A frosted-glass evidence lens connecting paths to a verified Gloamere result.",
       },
     ],
   },
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     title: "Gloamere — Evidence-led Codex plugins",
     description:
       "Inspect native Skill activation and add four focused professional workflows.",
-    images: ["/og.png"],
+    images: ["/og-ios.png"],
   },
   robots: {
     index: true,
@@ -60,8 +61,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <I18nProvider>{children}</I18nProvider>
+      </body>
     </html>
   );
 }

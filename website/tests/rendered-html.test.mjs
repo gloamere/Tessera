@@ -52,9 +52,10 @@ test("server-renders every public route with the shared brand shell", async () =
     assert.match(html, titlePattern, pathname);
     assert.match(html, /Gloamere/, pathname);
     assert.match(html, /Skip to content/, pathname);
+    assert.match(html, /Language \/ 语言/, pathname);
     assert.match(html, /href="\/privacy"/, pathname);
     assert.match(html, /href="\/security"/, pathname);
-    assert.match(html, /property="og:image" content="https?:\/\/[^"]+\/og\.png"/i);
+    assert.match(html, /property="og:image" content="https?:\/\/[^"]+\/og-ios\.png"/i);
     assert.match(
       html,
       new RegExp(
@@ -139,6 +140,17 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /ui-monospace/);
+  assert.match(css, /backdrop-filter:\s*blur/);
+  assert.match(css, /--ivory:\s*#f5f1e8/i);
+
+  const [i18n, locale] = await Promise.all([
+    readFile(new URL("../app/i18n.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/locale.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(i18n, /gloamere-locale/);
+  assert.match(i18n, /navigator\.language/);
+  assert.match(i18n, /aria-pressed/);
+  assert.match(locale, /"zh-CN"/);
 
   await assert.rejects(
     access(new URL("../app/_sites-preview/SkeletonPreview.tsx", import.meta.url)),
@@ -147,6 +159,7 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
     access(new URL("../public/gloamere-icon.png", import.meta.url)),
     access(new URL("../public/gloamere-logo.png", import.meta.url)),
     access(new URL("../public/og.png", import.meta.url)),
+    access(new URL("../public/og-ios.png", import.meta.url)),
     access(new URL("../public/robots.txt", import.meta.url)),
     access(new URL("../public/sitemap.xml", import.meta.url)),
   ]);

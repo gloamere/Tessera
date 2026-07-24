@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { T } from "./i18n";
+import { l } from "./locale";
 import {
   BetaBoundary,
   EvidenceTrace,
@@ -14,9 +16,7 @@ export const metadata: Metadata = {
   title: "Evidence-led Codex plugins",
   description:
     "Evaluate Codex Skill routing with observable evidence and add four focused professional workflows.",
-  alternates: {
-    canonical: "/",
-  },
+  alternates: { canonical: "/" },
 };
 
 const workflowSkills = [
@@ -32,120 +32,95 @@ export default function Home() {
       <main id="main-content">
         <section className="home-hero">
           <div className="home-hero-copy">
-            <p className="route-label">
-              Gloamere / Codex plugins / 4.0 Beta candidate
-            </p>
+            <p className="route-label">Gloamere / Codex plugins / 4.0 Beta</p>
             <h1>
-              Codex workflows with a visible chain of{" "}
-              <span>evidence.</span>
+              <T value={l("Codex workflows with a visible chain of ", "让 Codex 工作流拥有清晰可见的")} />
+              <span><T value={l("evidence.", "证据链。")} /></span>
             </h1>
             <p className="hero-summary">
-              Two self-contained plugins: inspect native Skill activation
-              without guessing, then add four focused workflows that load only
-              when the task fits.
+              <T value={l(
+                "Two self-contained plugins: inspect native Skill activation without guessing, then add four focused workflows that load only when the task fits.",
+                "两个自包含插件：不靠猜测地检查原生 Skill 调用，再提供四个只在任务匹配时加载的专注工作流。",
+              )} />
             </p>
             <HeroActions
               primaryHref="#install"
-              primaryLabel="Review the planned install"
+              primaryLabel={l("Review the planned install", "查看计划安装方式")}
             />
           </div>
           <EvidenceTrace />
         </section>
 
-        <section className="release-line" aria-label="Release facts">
-          <p>
-            <span>Distribution</span>
-            <strong>4.0.0-beta.1</strong>
-          </p>
-          <p>
-            <span>Runtime</span>
-            <strong>Codex only</strong>
-          </p>
-          <p>
-            <span>Services</span>
-            <strong>None added</strong>
-          </p>
-          <p>
-            <span>License</span>
-            <strong>MIT</strong>
-          </p>
+        <section className="release-line glass" aria-label="Release facts">
+          <p><span><T value={l("Distribution", "发行版")} /></span><strong>4.0.0-beta.1</strong></p>
+          <p><span><T value={l("Runtime", "运行环境")} /></span><strong>Codex only</strong></p>
+          <p><span><T value={l("Services", "新增服务")} /></span><strong><T value={l("None", "无")} /></strong></p>
+          <p><span><T value={l("License", "许可证")} /></span><strong>MIT</strong></p>
         </section>
 
         <section className="routes-section">
           <div className="section-heading">
-            <p className="eyebrow">Two routes, one principle</p>
-            <h2>Make the work inspectable.</h2>
-            <p>
-              Each plugin stays inside Codex’s native lifecycle. There is no
-              second router, background process, telemetry layer, hook, or MCP
-              server.
-            </p>
+            <p className="eyebrow"><T value={l("Two routes, one principle", "两条路径，一个原则")} /></p>
+            <h2><T value={l("Make the work inspectable.", "让工作过程经得起检查。")} /></h2>
+            <p><T value={l(
+              "Each plugin stays inside Codex’s native lifecycle. There is no second router, background process, telemetry layer, hook, or MCP server.",
+              "每个插件都留在 Codex 原生生命周期内，不引入第二套路由器、后台进程、遥测层、Hook 或 MCP 服务器。",
+            )} /></p>
           </div>
           <div className="plugin-routes">
-            <article className="plugin-route plugin-route-eval">
+            <article className="plugin-route glass">
               <div className="route-index">EVAL</div>
               <div className="route-content">
                 <p className="plugin-id">gloamere-eval</p>
-                <h3>Measure what Codex actually loaded.</h3>
-                <p>
-                  Lock the plugin manifest, Skill, and agent configuration to
-                  exact paths and SHAs, observe native Codex events, and keep
-                  missing evidence out of the accuracy score.
-                </p>
+                <h3><T value={l("Measure what Codex actually loaded.", "评测 Codex 实际加载了什么。")} /></h3>
+                <p><T value={l(
+                  "Lock the plugin manifest, Skill, and agent configuration to exact paths and SHAs, observe native Codex events, and keep missing evidence out of the accuracy score.",
+                  "把插件清单、Skill 与 agent 配置绑定到精确路径和 SHA，观察原生 Codex 事件，并把缺失证据排除在准确率之外。",
+                )} /></p>
                 <ul className="inline-facts" aria-label="Eval capabilities">
-                  <li>inspect</li>
-                  <li>lint</li>
-                  <li>native</li>
-                  <li>schema v3</li>
+                  <li>inspect</li><li>lint</li><li>native</li><li>schema v3</li>
                 </ul>
                 <Link className="text-link" href="/eval">
-                  Explore Gloamere Eval
+                  <T value={l("Explore Gloamere Eval", "了解 Gloamere Eval")} />
                 </Link>
               </div>
             </article>
-            <article className="plugin-route plugin-route-workflows">
+            <article className="plugin-route glass">
               <div className="route-index">FLOW</div>
               <div className="route-content">
                 <p className="plugin-id">gloamere-workflows</p>
-                <h3>Load a focused workflow when its boundary matches.</h3>
-                <p>
-                  Four independently described Skills for UI systems, visual
-                  review, durable knowledge, and product decisions. Installing
-                  the bundle does not load all four on every turn.
-                </p>
+                <h3><T value={l("Load a focused workflow when its boundary matches.", "只在边界匹配时加载专注工作流。")} /></h3>
+                <p><T value={l(
+                  "Four independently described Skills for UI systems, visual review, durable knowledge, and product decisions. Installing the bundle does not load all four on every turn.",
+                  "四个独立描述的 Skill，分别服务于 UI 系统、视觉评审、知识沉淀与产品决策。安装套件并不意味着每轮都加载全部四个。",
+                )} /></p>
                 <ul className="skill-ribbon" aria-label="Bundled workflow Skills">
-                  {workflowSkills.map((skill) => (
-                    <li key={skill}>{skill.replace("gloamere-", "")}</li>
-                  ))}
+                  {workflowSkills.map((skill) => <li key={skill}>{skill.replace("gloamere-", "")}</li>)}
                 </ul>
                 <Link className="text-link" href="/workflows">
-                  Explore Gloamere Workflows
+                  <T value={l("Explore Gloamere Workflows", "了解 Gloamere Workflows")} />
                 </Link>
               </div>
             </article>
           </div>
         </section>
 
-        <section className="proof-section">
+        <section className="proof-section glass">
           <div className="proof-statement">
-            <p className="eyebrow">Evidence before verdict</p>
-            <h2>“The model said so” is not proof.</h2>
+            <p className="eyebrow"><T value={l("Evidence before verdict", "先有证据，再下结论")} /></p>
+            <h2><T value={l("“The model said so” is not proof.", "“模型说它做了”并不是证据。")} /></h2>
           </div>
           <div className="proof-copy">
-            <p>
-              A verified Eval attempt needs a complete, recognized Codex event
-              stream that agrees with the target lock. Truncated, malformed, or
-              unknown evidence closes without a scored verdict.
-            </p>
+            <p><T value={l(
+              "A verified Eval attempt needs a complete, recognized Codex event stream that agrees with the target lock. Truncated, malformed, or unknown evidence closes without a scored verdict.",
+              "一次 verified 评测必须拥有完整、可识别且与目标锁一致的 Codex 事件流。遇到截断、畸形或未知证据时，评测会停止且不给出评分结论。",
+            )} /></p>
             <div className="status-equation" aria-label="Evidence rule">
-              <code>verified</code>
-              <span>→</span>
-              <code>pass | fail</code>
-              <b>otherwise</b>
-              <code>verdict = null</code>
+              <code>verified</code><span>→</span><code>pass | fail</code>
+              <b><T value={l("otherwise", "否则")} /></b><code>verdict = null</code>
             </div>
             <Link className="text-link" href="/eval#evidence-status">
-              Read the evidence contract
+              <T value={l("Read the evidence contract", "阅读证据契约")} />
             </Link>
           </div>
         </section>
@@ -153,24 +128,17 @@ export default function Home() {
         <BetaBoundary />
         <InstallPanel />
 
-        <section className="closing-section">
-          <Image
-            src="/gloamere-logo.png"
-            width="160"
-            height="160"
-            alt=""
-            unoptimized
-          />
+        <section className="closing-section glass">
+          <Image src="/gloamere-logo.png" width="160" height="160" alt="" unoptimized />
           <div>
-            <p className="eyebrow">Open source, local by design</p>
-            <h2>Review the exact release before Codex loads it.</h2>
-            <p>
-              The repository publishes deterministic plugin archives and
-              SHA-256 sidecars. Gloamere adds no account, analytics endpoint, or
-              hosted runtime.
-            </p>
+            <p className="eyebrow"><T value={l("Open source, local by design", "开源，并以本地运行为设计前提")} /></p>
+            <h2><T value={l("Review the exact release before Codex loads it.", "在 Codex 加载前，检查精确发行内容。")} /></h2>
+            <p><T value={l(
+              "The repository publishes deterministic plugin archives and SHA-256 sidecars. Gloamere adds no account, analytics endpoint, or hosted runtime.",
+              "仓库发布确定性的插件归档与 SHA-256 校验文件。Gloamere 不增加账户、分析端点或托管运行时。",
+            )} /></p>
             <a className="button button-secondary" href={REPOSITORY_URL}>
-              Inspect the repository
+              <T value={l("Inspect the repository", "检查仓库")} />
             </a>
           </div>
         </section>
