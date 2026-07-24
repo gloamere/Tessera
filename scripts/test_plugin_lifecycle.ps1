@@ -168,7 +168,7 @@ function Set-SourcePluginVersions {
         $rendered = $value | ConvertTo-Json -Depth 100
         [System.IO.File]::WriteAllText(
             $pluginManifest,
-            $rendered + [Environment]::NewLine,
+            $rendered + "`n",
             [System.Text.UTF8Encoding]::new($false)
         )
     }
