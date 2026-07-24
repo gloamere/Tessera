@@ -15,9 +15,8 @@
   --verified: #3f6a46;
   --danger: #963b32;
   --page-pad: clamp(1.1rem, 4vw, 4rem);
-  --shell-pad: clamp(1rem, 2vw, 3rem);
+  --shell-pad: 0.65rem;
   --max-width: 92rem;
-  --shell-width: 132rem;
   --font-display: "Playfair Display", "Songti SC", STSong, "Noto Serif SC", Georgia, serif;
   --font-body: "IBM Plex Sans Condensed", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "Noto Sans Mono CJK SC", ui-monospace, Consolas, monospace;
@@ -171,7 +170,7 @@ main > section,
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: stretch;
-  width: min(var(--shell-width), 100%);
+  width: 100%;
   min-height: 5.25rem;
   margin: 0 auto;
   border-top: 1px solid var(--rule-dark);
@@ -318,9 +317,10 @@ body:has(.home-main) {
 .commercial-showcase {
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(32rem, 1.08fr);
-  width: min(var(--shell-width), calc(100% - (2 * var(--shell-pad))));
+  /* 根因是固定外壳宽度和上下留白在 4K 视口中提前收口；外壳改为贴合页面框线，阅读缩进交给左栏自身。 */
+  width: calc(100% - (2 * var(--shell-pad)));
   height: 100%;
-  padding-block: clamp(1.25rem, 3vh, 2.5rem);
+  padding-block: 0;
   gap: clamp(1.5rem, 3vw, 3.5rem);
 }
 
@@ -328,7 +328,11 @@ body:has(.home-main) {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  padding: clamp(0.5rem, 1.2vw, 1.25rem) 0;
+  padding:
+    clamp(0.5rem, 1.2vw, 1.25rem)
+    clamp(1rem, 3vw, 3.5rem)
+    clamp(0.5rem, 1.2vw, 1.25rem)
+    clamp(3rem, 8vw, 12rem);
 }
 
 .showcase-edition {
@@ -2202,7 +2206,7 @@ button:disabled {
   .commercial-showcase {
     grid-template-columns: 1fr;
     grid-template-rows: minmax(0, 0.94fr) minmax(0, 1.06fr);
-    padding-block: 0.85rem;
+    padding-block: 0;
   }
 
   .showcase-copy {
@@ -2276,7 +2280,7 @@ button:disabled {
 @media (max-width: 720px) {
   :root {
     --page-pad: 1rem;
-    --shell-pad: 1rem;
+    --shell-pad: 0.35rem;
   }
 
   body::before {
@@ -2500,7 +2504,7 @@ button:disabled {
 
   .commercial-showcase {
     grid-template-rows: minmax(0, 1fr) auto;
-    padding-block: 0.65rem;
+    padding-block: 0;
     gap: 0.7rem;
   }
 
