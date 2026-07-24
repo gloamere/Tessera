@@ -236,6 +236,9 @@ try {
         Copy-Item -LiteralPath (
             Join-Path $repository 'plugins'
         ) -Destination $localUpgradeSource -Recurse -Force
+        # 根因是临时仓库遗漏换行策略，Windows Git 的 CRLF 警告会被 PowerShell 5.1 当成异常。
+        # 复制真实仓库属性，使生命周期测试与发布源使用相同的字节身份规则。
+        Copy-Item -LiteralPath (Join-Path $repository '.gitattributes') -Destination $localUpgradeSource -Force
 
         $initialExpectedVersions = @{
             'gloamere-eval' = '1.0.0-beta.0'
