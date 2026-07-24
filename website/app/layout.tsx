@@ -29,25 +29,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "Gloamere — Evidence-led Codex plugins",
+    title: "Gloamere — Evidence-led Codex tools",
     description:
       "Inspect native Skill activation and add four focused professional workflows.",
     siteName: "Gloamere",
     images: [
       {
-        url: "/og-ios.png",
+        url: "/og.png",
         width: 1728,
         height: 910,
-        alt: "A frosted-glass evidence lens connecting paths to a verified Gloamere result.",
+        alt: "Gloamere evidence ledger showing a prompt hash, target lock, and verified result.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gloamere — Evidence-led Codex plugins",
+    title: "Gloamere — Evidence-led Codex tools",
     description:
       "Inspect native Skill activation and add four focused professional workflows.",
-    images: ["/og-ios.png"],
+    images: ["/og.png"],
   },
   robots: {
     index: true,

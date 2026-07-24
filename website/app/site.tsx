@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -36,17 +35,10 @@ export function SiteFrame({ children }: { children: ReactNode }) {
 function SiteHeader() {
   return (
     <header className="site-header">
-      <div className="header-inner glass">
+      <div className="header-inner">
         <Link className="brand-link" href="/" aria-label="Gloamere home">
-          <Image
-            className="brand-icon"
-            src="/gloamere-icon.png"
-            width="34"
-            height="34"
-            alt=""
-            unoptimized
-          />
-          <span>Gloamere</span>
+          <span className="brand-wordmark">Gloamere</span>
+          <small><T value={l("Evidence-led Codex tools", "为 Codex 构建的证据驱动工具")} /></small>
         </Link>
         <nav className="primary-nav" aria-label="Primary navigation">
           {navigation.map((item) => (
@@ -58,7 +50,7 @@ function SiteHeader() {
         <div className="header-actions">
           <span className="beta-mark">
             <span className="status-dot" />
-            4.0 Beta
+            4.0 Beta / Codex only
           </span>
           <LanguageSwitch />
           <a href={REPOSITORY_URL}>GitHub</a>
@@ -73,15 +65,8 @@ function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-inner">
         <div className="footer-brand">
-          <Image
-            src="/gloamere-icon.png"
-            width="28"
-            height="28"
-            alt=""
-            unoptimized
-          />
           <div>
-            <strong>Gloamere</strong>
+            <strong className="brand-wordmark">Gloamere</strong>
             <p>
               <T value={l("Evidence-led tools for Codex.", "为 Codex 构建的证据驱动工具。")} />
             </p>
@@ -156,11 +141,10 @@ export function HeroActions({
 
 export function EvidenceTrace({ compact = false }: { compact?: boolean }) {
   return (
-    <figure className={`evidence-trace glass${compact ? " evidence-trace-compact" : ""}`}>
-      <div className="lens-glow" aria-hidden="true" />
+    <figure className={`evidence-trace${compact ? " evidence-trace-compact" : ""}`}>
       <figcaption className="trace-heading">
-        <span><T value={l("Evidence lens", "证据透镜")} /></span>
-        <span className="schema-chip">schema v3</span>
+        <span><T value={l("Native trace ledger", "原生证据账本")} /></span>
+        <span className="schema-chip">schema v3 / record 001</span>
       </figcaption>
       <ol className="trace-list">
         <li className="trace-node">
@@ -185,8 +169,8 @@ export function EvidenceTrace({ compact = false }: { compact?: boolean }) {
       <p className="trace-disclaimer">
         <T
           value={l(
-            "Illustrative field anatomy—not a published native-admission result.",
-            "仅用于展示字段结构，并非已发布的原生准入结果。",
+            "Specimen record: field anatomy only—not a published native-admission result.",
+            "样例记录：仅展示字段结构，并非已发布的原生准入结果。",
           )}
         />
       </p>
@@ -221,7 +205,7 @@ export function InstallPanel({
           )} />
         </p>
       </div>
-      <div className="install-console glass" aria-label="Installation commands">
+      <div className="install-console" aria-label="Installation commands">
         <div className="console-bar">
           <span>Codex CLI</span>
           <span>{RELEASE_TAG}</span>

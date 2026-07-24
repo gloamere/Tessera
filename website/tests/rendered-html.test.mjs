@@ -55,7 +55,7 @@ test("server-renders every public route with the shared brand shell", async () =
     assert.match(html, /Language \/ 语言/, pathname);
     assert.match(html, /href="\/privacy"/, pathname);
     assert.match(html, /href="\/security"/, pathname);
-    assert.match(html, /property="og:image" content="https?:\/\/[^"]+\/og-ios\.png"/i);
+    assert.match(html, /property="og:image" content="https?:\/\/[^"]+\/og\.png"/i);
     assert.match(
       html,
       new RegExp(
@@ -140,8 +140,9 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /ui-monospace/);
-  assert.match(css, /backdrop-filter:\s*blur/);
-  assert.match(css, /--ivory:\s*#f5f1e8/i);
+  assert.doesNotMatch(css, /backdrop-filter:\s*blur/);
+  assert.match(css, /--archive:\s*#e8dcc5/i);
+  assert.match(css, /border:\s*3px double var\(--rule-dark\)/);
 
   const [i18n, locale] = await Promise.all([
     readFile(new URL("../app/i18n.tsx", import.meta.url), "utf8"),

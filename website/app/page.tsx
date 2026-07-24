@@ -32,12 +32,15 @@ export default function Home() {
       <main id="main-content">
         <section className="home-hero">
           <div className="home-hero-copy">
-            <p className="route-label">Gloamere / Codex plugins / 4.0 Beta</p>
+            <p className="route-label">Gloamere / Evidence archive / 4.0 Beta</p>
             <h1>
-              <T value={l("Codex workflows with a visible chain of ", "让 Codex 工作流拥有清晰可见的")} />
-              <span><T value={l("evidence.", "证据链。")} /></span>
+              <T value={l("Evidence-led ", "证据驱动的")} />
+              <span><T value={l("Codex tools.", "Codex 工具。")} /></span>
             </h1>
             <p className="hero-summary">
+              <strong className="hero-thesis">
+                <T value={l("Know what Codex actually loaded.", "知道 Codex 实际加载了什么。")} />
+              </strong>
               <T value={l(
                 "Two self-contained plugins: inspect native Skill activation without guessing, then add four focused workflows that load only when the task fits.",
                 "两个自包含插件：不靠猜测地检查原生 Skill 调用，再提供四个只在任务匹配时加载的专注工作流。",
@@ -45,7 +48,7 @@ export default function Home() {
             </p>
             <HeroActions
               primaryHref="#install"
-              primaryLabel={l("Review the planned install", "查看计划安装方式")}
+              primaryLabel={l("Review the pinned install", "查看固定版本安装")}
             />
           </div>
           <EvidenceTrace />
@@ -61,7 +64,7 @@ export default function Home() {
         <section className="routes-section">
           <div className="section-heading">
             <p className="eyebrow"><T value={l("Two routes, one principle", "两条路径，一个原则")} /></p>
-            <h2><T value={l("Make the work inspectable.", "让工作过程经得起检查。")} /></h2>
+            <h2><T value={l("Two dossiers. One standard of proof.", "两份档案，同一套证据标准。")} /></h2>
             <p><T value={l(
               "Each plugin stays inside Codex’s native lifecycle. There is no second router, background process, telemetry layer, hook, or MCP server.",
               "每个插件都留在 Codex 原生生命周期内，不引入第二套路由器、后台进程、遥测层、Hook 或 MCP 服务器。",
