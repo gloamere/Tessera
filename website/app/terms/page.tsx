@@ -8,6 +8,9 @@ import {
 export const metadata: Metadata = {
   title: "Terms",
   description: "Terms of use for Gloamere Codex plugins.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsPage() {

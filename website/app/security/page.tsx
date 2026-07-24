@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "Security",
   description:
     "Supported versions, private vulnerability reporting, and security boundaries for Gloamere.",
+  alternates: {
+    canonical: "/security",
+  },
 };
 
 export default function SecurityPage() {

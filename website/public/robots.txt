@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://codex.gloamere.com/sitemap.xml
+Host: https://codex.gloamere.com

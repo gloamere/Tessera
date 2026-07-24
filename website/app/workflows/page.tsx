@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "Gloamere Workflows",
   description:
     "Four focused Codex Skills for UI systems, visual review, durable knowledge, and product decisions.",
+  alternates: {
+    canonical: "/workflows",
+  },
 };
 
 const skills = [

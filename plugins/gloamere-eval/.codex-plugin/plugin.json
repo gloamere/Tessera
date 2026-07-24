@@ -6,7 +6,7 @@
     "name": "Gloamere",
     "url": "https://gloamere.com"
   },
-  "homepage": "https://gloamere.com/eval",
+  "homepage": "https://codex.gloamere.com/eval",
   "repository": "https://github.com/gloamere/codex-plugins",
   "license": "MIT",
   "keywords": [
@@ -26,9 +26,10 @@
       "Read",
       "Write"
     ],
-    "websiteURL": "https://gloamere.com/eval",
-    "privacyPolicyURL": "https://gloamere.com/privacy",
-    "termsOfServiceURL": "https://gloamere.com/terms",
+    "websiteURL": "https://codex.gloamere.com/eval",
+    "privacyPolicyURL": "https://codex.gloamere.com/privacy",
+    "termsOfServiceURL": "https://codex.gloamere.com/terms",
+    "supportURL": "https://codex.gloamere.com/support",
     "defaultPrompt": [
       "Use Gloamere Eval to inspect this repository's Codex skill-routing surface.",
       "Run a native Gloamere Eval check and explain the evidence level."

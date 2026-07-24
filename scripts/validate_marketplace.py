@@ -49,6 +49,7 @@ REQUIRED_INTERFACE_FIELDS = {
     "websiteURL",
     "privacyPolicyURL",
     "termsOfServiceURL",
+    "supportURL",
     "defaultPrompt",
     "brandColor",
     "composerIcon",
@@ -417,7 +418,12 @@ def validate_plugin(
         errors.append(f"{relative(manifest_path)}: brandColor 必须是六位十六进制颜色")
     elif interface["brandColor"].upper() != "#8B74D6":
         errors.append(f"{relative(manifest_path)}: brandColor 必须使用 Gloamere 紫色")
-    for field in ("websiteURL", "privacyPolicyURL", "termsOfServiceURL"):
+    for field in (
+        "websiteURL",
+        "privacyPolicyURL",
+        "termsOfServiceURL",
+        "supportURL",
+    ):
         require_https(
             interface.get(field), f"{relative(manifest_path)} interface.{field}", errors
         )

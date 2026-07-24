@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   title: "Evidence-led Codex plugins",
   description:
     "Evaluate Codex Skill routing with observable evidence and add four focused professional workflows.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 const workflowSkills = [

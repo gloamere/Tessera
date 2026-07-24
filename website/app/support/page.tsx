@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "Support",
   description:
     "Support scope and reporting guidance for the Gloamere 4.0 beta candidate.",
+  alternates: {
+    canonical: "/support",
+  },
 };
 
 export default function SupportPage() {

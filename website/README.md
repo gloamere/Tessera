@@ -30,6 +30,10 @@ npm audit --audit-level=high
 Node.js 22.13 or newer is required. `npm test` builds the Cloudflare
 Worker-compatible output and server-renders every public route.
 
+`npm run build:static` produces the Caddy-ready export in `dist/client`.
+The public canonical origin is `https://codex.gloamere.com`; the private Sites
+deployment remains a non-canonical review surface.
+
 `.openai/hosting.json` stores only the opaque Sites project ID and logical
 storage declarations. Never add deployment credentials or runtime secrets to
 the repository.

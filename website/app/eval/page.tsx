@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "Gloamere Eval",
   description:
     "Inspect, lint, and evaluate native Codex Skill activation while separating evidence coverage from conditional accuracy.",
+  alternates: {
+    canonical: "/eval",
+  },
 };
 
 const evidenceStates = [

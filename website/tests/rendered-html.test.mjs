@@ -55,6 +55,15 @@ test("server-renders every public route with the shared brand shell", async () =
     assert.match(html, /href="\/privacy"/, pathname);
     assert.match(html, /href="\/security"/, pathname);
     assert.match(html, /property="og:image" content="https?:\/\/[^"]+\/og\.png"/i);
+    assert.match(
+      html,
+      new RegExp(
+        `rel="canonical" href="https://codex\\.gloamere\\.com${
+          pathname === "/" ? "/" : pathname
+        }"`,
+      ),
+      pathname,
+    );
     assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i, pathname);
   }
 });
@@ -123,6 +132,7 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   assert.equal(packageJson.dependencies["react-loading-skeleton"], undefined);
   assert.equal(packageJson.scripts.dev, "vinext dev");
   assert.equal(packageJson.scripts.build, "vinext build");
+  assert.equal(packageJson.scripts["build:static"], "node scripts/build-static.mjs");
   assert.equal(packageJson.scripts.start, "vinext start");
   assert.doesNotMatch(layout, /next\/font|Starter Project|favicon\.svg/);
   assert.doesNotMatch(page, /codex-preview|SkeletonPreview/);
@@ -137,6 +147,8 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
     access(new URL("../public/gloamere-icon.png", import.meta.url)),
     access(new URL("../public/gloamere-logo.png", import.meta.url)),
     access(new URL("../public/og.png", import.meta.url)),
+    access(new URL("../public/robots.txt", import.meta.url)),
+    access(new URL("../public/sitemap.xml", import.meta.url)),
   ]);
   await assert.rejects(
     access(new URL("public/favicon.svg", templateRoot)),

@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Privacy",
   description:
     "Privacy boundaries for Gloamere Eval and Gloamere Workflows.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {
