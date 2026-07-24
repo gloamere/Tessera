@@ -162,10 +162,16 @@ function Set-SourcePluginVersions {
         $pluginManifest = Join-Path (
             Join-Path $SourceRoot "plugins\$pluginName"
         ) '.codex-plugin\plugin.json'
-        $value = [System.IO.File]::ReadAllText($pluginManifest) |
-            ConvertFrom-Json
-        $value.version = $Versions[$pluginName]
-        $rendered = $value | ConvertTo-Json -Depth 100
+        $text = [System.IO.File]::ReadAllText($pluginManifest)
+        $versionPattern = '("version"\s*:\s*")[^"]+(")'
+        $versionRegex = [regex]::new($versionPattern)
+        $replacement = '${1}' + $Versions[$pluginName] + '${2}'
+        $rendered = $versionRegex.Replace($text, $replacement, 1)
+        if ($rendered -eq $text) {
+            throw "Could not update the version in $pluginManifest"
+        }
+        # 只替换版本并统一 LF，避免 Windows PowerShell 重排或截断临时 manifest。
+        $rendered = $rendered.Replace("`r`n", "`n")
         [System.IO.File]::WriteAllText(
             $pluginManifest,
             $rendered + "`n",
