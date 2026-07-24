@@ -19,7 +19,13 @@ const navigation = [
   { href: "/support", label: l("Support", "支持") },
 ];
 
-export function SiteFrame({ children }: { children: ReactNode }) {
+export function SiteFrame({
+  children,
+  showFooter = true,
+}: {
+  children: ReactNode;
+  showFooter?: boolean;
+}) {
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -27,7 +33,7 @@ export function SiteFrame({ children }: { children: ReactNode }) {
       </a>
       <SiteHeader />
       {children}
-      <SiteFooter />
+      {showFooter ? <SiteFooter /> : null}
     </>
   );
 }

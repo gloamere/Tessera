@@ -29,7 +29,7 @@ async function render(pathname = "/") {
 }
 
 const routes = [
-  ["/", /Evidence-led Codex plugins/],
+  ["/", /Evidence-led Codex tools/],
   ["/eval", /Gloamere Eval/],
   ["/workflows", /Gloamere Workflows/],
   ["/support", /Support/],
@@ -53,8 +53,15 @@ test("server-renders every public route with the shared brand shell", async () =
     assert.match(html, /Gloamere/, pathname);
     assert.match(html, /Skip to content/, pathname);
     assert.match(html, /Language \/ 语言/, pathname);
-    assert.match(html, /href="\/privacy"/, pathname);
-    assert.match(html, /href="\/security"/, pathname);
+    if (pathname === "/") {
+      assert.match(html, /href="\/eval"/, pathname);
+      assert.match(html, /href="\/workflows"/, pathname);
+      assert.match(html, /href="\/support"/, pathname);
+      assert.doesNotMatch(html, /class="site-footer"/, pathname);
+    } else {
+      assert.match(html, /href="\/privacy"/, pathname);
+      assert.match(html, /href="\/security"/, pathname);
+    }
     assert.match(html, /property="og:image" content="https?:\/\/[^"]+\/og\.png"/i);
     assert.match(
       html,
@@ -76,21 +83,23 @@ test("home and plugin routes state the release and evidence boundaries", async (
     render("/workflows").then((response) => response.text()),
   ]);
 
-  assert.match(home, /v4\.0\.0-beta\.1/);
+  assert.match(home, /4\.0\.0-beta\.1/);
   assert.match(home, /prompt_sha256/);
-  assert.match(home, /manifest \/ Skill \/ agent SHA/);
+  assert.match(home, /target_lock/);
   assert.match(home, /evidence_status/);
-  assert.match(home, /A verdict has a chain of custody/);
-  assert.match(home, /identity_conflict/);
-  assert.match(home, /Codex native event stream/);
-  assert.match(home, /not a published native-admission result/i);
-  assert.match(home, /codex plugin add gloamere-eval@gloamere/);
-  assert.match(home, /codex plugin add gloamere-workflows@gloamere/);
+  assert.match(home, /Know what.*Codex actually loaded/is);
+  assert.match(home, /Observable by design/);
+  assert.match(home, /Otherwise: verdict = null/);
+  assert.match(home, /No Gloamere telemetry/);
+  assert.doesNotMatch(home, /codex plugin marketplace add/);
+  assert.equal(home.match(/<section\b/g)?.length, 1);
 
   assert.match(evalPage, /unobservable/);
   assert.match(evalPage, /identity_conflict/);
   assert.match(evalPage, /verdict = null/);
   assert.match(evalPage, /does not claim.*official native-admission/is);
+  assert.match(evalPage, /codex plugin add gloamere-eval@gloamere/);
+  assert.match(workflows, /codex plugin add gloamere-workflows@gloamere/);
 
   for (const skill of [
     "gloamere-ui-system",
@@ -149,6 +158,8 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   assert.match(css, /"Playfair Display"/);
   assert.match(css, /"IBM Plex Sans Condensed"/);
   assert.match(css, /\.flow-main/);
+  assert.match(css, /body:has\(\.home-main\)[\s\S]*?overflow:\s*hidden/);
+  assert.match(css, /\.home-main[\s\S]*?height:\s*calc\(100svh - 5\.9rem\)/);
   assert.doesNotMatch(css, /backdrop-filter:\s*blur/);
   assert.match(css, /--archive:\s*#e8dcc5/i);
   assert.match(css, /border:\s*3px double var\(--rule-dark\)/);
