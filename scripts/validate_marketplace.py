@@ -1,4 +1,4 @@
-"""Validate the Codex-only Gloamere release surface."""
+"""Validate Gloamere's universal-directory and maintainer release surfaces."""
 
 from __future__ import annotations
 
@@ -23,10 +23,14 @@ SEMVER = re.compile(
 HEX_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
 EXPECTED_PLUGIN_IDS = {"gloamere-eval", "gloamere-workflows"}
 EXPECTED_INSTALL_PROFILES = {
-    "eval": ["gloamere-eval"],
-    "complete": ["gloamere-eval", "gloamere-workflows"],
+    "workflows": ["gloamere-workflows"],
+    "maintainer": ["gloamere-eval"],
+    "complete": ["gloamere-workflows", "gloamere-eval"],
 }
-EXPECTED_PLUGIN_MATURITY = "beta"
+EXPECTED_PLUGIN_MATURITY = {
+    "gloamere-eval": "beta",
+    "gloamere-workflows": "submission-candidate",
+}
 REQUIRED_TOP_LEVEL_FIELDS = {
     "name",
     "version",
@@ -54,7 +58,6 @@ REQUIRED_INTERFACE_FIELDS = {
     "brandColor",
     "composerIcon",
     "logo",
-    "screenshots",
 }
 
 
@@ -225,6 +228,39 @@ def validate_release_identity(
         errors.append(
             f"{relative(RELEASE_MANIFEST)}: marketplaceDisplayName 必须为 Gloamere"
         )
+    release_status = distribution.get("releaseStatus")
+    directory_status = distribution.get("directoryStatus")
+    directory_url = distribution.get("directoryURL")
+    if release_status not in {"submission-candidate", "published"}:
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: releaseStatus 必须为 "
+            "submission-candidate 或 published"
+        )
+    if directory_status not in {"preparing", "submitted", "approved"}:
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: directoryStatus 必须为 "
+            "preparing、submitted 或 approved"
+        )
+    elif directory_status == "approved":
+        require_https(
+            directory_url,
+            f"{relative(RELEASE_MANIFEST)}: distribution.directoryURL",
+            errors,
+        )
+    elif directory_url is not None:
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: 目录获批前 directoryURL 必须为 null"
+        )
+    if release_status == "published" and directory_status != "approved":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: 仓库发布前必须已有获批目录条目"
+        )
+    if os.environ.get("GITHUB_REF_TYPE") == "tag" and (
+        release_status != "published" or directory_status != "approved"
+    ):
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: tag 发布仅允许 published + approved 状态"
+        )
     if distribution.get("releaseManifestAsset") != "release-manifest.json":
         errors.append(
             f"{relative(RELEASE_MANIFEST)}: releaseManifestAsset 必须为 release-manifest.json"
@@ -288,9 +324,10 @@ def validate_plugin(
     version = release_entry.get("version")
     if not isinstance(version, str) or not SEMVER.fullmatch(version):
         errors.append(f"{plugin_id}: release version 不是有效 SemVer")
-    if release_entry.get("maturity") != EXPECTED_PLUGIN_MATURITY:
+    expected_maturity = EXPECTED_PLUGIN_MATURITY[plugin_id]
+    if release_entry.get("maturity") != expected_maturity:
         errors.append(
-            f"{plugin_id}: maturity 必须为 {EXPECTED_PLUGIN_MATURITY}"
+            f"{plugin_id}: maturity 必须为 {expected_maturity}"
         )
 
     expected_path = f"plugins/{plugin_id}"
@@ -353,6 +390,11 @@ def validate_plugin(
         errors.append(f"{relative(manifest_path)}: description 不能为空")
     if manifest.get("skills") != "./skills/":
         errors.append(f"{relative(manifest_path)}: skills 必须为 ./skills/")
+    for excluded in ("mcpServers", "apps", "screenshots"):
+        if excluded in manifest:
+            errors.append(
+                f"{relative(manifest_path)}: skills-only 包不得声明 {excluded}"
+            )
     if (
         not isinstance(manifest.get("keywords"), list)
         or not manifest["keywords"]
@@ -412,6 +454,14 @@ def validate_plugin(
         or any(not isinstance(item, str) or not item.strip() for item in prompts)
     ):
         errors.append(f"{relative(manifest_path)}: defaultPrompt 必须是非空字符串数组")
+    elif (
+        len(prompts) > 3
+        or len(prompts) != len({re.sub(r"\s+", " ", item).strip() for item in prompts})
+        or any("\n" in item or len(item) > 128 for item in prompts)
+    ):
+        errors.append(
+            f"{relative(manifest_path)}: defaultPrompt 最多 3 条、每条单行不超过 128 字符且不得重复"
+        )
     if not isinstance(interface.get("brandColor"), str) or not HEX_COLOR.fullmatch(
         interface["brandColor"]
     ):
@@ -434,17 +484,10 @@ def validate_plugin(
             f"{relative(manifest_path)} interface.{field}",
             errors,
         )
-    screenshots = interface.get("screenshots")
-    if not isinstance(screenshots, list) or not screenshots:
-        errors.append(f"{relative(manifest_path)}: screenshots 必须是非空数组")
-    else:
-        for index, screenshot in enumerate(screenshots):
-            validate_asset_path(
-                plugin_dir,
-                screenshot,
-                f"{relative(manifest_path)} interface.screenshots[{index}]",
-                errors,
-            )
+    if "screenshots" in interface:
+        errors.append(
+            f"{relative(manifest_path)}: 无 UI 的 skills-only 插件不得提交 screenshots"
+        )
 
     skill_dirs = {
         path.name for path in (plugin_dir / "skills").iterdir() if path.is_dir()
@@ -510,10 +553,9 @@ def validate_installers(
     shorthand = repository.removeprefix("https://github.com/")
     tag = distribution.get("tag", "")
     profiles = distribution.get("installProfiles")
-    eval_profile = profiles.get("eval", []) if isinstance(profiles, dict) else []
-    complete_profile = (
-        profiles.get("complete", []) if isinstance(profiles, dict) else []
-    )
+    if not isinstance(profiles, dict):
+        errors.append("release manifest installProfiles 必须是对象")
+        profiles = {}
     for installer in (ROOT / "install.ps1", ROOT / "install.sh"):
         if not installer.is_file():
             errors.append(f"{relative(installer)}: 缺少安装入口")
@@ -536,55 +578,57 @@ def validate_installers(
                 errors.append(f"{relative(installer)}: 缺少插件 {plugin_id}")
 
         if installer.suffix == ".ps1":
-            default_matches = re.findall(
-                r"(?m)^\$plugins\s*=\s*@\(([^)]*)\)\s*$",
+            profile_matches = re.findall(
+                r"(?m)^\s*'(workflows|maintainer|complete)'\s*"
+                r"\{\s*@\(([^)]*)\)\s*\}\s*$",
                 source,
             )
-            additions = re.findall(
-                r"(?m)^\s*\$plugins\s*\+=\s*'([a-z0-9-]+)'\s*$",
-                source,
-            )
-            if len(default_matches) != 1 or "if ($All)" not in source:
+            parsed_profiles = {
+                profile: re.findall(r"'([a-z0-9-]+)'", values)
+                for profile, values in profile_matches
+            }
+            if (
+                "$Profile = 'workflows'" not in source
+                or "if ($All)" not in source
+                or set(parsed_profiles) != set(profiles)
+            ):
                 errors.append(
-                    f"{relative(installer)}: 无法确认默认与 -All 安装 profile"
+                    f"{relative(installer)}: 无法确认 profile 与 -All 兼容入口"
                 )
             else:
-                default_plugins = re.findall(
-                    r"'([a-z0-9-]+)'", default_matches[0]
-                )
-                complete_plugins = default_plugins + additions
-                if default_plugins != eval_profile:
-                    errors.append(
-                        f"{relative(installer)}: 默认插件 {default_plugins!r} "
-                        f"未镜像 installProfiles.eval {eval_profile!r}"
-                    )
-                if complete_plugins != complete_profile:
-                    errors.append(
-                        f"{relative(installer)}: -All 插件 {complete_plugins!r} "
-                        f"未镜像 installProfiles.complete {complete_profile!r}"
-                    )
+                for profile, expected in profiles.items():
+                    if parsed_profiles[profile] != expected:
+                        errors.append(
+                            f"{relative(installer)}: {profile} 插件 "
+                            f"{parsed_profiles[profile]!r} 未镜像 "
+                            f"installProfiles.{profile} {expected!r}"
+                        )
         else:
-            assignments = re.findall(
-                r"(?m)^\s*PLUGINS='([^']*)'\s*$",
+            profile_matches = re.findall(
+                r"(?m)^\s*(workflows|maintainer|complete)\)\s*"
+                r"PLUGINS='([^']*)'\s*;;\s*$",
                 source,
             )
-            if len(assignments) != 2 or "--all)" not in source:
+            parsed_profiles = {
+                profile: values.split() for profile, values in profile_matches
+            }
+            if (
+                "PROFILE=${GLOAMERE_PROFILE:-workflows}" not in source
+                or "--profile)" not in source
+                or "--all)" not in source
+                or set(parsed_profiles) != set(profiles)
+            ):
                 errors.append(
-                    f"{relative(installer)}: 无法确认默认与 --all 安装 profile"
+                    f"{relative(installer)}: 无法确认 profile 与 --all 兼容入口"
                 )
             else:
-                default_plugins = assignments[0].split()
-                complete_plugins = assignments[1].split()
-                if default_plugins != eval_profile:
-                    errors.append(
-                        f"{relative(installer)}: 默认插件 {default_plugins!r} "
-                        f"未镜像 installProfiles.eval {eval_profile!r}"
-                    )
-                if complete_plugins != complete_profile:
-                    errors.append(
-                        f"{relative(installer)}: --all 插件 {complete_plugins!r} "
-                        f"未镜像 installProfiles.complete {complete_profile!r}"
-                    )
+                for profile, expected in profiles.items():
+                    if parsed_profiles[profile] != expected:
+                        errors.append(
+                            f"{relative(installer)}: {profile} 插件 "
+                            f"{parsed_profiles[profile]!r} 未镜像 "
+                            f"installProfiles.{profile} {expected!r}"
+                        )
         if re.search(
             r"(?m)^\s*(?:&\s+\$codex\S*|codex)\s+plugin\s+remove\b",
             source,

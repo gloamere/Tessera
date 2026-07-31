@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "policy_id": "risk-tiered-v2",
+  "suite_id": "gloamere-workflows-admission-v2",
+  "evidence_reuse_key": [
+    "skill_sha256",
+    "suite_sha256",
+    "policy_sha256",
+    "model",
+    "codex_cli_compatibility"
+  ],
+  "modes": {
+    "pr": {
+      "max_calls": 12,
+      "fixed_case_ids": [],
+      "rotating_case_ids": [],
+      "multi_intent_case_ids": [],
+      "per_focus_case_ids": {
+        "gloamere-visual-review": [
+          "visual.pos.03.en",
+          "visual.neg.03.zh",
+          "visual.multi.01.en",
+          "visual.multi.03.zh"
+        ],
+        "gloamere-knowledge-capture": [
+          "knowledge.pos.03.zh",
+          "knowledge.neg.03.en",
+          "knowledge.multi.01.zh",
+          "knowledge.multi.02.en"
+        ],
+        "gloamere-product-decision": [
+          "product.pos.03.en",
+          "product.neg.03.zh",
+          "product.multi.01.en",
+          "product.multi.03.zh"
+        ]
+      }
+    },
+    "release": {
+      "max_calls": 40,
+      "fixed_count": 6,
+      "rotating_count": 6,
+      "multi_intent_count": 4,
+      "per_focus_count": 4,
+      "maximum_cases": 34,
+      "fixed_case_ids": [
+        "visual.pos.01.zh",
+        "visual.neg.08.en",
+        "knowledge.pos.01.en",
+        "knowledge.neg.01.zh",
+        "product.pos.01.zh",
+        "product.neg.01.en"
+      ],
+      "rotating_case_ids": [
+        "visual.neg.02.zh",
+        "visual.neg.04.zh",
+        "visual.neg.06.zh",
+        "visual.neg.01.en",
+        "visual.neg.03.en",
+        "visual.neg.05.en",
+        "knowledge.neg.02.zh",
+        "knowledge.neg.04.zh",
+        "knowledge.neg.06.zh",
+        "knowledge.neg.02.en",
+        "knowledge.neg.05.en",
+        "knowledge.neg.07.en",
+        "product.neg.02.zh",
+        "product.neg.05.zh",
+        "product.neg.07.zh",
+        "product.neg.02.en",
+        "product.neg.06.en",
+        "product.neg.08.en"
+      ],
+      "multi_intent_case_ids": [
+        "visual.multi.02.zh",
+        "knowledge.multi.02.en",
+        "product.multi.02.zh",
+        "product.multi.03.en"
+      ],
+      "per_focus_case_ids": {
+        "gloamere-visual-review": [
+          "visual.pos.03.en",
+          "visual.neg.03.zh",
+          "visual.multi.01.en",
+          "visual.multi.03.zh"
+        ],
+        "gloamere-knowledge-capture": [
+          "knowledge.pos.03.zh",
+          "knowledge.neg.03.en",
+          "knowledge.multi.01.zh",
+          "knowledge.multi.03.zh"
+        ],
+        "gloamere-product-decision": [
+          "product.pos.03.en",
+          "product.neg.03.zh",
+          "product.multi.01.en",
+          "product.multi.03.zh"
+        ]
+      }
+    },
+    "exhaustive": {
+      "initial_calls": 102,
+      "max_calls": 120,
+      "case_ids": [
+        "*"
+      ]
+    }
+  },
+  "retry": {
+    "unexpected_attempts": 3,
+    "confirmed_failure_count": 2,
+    "infrastructure_retry_count": 1,
+    "single_failure_outcome": "pending",
+    "budget_exhausted_outcome": "pending"
+  },
+  "quality": {
+    "policy_path": "quality-v1.json",
+    "release_cases_per_changed_skill": 2,
+    "release_initial_call_limit": 6,
+    "rubric": [
+      "evidence_fidelity",
+      "actionability",
+      "boundary_compliance",
+      "no_fabrication"
+    ]
+  }
+}

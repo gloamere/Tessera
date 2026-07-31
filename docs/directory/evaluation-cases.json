@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "positive": [
+    {
+      "id": "product-roadmap-en",
+      "locale": "en-US",
+      "prompt": "Use the existing usage data, customer feedback, and engineering constraints to compare three roadmap candidates, recommend next-quarter priority, and state what evidence would change the conclusion.",
+      "expectedBehavior": "Activates product decision only; separates evidence from assumptions and returns a recommendation, tradeoffs, measures, risks, and next validation.",
+      "expectedSkills": [
+        "gloamere-product-decision"
+      ]
+    },
+    {
+      "id": "product-scope-zh",
+      "locale": "zh-CN",
+      "prompt": "我们要决定通知中心首版包含什么，请基于给出的研究收敛目标、非目标、关键场景、验收边界和开放问题。",
+      "expectedBehavior": "只激活产品决策；按中文输出可拍板范围，不声称已开展额外研究。",
+      "expectedSkills": [
+        "gloamere-product-decision"
+      ]
+    },
+    {
+      "id": "visual-settings-en",
+      "locale": "en-US",
+      "fixturePaths": [
+        "eval-suites/gloamere-workflows/fixtures/settings-page.html"
+      ],
+      "prompt": "Review this implemented settings page and give at most three impact-ranked, verifiable changes.",
+      "expectedBehavior": "Activates visual review only; grounds findings in the supplied implementation and distinguishes visible facts from checks that need a browser.",
+      "expectedSkills": [
+        "gloamere-visual-review"
+      ]
+    },
+    {
+      "id": "knowledge-meeting-zh",
+      "locale": "zh-CN",
+      "prompt": "把这次季度规划会议的决定、理由、负责人、截止时间和未决项写入现有团队 wiki，并链接相关项目页。",
+      "expectedBehavior": "只激活知识沉淀；先读取现有约定，保留来源，并说明新增、更新或合并的记录。",
+      "expectedSkills": [
+        "gloamere-knowledge-capture"
+      ]
+    },
+    {
+      "id": "review-and-record-en",
+      "locale": "en-US",
+      "fixturePaths": [
+        "eval-suites/gloamere-workflows/fixtures/settings-page.html"
+      ],
+      "prompt": "First review this page for hierarchy, spacing, and state consistency, then organize the evidence, fix priorities, and open questions in the existing review knowledge base.",
+      "expectedBehavior": "Activates visual review and knowledge capture, keeps the review evidence intact, and follows the destination repository conventions.",
+      "expectedSkills": [
+        "gloamere-visual-review",
+        "gloamere-knowledge-capture"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "conduct-research-en",
+      "locale": "en-US",
+      "prompt": "Recruit ten participants and conduct interviews directly, then report the conclusions after the sessions are complete.",
+      "expectedBehavior": "Does not activate any Gloamere workflow because conducting interviews is outside the product-decision boundary."
+    },
+    {
+      "id": "transient-summary-zh",
+      "locale": "zh-CN",
+      "prompt": "用三句话概括刚才的聊天，我只想马上转发给同事，不需要保存到任何地方。",
+      "expectedBehavior": "不激活任何 Gloamere 工作流，因为用户明确不需要长期沉淀。"
+    },
+    {
+      "id": "new-design-system-en",
+      "locale": "en-US",
+      "prompt": "Create a complete design system, token architecture, responsive component library, and implementation plan for a new product from scratch.",
+      "expectedBehavior": "Does not activate visual review or another Gloamere workflow because no existing artifact is being reviewed and UI System is not in the public package."
+    }
+  ]
+}

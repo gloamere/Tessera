@@ -1,135 +1,125 @@
-# Gloamere Codex Plugins
+# Gloamere Workflows
 
-Evidence-led evaluation and focused professional workflows for Codex.
+Evidence-backed workflows for product decisions, visual reviews, and durable
+knowledge.
 
-> `4.0.0-beta.1` is a Beta candidate with a planned
-> `v4.0.0-beta.1` tag; it has not been published. The tag workflow will refuse
-> to publish until current native evidence passes the release gate. The
-> repository, marketplace, plugin IDs, and installation commands changed from
-> the 3.x legacy installation. Read [MIGRATION.md](MIGRATION.md) before
-> upgrading.
+Source repository: `gloamere/codex-plugins`.
 
-## Plugins
+> `4.0.0` is an unpublished submission candidate. The public
+> `gloamere-workflows@1.0.0` package is being prepared for the universal plugin
+> directory; no installation command or `v4.0.0` tag is valid yet.
 
-| Plugin | Bundled skills | Purpose |
-| --- | --- | --- |
-| `gloamere-eval` | `gloamere-skill-eval` | Inspect, lint, and evaluate Codex skill routing while distinguishing observable evidence from model claims |
-| `gloamere-workflows` | `gloamere-ui-system`, `gloamere-visual-review`, `gloamere-knowledge-capture`, `gloamere-product-decision` | Opt-in UI, visual review, knowledge capture, and product-decision workflows |
+## Public product
 
-Both plugins are Codex-only, self-contained, and installed independently.
-They do not add hooks, MCP servers, background processes, telemetry, or a
-second task-routing layer. Codex remains responsible for skill discovery,
-planning, confirmation, delegation, and plugin lifecycle.
+`gloamere-workflows` serves product and design leads through three independently
+routed Skills:
 
-## Planned pinned-beta installation
+| Skill | Use it for |
+| --- | --- |
+| `gloamere-product-decision` | Compare product options from existing evidence and define scope, measures, risks, and the next validation |
+| `gloamere-visual-review` | Review an existing visual artifact and prioritize evidence-based changes |
+| `gloamere-knowledge-capture` | Preserve decisions, research, and operating knowledge in an existing Markdown knowledge base |
 
-The commands below become valid only after `v4.0.0-beta.1` passes the release
-gate and is published. They intentionally target the immutable tag, never
-`main`.
+The package is skills-only: no MCP server, custom UI, external backend,
+authentication, hooks, background process, or telemetry. It responds in the
+user's language and is evaluated in English and Chinese.
 
-Windows PowerShell installs `gloamere-eval`:
+Public plugins from the universal directory are supported on ChatGPT Work web,
+the ChatGPT Work and Codex desktop apps, and the Codex CLI plugin browser.
+Plugins are not supported in Chat, the IDE extension, mobile, or other hosts.
 
-```powershell
-irm https://raw.githubusercontent.com/gloamere/codex-plugins/v4.0.0-beta.1/install.ps1 | iex
-```
+## Maintainer tooling
 
-Install both plugins:
+`gloamere-eval@1.0.0-beta.1` remains a Git-marketplace maintainer tool for
+inspecting and evaluating installed Skill routing. It is not the default
+end-user product and is not included in the first directory submission.
 
-```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/gloamere/codex-plugins/v4.0.0-beta.1/install.ps1))) -All
-```
+`gloamere-ui-system`, Debug Loop, Finance, Growth, and Internal Operations stay
+under `experiments/` and are excluded from every public archive. UI System keeps
+its pinned third-party notice there, but cannot return until its vendor core is
+replaced and current-SHA evidence passes.
 
-macOS or Linux:
+The repository release source of truth is
+[`release-manifest.json`](release-manifest.json):
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/gloamere/codex-plugins/v4.0.0-beta.1/install.sh | sh
-curl -fsSL https://raw.githubusercontent.com/gloamere/codex-plugins/v4.0.0-beta.1/install.sh | sh -s -- --all
-```
+- distribution candidate `4.0.0`, planned tag `v4.0.0`;
+- default profile `workflows`;
+- maintainer profile `gloamere-eval`;
+- complete profile `gloamere-workflows` plus `gloamere-eval`.
 
-`release-manifest.json` names these profiles `eval` (the default) and
-`complete` (`-All` / `--all`). Both published plugins currently have `beta`
-maturity.
+After approval and publication, immutable tag installation may expose the
+selectors `gloamere-workflows@gloamere` and `gloamere-eval@gloamere`. Until
+then, use a local checkout only for maintainer testing.
 
-The equivalent manual installation is:
+## Low-token quality gate
 
-```bash
-codex plugin marketplace add gloamere/codex-plugins --ref v4.0.0-beta.1
-codex plugin add gloamere-eval@gloamere
-codex plugin add gloamere-workflows@gloamere
-codex plugin list --json
-```
+The old 816-call `136 × 3 × 2` matrix is retired.
 
-The installers use only native Codex plugin commands. If a 3.x legacy selector
-is present, they stop before changing anything and print the manual
-“remove old plugin → remove old marketplace → rerun Gloamere install” sequence.
-They never remove, disable, or modify a legacy installation themselves.
+- Non-Skill PRs use zero model calls.
+- Skill PRs select four cases per changed Skill, capped at 12.
+- Release evaluation starts with 16 boundary cases, adds four per changed
+  Skill, and cannot exceed 40 calls including retries.
+- The initial directory review first covers 102 unique routing cases once;
+  only unexpected cases are repeated, under a separate 120-call hard cap.
+- Monthly drift checks reuse the 16-case release baseline with a month
+  rotation key and no changed-Skill expansion.
+- Six bilingual golden tasks use semantic rubrics instead of substring scores.
 
-## Use
-
-Example prompts:
-
-- “Use Gloamere Eval to inspect this repository’s Codex skill-routing surface.”
-- “Run a native Gloamere Eval check and explain the evidence level.”
-- “Use Gloamere Workflows to define a coherent UI system for this product.”
-- “Capture this product decision as a durable, linked project record.”
-
-The Eval runtime uses the Python 3.10+ standard library, inspects the plugins
-actually installed by the user, and writes requested reports to the selected
-location. It does not ship a business-specific benchmark suite. Workflows load
-only when their descriptions match the task; installing the bundle does not
-load all four skills on every turn.
+Eval report v4 binds the exact commit, suite, risk policy, target lock, Skill
+hashes, Codex CLI, model, budget, and selection. Attempts are journaled so
+interrupted work can resume without rerunning completed calls.
 
 ## Develop and verify
 
 ```powershell
 python -m pip install -r requirements-dev.txt
 ./scripts/check.ps1
-python scripts/validate_release_evidence.py
+cd website
+npm ci
+npm test
+npm run lint
+npm audit --audit-level=high
+npm audit --audit-level=high --omit=dev
 ```
 
-On macOS or Linux:
+POSIX:
 
 ```bash
 python3 -m pip install -r requirements-dev.txt
 sh scripts/check.sh
-python3 scripts/validate_release_evidence.py
 ```
 
-The same check surface runs on Ubuntu, macOS, and Windows, with Python
-3.10–3.14 coverage and launcher smoke tests in Windows PowerShell 5.1 and
-PowerShell 7. The platform matrix pins Codex CLI `0.145.0`; Windows also
-exercises first install, repeat install, upgrade, disable/enable, uninstall,
-and detect-only 3.x migration in an isolated `CODEX_HOME`. A tagged release
-also builds one deterministic ZIP and SHA-256 sidecar for each plugin.
+Useful non-model checks:
 
-`release-manifest.json` is the release source of truth, including plugin
-maturity and the `eval` / `complete` installation profiles.
-`scripts/generate_release_files.py` derives the Codex marketplace and
-`release-index.json`; CI runs it with `--check`. `VERSION`, plugin manifests,
-installer defaults, archive names, and the Git tag are checked mirrors. Never
-publish installers from `main`; use the immutable tag.
+```bash
+python scripts/validate_directory_submission.py
+python scripts/validate_release_evidence.py
+python scripts/validate_quality_evidence.py
+python scripts/package_release.py --output-dir dist --allow-dirty
+```
 
-The ordinary evidence check reports `pending` without failing while native
-reports are absent. A tag release runs
-`python scripts/validate_release_evidence.py --require`; fixture adapters,
-prompt plaintext, stale target identities, incomplete batches, and metrics
-below the manifest thresholds block publication.
+The last command creates a non-release-eligible local preview when tracked
+files are dirty. A real release build rejects dirty tracked files, packages
+only Git-tracked regular blobs, embeds commit/content provenance, and emits
+`release-provenance.json`.
 
-## Documentation
+## Release state
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Deployment and release](docs/DEPLOYMENT.md)
-- [Generated release index](release-index.json)
-- [v4 migration](MIGRATION.md)
-- [v4 architecture decision](docs/decisions/codex-only-v4-release.md)
-- [Workflows provenance and third-party boundary](plugins/gloamere-workflows/PROVENANCE.md)
-- [Support](SUPPORT.md)
-- [Security](SECURITY.md)
-- [Privacy](docs/PRIVACY.md)
-- [Terms](docs/TERMS.md)
+The following external prerequisites are intentionally still pending:
 
-Historical ADRs and evaluation evidence remain in the repository for
-traceability. They do not define the current public release surface.
+- eligible report-v4 evidence for the final protected content identity;
+- six-case semantic output-quality evidence without critical regression;
+- five product/design pilot participants and ten real tasks;
+- publisher-confirmed country availability;
+- an HTTPS demo recording;
+- directory review and approval.
+
+See [directory submission materials](docs/directory/README.md),
+[deployment](docs/DEPLOYMENT.md), [architecture](docs/ARCHITECTURE.md),
+[accepted product decision](docs/decisions/universal-workflows-v4-release.md),
+[migration](MIGRATION.md), [support](SUPPORT.md),
+[security](SECURITY.md), [privacy](docs/PRIVACY.md), and
+[terms](docs/TERMS.md).
 
 ## License
 

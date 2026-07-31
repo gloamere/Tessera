@@ -1,8 +1,8 @@
 # Gloamere Workflows provenance
 
-This file separates Gloamere-authored workflow contracts from the isolated
-third-party UI data and helper core shipped in the GitHub beta. Audit date:
-2026-07-23.
+This file records the clean-room and repository provenance of the three
+Gloamere-authored workflows included in the public skills-only package. Audit
+date: 2026-07-31.
 
 ## Original workflow contracts
 
@@ -14,16 +14,16 @@ the Jaccard score is calculated over all 12-character windows.
 
 | Current Skill | Pre-4.0 predecessor SHA-256 | Current SHA-256 | Sequence ratio | 12-character Jaccard | Longest shared block |
 | --- | --- | --- | ---: | ---: | ---: |
-| `gloamere-visual-review` | `035bd3dbfe6031b968026dda0227fc116e488b30c3a17bb298831c7b478b2aa2` | `11b8c82df657f925401eed89f2a4e24a572df705441ed29198059d8e7bb8409f` | 0.1094 | 0.0013 | 13 chars |
-| `gloamere-knowledge-capture` | `b2bcfaa832ed625219489849ce65d4287a3840dbcbc3e336b039fd485b821573` | `b8432c8bdad9a7850aeb8928648dc719b92556a64c2663fce8d1a4f6fa73e4c3` | 0.0907 | 0.0018 | 14 chars |
-| `gloamere-product-decision` | `dac544d6d6d8aecd6c80db6f8230c32b5949f1fd92f04df39075cbd7b710ada3` | `d102eb99df24cee6c19d3174e4b940e3f51669c7d2c61304f0bf8c131184520a` | 0.3979 | 0.0159 | 20 chars |
+| `gloamere-visual-review` | `035bd3dbfe6031b968026dda0227fc116e488b30c3a17bb298831c7b478b2aa2` | `166787e6fd79b858548a07b0c0238157331fc1d5962b009324ecb44d515a9264` | 0.1370 | 0.0011 | 13 chars |
+| `gloamere-knowledge-capture` | `b2bcfaa832ed625219489849ce65d4287a3840dbcbc3e336b039fd485b821573` | `d892d32e81c9abad95d6885d438454312b9f82a5a96d7b9cbf7d51886104d864` | 0.1383 | 0.0015 | 14 chars |
+| `gloamere-product-decision` | `dac544d6d6d8aecd6c80db6f8230c32b5949f1fd92f04df39075cbd7b710ada3` | `30a4692b50af16a50bd51f8ba17efd10a0b190f2f7714beb94dc38d8261749b3` | 0.3661 | 0.0141 | 20 chars |
 
 The visual-review predecessor cited
 [`Leonxlnx/taste-skill`](https://github.com/Leonxlnx/taste-skill) as an
 inspiration. Against all 13 upstream `SKILL.md` files at commit
 [`98565e65`](https://github.com/Leonxlnx/taste-skill/commit/98565e65bc3274ddf6eb0838734341714057178b),
 the current Gloamere file's maximum 12-character Jaccard score is 0.0003 and
-its longest shared block is 12 normalized characters.
+its longest shared block is 18 normalized characters.
 
 The knowledge predecessor cited
 [`kepano/obsidian-skills`](https://github.com/kepano/obsidian-skills) as an
@@ -41,18 +41,11 @@ These metrics are an engineering originality screen, not a legal opinion.
 Changing any listed Skill invalidates its current hash and requires the audit
 and current-SHA evaluations to be rerun.
 
-## Isolated UI vendor core
+## Incubated UI candidate
 
-The GitHub beta of `gloamere-ui-system` contains a pinned MIT vendor core from
-[`nextlevelbuilder/ui-ux-pro-max-skill`](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/f8ac5e1266dba8354ea96e19994d9f4345e7ec31).
-Its exact file boundary and the single host-neutral documentation adjustment
-are recorded in
-[`skills/gloamere-ui-system/references/UPSTREAM.md`](skills/gloamere-ui-system/references/UPSTREAM.md).
-The full copyright and license text is preserved in
-[`THIRD_PARTY_NOTICES/next-level-builder-MIT.txt`](THIRD_PARTY_NOTICES/next-level-builder-MIT.txt).
-
-The Gloamere Skill ID, routing boundary, orchestration, output contract, and
-evaluation suite are not vendor material. Official-directory GA remains gated
-on replacing the vendor core with Gloamere-owned taxonomy, data, scripts, and
-rules, then rerunning all identity, routing, and quality evaluations at the new
-SHA.
+`gloamere-ui-system` and its pinned MIT vendor core are isolated under
+[`experiments/workflows/gloamere-ui-system`](../../experiments/workflows/gloamere-ui-system).
+They are not part of this plugin, the official-directory submission, or its
+release archive. The candidate can return only after its taxonomy, data,
+scripts, and rules are replaced by Gloamere-owned material and its identity,
+routing, and quality evidence are rerun at the replacement SHA.

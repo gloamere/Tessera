@@ -1,7 +1,7 @@
 {
   "name": "gloamere-workflows",
-  "version": "1.0.0-beta.1",
-  "description": "Focused Codex workflows for UI systems, visual review, knowledge capture, and product decisions.",
+  "version": "1.0.0",
+  "description": "Evidence-backed workflows for product decisions, visual reviews, and durable knowledge.",
   "author": {
     "name": "Gloamere",
     "url": "https://gloamere.com"
@@ -10,36 +10,35 @@
   "repository": "https://github.com/gloamere/codex-plugins",
   "license": "MIT",
   "keywords": [
-    "codex",
+    "decision-making",
     "design",
     "knowledge",
     "productivity",
-    "workflows"
+    "visual-review"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Gloamere Workflows",
-    "shortDescription": "Professional Codex workflows",
-    "longDescription": "Add four opt-in Codex workflows for UI systems, visual review, knowledge capture, and product decision records.",
+    "shortDescription": "Decide, review, and record",
+    "longDescription": "Evidence-backed workflows that help product and design leads compare product options, review visible interfaces, and preserve decisions or research as durable knowledge.",
     "developerName": "Gloamere",
     "category": "Productivity",
     "capabilities": [
-      "Read",
-      "Write"
+      "Product decisions",
+      "Visual reviews",
+      "Knowledge capture"
     ],
     "websiteURL": "https://codex.gloamere.com/workflows",
     "privacyPolicyURL": "https://codex.gloamere.com/privacy",
     "termsOfServiceURL": "https://codex.gloamere.com/terms",
     "supportURL": "https://codex.gloamere.com/support",
     "defaultPrompt": [
-      "Use Gloamere Workflows to define a coherent UI system for this product.",
-      "Capture this decision as a durable, linked project record."
+      "Compare these product options using the available evidence and recommend the next validation step.",
+      "Review this interface and prioritize the three visual changes with the highest user impact.",
+      "Turn these materials into a durable, source-linked record in the existing knowledge base."
     ],
     "brandColor": "#8B74D6",
     "composerIcon": "./assets/icon.png",
-    "logo": "./assets/logo.png",
-    "screenshots": [
-      "./assets/screenshot.png"
-    ]
+    "logo": "./assets/logo.png"
   }
 }

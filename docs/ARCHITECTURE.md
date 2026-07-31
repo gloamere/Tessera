@@ -1,76 +1,92 @@
-# Current architecture
+# Current Gloamere architecture
 
-This page describes the Gloamere 4.x public release. Historical ADRs remain
-available as evidence, but only
-[codex-only-v4-release](decisions/codex-only-v4-release.md) defines the current
-packaging and brand boundary.
+The accepted
+[universal Workflows decision](decisions/universal-workflows-v4-release.md)
+defines the active 4.0 product boundary. Earlier ADRs remain historical.
 
-## Release surface
+## Product surfaces
 
-| Module | Interface | Runtime boundary |
+| Module | Audience | Runtime boundary |
 | --- | --- | --- |
-| `gloamere-eval` | `gloamere-skill-eval` and local JSON reports | Self-contained Python 3 standard-library runner; no telemetry or service |
-| `gloamere-workflows` | Four independently routed professional skills | Instructions plus bundled local UI reference data and helper scripts |
-| Codex native capabilities | Skill selection, plans, approvals, delegation, plugin lifecycle, tools, and connectors | Owned by Codex; Gloamere does not wrap or duplicate them |
-| `experiments/` | Maintainer-only evaluation evidence | Not included in plugin manifests or release archives |
+| `gloamere-workflows@1.0.0` | Product and design leads | Three skills-only workflows; no MCP, UI, backend, auth, hooks, or telemetry |
+| `gloamere-eval@1.0.0-beta.1` | Maintainers | Self-contained Python standard-library runner and local reports |
+| `experiments/` | Maintainers | UI System, Debug Loop, and other unpublished candidates; never packaged |
+| Host capabilities | End users | Native Skill selection, task execution, approvals, tools, connectors, and plugin lifecycle |
 
-The public marketplace exposes exactly two plugins:
+The universal-directory artifact contains exactly:
 
 ```text
-gloamere
-├── gloamere-eval
-└── gloamere-workflows
+gloamere-workflows
+├── gloamere-product-decision
+├── gloamere-visual-review
+└── gloamere-knowledge-capture
 ```
 
-Installing `gloamere-workflows` makes four skill descriptions discoverable. It
-does not force all four skills into every task. Codex loads a skill only when
-the request matches that skill’s boundary.
+Eval remains in the repository marketplace so maintainers can validate the
+installed package without making Eval the ordinary user's entry point.
 
-## Release seams
+## Release data flow
 
 ```mermaid
 flowchart LR
-    R["release-manifest.json"] --> V["VERSION"]
-    R --> G["Deterministic generator"]
-    G --> M["Codex marketplace"]
+    R["release-manifest.json"] --> G["Deterministic generator"]
+    G --> V["VERSION"]
+    G --> M["Local maintainer marketplace"]
     G --> X["Release index"]
-    R --> P["Plugin manifests"]
-    R --> I["Pinned-tag installers"]
-    R --> Z["Two ZIP archives + SHA-256"]
-    C["Three-platform checks"] --> R
-    C --> M
-    C --> P
-    C --> I
-    C --> Z
+    G --> W["Website release constants"]
+    R --> A["Admission + quality locks"]
+    A --> E["Report v4 evidence"]
+    R --> P["Tracked-only packager"]
+    E --> P
+    P --> Z["ZIP + checksum + provenance"]
+    Z --> D["Universal directory submission"]
 ```
 
-`release-manifest.json` is authoritative for the distribution version, Git tag,
-repository, marketplace policy, plugin versions, paths, skill sets, archive
-names, and legacy detection policy. The generator writes the marketplace and
-release index deterministically. Other files are checked mirrors because Codex
-and GitHub consume their native formats directly.
+`release-manifest.json` owns distribution and package versions, statuses,
+profiles, skill sets, archive names, admission policy, budgets, thresholds, and
+current content hashes. Generated mirrors are checked in CI.
 
-Each ZIP contains one top-level plugin directory and its
-`.codex-plugin/plugin.json`, `skills/`, assets, references, and helper scripts.
-Python caches and repository-only tests or experiments are excluded.
+The packager reads the Git index, accepts only regular `100644`/`100755` blobs,
+and rejects dirty tracked release files. Each ZIP embeds file hashes, modes,
+the commit, and a normalized content digest. A global
+`release-provenance.json` binds those digests to archive hashes and release
+metadata.
 
-## Compatibility boundary
+## Evaluation flow
 
-Gloamere 4.x is Codex-only. It has no active legacy marketplace, manifest, or
-installer. When the installer finds a 3.x selector, it reports the manual
-migration sequence and stops before changing state. Side-by-side comparison
-belongs in a separate `CODEX_HOME`; it is not an accepted routing baseline.
-See [MIGRATION.md](../MIGRATION.md) for user-controlled cleanup.
+```text
+static validation (0 calls)
+       ↓
+PR selection (0 or ≤12)
+       ↓
+release selection (normally 20–28 routing calls)
+       ↓ unexpected only
+targeted retry (total hard cap 40)
+       ↓
+report v4 + semantic quality rubric
+```
+
+Every attempt is appended to a journal before aggregation. `--resume` skips
+completed identities, `--shard` partitions deterministic selections, and
+`--finalize` builds a report without invoking a model. The initial submission
+first completes one 102-case exhaustive pass, then retries only anomalies up
+to the separate 120-call hard cap; routine changes do not run this path.
+
+## Compatibility and support
+
+The directory package targets ChatGPT Work web, the ChatGPT Work and Codex
+desktop apps, and Codex CLI. It does not claim IDE, mobile, Chat, or
+non-OpenAI-host support. Eval evidence is currently produced by local Codex
+CLI only.
+
+Legacy `@tessera` detection is read-only. See [MIGRATION.md](../MIGRATION.md).
 
 ## Maintainer rules
 
-1. Change `release-manifest.json` first, then update all checked mirrors in the
-   same change.
-2. Do not add a third public plugin without a new accepted ADR and routing
-   evidence.
-3. Do not publish from a mutable branch. Installer URLs and marketplace Git
-   sources must use the release tag.
-4. Preserve historical ADRs and evidence verbatim. New architecture replaces
-   their authority without rewriting their record.
-5. Keep plugin runtime assets self-contained and keep Eval free of third-party
-   runtime dependencies.
+1. Change `release-manifest.json`, suites, or policies first, then regenerate
+   mirrors and hashes in the same change.
+2. Keep public Workflows to the same audience and success metric; new
+   experimental Skills require current-SHA value and routing evidence.
+3. Never publish a mutable branch or a dirty tracked package.
+4. Report v3 may be inspected historically but cannot authorize release.
+5. Preserve experimental provenance and user-controlled files.

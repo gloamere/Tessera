@@ -12,8 +12,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "gloamere-workflows"
-SKILL = PLUGIN / "skills" / "gloamere-ui-system"
+SKILL = ROOT / "experiments" / "workflows" / "gloamere-ui-system"
 SCRIPTS = SKILL / "scripts"
 UPSTREAM_COMMIT = "f8ac5e1266dba8354ea96e19994d9f4345e7ec31"
 VENDOR_DATA_DIGEST = "1140123a63f8a4253f438d05748b9647300cba5fa49269cccca867c8906552dd"
@@ -42,13 +41,16 @@ class GloamereUISystemTests(unittest.TestCase):
     def test_upstream_core_is_pinned_and_attributed(self) -> None:
         provenance = (SKILL / "references" / "UPSTREAM.md").read_text(encoding="utf-8")
         license_text = (
-            PLUGIN / "THIRD_PARTY_NOTICES" / "next-level-builder-MIT.txt"
+            SKILL / "THIRD_PARTY_NOTICES" / "next-level-builder-MIT.txt"
         ).read_text(encoding="utf-8")
         self.assertIn(UPSTREAM_COMMIT, provenance)
-        self.assertIn("../../../THIRD_PARTY_NOTICES/next-level-builder-MIT.txt", provenance)
+        self.assertIn("../THIRD_PARTY_NOTICES/next-level-builder-MIT.txt", provenance)
         self.assertIn("Gloamere orchestration", provenance)
         self.assertIn("byte-for-byte copies", provenance)
         self.assertIn("Copyright (c) 2024 Next Level Builder", license_text)
+        self.assertFalse(
+            (ROOT / "plugins" / "gloamere-workflows" / "skills" / "gloamere-ui-system").exists()
+        )
 
     def test_vendored_data_is_unchanged_and_core_tests_pass(self) -> None:
         data_root = SKILL / "data"

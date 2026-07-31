@@ -305,13 +305,8 @@ main > section,
   text-transform: uppercase;
 }
 
-body:has(.home-main) {
-  overflow: hidden;
-}
-
 .home-main {
-  height: calc(100svh - 5.9rem);
-  min-height: 36rem;
+  min-height: calc(100svh - 5.9rem);
 }
 
 .commercial-showcase {
@@ -319,8 +314,8 @@ body:has(.home-main) {
   grid-template-columns: minmax(0, 0.92fr) minmax(32rem, 1.08fr);
   /* 根因是固定外壳宽度和上下留白在 4K 视口中提前收口；外壳改为贴合页面框线，阅读缩进交给左栏自身。 */
   width: calc(100% - (2 * var(--shell-pad)));
-  height: 100%;
-  padding-block: 0;
+  min-height: calc(100svh - 5.9rem);
+  padding-block: clamp(1rem, 2.5vh, 2.25rem);
   gap: clamp(1.5rem, 3vw, 3.5rem);
 }
 
@@ -581,7 +576,7 @@ body:has(.home-main) {
 
 .showcase-product-menu {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .showcase-product-menu a {
@@ -1446,6 +1441,26 @@ button:disabled {
   line-height: 1.95;
 }
 
+.directory-status-copy {
+  display: grid;
+  min-height: 12rem;
+  align-content: center;
+  padding: clamp(1.8rem, 5vw, 3.25rem);
+  gap: 0.75rem;
+}
+
+.directory-status-copy strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 3.25rem);
+  font-weight: 500;
+}
+
+.directory-status-copy p {
+  max-width: 58rem;
+  margin: 0;
+  color: var(--muted);
+}
+
 .install-console code span {
   display: block;
   min-width: max-content;
@@ -1768,9 +1783,9 @@ button:disabled {
 }
 
 .orbit-ui { top: 11%; left: 50%; transform: translateX(-50%); }
-.orbit-review { top: 50%; right: 4%; transform: translateY(-50%); }
-.orbit-knowledge { bottom: 11%; left: 50%; transform: translateX(-50%); }
-.orbit-decision { top: 50%; left: 4%; transform: translateY(-50%); }
+.orbit-review { right: 4%; bottom: 11%; }
+.orbit-knowledge { bottom: 11%; left: 4%; }
+.orbit-decision { top: 11%; left: 50%; transform: translateX(-50%); }
 
 .skill-index {
   display: grid;
@@ -2198,15 +2213,11 @@ button:disabled {
     grid-column: 1 / -1;
   }
 
-  .home-main {
-    height: calc(100svh - 8.55rem);
-    min-height: 32rem;
-  }
-
   .commercial-showcase {
     grid-template-columns: 1fr;
     grid-template-rows: minmax(0, 0.94fr) minmax(0, 1.06fr);
-    padding-block: 0;
+    min-height: calc(100svh - 8.55rem);
+    padding-block: 1rem;
   }
 
   .showcase-copy {
@@ -2493,18 +2504,10 @@ button:disabled {
     grid-column: 1;
   }
 
-  body:has(.home-main) {
-    overflow: hidden;
-  }
-
-  .home-main {
-    height: calc(100svh - 8.4rem);
-    min-height: 30rem;
-  }
-
   .commercial-showcase {
-    grid-template-rows: minmax(0, 1fr) auto;
-    padding-block: 0;
+    grid-template-rows: auto auto;
+    min-height: calc(100svh - 8.4rem);
+    padding-block: 0.8rem;
     gap: 0.7rem;
   }
 

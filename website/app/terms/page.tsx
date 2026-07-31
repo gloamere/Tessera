@@ -5,7 +5,7 @@ import { ISSUE_TRACKER_URL, LegalPage, REPOSITORY_URL } from "../site";
 
 export const metadata: Metadata = {
   title: "Terms",
-  description: "Terms of use for Gloamere Codex plugins.",
+  description: "Terms of use for Gloamere Workflows.",
   alternates: { canonical: "/terms" },
 };
 
@@ -14,11 +14,11 @@ export default function TermsPage() {
     <LegalPage
       route={l("Policy / Terms", "政策 / 条款")}
       title={l("Open source, used with review.", "开源，但请审慎使用。")}
-      lead={l("Last updated July 23, 2026.", "最后更新：2026 年 7 月 23 日。")}
+      lead={l("Last updated July 31, 2026.", "最后更新：2026 年 7 月 31 日。")}
     >
       <section>
         <h2><T value={l("License and warranty", "许可证与保证")} /></h2>
-        <p><T value={l("Gloamere Eval and Gloamere Workflows are provided under the repository’s ", "Gloamere Eval 与 Gloamere Workflows 依据仓库的 ")} />
+        <p><T value={l("Gloamere Workflows is provided under the repository’s ", "Gloamere Workflows 依据仓库的 ")} />
           <a href={`${REPOSITORY_URL}/blob/main/LICENSE`}>MIT License</a>
           <T value={l(". They are provided “as is,” without warranties or a guarantee that generated analysis, recommendations, or reports are complete or correct.", " 提供。软件按“原样”提供，不作任何保证，也不保证生成的分析、建议或报告完整或正确。")} />
         </p>

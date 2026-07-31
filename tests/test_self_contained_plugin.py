@@ -32,6 +32,19 @@ class SelfContainedPluginTests(unittest.TestCase):
         self.assertEqual(manifests, expected)
         self.assertFalse((ROOT / ".claude-plugin" / "marketplace.json").exists())
 
+    def test_skills_only_plugins_keep_brand_assets_but_no_screenshots(self) -> None:
+        for plugin in RELEASE["plugins"]:
+            plugin_root = ROOT / plugin["path"]
+            manifest = json.loads(
+                (plugin_root / ".codex-plugin" / "plugin.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertNotIn("screenshots", manifest.get("interface", {}))
+            self.assertFalse((plugin_root / "assets" / "screenshot.png").exists())
+            self.assertTrue((plugin_root / "assets" / "logo.png").is_file())
+            self.assertTrue((plugin_root / "assets" / "icon.png").is_file())
+
     def test_cached_eval_plugin_starts_without_repository_checkout(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             temp_root = Path(temp)
@@ -88,6 +101,7 @@ class SelfContainedPluginTests(unittest.TestCase):
                         "scripts/package_release.py",
                         "--output-dir",
                         destination,
+                        "--allow-dirty",
                     ],
                     cwd=ROOT,
                     capture_output=True,
@@ -103,6 +117,7 @@ class SelfContainedPluginTests(unittest.TestCase):
             expected_assets = {
                 RELEASE["distribution"]["releaseManifestAsset"],
                 RELEASE["distribution"]["releaseIndex"],
+                "release-provenance.json",
             }
             expected_assets.update(
                 name
@@ -113,8 +128,10 @@ class SelfContainedPluginTests(unittest.TestCase):
                 {path.name for path in output.iterdir() if path.is_file()},
                 expected_assets,
             )
-            for field in ("releaseManifestAsset", "releaseIndex"):
-                name = RELEASE["distribution"][field]
+            for name in (
+                RELEASE["distribution"]["releaseManifestAsset"],
+                RELEASE["distribution"]["releaseIndex"],
+            ):
                 self.assertEqual(
                     (output / name).read_bytes(),
                     (ROOT / name).read_bytes(),
@@ -123,6 +140,10 @@ class SelfContainedPluginTests(unittest.TestCase):
                     (output / name).read_bytes(),
                     (second_output / name).read_bytes(),
                 )
+            self.assertEqual(
+                (output / "release-provenance.json").read_bytes(),
+                (second_output / "release-provenance.json").read_bytes(),
+            )
             for plugin in RELEASE["plugins"]:
                 archive = output / plugin["archive"]
                 checksum = output / plugin["checksum"]
@@ -139,6 +160,11 @@ class SelfContainedPluginTests(unittest.TestCase):
                 )
                 with zipfile.ZipFile(archive) as bundle:
                     names = bundle.namelist()
+                    provenance = json.loads(
+                        bundle.read(
+                            f"{plugin['id']}/RELEASE-PROVENANCE.json"
+                        )
+                    )
                 self.assertTrue(names)
                 self.assertTrue(
                     all(name.startswith(f"{plugin['id']}/") for name in names)
@@ -148,9 +174,73 @@ class SelfContainedPluginTests(unittest.TestCase):
                     names,
                 )
                 self.assertIn(f"{plugin['id']}/LICENSE", names)
+                self.assertIn(
+                    f"{plugin['id']}/RELEASE-PROVENANCE.json",
+                    names,
+                )
                 self.assertFalse(
                     any("__pycache__" in name or name.endswith(".pyc") for name in names)
                 )
+                self.assertEqual(provenance["pluginId"], plugin["id"])
+                self.assertEqual(provenance["pluginVersion"], plugin["version"])
+                public_files = provenance["files"]
+                canonical = (
+                    json.dumps(
+                        public_files,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    )
+                    + "\n"
+                ).encode()
+                self.assertEqual(
+                    provenance["contentDigest"],
+                    hashlib.sha256(canonical).hexdigest(),
+                )
+                with zipfile.ZipFile(archive) as bundle:
+                    for item in public_files:
+                        content = bundle.read(f"{plugin['id']}/{item['path']}")
+                        self.assertEqual(len(content), item["size"])
+                        self.assertEqual(
+                            hashlib.sha256(content).hexdigest(),
+                            item["sha256"],
+                        )
+
+    def test_release_packager_excludes_untracked_plugin_files(self) -> None:
+        sentinel = EVAL_PLUGIN / "untracked-release-sentinel.txt"
+        self.assertFalse(sentinel.exists())
+        try:
+            sentinel.write_text("must not ship\n", encoding="utf-8")
+            with tempfile.TemporaryDirectory() as output:
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        "scripts/package_release.py",
+                        "--output-dir",
+                        output,
+                        "--allow-dirty",
+                    ],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                    timeout=60,
+                    check=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                archive = Path(output) / next(
+                    plugin["archive"]
+                    for plugin in RELEASE["plugins"]
+                    if plugin["id"] == "gloamere-eval"
+                )
+                with zipfile.ZipFile(archive) as bundle:
+                    self.assertNotIn(
+                        "gloamere-eval/untracked-release-sentinel.txt",
+                        bundle.namelist(),
+                    )
+        finally:
+            sentinel.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

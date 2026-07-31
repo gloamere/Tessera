@@ -46,7 +46,7 @@ Schema 位于 `<eval-root>/references/schemas/`：
 
 - `eval-suite.schema.json`
 - `target-lock.schema.json`
-- `report.schema.json`（公共文件名固定，当前内容为 schema v3）
+- `report.schema.json`（公共文件名固定，当前内容为 schema v4）
 - `native-invocation-output.schema.json`
 
 suite 以顶层和逐案例 `plugin_id` 显式声明插件身份；案例使用稳定 Skill ID 填写
@@ -65,20 +65,47 @@ powershell -NoProfile -File "<eval-root>\scripts\run.ps1" lint `
   --suite ".\eval-suite.json" `
   --target-lock ".\eval-target-lock.json"
 
-# 3. 运行 Codex 原生激活评测
+# 3. 先预览低 Token release 选择；不会调用模型
 powershell -NoProfile -File "<eval-root>\scripts\run.ps1" native `
   --suite ".\eval-suite.json" `
   --target-lock ".\eval-target-lock.json" `
-  --repeat 3 `
+  --policy ".\risk-tiered-v2.json" `
+  --mode release `
+  --changed-skill "example-skill" `
+  --max-calls 40 `
+  --dry-run
+
+# 4. 使用同一选择运行并逐次写 journal
+powershell -NoProfile -File "<eval-root>\scripts\run.ps1" native `
+  --suite ".\eval-suite.json" `
+  --target-lock ".\eval-target-lock.json" `
+  --policy ".\risk-tiered-v2.json" `
+  --mode release `
+  --changed-skill "example-skill" `
+  --max-calls 40 `
+  --model "<model>" `
+  --journal ".\eval-report.journal.jsonl" `
   --output ".\eval-report.json"
 ```
 
-可用 `--case <id>` 重复选择案例，`--timeout <seconds>` 调整单次观察窗口，
-`--model <model>` 指定 Codex 模型。默认使用隔离的临时工作区；只有确需真实项目
-上下文且 suite 只有一个 batch 时才传 `--workspace <path>`。每个
-`independent_batches` 批次使用不同临时工作区，并在批次前后重新校验插件目录、
-manifest、Skill、agent policy 与目录状态；attempt 以 `batch_id` + `attempt`
-唯一标识。
+`--mode pr|release|exhaustive` 选择策略；`pr` 与发布候选的 `release`
+必须提供外部 `--policy`，并可重复传 `--changed-skill`。每月漂移监测可在
+`release` 下省略变更 Skill，配合 `--rotation-key YYYY-MM --max-calls 16`；
+这类报告不具备发布资格。`--max-calls` 是硬上限，
+`--rotation-key` 固定轮换样例，`--dry-run` 只输出选择和预算。
+
+`exhaustive` 使用两阶段调度：必须先完成 policy 声明的全部
+`initial_calls`，才会复验异常案例。当前官方套件先各运行 102 个唯一案例一次，
+再用剩余预算复验异常；硬上限为 120。初始失败不会挤占尚未覆盖案例，预算不足
+以完成复验时结果保持 `pending`。`--dry-run` 会明确返回
+`initial_planned_calls`、`hard_max_calls`、`retry_call_capacity` 和
+`execution_strategy`，且不会调用模型。
+
+长任务使用 `--journal` 逐次原子追加、`--resume` 跳过已完成 attempt、
+`--shard INDEX/TOTAL` 确定性分片。`--finalize` 只从 journal 生成报告，不调用
+模型。可继续用 `--case <id>` 显式缩小范围、`--timeout <seconds>` 调整观察窗口、
+`--model <model>` 绑定实际模型。默认使用隔离临时工作区；只有确需真实项目上下文
+时才传 `--workspace <path>`。
 
 ## 身份与冲突
 
@@ -107,10 +134,11 @@ frontmatter 名称、插件 ID/版本、相对路径或任一 SHA-256 变化，�
 - `verdict` 只允许 `pass`、`fail` 或 `null`；只有 `verified` 证据参与评分，其余
   状态一律为 `null`，避免把证据问题误判成路由失败。
 
-报告使用 schema v3，分别统计 `evidence_coverage` 和 `conditional_accuracy`，避免把
-“没有证据”误写成准确。稳定性要求每个 batch × repeat 组合恰好出现一次、全部
-attempt 都有 verified 评分，且跨批次的身份、声明与观察集合一致；未评分 attempt
-不计为稳定成功。`lint --report` 会从 attempts 全量重算逐案例指标和总摘要。
+报告使用 schema v4，分别统计 `evidence_coverage` 和
+`conditional_accuracy`，避免把“没有证据”误写成准确。新增 `evaluation`
+记录 policy、mode、选择理由、选中案例、预算、实际/恢复调用数、分片与完成状态；
+`provenance` 绑定 commit、suite/policy/target lock/Skill SHA、Codex CLI、model
+和 ISO 时间。`lint --report` 会从 attempts 全量重算指标，不信任报告自报汇总。
 
 报告的 `execution_provenance` 只允许 `codex_cli` 或 `fixture_adapter`。
 `release_evidence_eligible` 只有前者为 `true`；fixture 仅用于验证 runner，不得作为
@@ -120,5 +148,5 @@ attempt 都有 verified 评分，且跨批次的身份、声明与观察集合�
 时才使用 `--include-prompts`。报告不写 target lock 中的绝对路径；当
 `absolute_paths_included=false` 时，lint 会递归拒绝报告任意字段中的绝对路径。
 
-`lint --report` 可以只读兼容结构完整的旧 schema v2 报告并标记兼容来源，但 v2
-永远不是发布证据，也不会发布旧 Skill 名称、旧命令或旧别名。
+`lint --report` 可以只读兼容结构完整的 schema v2/v3 历史报告并标记兼容来源，
+但只有 schema v4 能成为发布证据。兼容读取不会发布旧 Skill 名称、旧命令或旧别名。

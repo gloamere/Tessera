@@ -15,19 +15,19 @@ export const metadata: Metadata = {
   // canonical URLs and also keeps the Caddy build fully static.
   metadataBase: new URL("https://codex.gloamere.com"),
   title: {
-    default: "Gloamere — Evidence-led Codex plugins",
+    default: "Gloamere — Evidence-backed product workflows",
     template: "%s — Gloamere",
   },
   description:
-    "Evidence-led evaluation and focused professional workflows for Codex.",
+    "Evidence-backed workflows for product decisions, visual reviews, and durable knowledge.",
   applicationName: "Gloamere",
   authors: [{ name: "Gloamere", url: "https://gloamere.com" }],
   creator: "Gloamere",
   keywords: [
-    "Codex",
-    "Codex plugins",
-    "Skill evaluation",
-    "AI workflows",
+    "product decisions",
+    "visual review",
+    "knowledge capture",
+    "AI product workflows",
     "Gloamere",
   ],
   icons: {
@@ -37,25 +37,16 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "Gloamere — Evidence-led Codex tools",
+    title: "Gloamere — Evidence-backed product workflows",
     description:
-      "Inspect native Skill activation and add four focused professional workflows.",
+      "Decide what to build, review what is visible, and preserve what the team learned.",
     siteName: "Gloamere",
-    images: [
-      {
-        url: "/og.png",
-        width: 1728,
-        height: 910,
-        alt: "Gloamere evidence ledger showing a prompt hash, target lock, and verified result.",
-      },
-    ],
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Gloamere — Evidence-led Codex tools",
+    card: "summary",
+    title: "Gloamere — Evidence-backed product workflows",
     description:
-      "Inspect native Skill activation and add four focused professional workflows.",
-    images: ["/og.png"],
+      "Decide what to build, review what is visible, and preserve what the team learned.",
   },
   robots: {
     index: true,

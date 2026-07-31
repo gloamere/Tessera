@@ -5,7 +5,7 @@ import { ISSUE_TRACKER_URL, LegalPage } from "../site";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: "Privacy boundaries for Gloamere Eval and Gloamere Workflows.",
+  description: "Privacy boundaries for Gloamere Workflows.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -13,29 +13,28 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       route={l("Policy / Privacy", "政策 / 隐私")}
-      title={l("Local plugins. No Gloamere telemetry.", "本地插件，不含 Gloamere 遥测。")}
-      lead={l("Last updated July 23, 2026.", "最后更新：2026 年 7 月 23 日。")}
+      title={l("Skills-only. No Gloamere telemetry.", "仅含 Skills，不含 Gloamere 遥测。")}
+      lead={l("Last updated July 31, 2026.", "最后更新：2026 年 7 月 31 日。")}
     >
       <section>
         <h2><T value={l("What Gloamere does not collect", "Gloamere 不收集什么")} /></h2>
         <p><T value={l(
-          "Gloamere Eval and Gloamere Workflows are local, skill-based Codex plugins. They do not operate a Gloamere backend, create user accounts, set cookies, collect telemetry, or transmit analytics to Gloamere.",
-          "Gloamere Eval 与 Gloamere Workflows 是基于 Skill 的本地 Codex 插件。它们不运行 Gloamere 后端、不创建用户账户、不设置 Cookie、不收集遥测，也不向 Gloamere 传输分析数据。",
+          "Gloamere Workflows is a skills-only plugin. It does not operate a Gloamere backend, create Gloamere user accounts, set Gloamere cookies, collect Gloamere telemetry, or transmit analytics to Gloamere.",
+          "Gloamere Workflows 是仅包含 Skills 的插件。它不运行 Gloamere 后端、不创建 Gloamere 用户账户、不设置 Gloamere Cookie、不收集 Gloamere 遥测，也不向 Gloamere 传输分析数据。",
         )} /></p>
       </section>
       <section>
-        <h2><T value={l("Local inputs and outputs", "本地输入与输出")} /></h2>
-        <p><T value={l("Gloamere Eval reads the case files and project context selected by the user. It writes JSON to stdout by default and creates a report file only when the user explicitly supplies ", "Gloamere Eval 读取用户选择的案例文件与项目上下文。默认将 JSON 写入 stdout，只有用户显式提供 ")} /><code>--output</code><T value={l(".", " 时才创建报告文件。")} /></p>
+        <h2><T value={l("Inputs and outputs", "输入与输出")} /></h2>
         <p><T value={l(
-          "Gloamere Workflows use the project files and Codex capabilities authorized by the user. Bundled helper scripts operate locally.",
-          "Gloamere Workflows 使用用户授权的项目文件与 Codex 能力，随附辅助脚本在本地运行。",
+          "Gloamere Workflows uses only the conversation context, files, and host capabilities the user makes available. The plugin contains no UI, MCP server, background service, analytics client, or bundled connector.",
+          "Gloamere Workflows 仅使用用户提供的对话上下文、文件与宿主能力。插件不包含 UI、MCP 服务器、后台服务、分析客户端或随附连接器。",
         )} /></p>
       </section>
       <section>
         <h2><T value={l("Other services", "其他服务")} /></h2>
         <p><T value={l(
-          "Codex and any tools, connectors, websites, or services the user separately chooses to invoke are governed by their own privacy terms. Gloamere does not receive that data merely because one of these plugins is installed.",
-          "Codex 以及用户另行选择调用的工具、连接器、网站或服务，均受其各自隐私条款约束。安装这些插件本身不会让 Gloamere 收到相关数据。",
+          "ChatGPT Work, Codex, and any tools, connectors, websites, or services the user separately chooses to invoke are governed by their own privacy terms. Gloamere does not receive that data merely because this plugin is installed.",
+          "ChatGPT Work、Codex 以及用户另行选择调用的工具、连接器、网站或服务，均受其各自隐私条款约束。安装本插件本身不会让 Gloamere 收到相关数据。",
         )} /></p>
       </section>
       <section>

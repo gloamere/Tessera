@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "preparing",
+  "submissionType": "skills-only",
+  "package": {
+    "name": "gloamere-workflows",
+    "version": "1.0.0",
+    "artifact": "dist/gloamere-workflows-1.0.0.zip"
+  },
+  "listing": {
+    "en-US": {
+      "displayName": "Gloamere Workflows",
+      "shortDescription": "Decide, review, and record",
+      "longDescription": "Evidence-backed workflows that help product and design leads compare product options, review visible interfaces, and preserve decisions or research as durable knowledge.",
+      "starterPrompts": [
+        "Compare these product options and recommend the next validation step.",
+        "Review this interface and prioritize the three highest-impact changes.",
+        "Turn these materials into a durable, source-linked knowledge record."
+      ]
+    },
+    "zh-CN": {
+      "displayName": "Gloamere 工作流",
+      "shortDescription": "决策、评审与知识沉淀",
+      "longDescription": "面向产品与设计负责人的证据化工作流，用于比较产品方案、评审现有界面，并把决策和研究沉淀为可维护知识。",
+      "starterPrompts": [
+        "比较这些产品方案，并推荐下一步最低成本的验证。",
+        "评审这个界面，并按用户影响列出最重要的三项修改。",
+        "把这些材料沉淀为保留来源、可长期维护的知识记录。"
+      ]
+    }
+  },
+  "urls": {
+    "website": "https://codex.gloamere.com/workflows",
+    "support": "https://codex.gloamere.com/support",
+    "privacy": "https://codex.gloamere.com/privacy",
+    "terms": "https://codex.gloamere.com/terms"
+  },
+  "testCases": "docs/directory/evaluation-cases.json",
+  "releaseNotes": "docs/directory/RELEASE_NOTES.md",
+  "availability": {
+    "status": "pending-owner-confirmation",
+    "countries": []
+  },
+  "demoRecording": {
+    "status": "pending-recording",
+    "url": null,
+    "checklist": "docs/directory/DEMO_CHECKLIST.md"
+  },
+  "pilot": {
+    "status": "pending",
+    "participants": 0,
+    "completedTasks": 0,
+    "readyWithoutMajorRewriteRate": null,
+    "report": "docs/directory/PILOT.md"
+  },
+  "ui": false,
+  "mcp": false
+}

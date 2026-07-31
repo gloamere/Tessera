@@ -6,15 +6,30 @@ import {
   LanguageSwitch,
   T,
 } from "./i18n";
+import { releaseData } from "./generated-release";
 import { l, type LocalizedText } from "./locale";
+import {
+  DIRECTORY_APPROVED,
+  DIRECTORY_STATUS,
+  DIRECTORY_URL,
+} from "./release-state";
 
 export const REPOSITORY_URL = "https://github.com/gloamere/codex-plugins";
 export const ISSUE_TRACKER_URL = `${REPOSITORY_URL}/issues`;
 export const SECURITY_REPORT_URL = `${REPOSITORY_URL}/security/advisories/new`;
-export const RELEASE_TAG = "v4.0.0-beta.1";
+
+const directoryPlugin = releaseData.plugins.find(
+  (plugin) => plugin.publicRole === "directory",
+);
+const maintainerPlugin = releaseData.plugins.find(
+  (plugin) => plugin.publicRole === "maintainer",
+);
+
+if (!directoryPlugin || !maintainerPlugin) {
+  throw new Error("Generated release data must include directory and maintainer plugins.");
+}
 
 const navigation = [
-  { href: "/eval", label: l("Eval", "评测") },
   { href: "/workflows", label: l("Workflows", "工作流") },
   { href: "/support", label: l("Support", "支持") },
 ];
@@ -44,7 +59,7 @@ function SiteHeader() {
       <div className="header-inner">
         <Link className="brand-link" href="/" aria-label="Gloamere home">
           <span className="brand-wordmark">Gloamere</span>
-          <small><T value={l("Evidence-led Codex tools", "为 Codex 构建的证据驱动工具")} /></small>
+          <small><T value={l("Evidence-backed product workflows", "证据驱动的产品工作流")} /></small>
         </Link>
         <nav className="primary-nav" aria-label="Primary navigation">
           {navigation.map((item) => (
@@ -56,7 +71,7 @@ function SiteHeader() {
         <div className="header-actions">
           <span className="beta-mark">
             <span className="status-dot" />
-            4.0 Beta / Codex only
+            <T value={DIRECTORY_STATUS} />
           </span>
           <LanguageSwitch />
           <a href={REPOSITORY_URL}>GitHub</a>
@@ -74,7 +89,7 @@ function SiteFooter() {
           <div>
             <strong className="brand-wordmark">Gloamere</strong>
             <p>
-              <T value={l("Evidence-led tools for Codex.", "为 Codex 构建的证据驱动工具。")} />
+              <T value={l("Evidence-backed workflows for product and design leaders.", "面向产品与设计负责人的证据驱动工作流。")} />
             </p>
           </div>
         </div>
@@ -88,8 +103,19 @@ function SiteFooter() {
         <p className="footer-note">
           <T
             value={l(
-              "MIT licensed. Beta candidate. No Gloamere backend or telemetry.",
-              "MIT 许可。Beta 候选版。不含 Gloamere 后端或遥测。",
+              DIRECTORY_APPROVED
+                ? "MIT licensed. Available in the official directory. No Gloamere backend or telemetry."
+                : "MIT licensed. Official directory candidate. No Gloamere backend or telemetry.",
+              DIRECTORY_APPROVED
+                ? "MIT 许可。已在官方目录上线。不含 Gloamere 后端或遥测。"
+                : "MIT 许可。官方目录候选版。不含 Gloamere 后端或遥测。",
+            )}
+          />
+          {" · "}
+          <T
+            value={l(
+              "Skills-only; no plugin UI or MCP server.",
+              "仅包含 Skills；不含插件 UI 或 MCP 服务器。",
             )}
           />
         </p>
@@ -150,7 +176,7 @@ export function EvidenceTrace({ compact = false }: { compact?: boolean }) {
     <figure className={`evidence-trace${compact ? " evidence-trace-compact" : ""}`}>
       <figcaption className="trace-heading">
         <span><T value={l("Native trace ledger", "原生证据账本")} /></span>
-        <span className="schema-chip">schema v3 / record 001</span>
+        <span className="schema-chip">schema v4 / record 001</span>
       </figcaption>
       <ol className="trace-list">
         <li className="trace-node">
@@ -295,47 +321,96 @@ export function InstallPanel({
 }: {
   plugin?: "eval" | "workflows" | "both";
 }) {
-  const pluginCommands =
-    plugin === "eval"
-      ? ["codex plugin add gloamere-eval@gloamere"]
-      : plugin === "workflows"
-        ? ["codex plugin add gloamere-workflows@gloamere"]
-        : [
-            "codex plugin add gloamere-eval@gloamere",
-            "codex plugin add gloamere-workflows@gloamere",
-          ];
+  const isMaintainerTool = plugin === "eval";
+  const hasApprovedDirectoryListing =
+    !isMaintainerTool && DIRECTORY_APPROVED;
 
   return (
-    <section className="install-section" id="install">
+    <section className="install-section" id="directory-status">
       <div className="section-heading">
-        <p className="eyebrow"><T value={l("Pinned installation", "固定版本安装")} /></p>
-        <h2><T value={l("Install only after the immutable beta tag is published.", "仅在不可变 Beta 标签发布后安装。")} /></h2>
+        <p className="eyebrow">
+          <T value={l(isMaintainerTool ? "Maintainer surface" : "Directory status", isMaintainerTool ? "维护者工具" : "目录状态")} />
+        </p>
+        <h2>
+          <T
+            value={
+              isMaintainerTool
+                ? l(
+                    "Eval is not part of the first directory submission.",
+                    "Eval 不属于首轮官方目录提交。",
+                  )
+                : DIRECTORY_STATUS
+            }
+          />
+        </h2>
         <p>
           <T value={l(
-            "These commands become valid only after the release gate passes and the exact tag is published. Nothing is fetched from a moving branch.",
-            "这些命令只会在发布门禁通过且精确标签发布后生效，不会从持续变化的分支拉取内容。",
+            isMaintainerTool
+              ? "The evaluation tooling remains available to repository maintainers as internal quality infrastructure."
+              : hasApprovedDirectoryListing
+                ? "The verified official directory listing is live. Open it below to use Gloamere Workflows."
+                : "No installation command is published yet. This page will link to the verified directory listing only after review and approval.",
+            isMaintainerTool
+              ? "评测工具继续作为仓库维护者使用的内部质量设施。"
+              : hasApprovedDirectoryListing
+                ? "经过验证的官方目录条目已上线，可通过下方链接使用 Gloamere Workflows。"
+                : "目前尚未发布安装命令。审核通过后，本页才会链接到经过验证的目录条目。",
           )} />
         </p>
       </div>
-      <div className="install-console" aria-label="Installation commands">
+      <div className="install-console" aria-label={isMaintainerTool ? "Maintainer availability" : "Official directory review status"}>
         <div className="console-bar">
-          <span>Codex CLI</span>
-          <span>{RELEASE_TAG}</span>
+          <span><T value={l(isMaintainerTool ? "Repository tooling" : "Official plugin directory", isMaintainerTool ? "仓库工具" : "官方插件目录")} /></span>
+          <span>
+            {isMaintainerTool
+              ? `${maintainerPlugin.displayName} ${maintainerPlugin.version}`
+              : `${directoryPlugin.displayName} ${directoryPlugin.version}`}
+          </span>
         </div>
-        <pre>
-          <code>
-            <span>codex plugin marketplace add gloamere/codex-plugins --ref {RELEASE_TAG}</span>
-            {pluginCommands.map((command) => <span key={command}>{command}</span>)}
-            <span>codex plugin list --json</span>
-          </code>
-        </pre>
+        <div className="directory-status-copy">
+          <strong>
+            <T value={isMaintainerTool ? l("Source available to maintainers", "源码供维护者使用") : DIRECTORY_STATUS} />
+          </strong>
+          <p>
+            <T value={l(
+              isMaintainerTool
+                ? "There is no ordinary-user installation path for Eval."
+                : "Gloamere Workflows is skills-only: no plugin UI, screenshots, MCP server, account, or Gloamere telemetry.",
+              isMaintainerTool
+                ? "Eval 不提供面向普通用户的安装入口。"
+                : "Gloamere Workflows 仅包含 Skills：不含插件 UI、截图、MCP 服务器、账户或 Gloamere 遥测。",
+            )} />
+          </p>
+        </div>
       </div>
       <div className="install-notes">
-        <p><strong><T value={l("Default installer:", "默认安装器：")} /></strong>{" "}<T value={l("installs Gloamere Eval.", "安装 Gloamere Eval。")} /></p>
-        <p><strong><T value={l("Legacy safety:", "旧版安全：")} /></strong>{" "}<T value={l("detects old 3.x selectors but never removes, disables, or modifies them.", "检测旧 3.x 标识，但绝不会删除、禁用或修改。")} /></p>
-        <a href={`${REPOSITORY_URL}#install-the-pinned-beta`}>
-          <T value={l("PowerShell, macOS, and Linux installer commands", "PowerShell、macOS 与 Linux 安装命令")} />
-        </a>
+        <p>
+          <strong><T value={l("Supported surfaces:", "支持端：")} /></strong>{" "}
+          <T value={l(
+            isMaintainerTool
+              ? "repository development with Codex CLI."
+              : "ChatGPT Work on web, ChatGPT Work and Codex desktop apps, and Codex CLI.",
+            isMaintainerTool
+              ? "使用 Codex CLI 的仓库开发环境。"
+              : "ChatGPT Work 网页端、ChatGPT Work 与 Codex 桌面端，以及 Codex CLI。",
+          )} />
+        </p>
+        <p>
+          <strong><T value={l("Not supported:", "不支持：")} /></strong>{" "}
+          <T value={l(
+            isMaintainerTool ? "ordinary-user support." : "Chat, IDE integrations, or mobile.",
+            isMaintainerTool ? "普通用户支持。" : "Chat、IDE 集成或移动端。",
+          )} />
+        </p>
+        {hasApprovedDirectoryListing ? (
+          <a href={DIRECTORY_URL ?? "/support"}>
+            <T value={l("Open the verified directory listing", "打开已验证的目录条目")} />
+          </a>
+        ) : (
+          <a href={isMaintainerTool ? `${REPOSITORY_URL}/tree/main/plugins/gloamere-eval` : "/support"}>
+            <T value={l(isMaintainerTool ? "View maintainer source" : "Read support and review status", isMaintainerTool ? "查看维护者源码" : "查看支持与审核状态")} />
+          </a>
+        )}
       </div>
     </section>
   );
@@ -343,23 +418,28 @@ export function InstallPanel({
 
 export function BetaBoundary() {
   const items = [
-    l("Prepared", "已准备"),
-    l("Isolated", "已隔离"),
-    l("Not shipped", "不发布"),
-    l("GA gate", "GA 门禁"),
+    l("Included", "包含"),
+    l("Format", "形态"),
+    l("Surfaces", "支持端"),
+    l("Status", "状态"),
   ];
   const details = [
-    l("Two Codex-only plugins and four stable workflow Skill identities; the release tag remains gated on current native evidence.", "两个 Codex-only 插件和四个稳定工作流 Skill 标识；发布标签仍取决于当前原生证据。"),
-    l("The UI System beta includes a pinned MIT vendor core with preserved notices and an explicit file boundary.", "UI 系统 Beta 包含固定版本的 MIT vendor core，并保留完整声明与明确文件边界。"),
-    l("Repository experiments and finance, growth, or general business-operations Skills.", "仓库实验，以及财务、增长和通用业务运营 Skill。"),
-    l("Official-directory GA requires replacing the UI vendor core with Gloamere-owned taxonomy, data, scripts, and rules, then rerunning evaluations at the new SHA.", "官方目录 GA 前必须以 Gloamere 自有分类、数据、脚本和规则替换 UI vendor core，并在新 SHA 上重新评测。"),
+    l(
+      `${directoryPlugin.skills.length} Skills: Product Decision, Visual Review, and Knowledge Capture.`,
+      `${directoryPlugin.skills.length} 个 Skill：产品决策、视觉评审与知识沉淀。`,
+    ),
+    l("Skills-only, with no plugin UI, screenshots, MCP server, account, or Gloamere backend.", "仅包含 Skills，不含插件 UI、截图、MCP 服务器、账户或 Gloamere 后端。"),
+    l("ChatGPT Work web, ChatGPT Work and Codex desktop apps, and Codex CLI; not Chat, IDE integrations, or mobile.", "ChatGPT Work 网页端、ChatGPT Work 与 Codex 桌面端，以及 Codex CLI；不支持 Chat、IDE 集成或移动端。"),
+    DIRECTORY_APPROVED
+      ? l("Available from the verified official directory listing.", "可通过已验证的官方目录条目使用。")
+      : l("Preparing for official directory review. Installation remains unavailable until an approved listing is live.", "正在准备官方目录审核；获批条目上线前不提供安装入口。"),
   ];
 
   return (
-    <aside className="boundary-panel glass" aria-labelledby="beta-boundary-title">
+    <aside className="boundary-panel glass" aria-labelledby="directory-boundary-title">
       <div>
-        <p className="eyebrow"><T value={l("Release boundary", "发布边界")} /></p>
-        <h2 id="beta-boundary-title"><T value={l("What the 4.0 Beta candidate contains.", "4.0 Beta 候选版包含什么。")} /></h2>
+        <p className="eyebrow"><T value={l("Directory boundary", "目录边界")} /></p>
+        <h2 id="directory-boundary-title"><T value={l("A focused first submission.", "一次聚焦的首轮提交。")} /></h2>
       </div>
       <dl>
         {items.map((item, index) => (

@@ -1,8 +1,21 @@
 #!/usr/bin/env sh
 set -eu
 
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+RUNNER="$SCRIPT_DIR/../plugins/gloamere-eval/skills/gloamere-skill-eval/scripts/run.sh"
+
+# Named arguments are intentionally passed through unchanged so the POSIX
+# wrapper exposes the same contract as run_native_eval.ps1 and the Python CLI.
+case "${1:-}" in
+  --*)
+    exec sh "$RUNNER" native "$@"
+    ;;
+esac
+
+# Keep the historical positional interface for existing automation.
 if [ "$#" -lt 2 ] || [ "$#" -gt 4 ]; then
   echo 'Usage: run_native_eval.sh <suite.json> <target-lock.json> [repeat] [output.json]' >&2
+  echo '   or: run_native_eval.sh --suite FILE --target-lock FILE [native options]' >&2
   exit 2
 fi
 
@@ -20,9 +33,6 @@ if [ -n "$REPEAT" ]; then
     exit 2
   fi
 fi
-
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-RUNNER="$SCRIPT_DIR/../plugins/gloamere-eval/skills/gloamere-skill-eval/scripts/run.sh"
 
 if [ -n "$REPEAT" ] && [ -n "$OUTPUT" ]; then
   exec sh "$RUNNER" native \

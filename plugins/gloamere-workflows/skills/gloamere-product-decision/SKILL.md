@@ -1,11 +1,13 @@
 ---
 name: gloamere-product-decision
-description: 当产品负责人需要基于现有研究、数据和约束比较机会与方案，确定范围、成功指标、风险和下一步验证时使用。适用于机会简报、研究综合、PRD 决策和路线图取舍。不要用于开展访谈或可用性测试、增长渠道与活动执行、内部运营流程，或已定方案的代码实施计划。
+description: 当产品负责人需要基于现有研究、数据和约束比较机会与方案，确定范围、指标、风险和下一步验证时使用；不用于访谈执行、增长活动、内部运营或已定方案的代码计划。 Use when product leads need to compare opportunities or options from existing evidence and define scope, success measures, risks, and the next validation step; not for conducting research, growth execution, internal operations, or implementation planning.
 ---
 
 # 产品决策
 
 把分散证据收敛为可拍板、可复查、可证伪的产品选择。完整模板不是目标；决策理由、未知项和验证路径才是核心。
+
+使用用户当前使用的语言输出；保留来源中的专有名词和字段名。Reply in the user's language and preserve source terminology.
 
 ## 边界
 

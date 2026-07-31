@@ -3,12 +3,18 @@
 This directory contains unpublished candidates. It is intentionally outside
 `plugins/gloamere-workflows`, the marketplace, and every release archive.
 
+`gloamere-ui-system` is also incubated here. Its pinned MIT vendor core and
+notice remain available for audit, but it is excluded from the public
+skills-only package until Gloamere-owned taxonomy, data, scripts, and rules
+replace that core and current-SHA evidence is rerun.
+
 ## Provenance and similarity review
 
-The three candidates were rewritten for the 4.0 product contracts. Their only
-repository predecessors were first introduced by Gloamere in commit `c19f22f`
-under this repository's MIT license; no third-party source, copied notice, or
-separate upstream dependency was found for those files.
+The finance, growth, and internal-operations candidates were rewritten for the
+4.0 product contracts. Their only repository predecessors were first introduced
+by Gloamere in commit `c19f22f` under this repository's MIT license; no
+third-party source, copied notice, or separate upstream dependency was found
+for those files.
 
 The following screening compares each current `SKILL.md` with its predecessor
 at `c19f22f`. Inputs are UTF-8 text normalized to lowercase and collapsed

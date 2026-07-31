@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "suite_id": "gloamere-workflows-quality-v1",
+  "description": "Pre-registered bilingual output-quality tasks for the three public workflows. Rubrics require semantic review; substring scoring is not valid evidence.",
+  "cases": [
+    {
+      "id": "visual.settings.zh",
+      "skill_id": "gloamere-visual-review",
+      "language": "zh-CN",
+      "fixture_paths": [
+        "fixtures/settings-page.html"
+      ],
+      "prompt": "评审这个设置页实现，给出一句话结论、可见证据、最多三项 P0/P1/P2 修改建议及修改后的验收方式。",
+      "rubric": {
+        "evidence_fidelity": "Every finding points to visible markup, copy, hierarchy, state, or accessibility evidence in the fixture.",
+        "actionability": "Recommendations name the target, reason, concrete change, priority, and verification method.",
+        "boundary_compliance": "Reviews the existing artifact instead of inventing a new design system.",
+        "no_fabrication": "Separates visible facts from browser-dependent checks that remain unverified."
+      }
+    },
+    {
+      "id": "visual.settings.en",
+      "skill_id": "gloamere-visual-review",
+      "language": "en",
+      "fixture_paths": [
+        "fixtures/settings-page.html"
+      ],
+      "prompt": "Review this implemented settings page. Give a one-sentence conclusion, visible evidence, at most three P0/P1/P2 changes, and a verification method for each.",
+      "rubric": {
+        "evidence_fidelity": "Every finding points to visible markup, copy, hierarchy, state, or accessibility evidence in the fixture.",
+        "actionability": "Recommendations name the target, reason, concrete change, priority, and verification method.",
+        "boundary_compliance": "Reviews the existing artifact instead of inventing a new design system.",
+        "no_fabrication": "Separates visible facts from browser-dependent checks that remain unverified."
+      }
+    },
+    {
+      "id": "knowledge.research.zh",
+      "skill_id": "gloamere-knowledge-capture",
+      "language": "zh-CN",
+      "fixture_paths": [
+        "fixtures/knowledge-base/README.md",
+        "fixtures/knowledge-base/research/onboarding-notes.md",
+        "fixtures/knowledge-base/decisions/activation-metric.md"
+      ],
+      "prompt": "把研究笔记中的可复用结论沉淀到这个现有知识库。遵循 README 约定，避免重复已有决策，并说明新增、更新或合并了什么。",
+      "rubric": {
+        "evidence_fidelity": "Claims retain their source and distinguish observations, decisions, and unknowns.",
+        "actionability": "The result can be saved directly and identifies every created, updated, or merged record.",
+        "boundary_compliance": "Follows the existing folder, frontmatter, and link conventions without inventing a new taxonomy.",
+        "no_fabrication": "Does not invent owners, dates, research participants, or completed validation."
+      }
+    },
+    {
+      "id": "knowledge.research.en",
+      "skill_id": "gloamere-knowledge-capture",
+      "language": "en",
+      "fixture_paths": [
+        "fixtures/knowledge-base/README.md",
+        "fixtures/knowledge-base/research/onboarding-notes.md",
+        "fixtures/knowledge-base/decisions/activation-metric.md"
+      ],
+      "prompt": "Turn the reusable findings in the research note into durable knowledge in this existing repository. Follow its README, avoid duplicating the decision record, and report what was created, updated, or merged.",
+      "rubric": {
+        "evidence_fidelity": "Claims retain their source and distinguish observations, decisions, and unknowns.",
+        "actionability": "The result can be saved directly and identifies every created, updated, or merged record.",
+        "boundary_compliance": "Follows the existing folder, frontmatter, and link conventions without inventing a new taxonomy.",
+        "no_fabrication": "Does not invent owners, dates, research participants, or completed validation."
+      }
+    },
+    {
+      "id": "product.onboarding.zh",
+      "skill_id": "gloamere-product-decision",
+      "language": "zh-CN",
+      "fixture_paths": [
+        "fixtures/onboarding-evidence.md"
+      ],
+      "prompt": "基于这份证据比较保持现状、简化表单和分阶段收集三个方案，给出推荐、范围、成功与护栏指标、风险和最低成本的下一步验证。",
+      "rubric": {
+        "evidence_fidelity": "The recommendation distinguishes supplied facts, interpretations, assumptions, and missing evidence.",
+        "actionability": "Defines a decision, in/out scope, measurable outcome, guardrail, stop condition, owner placeholder, and review point.",
+        "boundary_compliance": "Designs validation but does not claim to have conducted research or produce an engineering implementation plan.",
+        "no_fabrication": "Does not invent sample sizes, baselines, dates, costs, or stakeholder approval."
+      }
+    },
+    {
+      "id": "product.onboarding.en",
+      "skill_id": "gloamere-product-decision",
+      "language": "en",
+      "fixture_paths": [
+        "fixtures/onboarding-evidence.md"
+      ],
+      "prompt": "Using this evidence, compare keeping the current flow, simplifying the form, and collecting data in stages. Recommend one option with scope, success and guardrail measures, risks, and the lowest-cost next validation.",
+      "rubric": {
+        "evidence_fidelity": "The recommendation distinguishes supplied facts, interpretations, assumptions, and missing evidence.",
+        "actionability": "Defines a decision, in/out scope, measurable outcome, guardrail, stop condition, owner placeholder, and review point.",
+        "boundary_compliance": "Designs validation but does not claim to have conducted research or produce an engineering implementation plan.",
+        "no_fabrication": "Does not invent sample sizes, baselines, dates, costs, or stakeholder approval."
+      }
+    }
+  ]
+}

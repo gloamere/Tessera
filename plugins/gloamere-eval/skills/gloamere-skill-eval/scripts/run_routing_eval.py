@@ -26,9 +26,49 @@ MIN_PYTHON = (3, 10)
 PRODUCER_ID = "gloamere-skill-eval"
 EVENT_ADAPTER_ID = "codex-exec-jsonl"
 EVENT_ADAPTER_SCHEMA_VERSION = 1
-REPORT_SCHEMA_VERSION = 3
-SUITE_SCHEMA_VERSION = 1
+REPORT_SCHEMA_VERSION = 4
+SUITE_SCHEMA_VERSION = 2
+SUPPORTED_SUITE_SCHEMA_VERSIONS = {1, 2}
 TARGET_LOCK_SCHEMA_VERSION = 2
+JOURNAL_SCHEMA_VERSION = 1
+RISK_POLICY_V2: dict[str, Any] = {
+    "id": "risk-tiered-v2",
+    "version": 2,
+    "modes": {
+        "pr": {
+            "repeat": 1,
+            "independent_batches": 1,
+            "default_max_calls": 12,
+            "selection": "up-to-4-sentinels-per-focus",
+        },
+        "release": {
+            "repeat": 1,
+            "independent_batches": 1,
+            "default_max_calls": 40,
+            "selection": {
+                "fixed_positive_or_high_risk": 6,
+                "rotating_adjacent_boundary": 6,
+                "multi_intent": 4,
+                "targeted_per_focus": 6,
+                "maximum_cases": 34,
+            },
+        },
+        "exhaustive": {
+            "repeat": "suite",
+            "independent_batches": "suite",
+            "initial_calls": "planned",
+            "default_max_calls": "planned+adaptive",
+            "selection": "all-selected-cases",
+        },
+    },
+    "retry": {
+        "unexpected_attempts": 3,
+        "confirmed_failure_count": 2,
+        "infrastructure_retry_count": 1,
+        "single_failure_outcome": "pending",
+        "budget_exhausted_outcome": "pending",
+    },
+}
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REFERENCES = SKILL_ROOT / "references"
@@ -117,6 +157,73 @@ def write_or_print(value: Any, output: Path | None) -> None:
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(rendered, encoding="utf-8")
     sys.stdout.write(rendered)
+
+
+def parse_iso_datetime(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
+    return parsed
+
+
+def repository_commit() -> str:
+    override = os.environ.get("GLOAMERE_EVAL_COMMIT")
+    if override:
+        return override
+    repository_root = next(
+        (
+            candidate
+            for candidate in (SKILL_ROOT, *SKILL_ROOT.parents)
+            if (candidate / ".git").exists()
+        ),
+        SKILL_ROOT,
+    )
+    try:
+        completed = subprocess.run(
+            [
+                "git",
+                "-c",
+                f"safe.directory={repository_root.as_posix()}",
+                "rev-parse",
+                "HEAD",
+            ],
+            cwd=repository_root,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "unavailable"
+    value = completed.stdout.strip()
+    return value if re.fullmatch(r"[0-9a-fA-F]{40,64}", value) else "unavailable"
+
+
+def append_journal_record(path: Path, record: dict[str, Any]) -> None:
+    destination = path.resolve()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    encoded = (canonical_json(record) + "\n").encode("utf-8")
+    descriptor = os.open(
+        destination,
+        os.O_APPEND | os.O_CREAT | os.O_WRONLY,
+        0o600,
+    )
+    try:
+        # 根因：只在整轮结束后写报告时，中断会丢失数小时结果；每次调用只追加
+        # 一条完整 JSONL 并 fsync，使 resume 最多重跑正在执行的那一个单元。
+        written = os.write(descriptor, encoded)
+        if written != len(encoded):
+            raise OSError("journal append was incomplete")
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:
@@ -426,8 +533,11 @@ def validate_suite(value: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(value, dict):
         return ["eval suite must be an object"]
-    if value.get("schema_version") != SUITE_SCHEMA_VERSION:
-        errors.append(f"eval suite schema_version must be {SUITE_SCHEMA_VERSION}")
+    if value.get("schema_version") not in SUPPORTED_SUITE_SCHEMA_VERSIONS:
+        errors.append(
+            "eval suite schema_version must be one of "
+            + ", ".join(str(item) for item in sorted(SUPPORTED_SUITE_SCHEMA_VERSIONS))
+        )
     if not isinstance(value.get("suite_id"), str) or not value["suite_id"]:
         errors.append("eval suite is missing suite_id")
     if not isinstance(value.get("description"), str) or not value["description"]:
@@ -439,6 +549,14 @@ def validate_suite(value: Any) -> list[str]:
     if not isinstance(execution_policy, dict):
         errors.append("eval suite is missing execution_policy")
     else:
+        if (
+            value.get("schema_version") == 2
+            and execution_policy.get("policy_id") != RISK_POLICY_V2["id"]
+        ):
+            errors.append(
+                f"eval suite execution_policy.policy_id must be "
+                f"{RISK_POLICY_V2['id']}"
+            )
         for field in ("repeat", "independent_batches"):
             amount = execution_policy.get(field)
             if (
@@ -1623,16 +1741,185 @@ def preflight_attempt(
     return item
 
 
+def retry_policy_settings(policy: dict[str, Any]) -> dict[str, Any]:
+    configured = policy.get("retry")
+    defaults = RISK_POLICY_V2["retry"]
+    if not isinstance(configured, dict):
+        configured = {}
+    result = {
+        field: configured.get(field, default)
+        for field, default in defaults.items()
+    }
+    for field in (
+        "unexpected_attempts",
+        "confirmed_failure_count",
+        "infrastructure_retry_count",
+    ):
+        amount = result[field]
+        if (
+            not isinstance(amount, int)
+            or isinstance(amount, bool)
+            or amount < (0 if field == "infrastructure_retry_count" else 1)
+        ):
+            raise ValueError(f"evaluation policy retry.{field} is invalid")
+    if result["confirmed_failure_count"] > result["unexpected_attempts"]:
+        raise ValueError(
+            "evaluation policy retry.confirmed_failure_count exceeds "
+            "unexpected_attempts"
+        )
+    for field in ("single_failure_outcome", "budget_exhausted_outcome"):
+        if result[field] not in {"pass", "fail", "pending"}:
+            raise ValueError(f"evaluation policy retry.{field} is invalid")
+    return result
+
+
+INFRASTRUCTURE_EVIDENCE_STATUSES = {
+    "unobservable",
+    "unavailable",
+    "execution_error",
+}
+
+
+def desired_adaptive_attempts(
+    attempts: list[dict[str, Any]],
+    retry_policy: dict[str, Any],
+    enabled: bool,
+) -> int:
+    if not enabled or not attempts:
+        return 1
+    if any(
+        attempt.get("evidence_status") == "verified"
+        and attempt.get("verdict") == "fail"
+        or attempt.get("evidence_status") == "identity_conflict"
+        for attempt in attempts
+    ):
+        return retry_policy["unexpected_attempts"]
+    if any(
+        attempt.get("evidence_status") in INFRASTRUCTURE_EVIDENCE_STATUSES
+        for attempt in attempts
+    ):
+        return 1 + retry_policy["infrastructure_retry_count"]
+    return 1
+
+
+def adaptive_failure_signature(attempt: dict[str, Any]) -> str:
+    return sha256_object(
+        {
+            "evidence_status": attempt.get("evidence_status"),
+            "verdict": attempt.get("verdict"),
+            "observed_target_ids": attempt.get("observed_target_ids", []),
+            "declared_target_ids": attempt.get("declared_target_ids", []),
+            "unbound_declared_skills": attempt.get(
+                "unbound_declared_skills",
+                [],
+            ),
+            "unbound_skill_names": attempt.get("unbound_skill_names", []),
+        }
+    )
+
+
+def adaptive_case_evaluation(
+    attempts: list[dict[str, Any]],
+    expected_attempts: int,
+    retry_policy: dict[str, Any],
+    budget_exhausted: bool,
+    enabled: bool,
+) -> dict[str, Any]:
+    verified_passes = sum(
+        attempt.get("evidence_status") == "verified"
+        and attempt.get("verdict") == "pass"
+        for attempt in attempts
+    )
+    verified_failures = [
+        attempt
+        for attempt in attempts
+        if attempt.get("evidence_status") == "verified"
+        and attempt.get("verdict") == "fail"
+    ]
+    infrastructure_failures = sum(
+        attempt.get("evidence_status") in INFRASTRUCTURE_EVIDENCE_STATUSES
+        for attempt in attempts
+    )
+    identity_conflicts = sum(
+        attempt.get("evidence_status") == "identity_conflict"
+        for attempt in attempts
+    )
+    signatures = Counter(
+        adaptive_failure_signature(attempt) for attempt in verified_failures
+    )
+    confirmed_failures = max(signatures.values(), default=0)
+    retry_complete = len(attempts) >= expected_attempts
+    initial_anomaly = bool(
+        attempts
+        and not (
+            attempts[0].get("evidence_status") == "verified"
+            and attempts[0].get("verdict") == "pass"
+        )
+    )
+
+    if not attempts:
+        outcome = "pending"
+        reason = "no-attempt-evidence"
+    elif budget_exhausted and not retry_complete:
+        outcome = retry_policy["budget_exhausted_outcome"]
+        reason = "retry-budget-exhausted"
+    elif not retry_complete:
+        outcome = "pending"
+        reason = "adaptive-retry-incomplete"
+    elif confirmed_failures >= retry_policy["confirmed_failure_count"]:
+        outcome = "fail"
+        reason = "confirmed-same-routing-failure"
+    elif verified_failures:
+        outcome = retry_policy["single_failure_outcome"]
+        reason = "single-or-inconsistent-routing-failure"
+    elif identity_conflicts:
+        outcome = "pending"
+        reason = "identity-conflict-not-confirmed-as-routing-result"
+    elif infrastructure_failures:
+        if verified_passes and infrastructure_failures < len(attempts):
+            outcome = "pass"
+            reason = "transient-infrastructure-anomaly-recovered"
+        else:
+            outcome = "pending"
+            reason = "persistent-infrastructure-anomaly"
+    elif verified_passes == len(attempts):
+        outcome = "pass"
+        reason = "verified-routing-pass"
+    else:
+        outcome = "pending"
+        reason = "unclassified-adaptive-result"
+    return {
+        "enabled": enabled,
+        "outcome": outcome,
+        "reason": reason,
+        "initial_anomaly": initial_anomaly,
+        "retry_complete": retry_complete,
+        "expected_attempts": expected_attempts,
+        "verified_passes": verified_passes,
+        "verified_failures": len(verified_failures),
+        "confirmed_same_failures": confirmed_failures,
+        "infrastructure_failures": infrastructure_failures,
+        "identity_conflicts": identity_conflicts,
+    }
+
+
 def case_metrics(
     attempts: list[dict[str, Any]],
     repeat: int,
     independent_batches: int,
+    expected_attempts_override: int | None = None,
 ) -> dict[str, Any]:
-    expected_pairs = {
-        (batch, attempt)
-        for batch in range(1, independent_batches + 1)
-        for attempt in range(1, repeat + 1)
-    }
+    if expected_attempts_override is None:
+        expected_pairs = {
+            (batch, attempt)
+            for batch in range(1, independent_batches + 1)
+            for attempt in range(1, repeat + 1)
+        }
+    else:
+        expected_pairs = {
+            (1, attempt)
+            for attempt in range(1, expected_attempts_override + 1)
+        }
     actual_pairs = [
         (attempt.get("batch_id"), attempt.get("attempt")) for attempt in attempts
     ]
@@ -1670,7 +1957,11 @@ def case_metrics(
         and attempt.get("verdict") in {"pass", "fail"}
         for attempt in attempts
     )
-    expected_attempts = repeat * independent_batches
+    expected_attempts = (
+        repeat * independent_batches
+        if expected_attempts_override is None
+        else expected_attempts_override
+    )
     verdicts = Counter(
         (
             str(item.get("verdict"))
@@ -1707,8 +1998,9 @@ def aggregate_case(
     attempts: list[dict[str, Any]],
     repeat: int,
     independent_batches: int = 1,
+    adaptive_evaluation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return {
+    item = {
         "id": case["id"],
         "plugin_id": case["plugin_id"],
         "language": case["language"],
@@ -1716,9 +2008,21 @@ def aggregate_case(
         "prompt_sha256": sha256_text(case["prompt"]),
         "expected_skills": sorted(case.get("expected_skills", [])),
         "forbidden_skills": sorted(case.get("forbidden_skills", [])),
-        **case_metrics(attempts, repeat, independent_batches),
+        **case_metrics(
+            attempts,
+            repeat,
+            independent_batches,
+            (
+                adaptive_evaluation.get("expected_attempts")
+                if adaptive_evaluation is not None
+                else None
+            ),
+        ),
         "attempts": attempts,
     }
+    if adaptive_evaluation is not None:
+        item["adaptive_evaluation"] = adaptive_evaluation
+    return item
 
 
 def summarize_cases(cases: list[dict[str, Any]]) -> dict[str, Any]:
@@ -1839,10 +2143,144 @@ def build_report(
     preflight_status: str = "verified",
     preflight_reasons: list[str] | None = None,
     execution_provenance: str = "codex_cli",
+    *,
+    mode: str = "exhaustive",
+    selection_reason: str = "all suite cases selected for exhaustive coverage",
+    selection_roles: dict[str, str] | None = None,
+    rotation_key: str | None = None,
+    max_calls: int | None = None,
+    routing_max_calls: int | None = None,
+    quality_reserved_calls: int = 0,
+    actual_calls: int | None = None,
+    resumed_calls: int = 0,
+    new_calls: int | None = None,
+    shard: tuple[int, int] | None = None,
+    complete: bool = True,
+    independent_batches: int | None = None,
+    policy: dict[str, Any] | None = None,
+    policy_sha256: str | None = None,
+    policy_source: str = "builtin:risk-tiered-v2",
+    changed_skills: list[str] | None = None,
+    commit: str | None = None,
+    suite_sha256: str | None = None,
+    execution_strategy: str | None = None,
+    initial_phase_complete: bool | None = None,
+    initial_actual_calls: int | None = None,
 ) -> dict[str, Any]:
+    generated_at = utc_now()
+    summary = summarize_cases(cases)
+    effective_batches = (
+        suite["execution_policy"]["independent_batches"]
+        if independent_batches is None
+        else independent_batches
+    )
+    initial_planned_calls = len(cases) * repeat * effective_batches
+    planned_calls = sum(
+        (
+            case.get("adaptive_evaluation", {}).get(
+                "expected_attempts",
+                repeat * effective_batches,
+            )
+            if isinstance(case.get("adaptive_evaluation"), dict)
+            else repeat * effective_batches
+        )
+        for case in cases
+    )
+    effective_actual_calls = (
+        summary["attempt_count"] if actual_calls is None else actual_calls
+    )
+    effective_max_calls = planned_calls if max_calls is None else max_calls
+    effective_routing_max_calls = (
+        effective_max_calls
+        if routing_max_calls is None
+        else routing_max_calls
+    )
+    effective_initial_actual_calls = (
+        min(effective_actual_calls, initial_planned_calls)
+        if initial_actual_calls is None
+        else initial_actual_calls
+    )
+    effective_retry_actual_calls = (
+        effective_actual_calls - effective_initial_actual_calls
+    )
+    effective_initial_phase_complete = (
+        all(
+            case.get("attempt_count", 0)
+            >= repeat * effective_batches
+            for case in cases
+        )
+        if initial_phase_complete is None
+        else initial_phase_complete
+    )
+    effective_execution_strategy = execution_strategy or (
+        "adaptive-retry"
+        if any(
+            isinstance(case.get("adaptive_evaluation"), dict)
+            for case in cases
+        )
+        else "fixed-grid"
+    )
+    effective_new_calls = (
+        max(0, effective_actual_calls - resumed_calls)
+        if new_calls is None
+        else new_calls
+    )
+    effective_policy = policy or RISK_POLICY_V2
+    effective_policy_id = effective_policy.get(
+        "id",
+        effective_policy.get("policy_id"),
+    )
+    policy_sha = policy_sha256 or sha256_object(effective_policy)
+    suite_sha = suite_sha256 or sha256_object(suite)
+    target_lock_sha = sha256_object(target_lock)
+    target_hashes = {
+        item["target_id"]: item["sha256"]
+        for item in report_targets(target_lock)
+    }
+    selected_case_ids = [case["id"] for case in cases]
+    selected_roles = selection_roles or {
+        case_id: "exhaustive" for case_id in selected_case_ids
+    }
+    case_outcomes: dict[str, str] = {}
+    for case in cases:
+        adaptive = case.get("adaptive_evaluation")
+        if isinstance(adaptive, dict) and adaptive.get("outcome") in {
+            "pass",
+            "fail",
+            "pending",
+        }:
+            outcome = adaptive["outcome"]
+        elif case.get("unscored_attempts"):
+            outcome = "pending"
+        elif case.get("failed_attempts"):
+            outcome = "fail"
+        else:
+            outcome = "pass"
+        case_outcomes[case["id"]] = outcome
+    outcome_counts = dict(Counter(case_outcomes.values()))
+    pending_case_ids = sorted(
+        case_id
+        for case_id, outcome in case_outcomes.items()
+        if outcome == "pending"
+    )
+    failed_case_ids = sorted(
+        case_id
+        for case_id, outcome in case_outcomes.items()
+        if outcome == "fail"
+    )
+    evidence_complete = (
+        complete
+        and preflight_status == "verified"
+        and not pending_case_ids
+    )
+    release_eligible = (
+        execution_provenance == "codex_cli"
+        and mode in {"release", "exhaustive"}
+        and evidence_complete
+    )
     return {
         "schema_version": REPORT_SCHEMA_VERSION,
-        "generated_at": utc_now(),
+        "generated_at": generated_at,
         "producer": producer_metadata(),
         "command": "native",
         "event_adapter": {
@@ -1850,7 +2288,54 @@ def build_report(
             "schema_version": EVENT_ADAPTER_SCHEMA_VERSION,
         },
         "execution_provenance": execution_provenance,
-        "release_evidence_eligible": execution_provenance == "codex_cli",
+        "release_evidence_eligible": release_eligible,
+        "evaluation": {
+            "policy_id": effective_policy_id,
+            "policy": effective_policy,
+            "policy_source": policy_source,
+            "mode": mode,
+            "selection_reason": selection_reason,
+            "selection": selected_roles,
+            "selected_case_ids": selected_case_ids,
+            "changed_skills": sorted(set(changed_skills or [])),
+            "rotation_key": rotation_key,
+            "execution_strategy": effective_execution_strategy,
+            "max_calls": effective_max_calls,
+            "routing_max_calls": effective_routing_max_calls,
+            "quality_reserved_calls": quality_reserved_calls,
+            "projected_total_calls": (
+                effective_actual_calls + quality_reserved_calls
+            ),
+            "initial_planned_calls": initial_planned_calls,
+            "retry_planned_calls": planned_calls - initial_planned_calls,
+            "planned_calls": planned_calls,
+            "actual_calls": effective_actual_calls,
+            "initial_actual_calls": effective_initial_actual_calls,
+            "retry_actual_calls": effective_retry_actual_calls,
+            "initial_phase_complete": effective_initial_phase_complete,
+            "resumed_calls": resumed_calls,
+            "new_calls": effective_new_calls,
+            "shard": (
+                {"index": shard[0], "total": shard[1]}
+                if shard is not None
+                else None
+            ),
+            "complete": complete,
+            "case_outcomes": case_outcomes,
+            "outcomes": outcome_counts,
+            "pending_case_ids": pending_case_ids,
+            "failed_case_ids": failed_case_ids,
+        },
+        "provenance": {
+            "commit": commit or repository_commit(),
+            "policy_sha256": policy_sha,
+            "suite_sha256": suite_sha,
+            "target_lock_sha256": target_lock_sha,
+            "target_sha256": target_hashes,
+            "codex_cli": codex_version_value,
+            "model": model,
+            "generated_at": generated_at,
+        },
         "preflight": {
             "evidence_status": preflight_status,
             "reasons": preflight_reasons or [],
@@ -1858,11 +2343,14 @@ def build_report(
         "suite": {
             "suite_id": suite["suite_id"],
             "plugin_id": suite["plugin_id"],
-            "execution_policy": suite["execution_policy"],
-            "sha256": sha256_object(suite),
+            "execution_policy": {
+                "repeat": repeat,
+                "independent_batches": effective_batches,
+            },
+            "sha256": suite_sha,
         },
         "target_lock": {
-            "sha256": sha256_object(target_lock),
+            "sha256": target_lock_sha,
             "targets": report_targets(target_lock),
         },
         "environment": {
@@ -1876,11 +2364,9 @@ def build_report(
             "absolute_paths_included": False,
         },
         "repeat": repeat,
-        "independent_batches": suite["execution_policy"][
-            "independent_batches"
-        ],
+        "independent_batches": effective_batches,
         "timeout_seconds": timeout,
-        "summary": summarize_cases(cases),
+        "summary": summary,
         "cases": cases,
     }
 
@@ -1927,7 +2413,10 @@ def absolute_path_locations(
     return []
 
 
-def validate_report_v3(value: Any) -> list[str]:
+def _validate_native_report(
+    value: Any,
+    expected_schema_version: int,
+) -> list[str]:
     errors: list[str] = []
     if not isinstance(value, dict):
         return ["report must be an object"]
@@ -1939,8 +2428,252 @@ def validate_report_v3(value: Any) -> list[str]:
             and len(candidate) == len(set(candidate))
         )
 
-    if value.get("schema_version") != REPORT_SCHEMA_VERSION:
-        errors.append(f"report schema_version must be {REPORT_SCHEMA_VERSION}")
+    if value.get("schema_version") != expected_schema_version:
+        errors.append(
+            f"report schema_version must be {expected_schema_version}"
+        )
+    if parse_iso_datetime(value.get("generated_at")) is None:
+        errors.append("report generated_at must be an ISO 8601 timestamp")
+    is_v4 = expected_schema_version == REPORT_SCHEMA_VERSION
+    evaluation = value.get("evaluation") if is_v4 else None
+    provenance = value.get("provenance") if is_v4 else None
+    report_complete = True
+    if is_v4:
+        if not isinstance(evaluation, dict):
+            errors.append("report evaluation contract is missing")
+            evaluation = {}
+        mode = evaluation.get("mode")
+        evaluation_policy = evaluation.get("policy")
+        if evaluation.get("policy_id") != RISK_POLICY_V2["id"]:
+            errors.append("report evaluation.policy_id is invalid")
+        if (
+            not isinstance(evaluation_policy, dict)
+            or evaluation_policy.get(
+                "id",
+                evaluation_policy.get("policy_id"),
+            )
+            != evaluation.get("policy_id")
+        ):
+            errors.append("report evaluation.policy is invalid")
+        if not isinstance(evaluation.get("policy_source"), str) or not (
+            evaluation.get("policy_source")
+        ):
+            errors.append("report evaluation.policy_source is missing")
+        if mode not in {"pr", "release", "exhaustive"}:
+            errors.append("report evaluation.mode is invalid")
+        selected_case_ids = evaluation.get("selected_case_ids")
+        selection = evaluation.get("selection")
+        if not valid_string_array(selected_case_ids):
+            errors.append("report evaluation.selected_case_ids is invalid")
+            selected_case_ids = []
+        if not valid_string_array(evaluation.get("changed_skills")):
+            errors.append("report evaluation.changed_skills is invalid")
+        if (
+            not isinstance(selection, dict)
+            or any(
+                not isinstance(key, str)
+                or not isinstance(role, str)
+                or not role
+                for key, role in selection.items()
+            )
+            or set(selection) != set(selected_case_ids)
+        ):
+            errors.append("report evaluation.selection is invalid")
+        if not isinstance(evaluation.get("selection_reason"), str) or not (
+            evaluation.get("selection_reason")
+        ):
+            errors.append("report evaluation.selection_reason is missing")
+        rotation_key = evaluation.get("rotation_key")
+        if rotation_key is not None and not isinstance(rotation_key, str):
+            errors.append("report evaluation.rotation_key is invalid")
+        execution_strategy = evaluation.get("execution_strategy")
+        if execution_strategy is not None and execution_strategy not in {
+            "fixed-grid",
+            "adaptive-retry",
+            "initial-coverage-then-adaptive-retry",
+        }:
+            errors.append("report evaluation.execution_strategy is invalid")
+        for field in (
+            "max_calls",
+            "routing_max_calls",
+            "quality_reserved_calls",
+            "projected_total_calls",
+            "initial_planned_calls",
+            "retry_planned_calls",
+            "planned_calls",
+            "actual_calls",
+            "resumed_calls",
+            "new_calls",
+        ):
+            amount = evaluation.get(field)
+            if (
+                not isinstance(amount, int)
+                or isinstance(amount, bool)
+                or amount < 0
+            ):
+                errors.append(f"report evaluation.{field} is invalid")
+        for field in ("initial_actual_calls", "retry_actual_calls"):
+            amount = evaluation.get(field)
+            if amount is not None and (
+                not isinstance(amount, int)
+                or isinstance(amount, bool)
+                or amount < 0
+            ):
+                errors.append(f"report evaluation.{field} is invalid")
+        if (
+            evaluation.get("initial_phase_complete") is not None
+            and not isinstance(
+                evaluation.get("initial_phase_complete"),
+                bool,
+            )
+        ):
+            errors.append(
+                "report evaluation.initial_phase_complete must be boolean"
+            )
+        if (
+            isinstance(evaluation.get("initial_actual_calls"), int)
+            and isinstance(evaluation.get("retry_actual_calls"), int)
+            and isinstance(evaluation.get("actual_calls"), int)
+            and evaluation["initial_actual_calls"]
+            + evaluation["retry_actual_calls"]
+            != evaluation["actual_calls"]
+        ):
+            errors.append(
+                "report actual_calls does not equal initial + retry calls"
+            )
+        if (
+            execution_strategy
+            == "initial-coverage-then-adaptive-retry"
+            and isinstance(evaluation.get("retry_actual_calls"), int)
+            and evaluation["retry_actual_calls"] > 0
+            and evaluation.get("initial_phase_complete") is not True
+        ):
+            errors.append(
+                "report records exhaustive retries before initial coverage"
+            )
+        if (
+            isinstance(evaluation.get("initial_planned_calls"), int)
+            and isinstance(evaluation.get("retry_planned_calls"), int)
+            and isinstance(evaluation.get("planned_calls"), int)
+            and evaluation["initial_planned_calls"]
+            + evaluation["retry_planned_calls"]
+            != evaluation["planned_calls"]
+        ):
+            errors.append(
+                "report planned_calls does not equal initial + retry calls"
+            )
+        case_outcomes = evaluation.get("case_outcomes")
+        if not isinstance(case_outcomes, dict) or any(
+            not isinstance(case_id, str)
+            or outcome not in {"pass", "fail", "pending"}
+            for case_id, outcome in (
+                case_outcomes.items()
+                if isinstance(case_outcomes, dict)
+                else ()
+            )
+        ):
+            errors.append("report evaluation.case_outcomes is invalid")
+        outcomes = evaluation.get("outcomes")
+        if not isinstance(outcomes, dict) or any(
+            outcome not in {"pass", "fail", "pending"}
+            or not isinstance(amount, int)
+            or isinstance(amount, bool)
+            or amount < 0
+            for outcome, amount in (
+                outcomes.items() if isinstance(outcomes, dict) else ()
+            )
+        ):
+            errors.append("report evaluation.outcomes is invalid")
+        for field in ("pending_case_ids", "failed_case_ids"):
+            if not valid_string_array(evaluation.get(field)):
+                errors.append(f"report evaluation.{field} is invalid")
+        if isinstance(evaluation.get("actual_calls"), int) and isinstance(
+            evaluation.get("routing_max_calls"),
+            int,
+        ) and evaluation["actual_calls"] > evaluation["routing_max_calls"]:
+            errors.append("report actual_calls exceeds routing_max_calls")
+        if (
+            isinstance(evaluation.get("actual_calls"), int)
+            and isinstance(evaluation.get("quality_reserved_calls"), int)
+            and isinstance(evaluation.get("projected_total_calls"), int)
+            and evaluation["projected_total_calls"]
+            != evaluation["actual_calls"]
+            + evaluation["quality_reserved_calls"]
+        ):
+            errors.append(
+                "report projected_total_calls does not match routing + quality"
+            )
+        if (
+            isinstance(evaluation.get("projected_total_calls"), int)
+            and isinstance(evaluation.get("max_calls"), int)
+            and evaluation["projected_total_calls"] > evaluation["max_calls"]
+        ):
+            errors.append("report projected_total_calls exceeds max_calls")
+        if (
+            isinstance(evaluation.get("actual_calls"), int)
+            and isinstance(evaluation.get("resumed_calls"), int)
+            and isinstance(evaluation.get("new_calls"), int)
+            and evaluation["actual_calls"]
+            != evaluation["resumed_calls"] + evaluation["new_calls"]
+        ):
+            errors.append(
+                "report actual_calls does not equal resumed_calls + new_calls"
+            )
+        report_complete = evaluation.get("complete") is True
+        if not isinstance(evaluation.get("complete"), bool):
+            errors.append("report evaluation.complete must be boolean")
+        shard = evaluation.get("shard")
+        if shard is not None and (
+            not isinstance(shard, dict)
+            or not isinstance(shard.get("index"), int)
+            or isinstance(shard.get("index"), bool)
+            or not isinstance(shard.get("total"), int)
+            or isinstance(shard.get("total"), bool)
+            or shard.get("index", 1) < 1
+            or shard.get("index", 1) > shard.get("total", 0)
+        ):
+            errors.append("report evaluation.shard is invalid")
+        if not isinstance(provenance, dict):
+            errors.append("report provenance contract is missing")
+            provenance = {}
+        commit = provenance.get("commit")
+        if commit != "unavailable" and not re.fullmatch(
+            r"[0-9a-fA-F]{40,64}",
+            str(commit),
+        ):
+            errors.append("report provenance.commit is invalid")
+        for field in (
+            "policy_sha256",
+            "suite_sha256",
+            "target_lock_sha256",
+        ):
+            if not SHA256_PATTERN.fullmatch(str(provenance.get(field, ""))):
+                errors.append(f"report provenance.{field} is invalid")
+        if parse_iso_datetime(provenance.get("generated_at")) is None:
+            errors.append("report provenance.generated_at is invalid")
+        if provenance.get("generated_at") != value.get("generated_at"):
+            errors.append(
+                "report provenance.generated_at does not match generated_at"
+            )
+        if provenance.get("codex_cli") is not None and not isinstance(
+            provenance.get("codex_cli"), str
+        ):
+            errors.append("report provenance.codex_cli is invalid")
+        if provenance.get("model") is not None and not isinstance(
+            provenance.get("model"), str
+        ):
+            errors.append("report provenance.model is invalid")
+        target_hashes = provenance.get("target_sha256")
+        if not isinstance(target_hashes, dict) or any(
+            not isinstance(target_id, str)
+            or not SHA256_PATTERN.fullmatch(str(digest))
+            for target_id, digest in (
+                target_hashes.items()
+                if isinstance(target_hashes, dict)
+                else ()
+            )
+        ):
+            errors.append("report provenance.target_sha256 is invalid")
     producer = value.get("producer")
     if not isinstance(producer, dict) or producer.get("id") != PRODUCER_ID:
         errors.append(f"report producer.id must be {PRODUCER_ID}")
@@ -1964,7 +2697,19 @@ def validate_report_v3(value: Any) -> list[str]:
     execution_provenance = value.get("execution_provenance")
     if execution_provenance not in {"codex_cli", "fixture_adapter"}:
         errors.append("report execution_provenance is invalid")
-    expected_release_eligibility = execution_provenance == "codex_cli"
+    if is_v4:
+        no_pending_cases = evaluation.get("pending_case_ids") == []
+        preflight_value = value.get("preflight")
+        expected_release_eligibility = (
+            execution_provenance == "codex_cli"
+            and evaluation.get("mode") in {"release", "exhaustive"}
+            and report_complete
+            and no_pending_cases
+            and isinstance(preflight_value, dict)
+            and preflight_value.get("evidence_status") == "verified"
+        )
+    else:
+        expected_release_eligibility = execution_provenance == "codex_cli"
     if (
         value.get("release_evidence_eligible")
         is not expected_release_eligibility
@@ -2090,6 +2835,28 @@ def validate_report_v3(value: Any) -> list[str]:
             )
         else:
             report_targets_by_id[target_id] = target
+    if is_v4 and isinstance(provenance, dict):
+        if isinstance(suite, dict) and provenance.get("suite_sha256") != (
+            suite.get("sha256")
+        ):
+            errors.append(
+                "report provenance.suite_sha256 does not match suite.sha256"
+            )
+        if isinstance(target_lock, dict) and provenance.get(
+            "target_lock_sha256"
+        ) != target_lock.get("sha256"):
+            errors.append(
+                "report provenance.target_lock_sha256 does not match "
+                "target_lock.sha256"
+            )
+        expected_target_hashes = {
+            target_id: target.get("sha256")
+            for target_id, target in report_targets_by_id.items()
+        }
+        if provenance.get("target_sha256") != expected_target_hashes:
+            errors.append(
+                "report provenance.target_sha256 does not match target lock"
+            )
     privacy = value.get("privacy")
     if not isinstance(privacy, dict):
         errors.append("report privacy contract is missing")
@@ -2108,6 +2875,21 @@ def validate_report_v3(value: Any) -> list[str]:
                     "report declares absolute_paths_included=false but contains "
                     "absolute paths at: "
                     + ", ".join(path_locations[:10])
+                )
+    if is_v4 and isinstance(provenance, dict):
+        environment = value.get("environment")
+        if not isinstance(environment, dict):
+            errors.append("report environment contract is missing")
+        else:
+            if provenance.get("codex_cli") != environment.get(
+                "codex_version"
+            ):
+                errors.append(
+                    "report provenance.codex_cli does not match environment"
+                )
+            if provenance.get("model") != environment.get("model"):
+                errors.append(
+                    "report provenance.model does not match environment"
                 )
     repeat = value.get("repeat")
     if not isinstance(repeat, int) or isinstance(repeat, bool) or not 1 <= repeat <= 10:
@@ -2137,6 +2919,10 @@ def validate_report_v3(value: Any) -> list[str]:
             errors.append(
                 "report independent_batches does not match suite policy"
             )
+        if isinstance(execution_policy, dict) and execution_policy.get(
+            "repeat"
+        ) != effective_repeat:
+            errors.append("report repeat does not match suite policy")
     timeout = value.get("timeout_seconds")
     if not isinstance(timeout, int) or isinstance(timeout, bool) or timeout < 1:
         errors.append("report timeout_seconds must be a positive integer")
@@ -2200,6 +2986,55 @@ def validate_report_v3(value: Any) -> list[str]:
             errors.append(
                 f"report case {case_id} attempt_count does not match attempts"
             )
+        adaptive = case.get("adaptive_evaluation")
+        adaptive_expected_attempts: int | None = None
+        if is_v4 and adaptive is not None:
+            if not isinstance(adaptive, dict):
+                errors.append(
+                    f"report case {case_id} adaptive_evaluation is invalid"
+                )
+                adaptive = {}
+            adaptive_expected_attempts = adaptive.get("expected_attempts")
+            if (
+                not isinstance(adaptive_expected_attempts, int)
+                or isinstance(adaptive_expected_attempts, bool)
+                or adaptive_expected_attempts < 1
+            ):
+                errors.append(
+                    f"report case {case_id} adaptive expected_attempts is invalid"
+                )
+                adaptive_expected_attempts = 1
+            if adaptive.get("outcome") not in {"pass", "fail", "pending"}:
+                errors.append(
+                    f"report case {case_id} adaptive outcome is invalid"
+                )
+            if not isinstance(adaptive.get("reason"), str) or not adaptive.get(
+                "reason"
+            ):
+                errors.append(
+                    f"report case {case_id} adaptive reason is invalid"
+                )
+            for field in ("enabled", "initial_anomaly", "retry_complete"):
+                if not isinstance(adaptive.get(field), bool):
+                    errors.append(
+                        f"report case {case_id} adaptive {field} is invalid"
+                    )
+            for field in (
+                "verified_passes",
+                "verified_failures",
+                "confirmed_same_failures",
+                "infrastructure_failures",
+                "identity_conflicts",
+            ):
+                amount = adaptive.get(field)
+                if (
+                    not isinstance(amount, int)
+                    or isinstance(amount, bool)
+                    or amount < 0
+                ):
+                    errors.append(
+                        f"report case {case_id} adaptive {field} is invalid"
+                    )
         attempt_pairs: list[tuple[int, int]] = []
         for attempt in attempts:
             if not isinstance(attempt, dict):
@@ -2213,7 +3048,13 @@ def validate_report_v3(value: Any) -> list[str]:
                 or not 1 <= batch_id <= effective_batches
                 or not isinstance(attempt_id, int)
                 or isinstance(attempt_id, bool)
-                or not 1 <= attempt_id <= effective_repeat
+                or not 1
+                <= attempt_id
+                <= (
+                    adaptive_expected_attempts
+                    if adaptive_expected_attempts is not None
+                    else effective_repeat
+                )
             ):
                 errors.append(
                     f"report case {case_id} attempt batch/id is invalid"
@@ -2433,24 +3274,36 @@ def validate_report_v3(value: Any) -> list[str]:
                 )
             ):
                 errors.append(f"report case {case_id} usage is invalid")
-        expected_pairs = {
-            (batch_id, attempt_id)
-            for batch_id in range(1, effective_batches + 1)
-            for attempt_id in range(1, effective_repeat + 1)
-        }
-        if (
-            len(attempt_pairs) != len(set(attempt_pairs))
-            or set(attempt_pairs) != expected_pairs
-        ):
+        expected_pairs = (
+            {
+                (1, attempt_id)
+                for attempt_id in range(1, adaptive_expected_attempts + 1)
+            }
+            if adaptive_expected_attempts is not None
+            else {
+                (batch_id, attempt_id)
+                for batch_id in range(1, effective_batches + 1)
+                for attempt_id in range(1, effective_repeat + 1)
+            }
+        )
+        invalid_grid = len(attempt_pairs) != len(set(attempt_pairs))
+        if report_complete:
+            invalid_grid = invalid_grid or set(attempt_pairs) != expected_pairs
+        else:
+            invalid_grid = invalid_grid or not set(attempt_pairs).issubset(
+                expected_pairs
+            )
+        if invalid_grid:
             errors.append(
-                f"report case {case_id} does not contain one attempt for "
-                "each batch/repeat pair"
+                f"report case {case_id} does not contain a valid "
+                "batch/repeat attempt grid"
             )
         try:
             expected_metrics = case_metrics(
                 attempts,
                 effective_repeat,
                 effective_batches,
+                adaptive_expected_attempts,
             )
         except (KeyError, TypeError, ValueError, ZeroDivisionError):
             expected_metrics = None
@@ -2462,6 +3315,126 @@ def validate_report_v3(value: Any) -> list[str]:
                     errors.append(
                         f"report case {case_id}.{field} does not match attempts"
                     )
+        if is_v4 and isinstance(adaptive, dict) and isinstance(
+            evaluation,
+            dict,
+        ):
+            evaluation_policy = evaluation.get("policy")
+            try:
+                retry_policy = retry_policy_settings(
+                    evaluation_policy
+                    if isinstance(evaluation_policy, dict)
+                    else {}
+                )
+                recomputed_adaptive = adaptive_case_evaluation(
+                    attempts,
+                    adaptive_expected_attempts or 1,
+                    retry_policy,
+                    bool(
+                        len(attempts) < (adaptive_expected_attempts or 1)
+                        and evaluation.get("actual_calls")
+                        >= evaluation.get("routing_max_calls")
+                    ),
+                    bool(adaptive.get("enabled")),
+                )
+            except (TypeError, ValueError):
+                recomputed_adaptive = None
+            if recomputed_adaptive is None:
+                errors.append(
+                    f"report case {case_id} adaptive evaluation cannot "
+                    "be recomputed"
+                )
+            elif adaptive != recomputed_adaptive:
+                errors.append(
+                    f"report case {case_id} adaptive evaluation does not "
+                    "match attempts"
+                )
+    if is_v4 and isinstance(evaluation, dict):
+        selected_ids = evaluation.get("selected_case_ids")
+        if isinstance(selected_ids, list) and selected_ids != [
+            case.get("id") for case in cases if isinstance(case, dict)
+        ]:
+            errors.append(
+                "report evaluation.selected_case_ids does not match cases"
+            )
+        initial_planned_calls = (
+            len(cases) * effective_repeat * effective_batches
+        )
+        planned_calls = sum(
+            (
+                case.get("adaptive_evaluation", {}).get(
+                    "expected_attempts",
+                    effective_repeat * effective_batches,
+                )
+                if isinstance(case.get("adaptive_evaluation"), dict)
+                else effective_repeat * effective_batches
+            )
+            for case in cases
+            if isinstance(case, dict)
+        )
+        if evaluation.get("initial_planned_calls") != initial_planned_calls:
+            errors.append(
+                "report evaluation.initial_planned_calls does not match cases"
+            )
+        if evaluation.get("retry_planned_calls") != (
+            planned_calls - initial_planned_calls
+        ):
+            errors.append(
+                "report evaluation.retry_planned_calls does not match cases"
+            )
+        if evaluation.get("planned_calls") != planned_calls:
+            errors.append("report evaluation.planned_calls does not match cases")
+        expected_case_outcomes = {
+            case["id"]: (
+                case["adaptive_evaluation"]["outcome"]
+                if isinstance(case.get("adaptive_evaluation"), dict)
+                else (
+                    "pending"
+                    if case.get("unscored_attempts")
+                    else "fail" if case.get("failed_attempts") else "pass"
+                )
+            )
+            for case in cases
+            if isinstance(case, dict) and isinstance(case.get("id"), str)
+        }
+        if evaluation.get("case_outcomes") != expected_case_outcomes:
+            errors.append(
+                "report evaluation.case_outcomes does not match cases"
+            )
+        if evaluation.get("outcomes") != dict(
+            Counter(expected_case_outcomes.values())
+        ):
+            errors.append("report evaluation.outcomes does not match cases")
+        if evaluation.get("pending_case_ids") != sorted(
+            case_id
+            for case_id, outcome in expected_case_outcomes.items()
+            if outcome == "pending"
+        ):
+            errors.append(
+                "report evaluation.pending_case_ids does not match cases"
+            )
+        if evaluation.get("failed_case_ids") != sorted(
+            case_id
+            for case_id, outcome in expected_case_outcomes.items()
+            if outcome == "fail"
+        ):
+            errors.append(
+                "report evaluation.failed_case_ids does not match cases"
+            )
+        actual_calls = evaluation.get("actual_calls")
+        attempt_count = sum(
+            len(case.get("attempts", []))
+            for case in cases
+            if isinstance(case, dict) and isinstance(case.get("attempts"), list)
+        )
+        if isinstance(actual_calls, int) and actual_calls > attempt_count:
+            errors.append(
+                "report evaluation.actual_calls exceeds recorded attempts"
+            )
+        if report_complete and attempt_count != planned_calls:
+            errors.append(
+                "report evaluation.complete conflicts with attempt coverage"
+            )
     summary = value.get("summary")
     if not isinstance(summary, dict):
         errors.append("report summary must be an object")
@@ -2473,6 +3446,15 @@ def validate_report_v3(value: Any) -> list[str]:
         if expected_summary is not None and summary != expected_summary:
             errors.append("report summary does not match case attempts")
     return errors
+
+
+def validate_report_v4(value: Any) -> list[str]:
+    return _validate_native_report(value, REPORT_SCHEMA_VERSION)
+
+
+def validate_report_v3(value: Any) -> list[str]:
+    """Validate the read-only historical v3 contract."""
+    return _validate_native_report(value, 3)
 
 
 def normalize_legacy_identifier(value: Any) -> Any:
@@ -2527,6 +3509,22 @@ def load_report_compat(path: Path) -> tuple[dict[str, Any], bool]:
     version = value.get("schema_version")
     if version == REPORT_SCHEMA_VERSION:
         return value, False
+    if version == 3:
+        legacy_errors = validate_report_v3(value)
+        if legacy_errors:
+            raise ValueError(
+                "invalid legacy schema v3 report: " + "; ".join(legacy_errors)
+            )
+        normalized_v3 = deepcopy(value)
+        normalized_v3["release_evidence_eligible"] = False
+        normalized_v3["_compatibility"] = {
+            "source_schema_version": 3,
+            "normalized_for": PRODUCER_ID,
+            "raw_report_sha256": sha256_file(path),
+            "execution_provenance": value.get("execution_provenance"),
+            "release_evidence_eligible": False,
+        }
+        return normalized_v3, True
     if version != 2:
         raise ValueError(f"unsupported report schema_version: {version}")
     legacy_errors = validate_legacy_report_v2(value)
@@ -2558,6 +3556,520 @@ def selected_cases(
     if missing:
         raise ValueError(f"unknown case ids: {', '.join(missing)}")
     return selected
+
+
+def stable_case_order(
+    cases: Iterable[dict[str, Any]],
+    seed: str,
+) -> list[dict[str, Any]]:
+    by_language: dict[str, list[dict[str, Any]]] = {}
+    for case in cases:
+        by_language.setdefault(str(case.get("language", "")), []).append(case)
+    for language_cases in by_language.values():
+        language_cases.sort(
+            key=lambda case: (
+                sha256_text(f"{seed}\0{case.get('id', '')}"),
+                str(case.get("id", "")),
+            )
+        )
+    ordered: list[dict[str, Any]] = []
+    languages = sorted(by_language)
+    offset = 0
+    while True:
+        added = False
+        for language in languages:
+            language_cases = by_language[language]
+            if offset < len(language_cases):
+                ordered.append(language_cases[offset])
+                added = True
+        if not added:
+            break
+        offset += 1
+    return ordered
+
+
+def case_focuses(case: dict[str, Any]) -> tuple[str, ...]:
+    return tuple(
+        sorted(
+            tag.removeprefix("focus:")
+            for tag in case.get("tags", [])
+            if isinstance(tag, str) and tag.startswith("focus:")
+        )
+    )
+
+
+def load_eval_policy(
+    suite: dict[str, Any],
+    suite_path: Path,
+    explicit_path: Path | None,
+    mode: str,
+) -> tuple[dict[str, Any], str, str]:
+    configured = suite.get("execution_policy", {}).get("policy_path")
+    policy_path = explicit_path
+    if policy_path is None and isinstance(configured, str) and configured:
+        policy_path = Path(configured)
+        if not policy_path.is_absolute():
+            policy_path = suite_path.resolve().parent / policy_path
+    if policy_path is None:
+        configured_id = suite.get("execution_policy", {}).get("policy_id")
+        if isinstance(configured_id, str) and configured_id:
+            sibling = suite_path.resolve().parent / f"{configured_id}.json"
+            if sibling.is_file():
+                policy_path = sibling
+    if policy_path is None:
+        if mode != "exhaustive":
+            raise ValueError(
+                "--policy is required for pr/release mode unless "
+                "suite.execution_policy.policy_path is set"
+            )
+        return (
+            deepcopy(RISK_POLICY_V2),
+            sha256_object(RISK_POLICY_V2),
+            "builtin:risk-tiered-v2",
+        )
+    resolved = policy_path.resolve()
+    try:
+        value = read_json(resolved)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"cannot read evaluation policy: {exc}") from exc
+    if not isinstance(value, dict):
+        raise ValueError("evaluation policy must be a JSON object")
+    policy_id = value.get("id", value.get("policy_id"))
+    if policy_id != RISK_POLICY_V2["id"]:
+        raise ValueError(
+            f"evaluation policy id must be {RISK_POLICY_V2['id']}"
+        )
+    if value.get("suite_id") not in {None, suite.get("suite_id")}:
+        raise ValueError("evaluation policy suite_id does not match eval suite")
+    modes = value.get("modes")
+    if not isinstance(modes, dict) or not isinstance(modes.get(mode), dict):
+        raise ValueError(f"evaluation policy does not define mode {mode}")
+    try:
+        source = resolved.relative_to(suite_path.resolve().parent).as_posix()
+    except ValueError:
+        source = resolved.name
+    return value, sha256_file(resolved), source
+
+
+def policy_case_ids(
+    cases: list[dict[str, Any]],
+    requested: Any,
+    label: str,
+) -> list[dict[str, Any]]:
+    if requested is None:
+        return []
+    if not isinstance(requested, list) or any(
+        not isinstance(case_id, str) or not case_id for case_id in requested
+    ):
+        raise ValueError(f"evaluation policy {label} must be a string array")
+    by_id = {case["id"]: case for case in cases}
+    unknown = [case_id for case_id in requested if case_id not in by_id]
+    if unknown:
+        raise ValueError(
+            f"evaluation policy {label} has unknown cases: "
+            + ", ".join(sorted(set(unknown)))
+        )
+    if len(requested) != len(set(requested)):
+        raise ValueError(f"evaluation policy {label} contains duplicates")
+    return [by_id[case_id] for case_id in requested]
+
+
+def risk_selected_cases(
+    suite: dict[str, Any],
+    mode: str,
+    case_ids: list[str] | None,
+    rotation_key: str,
+    policy: dict[str, Any],
+    changed_skills: list[str] | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, str], str]:
+    explicit = selected_cases(suite, case_ids)
+    if case_ids or mode == "exhaustive":
+        role = "explicit" if case_ids else "exhaustive"
+        reason = (
+            "explicit --case selection"
+            if case_ids
+            else "all suite cases selected for exhaustive coverage"
+        )
+        return explicit, {case["id"]: role for case in explicit}, reason
+
+    suite_sha = sha256_object(suite)
+    cases = list(suite["cases"])
+    selected: list[dict[str, Any]] = []
+    roles: dict[str, str] = {}
+    mode_policy = policy.get("modes", {}).get(mode, {})
+    exact_case_ids = mode_policy.get("case_ids")
+    if exact_case_ids is not None:
+        exact = policy_case_ids(cases, exact_case_ids, f"modes.{mode}.case_ids")
+        return (
+            exact,
+            {case["id"]: "policy-explicit" for case in exact},
+            f"{policy.get('id', policy.get('policy_id'))} "
+            f"{mode} policy-explicit case set",
+        )
+
+    def add(pool: Iterable[dict[str, Any]], amount: int, role: str, seed: str) -> None:
+        for case in stable_case_order(pool, f"{suite_sha}:{seed}")[:amount]:
+            case_id = case["id"]
+            if case_id in roles:
+                continue
+            selected.append(case)
+            roles[case_id] = role
+
+    focuses = sorted({focus for case in cases for focus in case_focuses(case)})
+    unknown_changed = sorted(set(changed_skills or []).difference(focuses))
+    if unknown_changed:
+        raise ValueError(
+            "unknown --changed-skill values: " + ", ".join(unknown_changed)
+        )
+    if mode == "pr":
+        sentinel_ids = mode_policy.get("sentinel_case_ids")
+        if sentinel_ids is not None:
+            sentinels = policy_case_ids(
+                cases,
+                sentinel_ids,
+                "modes.pr.sentinel_case_ids",
+            )
+            return (
+                sentinels,
+                {case["id"]: "sentinel" for case in sentinels},
+                f"{policy.get('id', policy.get('policy_id'))} "
+                "PR policy sentinels",
+            )
+        configured_per_focus = mode_policy.get(
+            "per_focus_case_ids",
+            mode_policy.get("per_changed_case_ids"),
+        )
+        if configured_per_focus is not None:
+            if not isinstance(configured_per_focus, dict):
+                raise ValueError(
+                    "evaluation policy PR per-focus cases must be an object"
+                )
+            active_focuses = changed_skills or focuses
+            for focus in active_focuses:
+                configured_cases = policy_case_ids(
+                    cases,
+                    configured_per_focus.get(focus),
+                    f"modes.pr.per_focus_case_ids.{focus}",
+                )
+                for case in configured_cases[:4]:
+                    if case["id"] not in roles:
+                        selected.append(case)
+                        roles[case["id"]] = f"sentinel:{focus}"
+                    if len(selected) >= 12:
+                        break
+                if len(selected) >= 12:
+                    break
+            return (
+                selected,
+                roles,
+                f"{policy.get('id', policy.get('policy_id'))} PR sentinels "
+                f"for {len(active_focuses)} changed focus group(s)",
+            )
+        per_focus = {
+            focus: stable_case_order(
+                (case for case in cases if focus in case_focuses(case)),
+                f"{suite_sha}:pr:{focus}",
+            )[:4]
+            for focus in focuses
+        }
+        for offset in range(4):
+            for focus in focuses:
+                focus_cases = per_focus[focus]
+                if offset < len(focus_cases):
+                    add(
+                        [focus_cases[offset]],
+                        1,
+                        f"sentinel:{focus}",
+                        f"pr:{focus}:{offset}",
+                    )
+                    if len(selected) >= 12:
+                        break
+            if len(selected) >= 12:
+                break
+        if not selected:
+            add(cases, 12, "sentinel", "pr:fallback")
+        return (
+            selected,
+            roles,
+            "risk-tiered PR sentinels (up to four per focus, hard cap 12)",
+        )
+
+    configured_fixed = policy_case_ids(
+        cases,
+        mode_policy.get("fixed_case_ids"),
+        "modes.release.fixed_case_ids",
+    )
+    fixed_pool = configured_fixed or [
+        case
+        for case in cases
+        if "kind:positive" in case.get("tags", [])
+        or "risk:high" in case.get("tags", [])
+    ]
+    rotating_value = mode_policy.get("rotating_case_ids")
+    if isinstance(rotating_value, dict):
+        rotating_value = rotating_value.get(
+            rotation_key,
+            rotating_value.get("default"),
+        )
+    configured_boundary = policy_case_ids(
+        cases,
+        rotating_value,
+        "modes.release.rotating_case_ids",
+    )
+    boundary_pool = configured_boundary or [
+        case
+        for case in cases
+        if "kind:adjacent-negative" in case.get("tags", [])
+        and "risk:high" not in case.get("tags", [])
+    ]
+    configured_multi = policy_case_ids(
+        cases,
+        mode_policy.get("multi_intent_case_ids"),
+        "modes.release.multi_intent_case_ids",
+    )
+    multi_pool = configured_multi or [
+        case for case in cases if "kind:multi-intent" in case.get("tags", [])
+    ]
+    fixed_count = int(mode_policy.get("fixed_count", 6))
+    rotating_count = int(mode_policy.get("rotating_count", 6))
+    multi_count = int(mode_policy.get("multi_intent_count", 4))
+    per_focus_count = int(mode_policy.get("per_focus_count", 4))
+    maximum_cases = int(mode_policy.get("maximum_cases", 34))
+    add(
+        fixed_pool,
+        fixed_count,
+        "fixed-positive-or-high-risk",
+        "release:fixed",
+    )
+    add(
+        boundary_pool,
+        rotating_count,
+        "rotating-adjacent-boundary",
+        f"release:boundary:{rotation_key}",
+    )
+    add(
+        multi_pool,
+        multi_count,
+        "cross-skill-multi-intent",
+        "release:multi",
+    )
+    configured_per_focus = mode_policy.get(
+        "per_focus_case_ids",
+        mode_policy.get("per_changed_case_ids"),
+    )
+    if configured_per_focus is not None and not isinstance(
+        configured_per_focus,
+        dict,
+    ):
+        raise ValueError(
+            "evaluation policy release per-focus cases must be an object"
+        )
+    active_release_focuses = changed_skills or []
+    for focus in active_release_focuses:
+        configured_focus_cases = (
+            policy_case_ids(
+                cases,
+                configured_per_focus.get(focus),
+                f"modes.release.per_focus_case_ids.{focus}",
+            )
+            if isinstance(configured_per_focus, dict)
+            else []
+        )
+        remaining = configured_focus_cases or [
+            case
+            for case in cases
+            if focus in case_focuses(case) and case["id"] not in roles
+        ]
+        add(
+            remaining,
+            per_focus_count,
+            f"targeted:{focus}",
+            f"release:targeted:{focus}",
+        )
+    if not selected:
+        add(
+            cases,
+            maximum_cases,
+            "release-fallback",
+            "release:fallback",
+        )
+    selected = selected[:maximum_cases]
+    roles = {case["id"]: roles[case["id"]] for case in selected}
+    return (
+        selected,
+        roles,
+        f"{policy.get('id', policy.get('policy_id'))} release sample: "
+        f"{fixed_count} fixed, "
+        f"{rotating_count} rotating boundary, {multi_count} multi-intent, "
+        f"then up to {per_focus_count} per focus "
+        f"for {len(active_release_focuses)} changed focus group(s) "
+        f"(hard cap {maximum_cases})",
+    )
+
+
+def parse_shard(value: str | None) -> tuple[int, int] | None:
+    if value is None:
+        return None
+    match = re.fullmatch(r"([1-9][0-9]*)/([1-9][0-9]*)", value)
+    if match is None:
+        raise ValueError("--shard must use the 1-based INDEX/TOTAL form")
+    index, total = (int(match.group(1)), int(match.group(2)))
+    if index > total:
+        raise ValueError("--shard INDEX cannot be greater than TOTAL")
+    return index, total
+
+
+def apply_shard(
+    cases: list[dict[str, Any]],
+    shard: tuple[int, int] | None,
+) -> list[dict[str, Any]]:
+    if shard is None:
+        return cases
+    index, total = shard
+    return [
+        case
+        for offset, case in enumerate(cases)
+        if offset % total == index - 1
+    ]
+
+
+def default_journal_path(
+    args: argparse.Namespace,
+    suite_sha: str,
+    target_lock_sha: str,
+) -> Path:
+    if args.journal is not None:
+        return args.journal
+    if args.output is not None:
+        return Path(f"{args.output}.journal.jsonl")
+    unique = f"{os.getpid()}-{time.time_ns()}"
+    return (
+        Path(tempfile.gettempdir())
+        / (
+            f"gloamere-eval-{suite_sha[:10]}-{target_lock_sha[:10]}-"
+            f"{args.mode}-{unique}.journal.jsonl"
+        )
+    )
+
+
+def journal_identity(
+    suite_sha: str,
+    target_lock_sha: str,
+    policy_sha: str,
+    mode: str,
+    rotation_key: str,
+    selection_sha: str,
+    execution_provenance: str,
+    model: str | None,
+    adapter_signature: str | None,
+    commit: str,
+) -> dict[str, Any]:
+    return {
+        "suite_sha256": suite_sha,
+        "target_lock_sha256": target_lock_sha,
+        "policy_sha256": policy_sha,
+        "mode": mode,
+        "rotation_key": rotation_key,
+        "selection_sha256": selection_sha,
+        "execution_provenance": execution_provenance,
+        "model": model,
+        "adapter_signature": adapter_signature,
+        "commit": commit,
+        "runner_sha256": sha256_file(Path(__file__)),
+    }
+
+
+def load_journal(
+    path: Path,
+    identity: dict[str, Any],
+) -> tuple[
+    dict[tuple[str, int, int], dict[str, Any]],
+    set[tuple[str, int, int]],
+    str | None,
+]:
+    attempts: dict[tuple[str, int, int], dict[str, Any]] = {}
+    consumed_call_keys: set[tuple[str, int, int]] = set()
+    codex_version_value: str | None = None
+    observed_versions: set[str] = set()
+    for line_number, raw in enumerate(
+        path.read_text(encoding="utf-8").splitlines(),
+        start=1,
+    ):
+        if not raw.strip():
+            continue
+        try:
+            record = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"journal line {line_number} is not valid JSON: {exc}"
+            ) from exc
+        if not isinstance(record, dict) or record.get("journal_version") != (
+            JOURNAL_SCHEMA_VERSION
+        ):
+            raise ValueError(f"journal line {line_number} has an invalid version")
+        if record.get("identity") != identity:
+            raise ValueError(
+                f"journal line {line_number} does not match current inputs/policy"
+            )
+        case_id = record.get("case_id")
+        batch = record.get("batch_id")
+        attempt_id = record.get("attempt")
+        attempt = record.get("attempt_data")
+        if (
+            not isinstance(case_id, str)
+            or not isinstance(batch, int)
+            or isinstance(batch, bool)
+            or not isinstance(attempt_id, int)
+            or isinstance(attempt_id, bool)
+            or not isinstance(attempt, dict)
+        ):
+            raise ValueError(f"journal line {line_number} is malformed")
+        key = (case_id, batch, attempt_id)
+        previous = attempts.get(key)
+        supersedes = record.get("supersedes") is True
+        if previous is not None and previous != attempt and not supersedes:
+            raise ValueError(
+                f"journal contains conflicting records for {case_id} "
+                f"batch={batch} attempt={attempt_id}"
+            )
+        if record.get("call_consumed") is True:
+            consumed_call_keys.add(key)
+        attempts[key] = attempt
+        version = record.get("codex_version")
+        if isinstance(version, str) and version:
+            codex_version_value = version
+            observed_versions.add(version)
+    if len(observed_versions) > 1:
+        raise ValueError(
+            "journal mixes incompatible Codex CLI/adapter versions"
+        )
+    return attempts, consumed_call_keys, codex_version_value
+
+
+def append_attempt_journal(
+    path: Path,
+    identity: dict[str, Any],
+    case_id: str,
+    attempt: dict[str, Any],
+    call_consumed: bool,
+    codex_version_value: str | None,
+    supersedes: bool = False,
+) -> None:
+    append_journal_record(
+        path,
+        {
+            "journal_version": JOURNAL_SCHEMA_VERSION,
+            "recorded_at": utc_now(),
+            "identity": identity,
+            "case_id": case_id,
+            "batch_id": attempt["batch_id"],
+            "attempt": attempt["attempt"],
+            "call_consumed": call_consumed,
+            "supersedes": supersedes,
+            "codex_version": codex_version_value,
+            "attempt_data": attempt,
+        },
+    )
 
 
 def command_inspect(args: argparse.Namespace) -> int:
@@ -2604,12 +4116,12 @@ def command_lint(args: argparse.Namespace) -> int:
             report, legacy_report = load_report_compat(args.report)
             if legacy_report:
                 warnings.append(
-                    "legacy schema v2 report was read through the "
+                    "legacy schema v2/v3 report was read through the "
                     "compatibility mapper and is never release evidence"
                 )
                 release_evidence_eligible = False
             else:
-                errors.extend(validate_report_v3(report))
+                errors.extend(validate_report_v4(report))
                 release_evidence_eligible = bool(
                     report.get("release_evidence_eligible")
                 )
@@ -2644,23 +4156,62 @@ def command_native(args: argparse.Namespace) -> int:
         for error in suite_errors:
             print(f"- {error}", file=sys.stderr)
         return 2
+    try:
+        policy, policy_sha, policy_source = load_eval_policy(
+            suite,
+            args.suite,
+            args.policy,
+            args.mode,
+        )
+        retry_policy = retry_policy_settings(policy)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    if args.mode != "exhaustive" and args.repeat not in {None, 1}:
+        print("--repeat is fixed at 1 in pr/release mode", file=sys.stderr)
+        return 2
     repeat_per_batch = (
-        args.repeat
-        if args.repeat is not None
-        else suite["execution_policy"]["repeat"]
+        (
+            args.repeat
+            if args.repeat is not None
+            else suite["execution_policy"]["repeat"]
+        )
+        if args.mode == "exhaustive"
+        else 1
     )
     if repeat_per_batch < 1 or repeat_per_batch > 10:
         print("--repeat must be between 1 and 10", file=sys.stderr)
         return 2
-    independent_batches = suite["execution_policy"]["independent_batches"]
+    independent_batches = (
+        suite["execution_policy"]["independent_batches"]
+        if args.mode == "exhaustive"
+        else 1
+    )
     if args.timeout < 1:
         print("--timeout must be greater than 0", file=sys.stderr)
         return 2
     try:
-        cases = selected_cases(suite, args.case_ids)
+        shard = parse_shard(args.shard)
+        unsharded_cases, selection_roles, selection_reason = (
+            risk_selected_cases(
+                suite,
+                args.mode,
+                args.case_ids,
+                args.rotation_key,
+                policy,
+                args.changed_skills,
+            )
+        )
+        cases = apply_shard(unsharded_cases, shard)
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 2
+    if not cases:
+        print("the selected shard contains no cases", file=sys.stderr)
+        return 2
+    selection_roles = {
+        case["id"]: selection_roles[case["id"]] for case in cases
+    }
 
     if args.workspace is not None and independent_batches > 1:
         print(
@@ -2670,129 +4221,624 @@ def command_native(args: argparse.Namespace) -> int:
         )
         return 2
 
+    planned_calls = len(cases) * repeat_per_batch * independent_batches
+    unsharded_initial_calls = (
+        len(unsharded_cases) * repeat_per_batch * independent_batches
+    )
+    mode_policy = policy.get("modes", {}).get(args.mode, {})
+    configured_initial_calls = mode_policy.get("initial_calls")
+    if configured_initial_calls == "planned":
+        configured_initial_calls = unsharded_initial_calls
+    if configured_initial_calls is not None and (
+        not isinstance(configured_initial_calls, int)
+        or isinstance(configured_initial_calls, bool)
+        or configured_initial_calls < 1
+    ):
+        print(
+            f"evaluation policy {args.mode}.initial_calls is invalid",
+            file=sys.stderr,
+        )
+        return 2
+    if (
+        args.mode == "exhaustive"
+        and args.case_ids is None
+        and configured_initial_calls is not None
+        and configured_initial_calls != unsharded_initial_calls
+    ):
+        print(
+            "evaluation policy exhaustive.initial_calls does not match "
+            f"the {unsharded_initial_calls}-case initial execution grid",
+            file=sys.stderr,
+        )
+        return 2
+    initial_call_requirement = (
+        configured_initial_calls
+        if isinstance(configured_initial_calls, int)
+        and args.case_ids is None
+        else unsharded_initial_calls
+    )
+    adaptive_retry_enabled = args.mode in {"pr", "release"} or (
+        args.mode == "exhaustive"
+        and repeat_per_batch == 1
+        and independent_batches == 1
+    )
+    maximum_adaptive_attempts = (
+        max(
+            retry_policy["unexpected_attempts"],
+            1 + retry_policy["infrastructure_retry_count"],
+        )
+        if adaptive_retry_enabled
+        else repeat_per_batch
+    )
+    execution_strategy = (
+        "initial-coverage-then-adaptive-retry"
+        if args.mode == "exhaustive" and adaptive_retry_enabled
+        else "adaptive-retry"
+        if adaptive_retry_enabled
+        else "fixed-grid"
+    )
+    configured_budget = mode_policy.get(
+        "max_calls",
+        mode_policy.get("default_max_calls"),
+    )
+    if (
+        args.mode == "exhaustive"
+        and isinstance(configured_budget, int)
+        and not isinstance(configured_budget, bool)
+        and configured_budget < initial_call_requirement
+    ):
+        print(
+            "evaluation policy exhaustive.max_calls is below "
+            "exhaustive.initial_calls",
+            file=sys.stderr,
+        )
+        return 2
+    if args.max_calls is not None:
+        max_calls = args.max_calls
+    elif isinstance(configured_budget, int) and not isinstance(
+        configured_budget,
+        bool,
+    ):
+        max_calls = configured_budget
+    elif (
+        args.mode == "exhaustive"
+        and configured_budget == "planned+adaptive"
+    ):
+        max_calls = unsharded_initial_calls + min(
+            18 if adaptive_retry_enabled else 0,
+            unsharded_initial_calls * 2,
+        )
+    else:
+        max_calls = (
+            12
+            if args.mode == "pr"
+            else 40 if args.mode == "release" else planned_calls
+        )
+    if max_calls < 1:
+        print("--max-calls must be greater than 0", file=sys.stderr)
+        return 2
+    quality_policy = policy.get("quality")
+    quality_per_changed_skill = (
+        quality_policy.get("release_cases_per_changed_skill", 0)
+        if isinstance(quality_policy, dict)
+        else 0
+    )
+    if (
+        not isinstance(quality_per_changed_skill, int)
+        or isinstance(quality_per_changed_skill, bool)
+        or quality_per_changed_skill < 0
+    ):
+        print(
+            "evaluation policy quality.release_cases_per_changed_skill "
+            "is invalid",
+            file=sys.stderr,
+        )
+        return 2
+    quality_reserved_calls = (
+        quality_per_changed_skill * len(set(args.changed_skills or []))
+        if args.mode == "release"
+        else 0
+    )
+    routing_max_calls = max_calls - quality_reserved_calls
+    if routing_max_calls < 1:
+        print(
+            "quality call reservation leaves no routing budget",
+            file=sys.stderr,
+        )
+        return 2
+    retry_call_capacity = max(
+        0,
+        routing_max_calls - initial_call_requirement,
+    )
+    if execution_strategy == "initial-coverage-then-adaptive-retry":
+        selection_reason += (
+            f"; complete all {initial_call_requirement} initial calls "
+            f"before adaptive retries (capacity {retry_call_capacity})"
+        )
+    if quality_reserved_calls:
+        selection_reason += (
+            f"; reserving {quality_reserved_calls} of {max_calls} calls "
+            "for output-quality evaluation"
+        )
+
     execution_provenance = (
         "fixture_adapter"
         if args.adapter_executable or args.catalog is not None
         else "codex_cli"
     )
+    adapter_signature = (
+        sha256_object(
+            {
+                "adapter_executable": args.adapter_executable,
+                "adapter_args": args.adapter_arg,
+                "catalog_sha256": (
+                    sha256_file(args.catalog)
+                    if args.catalog is not None and args.catalog.is_file()
+                    else None
+                ),
+            }
+        )
+        if execution_provenance == "fixture_adapter"
+        else None
+    )
+    commit_value = repository_commit()
+    suite_sha = sha256_file(args.suite)
+    target_lock_sha = sha256_object(target_lock)
+    selection_sha = sha256_object(
+        {
+            "case_ids": [case["id"] for case in unsharded_cases],
+            "repeat": repeat_per_batch,
+            "independent_batches": independent_batches,
+        }
+    )
+    identity = journal_identity(
+        suite_sha,
+        target_lock_sha,
+        policy_sha,
+        args.mode,
+        args.rotation_key,
+        selection_sha,
+        execution_provenance,
+        args.model,
+        adapter_signature,
+        commit_value,
+    )
+    journal_path = default_journal_path(
+        args,
+        suite_sha,
+        target_lock_sha,
+    )
+    if args.finalize and args.dry_run:
+        print("--finalize and --dry-run cannot be combined", file=sys.stderr)
+        return 2
+    resume_requested = args.resume or args.finalize
+    if resume_requested and not journal_path.is_file():
+        print(f"journal does not exist: {journal_path}", file=sys.stderr)
+        return 2
+    if (
+        not resume_requested
+        and not args.dry_run
+        and journal_path.exists()
+    ):
+        print(
+            f"journal already exists; use --resume or another --journal: "
+            f"{journal_path}",
+            file=sys.stderr,
+        )
+        return 2
+
+    resumed_attempts: dict[tuple[str, int, int], dict[str, Any]] = {}
+    consumed_call_keys: set[tuple[str, int, int]] = set()
+    resumed_calls = 0
+    resumed_codex_version: str | None = None
+    if resume_requested:
+        try:
+            (
+                resumed_attempts,
+                consumed_call_keys,
+                resumed_codex_version,
+            ) = load_journal(journal_path, identity)
+        except (OSError, ValueError) as exc:
+            print(f"cannot resume journal: {exc}", file=sys.stderr)
+            return 2
+    expected_keys = {
+        (case["id"], batch, attempt)
+        for case in cases
+        for batch in range(1, independent_batches + 1)
+        for attempt in range(1, repeat_per_batch + 1)
+    }
+    selected_universe_keys = {
+        (case["id"], batch, attempt)
+        for case in cases
+        for batch in range(1, independent_batches + 1)
+        for attempt in range(
+            1,
+            (
+                maximum_adaptive_attempts
+                if adaptive_retry_enabled
+                else repeat_per_batch
+            )
+            + 1,
+        )
+    }
+    unsharded_keys = {
+        (case["id"], batch, attempt)
+        for case in unsharded_cases
+        for batch in range(1, independent_batches + 1)
+        for attempt in range(
+            1,
+            (
+                maximum_adaptive_attempts
+                if adaptive_retry_enabled
+                else repeat_per_batch
+            )
+            + 1,
+        )
+    }
+    selected_initial_keys = {
+        (case["id"], batch, attempt)
+        for case in cases
+        for batch in range(1, independent_batches + 1)
+        for attempt in range(1, repeat_per_batch + 1)
+    }
+    unsharded_initial_keys = {
+        (case["id"], batch, attempt)
+        for case in unsharded_cases
+        for batch in range(1, independent_batches + 1)
+        for attempt in range(1, repeat_per_batch + 1)
+    }
+    unknown_journal_keys = sorted(
+        set(resumed_attempts).difference(unsharded_keys)
+    )
+    if unknown_journal_keys:
+        print(
+            "journal contains attempts outside the selected execution grid",
+            file=sys.stderr,
+        )
+        return 2
+    resumed_calls = len(
+        consumed_call_keys.intersection(selected_universe_keys)
+    )
+    journal_total_calls = len(consumed_call_keys)
+    if journal_total_calls > routing_max_calls:
+        print(
+            "journal call count already exceeds the routing budget",
+            file=sys.stderr,
+        )
+        return 2
+    replaceable_keys: set[tuple[str, int, int]] = set()
+    if resume_requested and not args.finalize:
+        replaceable_keys = {
+            key
+            for key, attempt in resumed_attempts.items()
+            if key in selected_universe_keys
+            and key not in consumed_call_keys
+            and attempt.get("evidence_status")
+            in {"unavailable", "identity_conflict"}
+        }
+        for key in replaceable_keys:
+            resumed_attempts.pop(key, None)
+
+    if args.dry_run:
+        plan = {
+            "schema_version": 1,
+            "command": "native-plan",
+            "mode": args.mode,
+            "policy_id": policy.get("id", policy.get("policy_id")),
+            "policy_sha256": policy_sha,
+            "policy_source": policy_source,
+            "suite_sha256": suite_sha,
+            "target_lock_sha256": target_lock_sha,
+            "selection_reason": selection_reason,
+            "selected_case_ids": [case["id"] for case in cases],
+            "selection": selection_roles,
+            "changed_skills": sorted(set(args.changed_skills or [])),
+            "rotation_key": args.rotation_key,
+            "shard": (
+                {"index": shard[0], "total": shard[1]}
+                if shard is not None
+                else None
+            ),
+            "repeat": repeat_per_batch,
+            "independent_batches": independent_batches,
+            "planned_calls": planned_calls,
+            "initial_planned_calls": initial_call_requirement,
+            "execution_strategy": execution_strategy,
+            "max_calls": max_calls,
+            "hard_max_calls": max_calls,
+            "routing_max_calls": routing_max_calls,
+            "quality_reserved_calls": quality_reserved_calls,
+            "retry_call_capacity": retry_call_capacity,
+            "adaptive_retry_limit": maximum_adaptive_attempts,
+            "resumable_attempts": len(
+                set(resumed_attempts).intersection(selected_universe_keys)
+            ),
+            "resumed_calls": resumed_calls,
+            "model_calls": 0,
+        }
+        write_or_print(plan, args.output)
+        return 0
+
+    print(f"journal: {journal_path.resolve()}", file=sys.stderr, flush=True)
     attempts_by_case: dict[str, list[dict[str, Any]]] = {
         case["id"]: [] for case in cases
     }
+    for key, attempt_data in sorted(resumed_attempts.items()):
+        case_id, _, _ = key
+        if key in selected_universe_keys:
+            attempts_by_case[case_id].append(attempt_data)
     preflight_results: list[tuple[int, str, list[str], str]] = []
-    codex_version_value: str | None = None
+    codex_version_value: str | None = resumed_codex_version
+    actual_calls = resumed_calls
+    total_calls = journal_total_calls
+    new_calls = 0
+    budget_exhausted = False
 
-    for batch in range(1, independent_batches + 1):
-        catalog, _, _, catalog_version_value = load_plugin_catalog(args.catalog)
-        codex_version_value = catalog_version_value or codex_version_value
-        preflight_status, preflight_reasons = assess_native_preflight(
-            suite,
-            target_lock,
-            catalog,
+    if args.finalize:
+        print(
+            f"finalizing "
+            f"{len(set(resumed_attempts).intersection(expected_keys))}/"
+            f"{len(expected_keys)} "
+            "journaled attempts without model calls",
+            file=sys.stderr,
         )
-        preflight_results.append(
-            (batch, preflight_status, preflight_reasons, "preflight")
-        )
-        if preflight_status != "verified":
-            for case in cases:
-                attempts_by_case[case["id"]].extend(
-                    preflight_attempt(
-                        case,
-                        preflight_status,
-                        preflight_reasons,
-                        attempt,
-                        args.include_prompts,
-                        batch,
-                    )
-                    for attempt in range(1, repeat_per_batch + 1)
+
+    execution_phases = (
+        ("initial", "retry")
+        if execution_strategy
+        == "initial-coverage-then-adaptive-retry"
+        else ("adaptive",)
+        if adaptive_retry_enabled
+        else ("fixed",)
+    )
+
+    def pending_attempt_numbers(
+        case_id: str,
+        batch: int,
+        phase: str,
+    ) -> list[int]:
+        existing = sorted(
+            (
+                attempt
+                for (existing_case_id, batch_id, _), attempt in (
+                    resumed_attempts.items()
                 )
-            continue
-
-        temporary_workspace: tempfile.TemporaryDirectory[str] | None = None
-        if args.workspace is None:
-            temporary_workspace = tempfile.TemporaryDirectory(
-                prefix=f"gloamere-skill-eval-batch-{batch}-"
-            )
-            workspace = Path(temporary_workspace.name)
+                if existing_case_id == case_id and batch_id == batch
+            ),
+            key=lambda item: item["attempt"],
+        )
+        if phase == "initial" or phase == "fixed":
+            desired_numbers = range(1, repeat_per_batch + 1)
         else:
-            workspace = args.workspace.resolve()
-        batch_attempts: dict[str, list[dict[str, Any]]] = {
-            case["id"]: [] for case in cases
-        }
-        try:
-            for case_index, case in enumerate(cases, start=1):
-                for attempt in range(1, repeat_per_batch + 1):
-                    print(
-                        f"[batch {batch}/{independent_batches}] "
-                        f"[{case_index}/{len(cases)}] {case['id']} "
-                        f"attempt={attempt}",
-                        file=sys.stderr,
-                        flush=True,
-                    )
-                    prompt = build_native_prompt(case["prompt"])
-                    if args.adapter_executable:
-                        host_result = run_adapter(
-                            args.adapter_executable,
-                            args.adapter_arg,
-                            prompt,
-                            args.timeout,
-                            workspace,
+            desired = desired_adaptive_attempts(
+                existing,
+                retry_policy,
+                adaptive_retry_enabled,
+            )
+            desired_numbers = range(1, desired + 1)
+        return [
+            attempt_number
+            for attempt_number in desired_numbers
+            if (case_id, batch, attempt_number) not in resumed_attempts
+            and not (
+                phase == "retry"
+                and attempt_number <= repeat_per_batch
+            )
+        ]
+
+    for execution_phase in execution_phases:
+        if args.finalize or budget_exhausted:
+            break
+        if (
+            execution_phase == "retry"
+            and not unsharded_initial_keys.issubset(resumed_attempts)
+        ):
+            # exhaustive 的复验必须等待完整初始覆盖；分片运行也不能提前消费
+            # 其他分片尚未完成的 102 例初始预算。
+            break
+        for batch in range(1, independent_batches + 1):
+            pending_by_case = {
+                case["id"]: pending_attempt_numbers(
+                    case["id"],
+                    batch,
+                    execution_phase,
+                )
+                for case in cases
+            }
+            if not any(pending_by_case.values()):
+                continue
+            catalog, _, _, catalog_version_value = load_plugin_catalog(
+                args.catalog
+            )
+            codex_version_value = (
+                catalog_version_value or codex_version_value
+            )
+            preflight_status, preflight_reasons = assess_native_preflight(
+                suite,
+                target_lock,
+                catalog,
+            )
+            preflight_results.append(
+                (
+                    batch,
+                    preflight_status,
+                    preflight_reasons,
+                    f"{execution_phase}-preflight",
+                )
+            )
+            if preflight_status != "verified":
+                for case in cases:
+                    for attempt_number in pending_by_case[case["id"]]:
+                        key = (case["id"], batch, attempt_number)
+                        attempt_data = preflight_attempt(
+                            case,
+                            preflight_status,
+                            preflight_reasons,
+                            attempt_number,
+                            args.include_prompts,
+                            batch,
                         )
-                    else:
-                        host_result = run_codex(
-                            prompt,
-                            args.timeout,
-                            workspace,
-                            args.model,
+                        attempts_by_case[case["id"]].append(attempt_data)
+                        resumed_attempts[key] = attempt_data
+                        append_attempt_journal(
+                            journal_path,
+                            identity,
+                            case["id"],
+                            attempt_data,
+                            False,
+                            codex_version_value,
+                            supersedes=key in replaceable_keys,
                         )
-                    codex_version_value = (
-                        host_result.codex_version or codex_version_value
+                continue
+
+            temporary_workspace: tempfile.TemporaryDirectory[str] | None = None
+            if args.workspace is None:
+                temporary_workspace = tempfile.TemporaryDirectory(
+                    prefix=(
+                        "gloamere-skill-eval-"
+                        f"{execution_phase}-batch-{batch}-"
                     )
-                    batch_attempts[case["id"]].append(
-                        classify_native_attempt(
+                )
+                workspace = Path(temporary_workspace.name)
+            else:
+                workspace = args.workspace.resolve()
+            batch_new_keys: list[tuple[str, int, int]] = []
+            try:
+                for case_index, case in enumerate(cases, start=1):
+                    while True:
+                        pending_numbers = pending_attempt_numbers(
+                            case["id"],
+                            batch,
+                            execution_phase,
+                        )
+                        if not pending_numbers:
+                            break
+                        attempt_number = pending_numbers[0]
+                        key = (case["id"], batch, attempt_number)
+                        if total_calls >= routing_max_calls:
+                            budget_exhausted = True
+                            break
+                        print(
+                            f"[{execution_phase}] "
+                            f"[batch {batch}/{independent_batches}] "
+                            f"[{case_index}/{len(cases)}] {case['id']} "
+                            f"attempt={attempt_number}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                        prompt = build_native_prompt(case["prompt"])
+                        if args.adapter_executable:
+                            host_result = run_adapter(
+                                args.adapter_executable,
+                                args.adapter_arg,
+                                prompt,
+                                args.timeout,
+                                workspace,
+                            )
+                        else:
+                            host_result = run_codex(
+                                prompt,
+                                args.timeout,
+                                workspace,
+                                args.model,
+                            )
+                        codex_version_value = (
+                            host_result.codex_version
+                            or codex_version_value
+                        )
+                        attempt_data = classify_native_attempt(
                             case,
                             suite,
                             target_lock,
                             host_result,
-                            attempt,
+                            attempt_number,
                             args.include_prompts,
                             batch,
                         )
-                    )
-        finally:
-            if temporary_workspace is not None:
-                temporary_workspace.cleanup()
+                        attempts_by_case[case["id"]].append(attempt_data)
+                        resumed_attempts[key] = attempt_data
+                        batch_new_keys.append(key)
+                        actual_calls += 1
+                        total_calls += 1
+                        new_calls += 1
+                        consumed_call_keys.add(key)
+                        append_attempt_journal(
+                            journal_path,
+                            identity,
+                            case["id"],
+                            attempt_data,
+                            True,
+                            codex_version_value,
+                            supersedes=key in replaceable_keys,
+                        )
+                    if budget_exhausted:
+                        break
+            finally:
+                if temporary_workspace is not None:
+                    temporary_workspace.cleanup()
 
-        post_catalog, _, _, post_catalog_version = load_plugin_catalog(
-            args.catalog
-        )
-        codex_version_value = post_catalog_version or codex_version_value
-        postflight_status, postflight_reasons = assess_native_preflight(
-            suite,
-            target_lock,
-            post_catalog,
-        )
-        preflight_results.append(
-            (batch, postflight_status, postflight_reasons, "postflight")
-        )
-        if postflight_status != "verified":
-            # 根因：批次运行期间身份可能漂移；修复：整批降级为未评分冲突，
-            # 避免把旧 SHA 预检与新文件读取拼成伪 verified 证据。
-            for case in cases:
-                batch_attempts[case["id"]] = [
-                    preflight_attempt(
+            if not batch_new_keys:
+                if budget_exhausted:
+                    break
+                continue
+            post_catalog, _, _, post_catalog_version = load_plugin_catalog(
+                args.catalog
+            )
+            codex_version_value = (
+                post_catalog_version or codex_version_value
+            )
+            postflight_status, postflight_reasons = assess_native_preflight(
+                suite,
+                target_lock,
+                post_catalog,
+            )
+            preflight_results.append(
+                (
+                    batch,
+                    postflight_status,
+                    postflight_reasons,
+                    f"{execution_phase}-postflight",
+                )
+            )
+            if postflight_status != "verified":
+                # 根因：批次运行期间身份可能漂移；修复：把已落 journal 的该批
+                # 记录追加一条 supersedes 冲突记录，既保留调用历史又不伪造 verified。
+                for case_id, batch_id, attempt_number in batch_new_keys:
+                    case = next(
+                        item for item in cases if item["id"] == case_id
+                    )
+                    invalidated = preflight_attempt(
                         case,
                         postflight_status,
                         postflight_reasons,
-                        attempt,
+                        attempt_number,
                         args.include_prompts,
-                        batch,
+                        batch_id,
                     )
-                    for attempt in range(1, repeat_per_batch + 1)
-                ]
-        for case in cases:
-            attempts_by_case[case["id"]].extend(
-                batch_attempts[case["id"]]
-            )
+                    resumed_attempts[
+                        (case_id, batch_id, attempt_number)
+                    ] = invalidated
+                    attempts_by_case[case_id] = [
+                        invalidated
+                        if (
+                            item.get("batch_id"),
+                            item.get("attempt"),
+                        )
+                        == (batch_id, attempt_number)
+                        else item
+                        for item in attempts_by_case[case_id]
+                    ]
+                    append_attempt_journal(
+                        journal_path,
+                        identity,
+                        case_id,
+                        invalidated,
+                        False,
+                        codex_version_value,
+                        supersedes=True,
+                    )
+            if budget_exhausted:
+                break
 
     priority = {"verified": 0, "unavailable": 1, "identity_conflict": 2}
     preflight_status = max(
@@ -2808,12 +4854,71 @@ def command_native(args: argparse.Namespace) -> int:
             for reason in reasons
         }
     )
+    if not preflight_results:
+        recorded_statuses = {
+            attempt.get("evidence_status")
+            for key, attempt in resumed_attempts.items()
+            if key in selected_universe_keys
+            if isinstance(attempt.get("evidence_status"), str)
+        }
+        preflight_status = max(
+            recorded_statuses,
+            key=lambda status: priority.get(status, 3),
+            default="verified",
+        )
+        preflight_reasons = sorted(
+            {
+                str(attempt.get("reason"))
+                for key, attempt in resumed_attempts.items()
+                if key in selected_universe_keys
+                if attempt.get("evidence_status") != "verified"
+                and attempt.get("reason")
+            }
+        )
+    for case_id in attempts_by_case:
+        attempts_by_case[case_id].sort(
+            key=lambda item: (item["batch_id"], item["attempt"])
+        )
+    adaptive_by_case: dict[str, dict[str, Any]] = {}
+    required_keys = set(expected_keys)
+    if adaptive_retry_enabled:
+        for case in cases:
+            case_attempts = attempts_by_case[case["id"]]
+            expected_attempt_count = desired_adaptive_attempts(
+                case_attempts,
+                retry_policy,
+                True,
+            )
+            case_budget_exhausted = (
+                len(case_attempts) < expected_attempt_count
+                and total_calls >= routing_max_calls
+            )
+            adaptive_by_case[case["id"]] = adaptive_case_evaluation(
+                case_attempts,
+                expected_attempt_count,
+                retry_policy,
+                case_budget_exhausted,
+                True,
+            )
+            required_keys.update(
+                (case["id"], 1, attempt_number)
+                for attempt_number in range(1, expected_attempt_count + 1)
+            )
+    initial_phase_complete = unsharded_initial_keys.issubset(
+        resumed_attempts
+    )
+    complete = required_keys.issubset(resumed_attempts) and (
+        execution_strategy
+        != "initial-coverage-then-adaptive-retry"
+        or initial_phase_complete
+    )
     aggregates = [
         aggregate_case(
             case,
             attempts_by_case[case["id"]],
             repeat_per_batch,
             independent_batches,
+            adaptive_by_case.get(case["id"]),
         )
         for case in cases
     ]
@@ -2829,8 +4934,32 @@ def command_native(args: argparse.Namespace) -> int:
         preflight_status,
         preflight_reasons,
         execution_provenance,
+        mode=args.mode,
+        selection_reason=selection_reason,
+        selection_roles=selection_roles,
+        rotation_key=args.rotation_key,
+        max_calls=max_calls,
+        routing_max_calls=routing_max_calls,
+        quality_reserved_calls=quality_reserved_calls,
+        actual_calls=actual_calls,
+        resumed_calls=resumed_calls,
+        new_calls=new_calls,
+        shard=shard,
+        complete=complete,
+        independent_batches=independent_batches,
+        policy=policy,
+        policy_sha256=policy_sha,
+        policy_source=policy_source,
+        changed_skills=args.changed_skills,
+        commit=commit_value,
+        suite_sha256=suite_sha,
+        execution_strategy=execution_strategy,
+        initial_phase_complete=initial_phase_complete,
+        initial_actual_calls=len(
+            consumed_call_keys.intersection(selected_initial_keys)
+        ),
     )
-    report_errors = validate_report_v3(report)
+    report_errors = validate_report_v4(report)
     if report_errors:
         print("internal report validation failed:", file=sys.stderr)
         for error in report_errors:
@@ -2838,6 +4967,11 @@ def command_native(args: argparse.Namespace) -> int:
         return 2
     write_or_print(report, args.output)
     summary = report["summary"]
+    if not complete:
+        return 1
+    if adaptive_retry_enabled:
+        outcomes = report["evaluation"]["case_outcomes"].values()
+        return 0 if all(outcome == "pass" for outcome in outcomes) else 1
     if summary["execution_errors"] or summary["unavailable_attempts"]:
         return 2
     if summary["scored_attempts"] != summary["attempt_count"]:
@@ -2889,6 +5023,52 @@ def parser() -> argparse.ArgumentParser:
     native_parser.add_argument("--target-lock", type=Path, required=True)
     native_parser.add_argument(
         "--case", action="append", dest="case_ids"
+    )
+    native_parser.add_argument(
+        "--changed-skill",
+        action="append",
+        dest="changed_skills",
+        help="Changed focus Skill; repeatable for risk-tiered selection.",
+    )
+    native_parser.add_argument(
+        "--mode",
+        choices=("pr", "release", "exhaustive"),
+        default="exhaustive",
+    )
+    native_parser.add_argument(
+        "--policy",
+        type=Path,
+        help="risk-tiered-v2 policy JSON (required for pr/release).",
+    )
+    native_parser.add_argument("--max-calls", type=int)
+    native_parser.add_argument(
+        "--rotation-key",
+        default=datetime.now(timezone.utc).strftime("%Y-%m"),
+        help="Stable key used for rotating release boundary cases.",
+    )
+    native_parser.add_argument(
+        "--journal",
+        type=Path,
+        help="Append-only JSONL attempt journal.",
+    )
+    native_parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume and deduplicate attempts from --journal.",
+    )
+    native_parser.add_argument(
+        "--shard",
+        help="Run a deterministic 1-based INDEX/TOTAL case shard.",
+    )
+    native_parser.add_argument(
+        "--finalize",
+        action="store_true",
+        help="Build a report from --journal without making model calls.",
+    )
+    native_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the selection/budget plan without model calls.",
     )
     native_parser.add_argument("--repeat", type=int)
     native_parser.add_argument("--timeout", type=int, default=45)

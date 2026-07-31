@@ -32,17 +32,27 @@ try {
 
     Invoke-CheckedPython -Arguments @('scripts/generate_release_files.py', '--check')
     Invoke-CheckedPython -Arguments @('scripts/validate_marketplace.py')
+    Invoke-CheckedPython -Arguments @('scripts/validate_release_evidence.py')
+    Invoke-CheckedPython -Arguments @('scripts/validate_directory_submission.py')
+    Invoke-CheckedPython -Arguments @('scripts/validate_quality_evidence.py')
     Invoke-CheckedPython -Arguments @(
         '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py'
     )
-    Invoke-CheckedPython -Arguments @(
+    # Root cause: a stale user-global plugin can contaminate repository checks.
+    # The fixed empty catalog checks local files; real eval still observes Codex.
+    $inspectArguments = @(
         'scripts/run_routing_eval.py',
         'inspect',
+        '--catalog', 'tests/fixtures/empty_plugin_catalog.json',
         '--plugin-root', 'plugins/gloamere-eval',
         '--plugin-root', 'plugins/gloamere-workflows',
         '--marketplace', 'gloamere',
         '--output', $targetLock
     )
+    & $python.Source @inspectArguments | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Python inspect failed with exit code ${LASTEXITCODE}."
+    }
     Invoke-CheckedPython -Arguments @(
         'scripts/run_routing_eval.py',
         'lint',

@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: universal-workflows-v4-release
 date: 2026-07-23
 decision-makers: Gloamere maintainers
 ---

@@ -1,7 +1,9 @@
 [CmdletBinding()]
 param(
     [string]$Source = 'gloamere/codex-plugins',
-    [string]$Ref = 'v4.0.0-beta.1',
+    [string]$Ref = 'v4.0.0',
+    [ValidateSet('workflows', 'maintainer', 'complete')]
+    [string]$Profile = 'workflows',
     [switch]$All
 )
 
@@ -78,9 +80,13 @@ if (-not (Test-Path -LiteralPath $Source)) {
 }
 Invoke-Codex -Arguments $marketplaceArgs
 
-$plugins = @('gloamere-eval')
 if ($All) {
-    $plugins += 'gloamere-workflows'
+    $Profile = 'complete'
+}
+$plugins = switch ($Profile) {
+    'workflows' { @('gloamere-workflows') }
+    'maintainer' { @('gloamere-eval') }
+    'complete' { @('gloamere-workflows', 'gloamere-eval') }
 }
 
 foreach ($plugin in $plugins) {
@@ -98,5 +104,5 @@ if ($missing.Count -gt 0) {
     throw "Codex did not report these plugins as installed: $($missing -join ', ')"
 }
 
-Write-Host "Gloamere installed from ${Source}@${Ref}: $($plugins -join ', ')"
+Write-Host "Gloamere ${Profile} profile installed from ${Source}@${Ref}: $($plugins -join ', ')"
 Write-Host 'Start a new Codex task to load the installed skills.'

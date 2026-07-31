@@ -1,11 +1,13 @@
 ---
 name: gloamere-knowledge-capture
-description: 当用户明确要把会议结论、研究材料、操作经验或项目决策沉淀为可长期维护的 Markdown 知识，或要整理、互链、去重和更新现有笔记时使用。遵循目标知识库的目录与链接约定并保留来源。不要用于临时聊天摘要、普通文档润色或未指定沉淀目标的一次性回答。
+description: 当用户明确要把会议结论、研究材料、操作经验或项目决策沉淀为可维护的 Markdown 知识，或整理、互链、去重和更新现有笔记时使用；不用于临时摘要、普通润色或没有沉淀目标的一次性回答。 Use when the user explicitly wants durable Markdown knowledge created or existing notes organized, linked, deduplicated, and updated; not for transient summaries, prose polishing, or one-off answers without a knowledge destination.
 ---
 
 # 知识沉淀
 
 把已有材料转成可追溯、可检索、可继续维护的知识记录。优先融入现有知识库，不擅自建立另一套目录、字段或链接语法。
+
+使用用户当前使用的语言输出；保留来源、文件名、字段名和链接文本。Reply in the user's language and preserve source, file, field, and link terminology.
 
 ## 写入前
 

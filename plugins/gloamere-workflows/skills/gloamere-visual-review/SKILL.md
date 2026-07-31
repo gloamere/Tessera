@@ -1,16 +1,18 @@
 ---
 name: gloamere-visual-review
-description: 当已有界面、设计稿、组件或可视化产物需要审美诊断、一致性复核和优先级明确的修改建议时使用。结合受众、品牌与任务语境评审层级、密度、排版、色彩、组件一致性和关键状态。不要用于从零建立设计系统、纯文字润色，或没有可查看对象的泛泛设计咨询。
+description: 当已有界面、设计稿、组件或可视化产物需要基于证据的视觉诊断和按优先级排序的修改建议时使用；不用于从零建立设计系统、纯文字润色或没有可查看对象的泛泛咨询。 Use when an existing interface, design, component, or visualization needs evidence-based visual review and prioritized changes; not for creating a design system from scratch, prose editing, or advice without a viewable artifact.
 ---
 
 # 视觉评审
 
 评审具体产物是否清楚、可信且符合使用语境，并把观察转成可执行修改。结论必须指向可见证据，不把个人偏好包装成通用规则。
 
+使用用户当前使用的语言输出；保留产品、品牌和代码中的专有名词。Reply in the user's language and preserve product, brand, and code terminology.
+
 ## 适用边界
 
 - 输入应包含可查看的页面、截图、设计稿、组件、代码实现或明确的视觉方案。
-- 从零定义 token、页面结构和技术栈约束时使用 `$gloamere-ui-system`。
+- 从零定义 token、页面结构和技术栈约束属于独立的设计系统工作流，不调用本 Skill。
 - 只改文章措辞、品牌语气或营销文案时，不调用本 Skill。
 - 没有足够视觉证据时，说明缺少什么；不要凭空推断界面质量。
 

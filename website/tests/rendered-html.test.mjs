@@ -29,7 +29,7 @@ async function render(pathname = "/") {
 }
 
 const routes = [
-  ["/", /Evidence-led Codex tools/],
+  ["/", /Evidence-backed product workflows/],
   ["/eval", /Gloamere Eval/],
   ["/workflows", /Gloamere Workflows/],
   ["/support", /Support/],
@@ -54,15 +54,15 @@ test("server-renders every public route with the shared brand shell", async () =
     assert.match(html, /Skip to content/, pathname);
     assert.match(html, /Language \/ 语言/, pathname);
     if (pathname === "/") {
-      assert.match(html, /href="\/eval"/, pathname);
       assert.match(html, /href="\/workflows"/, pathname);
       assert.match(html, /href="\/support"/, pathname);
-      assert.doesNotMatch(html, /class="site-footer"/, pathname);
-    } else {
-      assert.match(html, /href="\/privacy"/, pathname);
-      assert.match(html, /href="\/security"/, pathname);
+      assert.doesNotMatch(html, /href="\/eval"/, pathname);
     }
-    assert.match(html, /property="og:image" content="https?:\/\/[^"]+\/og\.png"/i);
+    assert.match(html, /href="\/privacy"/, pathname);
+    assert.match(html, /href="\/terms"/, pathname);
+    assert.match(html, /href="\/security"/, pathname);
+    assert.match(html, /class="site-footer"/, pathname);
+    assert.doesNotMatch(html, /property="og:image"/i);
     assert.match(
       html,
       new RegExp(
@@ -76,41 +76,52 @@ test("server-renders every public route with the shared brand shell", async () =
   }
 });
 
-test("home and plugin routes state the release and evidence boundaries", async () => {
+test("home and plugin routes state the directory and product boundaries", async () => {
   const [home, evalPage, workflows] = await Promise.all([
     render("/").then((response) => response.text()),
     render("/eval").then((response) => response.text()),
     render("/workflows").then((response) => response.text()),
   ]);
 
-  assert.match(home, /4\.0\.0-beta\.1/);
-  assert.match(home, /prompt_sha256/);
-  assert.match(home, /target_lock/);
-  assert.match(home, /evidence_status/);
-  assert.match(home, /Know what.*Codex actually loaded/is);
-  assert.match(home, /Observable by design/);
-  assert.match(home, /Otherwise: verdict = null/);
+  assert.match(home, /Turn evidence into.*the next clear move/is);
+  assert.match(home, /Product Decision/);
+  assert.match(home, /Visual Review/);
+  assert.match(home, /Knowledge Capture/);
+  assert.match(home, /Preparing for directory review/);
+  assert.match(home, /Install after approval/);
   assert.match(home, /No Gloamere telemetry/);
   assert.doesNotMatch(home, /codex plugin marketplace add/);
+  assert.doesNotMatch(home, /Gloamere Eval/);
   assert.equal(home.match(/<section\b/g)?.length, 1);
 
   assert.match(evalPage, /unobservable/);
   assert.match(evalPage, /identity_conflict/);
   assert.match(evalPage, /verdict = null/);
   assert.match(evalPage, /does not claim.*official native-admission/is);
-  assert.match(evalPage, /codex plugin add gloamere-eval@gloamere/);
-  assert.match(workflows, /codex plugin add gloamere-workflows@gloamere/);
+  assert.match(evalPage, /not part of the first directory submission/i);
+  assert.doesNotMatch(evalPage, /codex plugin (?:marketplace )?add/);
+  assert.match(workflows, /Preparing for directory review/i);
+  assert.doesNotMatch(workflows, /codex plugin (?:marketplace )?add/);
 
   for (const skill of [
-    "gloamere-ui-system",
+    "gloamere-product-decision",
     "gloamere-visual-review",
     "gloamere-knowledge-capture",
-    "gloamere-product-decision",
   ]) {
     assert.match(workflows, new RegExp(skill));
   }
-  assert.match(workflows, /pinned MIT UI data and helper core/i);
-  assert.match(workflows, /Official-directory GA remains gated/i);
+  assert.ok(
+    workflows.indexOf("gloamere-product-decision")
+      < workflows.indexOf("gloamere-visual-review"),
+  );
+  assert.ok(
+    workflows.indexOf("gloamere-visual-review")
+      < workflows.indexOf("gloamere-knowledge-capture"),
+  );
+  assert.doesNotMatch(workflows, /gloamere-ui-system|vendor core/i);
+  assert.match(workflows, /ChatGPT Work on web/);
+  assert.match(workflows, /not Chat, IDE integrations, or mobile/i);
+  assert.match(workflows, /no plugin UI, screenshots, MCP server/i);
   assert.match(workflows, /LAB ≠ RELEASE/);
 });
 
@@ -122,22 +133,26 @@ test("policy routes preserve the public repository statements", async () => {
     render("/support").then((response) => response.text()),
   ]);
 
-  assert.match(privacy, /do not operate a Gloamere backend/i);
-  assert.match(privacy, /do not.*collect telemetry/is);
+  assert.match(privacy, /does not operate a Gloamere backend/i);
+  assert.match(privacy, /does not.*collect Gloamere telemetry/is);
   assert.match(terms, /MIT License/);
   assert.match(terms, /provided “as is,”/);
   assert.match(security, /private vulnerability reporting/);
   assert.match(security, /does not promise a fixed response-time SLA/);
-  assert.match(support, /local Codex CLI execution only/);
-  assert.match(support, /unobservable.*not automatically a routing failure/is);
+  assert.match(support, /ChatGPT Work on web/);
+  assert.match(support, /not.*IDE integrations.*mobile/is);
+  assert.match(support, /no public installation path yet/i);
 });
 
 test("removes the starter surface and keeps scripts cross-platform", async () => {
-  const [packageText, layout, page, css] = await Promise.all([
+  const [packageText, layout, page, css, site, workflows, generatedRelease] = await Promise.all([
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/site.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/workflows/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/generated-release.ts", import.meta.url), "utf8"),
   ]);
   const packageJson = JSON.parse(packageText);
 
@@ -147,6 +162,11 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   assert.equal(packageJson.scripts.build, "vinext build");
   assert.equal(packageJson.scripts["build:static"], "node scripts/build-static.mjs");
   assert.equal(packageJson.scripts.start, "vinext start");
+  assert.equal(packageJson.devDependencies["eslint-config-next"], undefined);
+  assert.equal(packageJson.devDependencies.eslint, "10.8.0");
+  assert.equal(packageJson.devDependencies["react-server-dom-webpack"], "19.2.8");
+  assert.equal(packageJson.overrides.postcss, "8.5.25");
+  assert.equal(packageJson.overrides["brace-expansion"], "5.0.9");
   assert.ok(packageJson.dependencies["@fontsource/playfair-display"]);
   assert.ok(packageJson.dependencies["@fontsource/ibm-plex-sans-condensed"]);
   assert.ok(packageJson.dependencies["@fontsource/ibm-plex-mono"]);
@@ -158,14 +178,25 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   assert.match(css, /"Playfair Display"/);
   assert.match(css, /"IBM Plex Sans Condensed"/);
   assert.match(css, /\.flow-main/);
-  assert.match(css, /body:has\(\.home-main\)[\s\S]*?overflow:\s*hidden/);
-  assert.match(css, /\.home-main[\s\S]*?height:\s*calc\(100svh - 5\.9rem\)/);
+  assert.doesNotMatch(css, /body:has\(\.home-main\)/);
+  assert.match(css, /\.home-main[\s\S]*?min-height:\s*calc\(100svh - 5\.9rem\)/);
   assert.doesNotMatch(css, /--shell-width/);
   assert.match(css, /\.header-inner[\s\S]*?width:\s*100%/);
-  assert.match(css, /\.commercial-showcase[\s\S]*?width:\s*calc\(100% - \(2 \* var\(--shell-pad\)\)\)[\s\S]*?padding-block:\s*0/);
+  assert.match(css, /\.commercial-showcase[\s\S]*?width:\s*calc\(100% - \(2 \* var\(--shell-pad\)\)\)[\s\S]*?min-height:\s*calc\(100svh - 5\.9rem\)[\s\S]*?padding-block:\s*clamp/);
   assert.doesNotMatch(css, /backdrop-filter:\s*blur/);
   assert.match(css, /--archive:\s*#e8dcc5/i);
   assert.match(css, /border:\s*3px double var\(--rule-dark\)/);
+  assert.match(page, /releaseData/);
+  const releaseState = await readFile(
+    new URL("../app/release-state.ts", import.meta.url),
+    "utf8",
+  );
+  assert.match(releaseState, /releaseData\.directoryStatus/);
+  assert.match(releaseState, /releaseData\.directoryURL/);
+  assert.match(site, /hasApprovedDirectoryListing/);
+  assert.match(site, /Open the verified directory listing/);
+  assert.match(workflows, /releaseSkillIds/);
+  assert.match(generatedRelease, /Generated by scripts\/generate_release_files\.py/);
 
   const [i18n, locale] = await Promise.all([
     readFile(new URL("../app/i18n.tsx", import.meta.url), "utf8"),
@@ -190,4 +221,7 @@ test("removes the starter surface and keeps scripts cross-platform", async () =>
   await assert.rejects(
     access(new URL("public/favicon.svg", templateRoot)),
   );
+
+  const sitemap = await readFile(new URL("../public/sitemap.xml", import.meta.url), "utf8");
+  assert.doesNotMatch(sitemap, /\/eval<\/loc>/);
 });

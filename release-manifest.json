@@ -2,20 +2,26 @@
   "schemaVersion": 1,
   "distribution": {
     "name": "gloamere-codex-plugins",
-    "version": "4.0.0-beta.1",
-    "tag": "v4.0.0-beta.1",
+    "version": "4.0.0",
+    "tag": "v4.0.0",
+    "releaseStatus": "submission-candidate",
+    "directoryStatus": "preparing",
+    "directoryURL": null,
     "repository": "https://github.com/gloamere/codex-plugins",
     "marketplace": "gloamere",
     "marketplaceDisplayName": "Gloamere",
     "releaseManifestAsset": "release-manifest.json",
     "releaseIndex": "release-index.json",
     "installProfiles": {
-      "eval": [
+      "workflows": [
+        "gloamere-workflows"
+      ],
+      "maintainer": [
         "gloamere-eval"
       ],
       "complete": [
-        "gloamere-eval",
-        "gloamere-workflows"
+        "gloamere-workflows",
+        "gloamere-eval"
       ]
     }
   },
@@ -25,6 +31,7 @@
       "displayName": "Gloamere Eval",
       "version": "1.0.0-beta.1",
       "maturity": "beta",
+      "publicRole": "maintainer",
       "path": "plugins/gloamere-eval",
       "category": "Developer Tools",
       "policy": {
@@ -40,26 +47,39 @@
     {
       "id": "gloamere-workflows",
       "displayName": "Gloamere Workflows",
-      "version": "1.0.0-beta.1",
-      "maturity": "beta",
+      "version": "1.0.0",
+      "maturity": "submission-candidate",
+      "publicRole": "directory",
       "path": "plugins/gloamere-workflows",
       "category": "Productivity",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
       },
-      "archive": "gloamere-workflows-1.0.0-beta.1.zip",
-      "checksum": "gloamere-workflows-1.0.0-beta.1.zip.sha256",
+      "archive": "gloamere-workflows-1.0.0.zip",
+      "checksum": "gloamere-workflows-1.0.0.zip.sha256",
       "skills": [
         "gloamere-knowledge-capture",
         "gloamere-product-decision",
-        "gloamere-ui-system",
         "gloamere-visual-review"
       ],
       "admission": {
-        "suite_path": "eval-suites/gloamere-workflows/admission-v1.json",
-        "repeat": 3,
-        "independent_batches": 2,
+        "suite_path": "eval-suites/gloamere-workflows/admission-v2.json",
+        "suite_sha256": "666cb6ad8627e0c9bafe84613ab0e00df43ebe0302e1a44d068c7032178f76a1",
+        "policy_id": "risk-tiered-v2",
+        "policy_path": "eval-suites/gloamere-workflows/risk-tiered-v2.json",
+        "policy_sha256": "7a8bbe14fc0d93994f7af6e71f034502dd64db9ccccbdfd427fd337d6a93a941",
+        "quality_suite_path": "eval-suites/gloamere-workflows/quality-v1.json",
+        "quality_suite_sha256": "427ec250c6fe7917b1606b4c6963561550f0792d44c841932d9b6a8d68ff318f",
+        "release_mode": "release",
+        "report_schema_version": 4,
+        "budgets": {
+          "pr": 12,
+          "release": 40,
+          "exhaustive_initial": 102,
+          "exhaustive": 120,
+          "monthly": 16
+        },
         "thresholds": {
           "evidence_coverage": 1.0,
           "verified_exact_match": 0.95,
@@ -68,12 +88,13 @@
           "high_risk_over_route": 0
         },
         "target_sha256": {
-          "gloamere-knowledge-capture": "b8432c8bdad9a7850aeb8928648dc719b92556a64c2663fce8d1a4f6fa73e4c3",
-          "gloamere-product-decision": "d102eb99df24cee6c19d3174e4b940e3f51669c7d2c61304f0bf8c131184520a",
-          "gloamere-ui-system": "05c112c8775a5172006fac38935e1190af0ee1f6bb2be6ac15eb737cd91d73c2",
-          "gloamere-visual-review": "11b8c82df657f925401eed89f2a4e24a572df705441ed29198059d8e7bb8409f"
+          "gloamere-knowledge-capture": "d892d32e81c9abad95d6885d438454312b9f82a5a96d7b9cbf7d51886104d864",
+          "gloamere-product-decision": "30a4692b50af16a50bd51f8ba17efd10a0b190f2f7714beb94dc38d8261749b3",
+          "gloamere-visual-review": "166787e6fd79b858548a07b0c0238157331fc1d5962b009324ecb44d515a9264"
         },
-        "reports": []
+        "quality_reports": [],
+        "reports": [],
+        "exhaustive_reports": []
       }
     }
   ],

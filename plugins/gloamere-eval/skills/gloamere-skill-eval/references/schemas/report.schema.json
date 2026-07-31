@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Gloamere Skill Eval report v3",
+  "title": "Gloamere Skill Eval report v4",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -11,6 +11,8 @@
     "event_adapter",
     "execution_provenance",
     "release_evidence_eligible",
+    "evaluation",
+    "provenance",
     "preflight",
     "suite",
     "target_lock",
@@ -24,7 +26,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": 3
+      "const": 4
     },
     "generated_at": {
       "type": "string",
@@ -79,6 +81,239 @@
     },
     "release_evidence_eligible": {
       "type": "boolean"
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_id",
+        "policy",
+        "policy_source",
+        "mode",
+        "selection_reason",
+        "selection",
+        "selected_case_ids",
+        "changed_skills",
+        "rotation_key",
+        "max_calls",
+        "routing_max_calls",
+        "quality_reserved_calls",
+        "projected_total_calls",
+        "initial_planned_calls",
+        "retry_planned_calls",
+        "planned_calls",
+        "actual_calls",
+        "resumed_calls",
+        "new_calls",
+        "shard",
+        "complete",
+        "case_outcomes",
+        "outcomes",
+        "pending_case_ids",
+        "failed_case_ids"
+      ],
+      "properties": {
+        "policy_id": {
+          "const": "risk-tiered-v2"
+        },
+        "policy": {
+          "type": "object"
+        },
+        "policy_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "enum": [
+            "pr",
+            "release",
+            "exhaustive"
+          ]
+        },
+        "selection_reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selection": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "selected_case_ids": {
+          "$ref": "#/definitions/string_array"
+        },
+        "changed_skills": {
+          "$ref": "#/definitions/string_array"
+        },
+        "rotation_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "execution_strategy": {
+          "enum": [
+            "fixed-grid",
+            "adaptive-retry",
+            "initial-coverage-then-adaptive-retry"
+          ]
+        },
+        "max_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "routing_max_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "quality_reserved_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "projected_total_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "initial_planned_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retry_planned_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "planned_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "actual_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "initial_actual_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retry_actual_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "initial_phase_complete": {
+          "type": "boolean"
+        },
+        "resumed_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "new_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "shard": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "index",
+                "total"
+              ],
+              "properties": {
+                "index": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "total": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "case_outcomes": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "pass",
+              "fail",
+              "pending"
+            ]
+          }
+        },
+        "outcomes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "pending_case_ids": {
+          "$ref": "#/definitions/string_array"
+        },
+        "failed_case_ids": {
+          "$ref": "#/definitions/string_array"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "policy_sha256",
+        "suite_sha256",
+        "target_lock_sha256",
+        "target_sha256",
+        "codex_cli",
+        "model",
+        "generated_at"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "suite_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "target_lock_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "target_sha256": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/sha256"
+          }
+        },
+        "codex_cli": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     },
     "preflight": {
       "type": "object",
@@ -544,6 +779,69 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/attempt"
+          }
+        },
+        "adaptive_evaluation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "outcome",
+            "reason",
+            "initial_anomaly",
+            "retry_complete",
+            "expected_attempts",
+            "verified_passes",
+            "verified_failures",
+            "confirmed_same_failures",
+            "infrastructure_failures",
+            "identity_conflicts"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "pass",
+                "fail",
+                "pending"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "initial_anomaly": {
+              "type": "boolean"
+            },
+            "retry_complete": {
+              "type": "boolean"
+            },
+            "expected_attempts": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "verified_passes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "verified_failures": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "confirmed_same_failures": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "infrastructure_failures": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "identity_conflicts": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         }
       }

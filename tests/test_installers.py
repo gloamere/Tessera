@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 from pathlib import Path
@@ -8,6 +9,9 @@ import shutil
 import subprocess
 import sys
 import unittest
+from unittest import mock
+
+from scripts import validate_marketplace
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,20 +60,98 @@ POWERSHELL = shutil.which("pwsh") or shutil.which("powershell")
 
 
 class InstallerTests(unittest.TestCase):
+    def test_directory_publication_state_is_fail_closed(self) -> None:
+        def state_errors(
+            release_status: str,
+            directory_status: str,
+            directory_url: str | None,
+        ) -> list[str]:
+            candidate = copy.deepcopy(RELEASE)
+            distribution = candidate["distribution"]
+            distribution["releaseStatus"] = release_status
+            distribution["directoryStatus"] = directory_status
+            distribution["directoryURL"] = directory_url
+            errors: list[str] = []
+            validate_marketplace.validate_release_identity(candidate, errors)
+            return errors
+
+        self.assertFalse(
+            state_errors("submission-candidate", "preparing", None)
+        )
+        self.assertTrue(
+            any(
+                "directoryURL" in error
+                for error in state_errors(
+                    "submission-candidate",
+                    "approved",
+                    None,
+                )
+            )
+        )
+        self.assertTrue(
+            any(
+                "directoryURL" in error
+                for error in state_errors(
+                    "submission-candidate",
+                    "submitted",
+                    "https://example.com/listing",
+                )
+            )
+        )
+        self.assertFalse(
+            state_errors(
+                "submission-candidate",
+                "approved",
+                "https://example.com/listing",
+            )
+        )
+        self.assertTrue(
+            any(
+                "仓库发布前" in error
+                for error in state_errors("published", "submitted", None)
+            )
+        )
+        with mock.patch.dict(
+            os.environ,
+            {"GITHUB_REF_TYPE": "tag", "GITHUB_REF_NAME": "v4.0.0"},
+        ):
+            self.assertTrue(
+                any(
+                    "tag 发布" in error
+                    for error in state_errors(
+                        "submission-candidate",
+                        "approved",
+                        "https://example.com/listing",
+                    )
+                )
+            )
+            self.assertFalse(
+                state_errors(
+                    "published",
+                    "approved",
+                    "https://example.com/listing",
+                )
+            )
+
     def test_release_manifest_defines_maturity_and_install_profiles(self) -> None:
         distribution = RELEASE["distribution"]
         self.assertEqual(
             distribution["installProfiles"],
             {
-                "eval": ["gloamere-eval"],
-                "complete": ["gloamere-eval", "gloamere-workflows"],
+                "workflows": ["gloamere-workflows"],
+                "maintainer": ["gloamere-eval"],
+                "complete": ["gloamere-workflows", "gloamere-eval"],
             },
         )
+        website_package = json.loads(
+            (ROOT / "website" / "package.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(website_package["version"], distribution["version"])
         self.assertEqual(
             {plugin["id"]: plugin["maturity"] for plugin in RELEASE["plugins"]},
             {
                 "gloamere-eval": "beta",
-                "gloamere-workflows": "beta",
+                "gloamere-workflows": "submission-candidate",
             },
         )
 
@@ -129,32 +211,83 @@ class InstallerTests(unittest.TestCase):
             RELEASE["distribution"]["installProfiles"],
         )
         self.assertEqual(
+            index["directoryURL"],
+            RELEASE["distribution"]["directoryURL"],
+        )
+        self.assertEqual(
             [plugin["maturity"] for plugin in index["plugins"]],
             [plugin["maturity"] for plugin in RELEASE["plugins"]],
         )
+        self.assertEqual(
+            [plugin["skills"] for plugin in index["plugins"]],
+            [plugin["skills"] for plugin in RELEASE["plugins"]],
+        )
+        for plugin in RELEASE["plugins"]:
+            plugin_manifest = json.loads(
+                (
+                    ROOT
+                    / plugin["path"]
+                    / ".codex-plugin"
+                    / "plugin.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertEqual(plugin_manifest["version"], plugin["version"])
+        generated = (ROOT / "website" / "app" / "generated-release.ts").read_text(
+            encoding="utf-8"
+        )
+        payload = generated.split("export const releaseData = ", 1)[1].split(
+            " as const;", 1
+        )[0]
+        website_release = json.loads(payload)
+        self.assertEqual(
+            website_release["releaseVersion"],
+            RELEASE["distribution"]["version"],
+        )
+        self.assertEqual(
+            website_release["directoryStatus"],
+            RELEASE["distribution"]["directoryStatus"],
+        )
+        self.assertEqual(
+            website_release["directoryURL"],
+            RELEASE["distribution"]["directoryURL"],
+        )
+        self.assertEqual(
+            website_release["installProfiles"],
+            RELEASE["distribution"]["installProfiles"],
+        )
 
-    def test_installer_defaults_and_all_mirror_install_profiles(self) -> None:
+    def test_installers_expose_all_manifest_profiles_with_workflows_default(self):
         profiles = RELEASE["distribution"]["installProfiles"]
 
         powershell = (ROOT / "install.ps1").read_text(encoding="utf-8")
-        default_match = re.findall(
-            r"(?m)^\$plugins\s*=\s*@\(([^)]*)\)\s*$",
+        powershell_profiles = {
+            profile: re.findall(r"'([a-z0-9-]+)'", values)
+            for profile, values in re.findall(
+                r"(?m)^\s*'(workflows|maintainer|complete)'\s*"
+                r"\{\s*@\(([^)]*)\)\s*\}\s*$",
+                powershell,
+            )
+        }
+        self.assertIn(
+            "[string]$Profile = 'workflows'",
             powershell,
         )
-        self.assertEqual(len(default_match), 1)
-        powershell_default = re.findall(r"'([a-z0-9-]+)'", default_match[0])
-        powershell_all = powershell_default + re.findall(
-            r"(?m)^\s*\$plugins\s*\+=\s*'([a-z0-9-]+)'\s*$",
-            powershell,
-        )
-        self.assertEqual(powershell_default, profiles["eval"])
-        self.assertEqual(powershell_all, profiles["complete"])
+        self.assertIn("if ($All)", powershell)
+        self.assertEqual(powershell_profiles, profiles)
 
         posix = (ROOT / "install.sh").read_text(encoding="utf-8")
-        assignments = re.findall(r"(?m)^\s*PLUGINS='([^']*)'\s*$", posix)
-        self.assertEqual(len(assignments), 2)
-        self.assertEqual(assignments[0].split(), profiles["eval"])
-        self.assertEqual(assignments[1].split(), profiles["complete"])
+        posix_profiles = {
+            profile: values.split()
+            for profile, values in re.findall(
+                r"(?m)^\s*(workflows|maintainer|complete)\)\s*"
+                r"PLUGINS='([^']*)'\s*;;\s*$",
+                posix,
+            )
+        }
+        self.assertIn("PROFILE=${GLOAMERE_PROFILE:-workflows}", posix)
+        self.assertIn("--profile)", posix)
+        self.assertIn("--all)", posix)
+        self.assertEqual(posix_profiles, profiles)
 
     def test_release_validator_accepts_profile_mirrors(self) -> None:
         result = subprocess.run(
@@ -231,12 +364,16 @@ class InstallerTests(unittest.TestCase):
                 "generate_release_files.py",
                 "--check",
                 "validate_marketplace.py",
+                "validate_release_evidence.py",
+                "validate_quality_evidence.py",
+                "validate_directory_submission.py",
                 "unittest",
                 "inspect",
                 "lint",
                 "gloamere-eval",
                 "gloamere-workflows",
                 "target-lock.json",
+                "empty_plugin_catalog.json",
                 "PYTHONUTF8",
                 "PYTHONIOENCODING",
             ):
@@ -261,6 +398,11 @@ class InstallerTests(unittest.TestCase):
                 "test_plugin_lifecycle.ps1 -IncludeLegacyMigration",
             ):
                 self.assertIn(token, source, f"{name} is missing {token}")
+            self.assertIn(
+                "npm audit --audit-level=high --omit=dev",
+                source,
+                f"{name} is missing the production dependency audit",
+            )
 
     def test_validation_covers_python_310_through_314_and_both_powershells(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(
@@ -282,6 +424,13 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("dist/*.sha256", workflow)
         self.assertIn("dist/*.json", workflow)
         self.assertIn("actual != expected", workflow)
+        self.assertIn("--expect-commit", workflow)
+        self.assertIn('"release-provenance.json"', workflow)
+        self.assertIn("validate_quality_evidence.py --require", workflow)
+        self.assertIn("--require-exhaustive", workflow)
+        self.assertIn("validate_directory_submission.py --require-complete", workflow)
+        self.assertIn("npm audit --audit-level=high --omit=dev", workflow)
+        self.assertNotIn("--prerelease", workflow)
         self.assertIn('"releaseManifestAsset"', workflow)
         self.assertIn('"releaseIndex"', workflow)
         for plugin in RELEASE["plugins"]:

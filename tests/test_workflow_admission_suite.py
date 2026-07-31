@@ -1,4 +1,5 @@
 import json
+import hashlib
 import re
 import unittest
 from collections import Counter, defaultdict
@@ -6,11 +7,13 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SUITE_PATH = ROOT / "eval-suites" / "gloamere-workflows" / "admission-v1.json"
+SUITE_PATH = ROOT / "eval-suites" / "gloamere-workflows" / "admission-v2.json"
+POLICY_PATH = ROOT / "eval-suites" / "gloamere-workflows" / "risk-tiered-v2.json"
+QUALITY_PATH = ROOT / "eval-suites" / "gloamere-workflows" / "quality-v1.json"
+RELEASE_PATH = ROOT / "release-manifest.json"
 PLUGIN_ID = "gloamere-workflows"
 SKILL_IDS = frozenset(
     {
-        "gloamere-ui-system",
         "gloamere-visual-review",
         "gloamere-knowledge-capture",
         "gloamere-product-decision",
@@ -36,13 +39,20 @@ class WorkflowAdmissionSuiteTests(unittest.TestCase):
     def setUpClass(cls):
         cls.suite = json.loads(SUITE_PATH.read_text(encoding="utf-8"))
         cls.cases = cls.suite["cases"]
+        cls.policy = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+        cls.quality = json.loads(QUALITY_PATH.read_text(encoding="utf-8"))
+        cls.release = json.loads(RELEASE_PATH.read_text(encoding="utf-8"))
 
     def test_suite_identity_and_execution_policy(self):
-        self.assertEqual(self.suite["schema_version"], 1)
+        self.assertEqual(self.suite["schema_version"], 2)
         self.assertEqual(self.suite["plugin_id"], PLUGIN_ID)
         self.assertEqual(
             self.suite["execution_policy"],
-            {"repeat": 3, "independent_batches": 2},
+            {
+                "policy_id": "risk-tiered-v2",
+                "repeat": 1,
+                "independent_batches": 1,
+            },
         )
 
     def test_case_ids_are_unique_and_fields_are_public(self):
@@ -148,6 +158,121 @@ class WorkflowAdmissionSuiteTests(unittest.TestCase):
         pattern = re.compile("|".join(re.escape(term) for term in forbidden_terms), re.IGNORECASE)
         for case in self.cases:
             self.assertIsNone(pattern.search(case["prompt"]), case["id"])
+
+    def test_risk_policy_is_bounded_and_references_public_cases(self):
+        case_ids = {case["id"] for case in self.cases}
+        self.assertEqual(self.policy["policy_id"], "risk-tiered-v2")
+        modes = self.policy["modes"]
+        self.assertEqual(modes["pr"]["max_calls"], 12)
+        self.assertEqual(modes["release"]["max_calls"], 40)
+        self.assertEqual(modes["exhaustive"]["initial_calls"], 102)
+        self.assertEqual(modes["exhaustive"]["max_calls"], 120)
+        self.assertEqual(modes["exhaustive"]["case_ids"], ["*"])
+
+        pr_ids = set()
+        for skill_id, selected in modes["pr"]["per_focus_case_ids"].items():
+            self.assertIn(skill_id, SKILL_IDS)
+            self.assertEqual(len(selected), 4)
+            self.assertLessEqual(set(selected), case_ids)
+            pr_ids.update(selected)
+        self.assertEqual(len(pr_ids), 12)
+
+        release = modes["release"]
+        self.assertEqual(len(release["fixed_case_ids"]), 6)
+        self.assertEqual(len(release["multi_intent_case_ids"]), 4)
+        self.assertEqual(release["rotating_count"], 6)
+        self.assertGreater(len(release["rotating_case_ids"]), 6)
+        configured_ids = (
+            release["fixed_case_ids"]
+            + release["rotating_case_ids"]
+            + release["multi_intent_case_ids"]
+        )
+        self.assertEqual(len(configured_ids), len(set(configured_ids)))
+        self.assertLessEqual(set(configured_ids), case_ids)
+        case_by_id = {case["id"]: case for case in self.cases}
+        rotating_cases = [
+            case_by_id[case_id] for case_id in release["rotating_case_ids"]
+        ]
+        self.assertTrue(
+            all(
+                "kind:adjacent-negative" in case["tags"]
+                and "risk:ordinary" in case["tags"]
+                for case in rotating_cases
+            )
+        )
+        all_changed = set(
+            release["fixed_case_ids"] + release["multi_intent_case_ids"]
+        )
+        for skill_id, selected in release["per_focus_case_ids"].items():
+            self.assertIn(skill_id, SKILL_IDS)
+            self.assertEqual(len(selected), 4)
+            self.assertLessEqual(set(selected), case_ids)
+            self.assertFalse(set(selected) & set(release["rotating_case_ids"]))
+            all_changed.update(selected)
+        self.assertEqual(len(all_changed) + release["rotating_count"], 28)
+        quality_calls = (
+            self.policy["quality"]["release_cases_per_changed_skill"]
+            * len(SKILL_IDS)
+        )
+        self.assertLessEqual(
+            len(all_changed) + release["rotating_count"] + quality_calls,
+            release["max_calls"],
+        )
+
+    def test_quality_suite_has_two_semantic_rubrics_per_skill(self):
+        counts = Counter()
+        required_rubric = {
+            "evidence_fidelity",
+            "actionability",
+            "boundary_compliance",
+            "no_fabrication",
+        }
+        suite_root = QUALITY_PATH.parent.resolve()
+        for case in self.quality["cases"]:
+            self.assertIn(case["skill_id"], SKILL_IDS)
+            self.assertIn(case["language"], LANGUAGES)
+            counts[(case["skill_id"], case["language"])] += 1
+            self.assertEqual(set(case["rubric"]), required_rubric)
+            for value in case["rubric"].values():
+                self.assertTrue(value.strip())
+            for relative_path in case["fixture_paths"]:
+                fixture = (QUALITY_PATH.parent / relative_path).resolve()
+                fixture.relative_to(suite_root)
+                self.assertTrue(fixture.is_file(), relative_path)
+        self.assertEqual(len(self.quality["cases"]), 6)
+        for skill_id in SKILL_IDS:
+            for language in LANGUAGES:
+                self.assertEqual(counts[(skill_id, language)], 1)
+
+    def test_release_manifest_locks_suite_policy_quality_and_skill_hashes(self):
+        workflows = next(
+            plugin
+            for plugin in self.release["plugins"]
+            if plugin["id"] == PLUGIN_ID
+        )
+        admission = workflows["admission"]
+        for path, field in (
+            (SUITE_PATH, "suite_sha256"),
+            (POLICY_PATH, "policy_sha256"),
+            (QUALITY_PATH, "quality_suite_sha256"),
+        ):
+            self.assertEqual(
+                hashlib.sha256(path.read_bytes()).hexdigest(),
+                admission[field],
+            )
+        for skill_id in SKILL_IDS:
+            skill = (
+                ROOT
+                / "plugins"
+                / PLUGIN_ID
+                / "skills"
+                / skill_id
+                / "SKILL.md"
+            )
+            self.assertEqual(
+                hashlib.sha256(skill.read_bytes()).hexdigest(),
+                admission["target_sha256"][skill_id],
+            )
 
 
 if __name__ == "__main__":

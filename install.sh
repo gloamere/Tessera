@@ -2,12 +2,13 @@
 set -eu
 
 SOURCE=${GLOAMERE_SOURCE:-gloamere/codex-plugins}
-REF=${GLOAMERE_REF:-v4.0.0-beta.1}
-INSTALL_ALL=0
+REF=${GLOAMERE_REF:-v4.0.0}
+PROFILE=${GLOAMERE_PROFILE:-workflows}
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --all) INSTALL_ALL=1 ;;
+    --all) PROFILE=complete ;;
+    --profile) shift; PROFILE=${1:?--profile requires a value} ;;
     --source) shift; SOURCE=${1:?--source requires a value} ;;
     --ref) shift; REF=${1:?--ref requires a value} ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
@@ -43,10 +44,12 @@ else
   codex plugin marketplace add "$SOURCE" --ref "$REF"
 fi
 
-PLUGINS='gloamere-eval'
-if [ "$INSTALL_ALL" -eq 1 ]; then
-  PLUGINS='gloamere-eval gloamere-workflows'
-fi
+case "$PROFILE" in
+  workflows) PLUGINS='gloamere-workflows' ;;
+  maintainer) PLUGINS='gloamere-eval' ;;
+  complete) PLUGINS='gloamere-workflows gloamere-eval' ;;
+  *) echo "Unknown install profile: $PROFILE" >&2; exit 2 ;;
+esac
 
 for plugin in $PLUGINS; do
   codex plugin add "$plugin@gloamere"
@@ -62,5 +65,5 @@ for plugin in $PLUGINS; do
   esac
 done
 
-echo "Gloamere installed from ${SOURCE}@${REF}: $PLUGINS"
+echo "Gloamere ${PROFILE} profile installed from ${SOURCE}@${REF}: $PLUGINS"
 echo 'Start a new Codex task to load the installed skills.'

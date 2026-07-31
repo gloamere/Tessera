@@ -10,7 +10,6 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLISHED_ROOT = ROOT / "plugins" / "gloamere-workflows" / "skills"
 EXPERIMENT_ROOT = ROOT / "experiments" / "workflows"
 PUBLISHED_SKILLS = (
-    "gloamere-ui-system",
     "gloamere-visual-review",
     "gloamere-knowledge-capture",
     "gloamere-product-decision",
@@ -19,6 +18,7 @@ EXPERIMENTAL_SKILLS = (
     "gloamere-finance-ops",
     "gloamere-growth-loop",
     "gloamere-internal-ops",
+    "gloamere-ui-system",
 )
 DISPLAY_NAMES = {
     "gloamere-ui-system": "Gloamere UI 系统",
@@ -81,16 +81,29 @@ class BusinessSkillTests(unittest.TestCase):
             self.assertNotIn(name, published_text)
         self.assertFalse(any(EXPERIMENT_ROOT.rglob("plugin.json")))
 
+    def test_public_skills_route_bilingually_and_answer_in_the_user_language(self):
+        for name in PUBLISHED_SKILLS:
+            with self.subTest(name=name):
+                text = self.skill_text(name)
+                description = re.search(
+                    r"^description:\s*(.+)$", text, re.MULTILINE
+                )
+                self.assertIsNotNone(description)
+                self.assertRegex(description.group(1), r"[\u4e00-\u9fff]")
+                self.assertIn("Use when", description.group(1))
+                self.assertIn("Reply in the user's language", text)
+
     def test_visual_review_is_evidence_based_and_clean_room(self) -> None:
         text = self.skill_text("gloamere-visual-review")
         for token in (
             "可见证据",
             "不把个人偏好",
             "P0/P1/P2",
-            "gloamere-ui-system",
+            "独立的设计系统工作流",
             "没有足够视觉证据",
         ):
             self.assertIn(token, text)
+        self.assertNotIn("$gloamere-ui-system", text)
         for legacy_phrase in ("六维评审", "反套路清单", "紫蓝渐变", "Elevate / Seamless / Unleash"):
             self.assertNotIn(legacy_phrase, text)
 
@@ -177,7 +190,6 @@ class BusinessSkillTests(unittest.TestCase):
             "DevOps",
         ):
             self.assertIn(token, text)
-
 
 if __name__ == "__main__":
     unittest.main()

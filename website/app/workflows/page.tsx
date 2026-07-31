@@ -1,69 +1,36 @@
 import type { Metadata } from "next";
+import { releaseData } from "../generated-release";
 import { T } from "../i18n";
 import { l } from "../locale";
-import { BetaBoundary, HeroActions, InstallPanel, PageHero, REPOSITORY_URL, SiteFrame } from "../site";
+import { DIRECTORY_APPROVED } from "../release-state";
+import {
+  BetaBoundary,
+  HeroActions,
+  InstallPanel,
+  PageHero,
+  REPOSITORY_URL,
+  SiteFrame,
+} from "../site";
 
 export const metadata: Metadata = {
   title: "Gloamere Workflows",
   description:
-    "Four focused Codex Skills for UI systems, visual review, durable knowledge, and product decisions.",
+    "Three evidence-backed Skills for product decisions, visual review, and durable knowledge.",
   alternates: { canonical: "/workflows" },
 };
 
-const skills = [
-  {
-    id: "gloamere-ui-system",
-    title: l("UI System", "UI 系统"),
-    trigger: l(
-      "New UI, systematic redesign, design tokens, responsive behavior, or implementation constraints.",
-      "新 UI、系统性重设计、设计令牌、响应式行为或实现约束。",
-    ),
-    output: l(
-      "A coherent direction, token system, layout and state rules, accessibility boundaries, and stack-aware implementation guidance.",
-      "一致的设计方向、令牌系统、布局与状态规则、无障碍边界，以及贴合技术栈的实现指引。",
-    ),
-    boundary: l(
-      "Not for backend-only work, isolated functional bugs, copy editing, user research, or conversion experiments.",
-      "不用于纯后端工作、孤立功能 Bug、文案编辑、用户研究或转化实验。",
-    ),
-    status: l("Stable Skill identity · Beta vendor core", "稳定 Skill 标识 · Beta vendor core"),
-  },
-  {
-    id: "gloamere-visual-review",
-    title: l("Visual Review", "视觉评审"),
-    trigger: l(
-      "An existing interface, screenshot, design draft, component, or visual artifact needs an evidence-led review.",
-      "已有界面、截图、设计稿、组件或视觉产物需要基于证据的评审。",
-    ),
-    output: l(
-      "Visible observations, their user impact, up to three prioritized changes, and a concrete validation method.",
-      "可见观察、对用户的影响、最多三项优先改动，以及具体的验证方法。",
-    ),
-    boundary: l(
-      "Not for creating a system from zero, text-only polish, or design advice without an inspectable artifact.",
-      "不用于从零创建系统、纯文字润色，或在没有可检查产物时提供设计建议。",
-    ),
-    status: l("Stable Skill identity · Gloamere-authored", "稳定 Skill 标识 · Gloamere 原创"),
-  },
-  {
-    id: "gloamere-knowledge-capture",
-    title: l("Knowledge Capture", "知识沉淀"),
-    trigger: l(
-      "A conversation, research set, operating lesson, or project decision should become maintainable Markdown knowledge.",
-      "对话、研究资料、运营经验或项目决策需要转化为可维护的 Markdown 知识。",
-    ),
-    output: l(
-      "De-duplicated, linked records that preserve sources, status, dates, ownership, and open questions.",
-      "去重并相互链接的记录，保留来源、状态、日期、负责人和开放问题。",
-    ),
-    boundary: l(
-      "Not for transient chat summaries, generic prose editing, or a one-off answer with no target knowledge base.",
-      "不用于临时聊天摘要、通用文章编辑，或没有目标知识库的一次性回答。",
-    ),
-    status: l("Stable Skill identity · Gloamere-authored", "稳定 Skill 标识 · Gloamere 原创"),
-  },
+const workflowPlugin = releaseData.plugins.find(
+  (plugin) => plugin.publicRole === "directory",
+);
+
+if (!workflowPlugin) {
+  throw new Error("Generated release data must include a directory plugin.");
+}
+
+const skillCatalog = [
   {
     id: "gloamere-product-decision",
+    anchor: "product-decision",
     title: l("Product Decision", "产品决策"),
     trigger: l(
       "Existing research, data, and constraints need to converge into a scoped product choice.",
@@ -77,9 +44,52 @@ const skills = [
       "Not for pretending research occurred, growth execution, internal operations, or implementation planning after the choice is made.",
       "不用于假装已经研究、增长执行、内部运营，或决策完成后的实现规划。",
     ),
-    status: l("Stable Skill identity · Gloamere-authored", "稳定 Skill 标识 · Gloamere 原创"),
+    status: l(`${workflowPlugin.version} · Gloamere-authored`, `${workflowPlugin.version} · Gloamere 原创`),
+  },
+  {
+    id: "gloamere-visual-review",
+    anchor: "visual-review",
+    title: l("Visual Review", "视觉评审"),
+    trigger: l(
+      "An existing interface, screenshot, design draft, component, or visual artifact needs an evidence-backed review.",
+      "已有界面、截图、设计稿、组件或视觉产物需要基于证据的评审。",
+    ),
+    output: l(
+      "Visible observations, their user impact, up to three prioritized changes, and a concrete validation method.",
+      "可见观察、对用户的影响、最多三项优先改动，以及具体的验证方法。",
+    ),
+    boundary: l(
+      "Not for creating a system from zero, text-only polish, or design advice without an inspectable artifact.",
+      "不用于从零创建系统、纯文字润色，或在没有可检查产物时提供设计建议。",
+    ),
+    status: l(`${workflowPlugin.version} · Gloamere-authored`, `${workflowPlugin.version} · Gloamere 原创`),
+  },
+  {
+    id: "gloamere-knowledge-capture",
+    anchor: "knowledge-capture",
+    title: l("Knowledge Capture", "知识沉淀"),
+    trigger: l(
+      "A conversation, research set, operating lesson, or project decision should become maintainable Markdown knowledge.",
+      "对话、研究资料、运营经验或项目决策需要转化为可维护的 Markdown 知识。",
+    ),
+    output: l(
+      "De-duplicated, linked records that preserve sources, status, dates, ownership, and open questions.",
+      "去重并相互链接的记录，保留来源、状态、日期、负责人和开放问题。",
+    ),
+    boundary: l(
+      "Not for transient chat summaries, generic prose editing, or a one-off answer with no target knowledge base.",
+      "不用于临时聊天摘要、通用文章编辑，或没有目标知识库的一次性回答。",
+    ),
+    status: l(`${workflowPlugin.version} · Gloamere-authored`, `${workflowPlugin.version} · Gloamere 原创`),
   },
 ];
+
+const releaseSkillIds = new Set<string>(workflowPlugin.skills);
+const skills = skillCatalog.filter((skill) => releaseSkillIds.has(skill.id));
+
+if (skills.length !== workflowPlugin.skills.length) {
+  throw new Error("Generated release data includes a Skill without website copy.");
+}
 
 export default function WorkflowsPage() {
   return (
@@ -87,37 +97,38 @@ export default function WorkflowsPage() {
       <main id="main-content">
         <div className="page-wrap">
           <PageHero
-            route={l("Plugin route / Workflows", "插件路径 / 工作流")}
-            title={l("Four workflows. Loaded only when the task fits.", "四个工作流，只在任务匹配时加载。")}
+            route={DIRECTORY_APPROVED
+              ? l("Official directory / Workflows", "官方目录 / 工作流")
+              : l("Official directory candidate / Workflows", "官方目录候选 / 工作流")}
+            title={l("Decide. Review. Preserve.", "决策、评审、沉淀。")}
             summary={l(
-              "Gloamere Workflows adds four stable Skill identities with explicit trigger and exclusion boundaries. The bundle is installed once; Codex still decides which matching Skill to load.",
-              "Gloamere Workflows 提供四个稳定 Skill 标识，并明确触发与排除边界。套件只需安装一次，Codex 仍会判断应加载哪个匹配 Skill。",
+              "Gloamere Workflows gives product and design leaders three focused Skills with explicit trigger and exclusion boundaries. Each one turns available evidence into a concrete next step.",
+              "Gloamere Workflows 为产品与设计负责人提供三个聚焦 Skill，并明确触发与排除边界。每个 Skill 都把已有证据转化为具体的下一步。",
             )}
             aside={
-              <div className="workflow-orbit glass" aria-label="Four workflow Skills">
+              <div className="workflow-orbit glass" aria-label="Three workflow Skills">
                 <div className="orbit-core"><T value={l("task", "任务")} /></div>
-                <span className="orbit-item orbit-ui">UI system</span>
+                <span className="orbit-item orbit-decision">decision</span>
                 <span className="orbit-item orbit-review">visual review</span>
                 <span className="orbit-item orbit-knowledge">knowledge</span>
-                <span className="orbit-item orbit-decision">decision</span>
               </div>
             }
           >
-            <HeroActions primaryHref="#install" primaryLabel={l("Install Gloamere Workflows", "安装 Gloamere Workflows")} />
+            <HeroActions primaryHref="#directory-status" primaryLabel={l("Check directory status", "查看目录状态")} />
           </PageHero>
 
           <section className="skill-section">
             <div className="section-heading">
-              <p className="eyebrow"><T value={l("Stable Skill surface", "稳定 Skill 界面")} /></p>
-              <h2><T value={l("Each route earns its turn.", "每条路径都必须证明自己值得被调用。")} /></h2>
+              <p className="eyebrow"><T value={l("Focused Skill surface", "聚焦的 Skill 界面")} /></p>
+              <h2><T value={l("One product loop. Three clear jobs.", "一个产品闭环，三个明确任务。")} /></h2>
               <p><T value={l(
-                "Installation does not preload all four workflows. Codex uses their descriptions and the user’s request to discover the relevant route.",
-                "安装不会预加载全部四个工作流。Codex 会结合各自描述与用户请求发现相关路径。",
+                "The Skills do not invent research or load as a bundle. The host uses each description and the user’s request to discover only the relevant workflow.",
+                "这些 Skill 不会虚构研究，也不会整包加载。宿主会结合每项描述与用户请求，只发现相关的工作流。",
               )} /></p>
             </div>
             <div className="skill-index">
               {skills.map((skill) => (
-                <article key={skill.id} className="skill-entry glass">
+                <article key={skill.id} id={skill.anchor} className="skill-entry glass">
                   <header>
                     <p className="plugin-id">{skill.id}</p>
                     <h3><T value={skill.title} /></h3>
@@ -135,37 +146,37 @@ export default function WorkflowsPage() {
 
           <section className="provenance-section">
             <div className="provenance-title">
-              <p className="eyebrow"><T value={l("Provenance is part of the product", "来源信息也是产品的一部分")} /></p>
-              <h2><T value={l("Original workflow contracts. One isolated vendor core.", "原创工作流契约，一个隔离的 vendor core。")} /></h2>
+              <p className="eyebrow"><T value={l("Evidence-backed by design", "以证据为设计前提")} /></p>
+              <h2><T value={l("The workflow follows the life of a decision.", "工作流跟随一项决策的生命周期。")} /></h2>
             </div>
             <div className="provenance-ledger">
               <article>
-                <span className="ledger-mark">original</span>
-                <h3><T value={l("Three Gloamere-authored Skills", "三个 Gloamere 原创 Skill")} /></h3>
+                <span className="ledger-mark">01 / decide</span>
+                <h3><T value={l("Choose with what is known", "基于已知信息做选择")} /></h3>
                 <p><T value={l(
-                  "Visual Review, Knowledge Capture, and Product Decision were rewritten around Gloamere’s own route boundaries, output contracts, and failure cases.",
-                  "视觉评审、知识沉淀与产品决策均围绕 Gloamere 自有路由边界、输出契约与失败案例重写。",
+                  "Product Decision separates evidence, assumptions, options, tradeoffs, and the next validation before scope hardens.",
+                  "产品决策在范围固化前，分离证据、假设、选项、权衡与下一步验证。",
                 )} /></p>
               </article>
               <article>
-                <span className="ledger-mark">isolated</span>
-                <h3><T value={l("UI System vendor core", "UI 系统 vendor core")} /></h3>
+                <span className="ledger-mark">02 / review</span>
+                <h3><T value={l("Inspect what actually exists", "检查真实存在的产物")} /></h3>
                 <p><T value={l(
-                  "The GitHub beta candidate contains a pinned MIT UI data and helper core. Its exact file boundary, upstream commit, adjustment, and complete license notice are preserved.",
-                  "GitHub Beta 候选版包含固定版本的 MIT UI 数据与辅助核心；其精确文件边界、上游提交、调整和完整许可证声明均被保留。",
+                  "Visual Review anchors observations to an inspectable artifact, then limits recommendations to the changes with the highest user impact.",
+                  "视觉评审把观察锚定到可检查的产物，再将建议限制在用户影响最高的改动上。",
                 )} /></p>
               </article>
               <article>
-                <span className="ledger-mark ledger-gate">GA gate</span>
-                <h3><T value={l("Original replacement required", "必须完成原创替换")} /></h3>
+                <span className="ledger-mark ledger-gate">03 / preserve</span>
+                <h3><T value={l("Keep the reasoning usable", "让推理持续可用")} /></h3>
                 <p><T value={l(
-                  "Official-directory GA remains gated on replacing that vendor core with Gloamere-owned taxonomy, data, scripts, and rules, then rerunning identity, routing, and quality evaluations.",
-                  "官方目录 GA 仍以替换 vendor core 为门禁：使用 Gloamere 自有分类、数据、脚本与规则，并重新运行身份、路由和质量评测。",
+                  "Knowledge Capture preserves sources, decisions, ownership, and open questions in the structure of the target knowledge base.",
+                  "知识沉淀按目标知识库的结构保留来源、决策、负责人和开放问题。",
                 )} /></p>
               </article>
             </div>
-            <a className="text-link" href={`${REPOSITORY_URL}/blob/main/plugins/gloamere-workflows/PROVENANCE.md`}>
-              <T value={l("Read the full provenance record", "阅读完整来源记录")} />
+            <a className="text-link" href={`${REPOSITORY_URL}/tree/main/plugins/gloamere-workflows`}>
+              <T value={l("Review the public Skill source", "查看公开 Skill 源码")} />
             </a>
           </section>
 
@@ -176,8 +187,8 @@ export default function WorkflowsPage() {
             <div>
               <h2><T value={l("Experiments stay outside the plugin.", "实验始终留在插件之外。")} /></h2>
               <p><T value={l(
-                "Repository labs may explore future workflows, but they are not bundled, supported, or presented as release Skills. Finance, growth, and general business-operations Skills are also outside the 4.0 beta candidate.",
-                "仓库实验区可以探索未来工作流，但不会被打包、支持或呈现为发布 Skill。财务、增长与通用业务运营 Skill 同样不属于 4.0 Beta 候选版。",
+                "Repository labs may explore future workflows and maintainer tooling, but they are not bundled, supported, or presented as part of the first official-directory submission.",
+                "仓库实验区可以探索未来工作流与维护者工具，但它们不会被打包、支持或呈现为首轮官方目录提交的一部分。",
               )} /></p>
             </div>
           </section>

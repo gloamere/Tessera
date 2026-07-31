@@ -1,42 +1,33 @@
-# Gloamere Workflows 路由准入套件
+# Gloamere Workflows 评测套件
 
-`admission-v1.json` 是 `gloamere-workflows` 首发四个稳定 Skill 的路由准入基线。它只定义输入、预期和禁止命中，不包含也不暗示任何实际运行结果。
+本目录只覆盖官方 skills-only 包中的三个工作流：
 
-## 覆盖范围
-
-每个 Skill 在每种语言中都包含：
-
-- 6 个正例：任务应只命中目标 Skill；
-- 8 个相邻负例：覆盖最容易误路由的相邻任务与明确边界；
-- 3 个多意图例：分别与另外三个稳定 Skill 组合，要求一次完整命中全部意图。
-
-每个相邻负例还带有 `risk:ordinary` 或 `risk:high` 标签。涉及付费投放、
-公开发布活动、外部受访者执行或财务审批流程的越界按高风险统计；其余边界
-按普通风险统计。
-
-中文与英文案例按相同 ID 主干镜像，只有 `.zh` / `.en` 后缀不同。提示词不点名 Skill，预期直接使用稳定 ID：
-
-- `gloamere-ui-system`
+- `gloamere-product-decision`
 - `gloamere-visual-review`
 - `gloamere-knowledge-capture`
-- `gloamere-product-decision`
 
-每个案例都显式携带 `plugin_id: "gloamere-workflows"`，避免脱离插件身份解释同名 Skill。
+`admission-v2.json` 包含 102 个中英文路由案例。每个 Skill、每种语言包含
+6 个正例、8 个相邻负例和 3 个多意图例。案例只定义输入和期望，不代表已
+产生执行证据。
 
-## 执行约定
+`risk-tiered-v2.json` 是调用预算与选择规则的事实来源：
 
-正式准入必须在两个彼此独立的新任务批次运行，每个案例在每批使用 `repeat=3`。两个批次不得复用同一任务上下文、缓存事件或目标锁文件；每批都应重新检查已安装插件版本、完整 Skill 路径和 SHA-256。
+- PR 仅在 Skill 或路由元数据变化时，每个变更 Skill 选择 4 例，最多 12 次；
+- release 使用 16 个基础案例，每个变更 Skill 增加 4 例，失败复验后仍不得
+  超过 40 次；
+- exhaustive 首次目录提交或兼容边界变化时，先覆盖全部 102 个唯一案例且
+  每例只跑一次；只有初始覆盖全部完成后才复验异常，硬上限 120 次，最多为
+  9 个异常各容纳两次复验。超出预算的异常保持 `pending`。
 
-推荐的发布门槛为：
+同一异常最多形成三次尝试；2/3 重现才是确认失败，1/3 为 `pending`。持续
+不可观测、基础设施错误或预算耗尽同样不得自动放行。旧的固定
+`repeat=3 × independent_batches=2` 规则已废止，因为重复相同输入会消耗
+816 次调用，却没有扩大行为边界覆盖。
 
-- 受支持环境的身份可验证率为 100%；
-- verified exact-match 不低于 95%；
-- 高风险越界为零；
-- 普通 over-route 不高于 2%；
-- 多意图完整命中率不低于 90%。
+`quality-v1.json` 另外预注册每个 Skill 的中英文黄金任务。它使用证据忠实度、
+可执行性、边界遵守和无虚构四项语义 rubric；精确子串或关键词命中不能作为
+发布证据。fixture 必须复制到隔离工作区后执行，不能原地修改。
 
-`unobservable`、`unavailable`、`identity_conflict` 和 `execution_error` 不是通过证据，不得计入 conditional accuracy 的分母或伪装成 `verified`。
-
-## 证据有效期
-
-本文件是案例定义，不是证据文件。任何报告都必须绑定当次目标锁中的插件 ID、插件版本、完整 Skill 路径和 SHA-256。Skill 内容或路径变化后，旧报告不能跨 SHA 继承；应在当前 SHA 上重新完成两个批次和全部重复运行。
+报告必须绑定 Skill、suite、policy、target lock、模型和 Codex CLI 兼容身份。
+完全匹配的未变更 Skill 证据可以复用；任一身份字段变化都必须重新评测相应
+范围。

@@ -21,6 +21,10 @@ if (-not $MarketplaceSource) {
 }
 
 $release = [System.IO.File]::ReadAllText($manifest) | ConvertFrom-Json
+$releaseTag = $release.distribution.tag
+if (-not $releaseTag) {
+    throw 'release-manifest.json does not declare distribution.tag.'
+}
 $script:ExpectedVersions = @{}
 foreach ($plugin in $release.plugins) {
     $script:ExpectedVersions[$plugin.id] = $plugin.version
@@ -420,7 +424,7 @@ try {
         try {
             & (Join-Path $repository 'install.ps1') `
                 -Source $repository `
-                -Ref 'v4.0.0-beta.1' `
+                -Ref $releaseTag `
                 -All
         }
         catch {
@@ -451,7 +455,7 @@ try {
         ) | Out-Null
         & (Join-Path $repository 'install.ps1') `
             -Source $repository `
-            -Ref 'v4.0.0-beta.1' `
+            -Ref $releaseTag `
             -All
         Assert-GloamereIdentity -Plugins (Get-GloamerePlugins)
 

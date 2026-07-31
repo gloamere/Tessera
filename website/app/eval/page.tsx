@@ -6,8 +6,9 @@ import { EvidenceTrace, HeroActions, InstallPanel, PageHero, SiteFrame } from ".
 export const metadata: Metadata = {
   title: "Gloamere Eval",
   description:
-    "Inspect, lint, and evaluate native Codex Skill activation while separating evidence coverage from conditional accuracy.",
+    "Internal maintainer tooling for inspecting and evaluating native Codex Skill activation.",
   alternates: { canonical: "/eval" },
+  robots: { index: false, follow: false },
 };
 
 const evidenceStates = [
@@ -67,7 +68,7 @@ export default function EvalPage() {
             )}
             aside={<EvidenceTrace compact />}
           >
-            <HeroActions primaryHref="#install" primaryLabel={l("Install Gloamere Eval", "安装 Gloamere Eval")} />
+            <HeroActions primaryHref="#directory-status" primaryLabel={l("View maintainer status", "查看维护者状态")} />
           </PageHero>
 
           <section className="method-section">
@@ -173,8 +174,8 @@ export default function EvalPage() {
               <ul className="check-list">
                 <li><T value={l("Evaluate native Codex Skill activation.", "评测原生 Codex Skill 调用。")} /></li>
                 <li><T value={l("Surface duplicate names and identity drift.", "暴露重名与身份漂移。")} /></li>
-                <li><T value={l("Produce reproducible schema v3 reports.", "生成可复现的 schema v3 报告。")} /></li>
-                <li><T value={l("Read compatible historical schema v2 reports.", "读取兼容的历史 schema v2 报告。")} /></li>
+                <li><T value={l("Produce reproducible schema v4 reports.", "生成可复现的 schema v4 报告。")} /></li>
+                <li><T value={l("Read historical schema v3 reports without treating them as release evidence.", "只读兼容历史 schema v3 报告，且不将其作为发布证据。")} /></li>
               </ul>
             </article>
             <article className="glass">

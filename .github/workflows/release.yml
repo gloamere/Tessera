@@ -61,8 +61,10 @@ jobs:
         run: npm test
       - name: Lint website
         run: npm run lint
-      - name: Audit production dependencies
+      - name: Audit all dependencies
         run: npm audit --audit-level=high
+      - name: Audit production dependencies
+        run: npm audit --audit-level=high --omit=dev
 
   release:
     name: Build and publish archives
@@ -86,13 +88,17 @@ jobs:
             exit 1
           fi
       - name: Require current native release evidence
-        run: python scripts/validate_release_evidence.py --require
+        run: python scripts/validate_release_evidence.py --require --require-exhaustive
+      - name: Require current semantic output-quality evidence
+        run: python scripts/validate_quality_evidence.py --require
       - name: Revalidate release metadata
         run: |
           python scripts/generate_release_files.py --check
           python scripts/validate_marketplace.py
       - name: Build deterministic plugin archives
-        run: python scripts/package_release.py --output-dir dist
+        run: python scripts/package_release.py --output-dir dist --expect-commit "$GITHUB_SHA"
+      - name: Require complete directory submission inputs
+        run: python scripts/validate_directory_submission.py --require-complete
       - name: Verify exact release asset set
         run: |
           python - <<'PY'
@@ -110,6 +116,7 @@ jobs:
               {
                   release["distribution"]["releaseManifestAsset"],
                   release["distribution"]["releaseIndex"],
+                  "release-provenance.json",
               }
           )
           actual = {path.name for path in Path("dist").iterdir() if path.is_file()}
@@ -125,20 +132,24 @@ jobs:
               digest = hashlib.sha256(archive.read_bytes()).hexdigest()
               if checksum != f"{digest}  {archive.name}\n":
                   raise SystemExit(f"Checksum mismatch for {archive.name}")
+          provenance = json.loads(
+              Path("dist", "release-provenance.json").read_text(encoding="utf-8")
+          )
+          if provenance["commit"] != __import__("os").environ["GITHUB_SHA"]:
+              raise SystemExit("Release provenance is not bound to GITHUB_SHA")
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: Gloamere-${{ github.ref_name }}
           path: dist/
           if-no-files-found: error
-      - name: Create GitHub prerelease
+      - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release create "$GITHUB_REF_NAME" \
               --verify-tag \
-              --prerelease \
               --generate-notes \
               --title "Gloamere Codex Plugins $GITHUB_REF_NAME"
           fi
