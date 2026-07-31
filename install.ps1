@@ -29,12 +29,19 @@ $candidateRemoteSource = (
     $releaseStatus -ne 'published' -and
     (-not $sourceWasExplicit -or -not $sourceIsLocal)
 )
+$candidateRemoteMessage = (
+    "Gloamere is ${releaseStatus}; remote installation is unavailable. " +
+    'Pass -Source with an existing local repository checkout.'
+)
 
 $codex = Get-Command codex.cmd -ErrorAction SilentlyContinue
 if (-not $codex) {
     $codex = Get-Command codex -ErrorAction SilentlyContinue
 }
 if (-not $codex) {
+    if ($candidateRemoteSource) {
+        throw $candidateRemoteMessage
+    }
     throw 'Codex CLI was not found. Install and sign in to Codex before installing Gloamere.'
 }
 
@@ -97,10 +104,7 @@ if ($legacySelectors.Count -gt 0) {
 
 # 根因：候选版默认指向尚不存在的 tag；修复要点：完成只读迁移检查后，published 前只允许显式本地 marketplace。
 if ($candidateRemoteSource) {
-    throw (
-        "Gloamere is ${releaseStatus}; remote installation is unavailable. " +
-        'Pass -Source with an existing local repository checkout.'
-    )
+    throw $candidateRemoteMessage
 }
 
 $marketplaceArgs = @('plugin', 'marketplace', 'add', $Source)

@@ -38,7 +38,15 @@ if [ -z "$RELEASE_STATUS" ]; then
   echo 'Could not read distribution.releaseStatus from release-manifest.json.' >&2
   exit 4
 fi
+candidate_remote_source() {
+  [ "$RELEASE_STATUS" != published ] &&
+    { [ "$SOURCE_WAS_EXPLICIT" != true ] || [ ! -d "$SOURCE" ]; }
+}
 if ! command -v codex >/dev/null 2>&1; then
+  if candidate_remote_source; then
+    echo "Gloamere is ${RELEASE_STATUS}; remote installation is unavailable. Pass --source with an existing local repository checkout." >&2
+    exit 4
+  fi
   echo 'Codex CLI was not found. Install and sign in to Codex before installing Gloamere.' >&2
   exit 127
 fi
@@ -61,11 +69,9 @@ case "$BEFORE_INSTALL" in
 esac
 
 # 根因：候选版默认指向尚不存在的 tag；修复要点：完成只读迁移检查后，published 前只允许显式本地 marketplace。
-if [ "$RELEASE_STATUS" != published ]; then
-  if [ "$SOURCE_WAS_EXPLICIT" != true ] || [ ! -d "$SOURCE" ]; then
-    echo "Gloamere is ${RELEASE_STATUS}; remote installation is unavailable. Pass --source with an existing local repository checkout." >&2
-    exit 4
-  fi
+if candidate_remote_source; then
+  echo "Gloamere is ${RELEASE_STATUS}; remote installation is unavailable. Pass --source with an existing local repository checkout." >&2
+  exit 4
 fi
 
 if [ -d "$SOURCE" ]; then
