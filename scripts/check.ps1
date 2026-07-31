@@ -33,7 +33,6 @@ try {
     Invoke-CheckedPython -Arguments @('scripts/generate_release_files.py', '--check')
     Invoke-CheckedPython -Arguments @('scripts/validate_marketplace.py')
     Invoke-CheckedPython -Arguments @('scripts/validate_release_evidence.py')
-    Invoke-CheckedPython -Arguments @('scripts/validate_directory_submission.py')
     Invoke-CheckedPython -Arguments @('scripts/validate_quality_evidence.py')
     Invoke-CheckedPython -Arguments @(
         '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py'

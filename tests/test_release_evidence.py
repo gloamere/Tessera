@@ -604,18 +604,32 @@ class ReleaseEvidenceGateTests(unittest.TestCase):
         self.assertEqual(required_code, 1)
         self.assertEqual(required_result["exhaustive_status"], "pending")
 
-    def test_exhaustive_same_failure_two_of_three_blocks(self) -> None:
+    def test_exhaustive_failure_blocks_only_when_explicitly_required(self) -> None:
+        release_report, release_entry = self.synthetic_report()
         report, entry = self.synthetic_exhaustive_report(failure_count=2)
         result, code = self._assess_reports(
+            release_reports=[(release_report, release_entry)],
             exhaustive_reports=[(report, entry)],
+            require=True,
             require_exhaustive=False,
         )
-        self.assertEqual(code, 1)
+        self.assertEqual(code, 0, result)
+        self.assertEqual(result["status"], "pass")
+        self.assertEqual(result["release_status"], "pass")
         self.assertEqual(result["exhaustive_status"], "fail")
         self.assertEqual(
             result["exhaustive_metrics"]["confirmed_failures"],
             1,
         )
+
+        required_result, required_code = self._assess_reports(
+            release_reports=[(release_report, release_entry)],
+            exhaustive_reports=[(report, entry)],
+            require=True,
+            require_exhaustive=True,
+        )
+        self.assertEqual(required_code, 1)
+        self.assertEqual(required_result["status"], "fail")
 
     def test_exhaustive_never_retries_a_passing_first_round_case(self) -> None:
         report, entry = self.synthetic_exhaustive_report(
@@ -748,7 +762,7 @@ class ReleaseEvidenceGateTests(unittest.TestCase):
         result, code = self._assess_report(report, entry, require=True)
 
         self.assertEqual(code, 0, result)
-        self.assertEqual(result["status"], "pending")
+        self.assertEqual(result["status"], "pass")
         self.assertEqual(result["release_status"], "pass")
         self.assertEqual(result["exhaustive_status"], "pending")
         self.assertEqual(result["evidence_errors"], [])
@@ -857,9 +871,10 @@ class ReleaseEvidenceGateTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn(
-            "validate_release_evidence.py --require --require-exhaustive",
+            "validate_release_evidence.py --require",
             workflow,
         )
+        self.assertNotIn("--require-exhaustive", workflow)
         self.assertLess(
             workflow.index("Match Git tag to release manifest"),
             workflow.index("Build deterministic plugin archives"),

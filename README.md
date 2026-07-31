@@ -5,9 +5,10 @@ knowledge.
 
 Source repository: `gloamere/codex-plugins`.
 
-> `4.0.0` is an unpublished submission candidate. The public
-> `gloamere-workflows@1.0.0` package is being prepared for the universal plugin
-> directory; no installation command or `v4.0.0` tag is valid yet.
+`4.0.0` is a Git marketplace release candidate. The official plugin directory
+is a future optional channel and does not block the planned `v4.0.0`
+repository release. The immutable tag does not exist yet, so remote
+installation remains unavailable until that tag is published.
 
 ## Public product
 
@@ -22,17 +23,65 @@ routed Skills:
 
 The package is skills-only: no MCP server, custom UI, external backend,
 authentication, hooks, background process, or telemetry. It responds in the
-user's language and is evaluated in English and Chinese.
+user's language and is evaluated in English and Chinese. The three workflows
+do not need live data, plugin-owned authentication, or controlled remote
+writes, so adding MCP would increase deployment, permission, and context cost
+without improving their current jobs. MCP can return only as a separately
+scoped version candidate after a live-data or controlled-action need recurs,
+cannot be solved by host-native capabilities, and passes a read-only
+`search`/`fetch` experiment first.
 
-Public plugins from the universal directory are supported on ChatGPT Work web,
-the ChatGPT Work and Codex desktop apps, and the Codex CLI plugin browser.
-Plugins are not supported in Chat, the IDE extension, mobile, or other hosts.
+The intended repository-marketplace targets are the ChatGPT desktop plugin
+surface and Codex CLI. ChatGPT desktop still requires a release-candidate smoke
+test before publication, so this is a target rather than a current
+compatibility claim. This release does not claim that a self-hosted Git
+marketplace can be installed from ChatGPT Work web, Chat, an IDE integration,
+or mobile.
+
+## Install after release
+
+After the `v4.0.0` tag is published, install the immutable marketplace with
+Codex CLI:
+
+```bash
+codex plugin marketplace add gloamere/codex-plugins --ref v4.0.0
+codex plugin add gloamere-workflows@gloamere
+```
+
+If the pre-release desktop smoke test passes, the intended desktop flow after
+publication is to add the Git marketplace `gloamere/codex-plugins` at tag
+`v4.0.0`, install `gloamere-workflows@gloamere`, and start a new task so the
+three Skills are loaded.
+
+The repository also provides wrappers with the same pinned release default:
+
+```powershell
+./install.ps1
+```
+
+```bash
+sh install.sh
+```
+
+Before the tag exists, maintainers may test an explicit local checkout without
+claiming a public release:
+
+```powershell
+./install.ps1 -Source .
+```
+
+```bash
+sh install.sh --source .
+```
+
+The Gloamere website and server provide documentation, support, and release
+links. They are not a runtime dependency and do not receive workflow inputs.
 
 ## Maintainer tooling
 
 `gloamere-eval@1.0.0-beta.1` remains a Git-marketplace maintainer tool for
 inspecting and evaluating installed Skill routing. It is not the default
-end-user product and is not included in the first directory submission.
+end-user product.
 
 `gloamere-ui-system`, Debug Loop, Finance, Growth, and Internal Operations stay
 under `experiments/` and are excluded from every public archive. UI System keeps
@@ -47,9 +96,9 @@ The repository release source of truth is
 - maintainer profile `gloamere-eval`;
 - complete profile `gloamere-workflows` plus `gloamere-eval`.
 
-After approval and publication, immutable tag installation may expose the
-selectors `gloamere-workflows@gloamere` and `gloamere-eval@gloamere`. Until
-then, use a local checkout only for maintainer testing.
+The immutable tag will expose the selectors `gloamere-workflows@gloamere` and
+`gloamere-eval@gloamere` after publication. Use `-Profile maintainer` /
+`--profile maintainer` only when installing Eval for repository maintenance.
 
 ## Low-token quality gate
 
@@ -59,7 +108,7 @@ The old 816-call `136 × 3 × 2` matrix is retired.
 - Skill PRs select four cases per changed Skill, capped at 12.
 - Release evaluation starts with 16 boundary cases, adds four per changed
   Skill, and cannot exceed 40 calls including retries.
-- The initial directory review first covers 102 unique routing cases once;
+- A future official-directory attempt may cover 102 unique routing cases once;
   only unexpected cases are repeated, under a separate 120-call hard cap.
 - Monthly drift checks reuse the 16-case release baseline with a month
   rotation key and no changed-Skill expansion.
@@ -105,20 +154,21 @@ only Git-tracked regular blobs, embeds commit/content provenance, and emits
 
 ## Release state
 
-The following external prerequisites are intentionally still pending:
+The Git marketplace release requires eligible report-v4 evidence for the final
+protected content identity, six-case semantic output-quality evidence without
+critical regression, static checks, website checks, and a tracked-only package
+bound to the release commit. It also requires a reproducible ChatGPT desktop
+smoke test of the exact release candidate before publication. It does not
+require an official-directory review, country selection, directory demo, or
+participant-count gate.
 
-- eligible report-v4 evidence for the final protected content identity;
-- six-case semantic output-quality evidence without critical regression;
-- one maintainer's transparent dogfood evidence from ten real tasks, covering
-  every public Skill and reaching the 80% no-major-rewrite threshold;
-- submission-portal confirmation that the requested `CN` availability is
-  selectable and supportable;
-- an HTTPS demo recording;
-- directory review and approval.
+The owner dogfood record remains useful product evidence but is not a release
+blocker. The 102-case exhaustive run and materials under `docs/directory/` are
+required only if an official-directory submission is revived later.
 
-See [directory submission materials](docs/directory/README.md),
+See [optional directory materials](docs/directory/README.md),
 [deployment](docs/DEPLOYMENT.md), [architecture](docs/ARCHITECTURE.md),
-[accepted product decision](docs/decisions/universal-workflows-v4-release.md),
+[accepted distribution decision](docs/decisions/git-marketplace-v4-release.md),
 [migration](MIGRATION.md), [support](SUPPORT.md),
 [security](SECURITY.md), [privacy](docs/PRIVACY.md), and
 [terms](docs/TERMS.md).

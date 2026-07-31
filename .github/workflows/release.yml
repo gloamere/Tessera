@@ -88,7 +88,7 @@ jobs:
             exit 1
           fi
       - name: Require current native release evidence
-        run: python scripts/validate_release_evidence.py --require --require-exhaustive
+        run: python scripts/validate_release_evidence.py --require
       - name: Require current semantic output-quality evidence
         run: python scripts/validate_quality_evidence.py --require
       - name: Revalidate release metadata
@@ -97,8 +97,6 @@ jobs:
           python scripts/validate_marketplace.py
       - name: Build deterministic plugin archives
         run: python scripts/package_release.py --output-dir dist --expect-commit "$GITHUB_SHA"
-      - name: Require complete directory submission inputs
-        run: python scripts/validate_directory_submission.py --require-complete
       - name: Verify exact release asset set
         run: |
           python - <<'PY'

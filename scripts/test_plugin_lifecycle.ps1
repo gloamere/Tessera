@@ -421,6 +421,7 @@ try {
         ) | Out-Null
 
         $migrationBlocked = $false
+        $migrationError = $null
         try {
             & (Join-Path $repository 'install.ps1') `
                 -Source $repository `
@@ -428,12 +429,16 @@ try {
                 -All
         }
         catch {
+            $migrationError = $_.Exception.Message
             $migrationBlocked = (
-                $_.Exception.Message -like '*Legacy plugins must be migrated*'
+                $migrationError -like '*Legacy plugins must be migrated*'
             )
         }
         if (-not $migrationBlocked) {
-            throw 'The installer did not stop on a legacy plugin identity.'
+            throw (
+                'The installer did not stop on a legacy plugin identity. ' +
+                "Actual error: ${migrationError}"
+            )
         }
         if ((Get-GloamerePlugins).Count -ne 0) {
             throw 'The blocked migration changed the Gloamere installation state.'

@@ -45,7 +45,8 @@ and current-SHA evaluations to be rerun.
 
 `gloamere-ui-system` and its pinned MIT vendor core are isolated under
 [`experiments/workflows/gloamere-ui-system`](../../experiments/workflows/gloamere-ui-system).
-They are not part of this plugin, the official-directory submission, or its
-release archive. The candidate can return only after its taxonomy, data,
-scripts, and rules are replaced by Gloamere-owned material and its identity,
-routing, and quality evidence are rerun at the replacement SHA.
+They are not part of this plugin, the Git marketplace release, any future
+official-directory submission, or either release archive. The candidate can
+return only after its taxonomy, data, scripts, and rules are replaced by
+Gloamere-owned material and its identity, routing, and quality evidence are
+rerun at the replacement SHA.

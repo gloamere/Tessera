@@ -6,10 +6,10 @@ workflow product from maintainer evaluation tooling.
 | Before 4.0 | Gloamere 4 |
 | --- | --- |
 | Repository `gloamere/Tessera` | `gloamere/codex-plugins` |
-| Marketplace `tessera` | Maintainer marketplace `gloamere` |
+| Marketplace `tessera` | Git marketplace `gloamere` |
 | `tessera-core@tessera` | Maintainer-only `gloamere-eval@gloamere` |
-| Separate UI, review, knowledge, and product plugins | Directory package `gloamere-workflows@1.0.0` |
-| Distribution 3.x | Submission candidate `4.0.0`, planned tag `v4.0.0` |
+| Separate UI, review, knowledge, and product plugins | Git-marketplace package `gloamere-workflows@1.0.0` |
+| Distribution 3.x | Git marketplace candidate `4.0.0`, planned tag `v4.0.0` |
 
 The public Workflows package contains Product Decision, Visual Review, and
 Knowledge Capture. UI System is incubated under `experiments/` and has no
@@ -27,9 +27,11 @@ automatic replacement in this release.
    codex plugin marketplace remove tessera
    ```
 
-4. After directory publication, install Gloamere Workflows from its directory
-   listing. Maintainers may separately install Eval from the immutable
-   `v4.0.0` Git marketplace after that tag exists.
+4. After the immutable `v4.0.0` tag and GitHub release are published, install
+   Gloamere Workflows from the Gloamere Git marketplace. Maintainers may
+   separately select the `maintainer` profile for Eval. Before the tag exists,
+   test only an explicit local checkout; do not migrate a working installation
+   to a nonexistent remote release.
 5. Start a new task and verify the exact plugin version, enabled state, and
    three public Skill IDs.
 

@@ -1,24 +1,31 @@
 # Gloamere Workflows brand site
 
-The public information site for the Gloamere Workflows official-directory
-candidate. It is built with vinext for OpenAI Sites and has no database,
+The public information and support site for the Gloamere Workflows Git
+marketplace release. It is built with vinext and has no database,
 authentication, analytics, telemetry, or external font dependency.
 
 ## Routes
 
-- `/` — Workflows product identity and directory status
+- `/` — Workflows product identity and Git marketplace status
 - `/workflows` — the three public workflow Skills
-- `/support` — directory status, supported surfaces, and reporting
+- `/support` — release status, supported surfaces, and reporting
 - `/privacy` — privacy notice
 - `/terms` — terms
 - `/security` — security policy
 
 `/eval` is retained as a non-indexed maintainer reference. It is not part of
-the ordinary-user navigation or the first directory submission.
+the ordinary-user navigation.
 
-Until the official review is approved and its verified directory listing is
-live, the site must identify Gloamere Workflows as a submission candidate and
-must not publish installation commands.
+Before `v4.0.0` is tagged, the site shows only explicit local-checkout preview
+commands and must not render the nonexistent remote tag command. After
+publication, the immutable Git tag becomes the ordinary-user distribution
+source. The official directory remains a future option and does not block this
+release.
+
+The intended self-hosted targets are the ChatGPT desktop plugin surface and
+Codex CLI. ChatGPT desktop remains a pre-release smoke-test requirement rather
+than a current compatibility claim. The site does not promise a self-hosted
+installation path on ChatGPT Work web.
 
 ## Local validation
 

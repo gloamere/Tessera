@@ -11,7 +11,7 @@ import sys
 import unittest
 from unittest import mock
 
-from scripts import validate_marketplace
+from scripts import generate_release_files, validate_marketplace
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,7 +60,7 @@ POWERSHELL = shutil.which("pwsh") or shutil.which("powershell")
 
 
 class InstallerTests(unittest.TestCase):
-    def test_directory_publication_state_is_fail_closed(self) -> None:
+    def test_git_marketplace_publication_state_is_fail_closed(self) -> None:
         def state_errors(
             release_status: str,
             directory_status: str,
@@ -76,13 +76,13 @@ class InstallerTests(unittest.TestCase):
             return errors
 
         self.assertFalse(
-            state_errors("submission-candidate", "preparing", None)
+            state_errors("release-candidate", "optional", None)
         )
         self.assertTrue(
             any(
                 "directoryURL" in error
                 for error in state_errors(
-                    "submission-candidate",
+                    "release-candidate",
                     "approved",
                     None,
                 )
@@ -92,7 +92,7 @@ class InstallerTests(unittest.TestCase):
             any(
                 "directoryURL" in error
                 for error in state_errors(
-                    "submission-candidate",
+                    "release-candidate",
                     "submitted",
                     "https://example.com/listing",
                 )
@@ -100,17 +100,12 @@ class InstallerTests(unittest.TestCase):
         )
         self.assertFalse(
             state_errors(
-                "submission-candidate",
+                "release-candidate",
                 "approved",
                 "https://example.com/listing",
             )
         )
-        self.assertTrue(
-            any(
-                "仓库发布前" in error
-                for error in state_errors("published", "submitted", None)
-            )
-        )
+        self.assertFalse(state_errors("published", "optional", None))
         with mock.patch.dict(
             os.environ,
             {"GITHUB_REF_TYPE": "tag", "GITHUB_REF_NAME": "v4.0.0"},
@@ -119,7 +114,7 @@ class InstallerTests(unittest.TestCase):
                 any(
                     "tag 发布" in error
                     for error in state_errors(
-                        "submission-candidate",
+                        "release-candidate",
                         "approved",
                         "https://example.com/listing",
                     )
@@ -128,8 +123,8 @@ class InstallerTests(unittest.TestCase):
             self.assertFalse(
                 state_errors(
                     "published",
-                    "approved",
-                    "https://example.com/listing",
+                    "optional",
+                    None,
                 )
             )
 
@@ -151,8 +146,20 @@ class InstallerTests(unittest.TestCase):
             {plugin["id"]: plugin["maturity"] for plugin in RELEASE["plugins"]},
             {
                 "gloamere-eval": "beta",
-                "gloamere-workflows": "submission-candidate",
+                "gloamere-workflows": "stable",
             },
+        )
+        self.assertEqual(
+            {plugin["id"]: plugin["publicRole"] for plugin in RELEASE["plugins"]},
+            {
+                "gloamere-eval": "maintainer",
+                "gloamere-workflows": "public",
+            },
+        )
+        self.assertEqual(distribution["distributionChannel"], "git-marketplace")
+        self.assertEqual(
+            distribution["marketplaceSource"],
+            "gloamere/codex-plugins",
         )
 
     def test_windows_wsl_launcher_is_not_treated_as_posix_shell(self) -> None:
@@ -165,11 +172,11 @@ class InstallerTests(unittest.TestCase):
 
     def test_installers_pin_release_and_use_native_codex_commands(self) -> None:
         distribution = RELEASE["distribution"]
-        repository = distribution["repository"].removeprefix("https://github.com/")
+        marketplace_source = distribution["marketplaceSource"]
         for name in ("install.ps1", "install.sh"):
             source = (ROOT / name).read_text(encoding="utf-8")
             for token in (
-                repository,
+                marketplace_source,
                 distribution["tag"],
                 "plugin",
                 "marketplace",
@@ -203,6 +210,14 @@ class InstallerTests(unittest.TestCase):
         index = json.loads((ROOT / "release-index.json").read_text(encoding="utf-8"))
         self.assertEqual(index["version"], RELEASE["distribution"]["version"])
         self.assertEqual(
+            index["distributionChannel"],
+            RELEASE["distribution"]["distributionChannel"],
+        )
+        self.assertEqual(
+            index["marketplaceSource"],
+            RELEASE["distribution"]["marketplaceSource"],
+        )
+        self.assertEqual(
             [plugin["id"] for plugin in index["plugins"]],
             [plugin["id"] for plugin in RELEASE["plugins"]],
         )
@@ -222,6 +237,22 @@ class InstallerTests(unittest.TestCase):
             [plugin["skills"] for plugin in index["plugins"]],
             [plugin["skills"] for plugin in RELEASE["plugins"]],
         )
+        self.assertIsNone(index["releaseURL"])
+        self.assertIsNone(index["manifestURL"])
+        for plugin in index["plugins"]:
+            self.assertIsNone(plugin["archiveURL"])
+            self.assertIsNone(plugin["checksumURL"])
+
+        published_release = copy.deepcopy(RELEASE)
+        published_release["distribution"]["releaseStatus"] = "published"
+        published_index = generate_release_files.build_release_index(
+            published_release
+        )
+        self.assertTrue(published_index["releaseURL"].startswith("https://"))
+        self.assertTrue(published_index["manifestURL"].startswith("https://"))
+        for plugin in published_index["plugins"]:
+            self.assertTrue(plugin["archiveURL"].startswith("https://"))
+            self.assertTrue(plugin["checksumURL"].startswith("https://"))
         for plugin in RELEASE["plugins"]:
             plugin_manifest = json.loads(
                 (
@@ -242,6 +273,14 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(
             website_release["releaseVersion"],
             RELEASE["distribution"]["version"],
+        )
+        self.assertEqual(
+            website_release["distributionChannel"],
+            RELEASE["distribution"]["distributionChannel"],
+        )
+        self.assertEqual(
+            website_release["marketplaceSource"],
+            RELEASE["distribution"]["marketplaceSource"],
         )
         self.assertEqual(
             website_release["directoryStatus"],
@@ -288,6 +327,65 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("--profile)", posix)
         self.assertIn("--all)", posix)
         self.assertEqual(posix_profiles, profiles)
+
+    def test_candidate_installers_allow_only_explicit_local_sources(self) -> None:
+        powershell = (ROOT / "install.ps1").read_text(encoding="utf-8")
+        self.assertIn("$PSBoundParameters.ContainsKey('Source')", powershell)
+        self.assertIn("$releaseStatus -ne 'published'", powershell)
+        self.assertIn("existing local repository checkout", powershell)
+
+        posix = (ROOT / "install.sh").read_text(encoding="utf-8")
+        self.assertIn("SOURCE_WAS_EXPLICIT", posix)
+        self.assertIn('"$RELEASE_STATUS" != published', posix)
+        self.assertIn("existing local repository checkout", posix)
+
+    @unittest.skipUnless(POWERSHELL, "PowerShell is unavailable")
+    def test_candidate_powershell_installer_rejects_remote_source(self) -> None:
+        result = subprocess.run(
+            [
+                POWERSHELL,
+                "-NoProfile",
+                "-File",
+                str(ROOT / "install.ps1"),
+                "-Source",
+                "https://example.invalid/gloamere.git",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=15,
+            check=False,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "remote installation is unavailable",
+            result.stdout + result.stderr,
+        )
+
+    @unittest.skipUnless(POSIX_SHELL, "usable POSIX shell is unavailable")
+    def test_candidate_posix_installer_rejects_remote_source(self) -> None:
+        result = subprocess.run(
+            [
+                POSIX_SHELL,
+                "install.sh",
+                "--source",
+                "https://example.invalid/gloamere.git",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=15,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 4)
+        self.assertIn(
+            "remote installation is unavailable",
+            result.stdout + result.stderr,
+        )
 
     def test_release_validator_accepts_profile_mirrors(self) -> None:
         result = subprocess.run(
@@ -366,7 +464,6 @@ class InstallerTests(unittest.TestCase):
                 "validate_marketplace.py",
                 "validate_release_evidence.py",
                 "validate_quality_evidence.py",
-                "validate_directory_submission.py",
                 "unittest",
                 "inspect",
                 "lint",
@@ -380,6 +477,7 @@ class InstallerTests(unittest.TestCase):
                 self.assertIn(token, source, f"{name} is missing {token}")
             self.assertNotIn("--host claude", source)
             self.assertNotIn("'--host', 'claude'", source)
+            self.assertNotIn("validate_directory_submission.py", source)
 
     def test_ci_uses_complete_checks_on_three_platforms(self) -> None:
         for name in ("validate.yml", "release.yml"):
@@ -427,8 +525,8 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("--expect-commit", workflow)
         self.assertIn('"release-provenance.json"', workflow)
         self.assertIn("validate_quality_evidence.py --require", workflow)
-        self.assertIn("--require-exhaustive", workflow)
-        self.assertIn("validate_directory_submission.py --require-complete", workflow)
+        self.assertNotIn("--require-exhaustive", workflow)
+        self.assertNotIn("validate_directory_submission.py --require-complete", workflow)
         self.assertIn("npm audit --audit-level=high --omit=dev", workflow)
         self.assertNotIn("--prerelease", workflow)
         self.assertIn('"releaseManifestAsset"', workflow)

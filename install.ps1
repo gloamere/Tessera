@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$Source = 'gloamere/codex-plugins',
     [string]$Ref = 'v4.0.0',
@@ -8,6 +8,27 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# The default is the tagged Git marketplace. -Source also accepts a local
+# marketplace path or another HTTPS Git host without changing the plugin IDs.
+$sourceWasExplicit = $PSBoundParameters.ContainsKey('Source')
+$releaseManifestPath = Join-Path $PSScriptRoot 'release-manifest.json'
+if (-not (Test-Path -LiteralPath $releaseManifestPath -PathType Leaf)) {
+    throw 'release-manifest.json was not found beside install.ps1. Run the installer from a complete repository checkout.'
+}
+try {
+    $releaseState = Get-Content -LiteralPath $releaseManifestPath -Raw |
+        ConvertFrom-Json
+    $releaseStatus = $releaseState.distribution.releaseStatus
+}
+catch {
+    throw "Could not read release state from ${releaseManifestPath}: $($_.Exception.Message)"
+}
+$sourceIsLocal = Test-Path -LiteralPath $Source -PathType Container
+$candidateRemoteSource = (
+    $releaseStatus -ne 'published' -and
+    (-not $sourceWasExplicit -or -not $sourceIsLocal)
+)
 
 $codex = Get-Command codex.cmd -ErrorAction SilentlyContinue
 if (-not $codex) {
@@ -74,8 +95,16 @@ if ($legacySelectors.Count -gt 0) {
     throw 'Legacy plugins must be migrated first. See MIGRATION.md.'
 }
 
+# 根因：候选版默认指向尚不存在的 tag；修复要点：完成只读迁移检查后，published 前只允许显式本地 marketplace。
+if ($candidateRemoteSource) {
+    throw (
+        "Gloamere is ${releaseStatus}; remote installation is unavailable. " +
+        'Pass -Source with an existing local repository checkout.'
+    )
+}
+
 $marketplaceArgs = @('plugin', 'marketplace', 'add', $Source)
-if (-not (Test-Path -LiteralPath $Source)) {
+if (-not $sourceIsLocal) {
     $marketplaceArgs += @('--ref', $Ref)
 }
 Invoke-Codex -Arguments $marketplaceArgs
@@ -104,5 +133,6 @@ if ($missing.Count -gt 0) {
     throw "Codex did not report these plugins as installed: $($missing -join ', ')"
 }
 
-Write-Host "Gloamere ${Profile} profile installed from ${Source}@${Ref}: $($plugins -join ', ')"
+$sourceDescription = if ($sourceIsLocal) { $Source } else { "${Source}@${Ref}" }
+Write-Host "Gloamere ${Profile} profile installed from marketplace ${sourceDescription}: $($plugins -join ', ')"
 Write-Host 'Start a new Codex task to load the installed skills.'

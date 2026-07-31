@@ -31,6 +31,8 @@ SUITE_SCHEMA_VERSION = 2
 SUPPORTED_SUITE_SCHEMA_VERSIONS = {1, 2}
 TARGET_LOCK_SCHEMA_VERSION = 2
 JOURNAL_SCHEMA_VERSION = 1
+# 根因：native CLI 省略 --mode 时默认 exhaustive；修复要点：默认 release，完整覆盖保持显式 opt-in。
+DEFAULT_NATIVE_MODE = "release"
 RISK_POLICY_V2: dict[str, Any] = {
     "id": "risk-tiered-v2",
     "version": 2,
@@ -2144,8 +2146,8 @@ def build_report(
     preflight_reasons: list[str] | None = None,
     execution_provenance: str = "codex_cli",
     *,
-    mode: str = "exhaustive",
-    selection_reason: str = "all suite cases selected for exhaustive coverage",
+    mode: str = DEFAULT_NATIVE_MODE,
+    selection_reason: str = "release mode selected by default",
     selection_roles: dict[str, str] | None = None,
     rotation_key: str | None = None,
     max_calls: int | None = None,
@@ -2239,7 +2241,7 @@ def build_report(
     }
     selected_case_ids = [case["id"] for case in cases]
     selected_roles = selection_roles or {
-        case_id: "exhaustive" for case_id in selected_case_ids
+        case_id: mode for case_id in selected_case_ids
     }
     case_outcomes: dict[str, str] = {}
     for case in cases:
@@ -5033,7 +5035,11 @@ def parser() -> argparse.ArgumentParser:
     native_parser.add_argument(
         "--mode",
         choices=("pr", "release", "exhaustive"),
-        default="exhaustive",
+        default=DEFAULT_NATIVE_MODE,
+        help=(
+            "Evaluation mode (default: release; exhaustive must be selected "
+            "explicitly)."
+        ),
     )
     native_parser.add_argument(
         "--policy",

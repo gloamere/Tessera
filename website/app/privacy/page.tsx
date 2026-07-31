@@ -33,8 +33,8 @@ export default function PrivacyPage() {
       <section>
         <h2><T value={l("Other services", "其他服务")} /></h2>
         <p><T value={l(
-          "ChatGPT Work, Codex, and any tools, connectors, websites, or services the user separately chooses to invoke are governed by their own privacy terms. Gloamere does not receive that data merely because this plugin is installed.",
-          "ChatGPT Work、Codex 以及用户另行选择调用的工具、连接器、网站或服务，均受其各自隐私条款约束。安装本插件本身不会让 Gloamere 收到相关数据。",
+          "The host and any tools, connectors, websites, or services the user separately chooses to invoke are governed by their own privacy terms. Gloamere does not receive that data merely because this plugin is installed.",
+          "宿主以及用户另行选择调用的工具、连接器、网站或服务，均受其各自隐私条款约束。安装本插件本身不会让 Gloamere 收到相关数据。",
         )} /></p>
       </section>
       <section>

@@ -1,7 +1,7 @@
 # Current Gloamere architecture
 
 The accepted
-[universal Workflows decision](decisions/universal-workflows-v4-release.md)
+[Git marketplace distribution decision](decisions/git-marketplace-v4-release.md)
 defines the active 4.0 product boundary. Earlier ADRs remain historical.
 
 ## Product surfaces
@@ -13,7 +13,7 @@ defines the active 4.0 product boundary. Earlier ADRs remain historical.
 | `experiments/` | Maintainers | UI System, Debug Loop, and other unpublished candidates; never packaged |
 | Host capabilities | End users | Native Skill selection, task execution, approvals, tools, connectors, and plugin lifecycle |
 
-The universal-directory artifact contains exactly:
+The repository marketplace package contains exactly:
 
 ```text
 gloamere-workflows
@@ -31,7 +31,7 @@ installed package without making Eval the ordinary user's entry point.
 flowchart LR
     R["release-manifest.json"] --> G["Deterministic generator"]
     G --> V["VERSION"]
-    G --> M["Local maintainer marketplace"]
+    G --> M["Git marketplace"]
     G --> X["Release index"]
     G --> W["Website release constants"]
     R --> A["Admission + quality locks"]
@@ -39,7 +39,8 @@ flowchart LR
     R --> P["Tracked-only packager"]
     E --> P
     P --> Z["ZIP + checksum + provenance"]
-    Z --> D["Universal directory submission"]
+    Z --> T["Immutable tag + GitHub release"]
+    T -. future option .-> D["Official directory submission"]
 ```
 
 `release-manifest.json` owns distribution and package versions, statuses,
@@ -68,16 +69,18 @@ report v4 + semantic quality rubric
 
 Every attempt is appended to a journal before aggregation. `--resume` skips
 completed identities, `--shard` partitions deterministic selections, and
-`--finalize` builds a report without invoking a model. The initial submission
-first completes one 102-case exhaustive pass, then retries only anomalies up
-to the separate 120-call hard cap; routine changes do not run this path.
+`--finalize` builds a report without invoking a model. A future
+official-directory submission may complete one 102-case exhaustive pass and
+then retry only anomalies up to the separate 120-call hard cap; the Git
+marketplace release and routine changes do not run this path.
 
 ## Compatibility and support
 
-The directory package targets ChatGPT Work web, the ChatGPT Work and Codex
-desktop apps, and Codex CLI. It does not claim IDE, mobile, Chat, or
-non-OpenAI-host support. Eval evidence is currently produced by local Codex
-CLI only.
+The intended repository-marketplace targets are the ChatGPT desktop plugin
+surface and Codex CLI. ChatGPT desktop compatibility remains a pre-release
+smoke-test requirement, not a current compatibility claim. The release does
+not claim self-hosted installation on ChatGPT Work web, Chat, IDE integrations,
+or mobile. Eval evidence is currently produced by local Codex CLI only.
 
 Legacy `@tessera` detection is read-only. See [MIGRATION.md](../MIGRATION.md).
 
@@ -90,3 +93,5 @@ Legacy `@tessera` detection is read-only. See [MIGRATION.md](../MIGRATION.md).
 3. Never publish a mutable branch or a dirty tracked package.
 4. Report v3 may be inspected historically but cannot authorize release.
 5. Preserve experimental provenance and user-controlled files.
+6. Record a reproducible ChatGPT desktop smoke test against the exact release
+   candidate before publishing its immutable tag.

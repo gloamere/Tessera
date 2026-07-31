@@ -1,6 +1,8 @@
 # Gloamere Workflows 1.0.0
 
-Initial official-directory submission for product and design leads.
+Draft release notes for a possible future official-directory submission for
+product and design leads. These notes do not describe or block the `v4.0.0` Git
+marketplace release.
 
 - Compare product options from existing evidence and define the next validation.
 - Review an existing interface with visible evidence and prioritized changes.

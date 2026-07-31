@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { releaseData } from "../generated-release";
 import { T } from "../i18n";
 import { l } from "../locale";
-import { DIRECTORY_APPROVED } from "../release-state";
 import {
   BetaBoundary,
   HeroActions,
@@ -20,11 +19,11 @@ export const metadata: Metadata = {
 };
 
 const workflowPlugin = releaseData.plugins.find(
-  (plugin) => plugin.publicRole === "directory",
+  (plugin) => plugin.id === "gloamere-workflows",
 );
 
 if (!workflowPlugin) {
-  throw new Error("Generated release data must include a directory plugin.");
+  throw new Error("Generated release data must include the workflow plugin.");
 }
 
 const skillCatalog = [
@@ -97,9 +96,7 @@ export default function WorkflowsPage() {
       <main id="main-content">
         <div className="page-wrap">
           <PageHero
-            route={DIRECTORY_APPROVED
-              ? l("Official directory / Workflows", "官方目录 / 工作流")
-              : l("Official directory candidate / Workflows", "官方目录候选 / 工作流")}
+            route={l("Git marketplace / Workflows", "Git marketplace / 工作流")}
             title={l("Decide. Review. Preserve.", "决策、评审、沉淀。")}
             summary={l(
               "Gloamere Workflows gives product and design leaders three focused Skills with explicit trigger and exclusion boundaries. Each one turns available evidence into a concrete next step.",
@@ -114,7 +111,7 @@ export default function WorkflowsPage() {
               </div>
             }
           >
-            <HeroActions primaryHref="#directory-status" primaryLabel={l("Check directory status", "查看目录状态")} />
+            <HeroActions primaryHref="#install" primaryLabel={l("View release commands", "查看发布命令")} />
           </PageHero>
 
           <section className="skill-section">
@@ -187,8 +184,12 @@ export default function WorkflowsPage() {
             <div>
               <h2><T value={l("Experiments stay outside the plugin.", "实验始终留在插件之外。")} /></h2>
               <p><T value={l(
-                "Repository labs may explore future workflows and maintainer tooling, but they are not bundled, supported, or presented as part of the first official-directory submission.",
-                "仓库实验区可以探索未来工作流与维护者工具，但它们不会被打包、支持或呈现为首轮官方目录提交的一部分。",
+                "Repository labs may explore future workflows and maintainer tooling, but they are not bundled, supported, or presented as part of the v4.0.0 Git marketplace release.",
+                "仓库实验区可以探索未来工作流与维护者工具，但它们不会被打包、支持或呈现为 v4.0.0 Git marketplace 发布的一部分。",
+              )} /></p>
+              <p><T value={l(
+                "MCP also stays outside v4: these workflows need no live service data, plugin authentication, or controlled remote writes. A future candidate must first prove a recurring gap that host-native capabilities cannot solve through a read-only search/fetch experiment.",
+                "MCP 同样不进入 v4：这些工作流不需要实时服务数据、插件认证或受控远程写入。未来候选必须先证明存在宿主原生能力无法解决的重复缺口，并从只读 search/fetch 实验开始。",
               )} /></p>
             </div>
           </section>

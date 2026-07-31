@@ -1,11 +1,12 @@
-# Official directory submission
+# Optional future official-directory submission
 
-This directory is the reviewable source for the `gloamere-workflows@1.0.0`
-skills-only submission. The upload artifact is
-`dist/gloamere-workflows-1.0.0.zip`; `gloamere-eval` and every workflow under
-`experiments/` are excluded.
+This directory retains a reviewable template for a possible future
+`gloamere-workflows@1.0.0` skills-only submission. It is not part of the
+`v4.0.0` Git marketplace release gate. The repository tag, GitHub release, and
+self-hosted installation path do not wait for any portal field, country
+selection, recording, exhaustive run, or external approval stored here.
 
-Before upload:
+If the official-directory channel is revived:
 
 1. Run the repository checks, both website audits, and the package dry run.
 2. Produce eligible report-v4 routing evidence bound to a current protected
@@ -23,7 +24,9 @@ Before upload:
 6. Confirm the ZIP contains three Skills, no MCP/app configuration, and no
    screenshot declaration.
 
-The submission portal, not this JSON file, is the final system of record.
+Until that decision, `submission.json` is a non-authoritative draft and its
+pending values are expected. The submission portal, not this JSON file, is the
+final system of record.
 Current requirements are documented in the official
 [submission guide](https://developers.openai.com/plugins/deploy/submission)
 and [plugin guidelines](https://developers.openai.com/plugins/app-guidelines).

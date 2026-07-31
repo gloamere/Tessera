@@ -1,13 +1,16 @@
 # Support
 
-Gloamere `4.0.0` is an unpublished submission candidate. Public Workflows
-support begins only after the universal-directory listing is approved and
-published.
+Gloamere `4.0.0` is a Git marketplace release candidate. Remote installation
+and ordinary-user support begin only after the immutable `v4.0.0` tag is
+published and the release checks pass; official-directory approval is not a
+prerequisite.
 
-The supported public surfaces are ChatGPT Work on the web, ChatGPT Work and
-Codex in the desktop app, and the Codex CLI plugin browser. Plugins are not
-available in Chat, the IDE extension, or mobile. `gloamere-eval` additionally
-requires local Codex CLI execution and Python 3.10+.
+The intended Workflows targets are the ChatGPT desktop plugin surface and Codex
+CLI. ChatGPT desktop compatibility remains a pre-release smoke-test gate, not a
+current support claim. This release does not claim a self-hosted installation
+path on ChatGPT Work web, Chat, the IDE extension, or mobile.
+`gloamere-eval` additionally requires local Codex CLI execution and Python
+3.10+.
 
 Before opening a report:
 

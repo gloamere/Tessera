@@ -615,6 +615,7 @@ class RoutingEvalTests(unittest.TestCase):
         )
 
         self.assertEqual(validate_report_v4(report), [])
+        self.assertEqual(report["evaluation"]["mode"], "release")
         self.assertFalse(report["privacy"]["prompts_included"])
         self.assertEqual(
             report["execution_provenance"],
@@ -861,6 +862,8 @@ class RoutingEvalTests(unittest.TestCase):
             str(suite_path),
             "--target-lock",
             str(lock_path),
+            "--mode",
+            "exhaustive",
             "--catalog",
             str(self.catalog_path),
             "--adapter-executable",
@@ -1030,6 +1033,60 @@ class RoutingEvalTests(unittest.TestCase):
         self.assertEqual(plan["max_calls"], 12)
         self.assertEqual(plan["selected_case_ids"], ["loads-target"])
         self.assertEqual(plan["suite_sha256"], sha256_file(suite_path))
+
+    def test_native_omitted_mode_defaults_to_release(self):
+        suite_path = self.temp / "suite-default-release.json"
+        lock_path = self.temp / "target-lock-default-release.json"
+        policy_path = self.temp / "policy-default-release.json"
+        write_json(suite_path, self.suite)
+        write_json(lock_path, self.lock)
+        write_json(
+            policy_path,
+            make_risk_policy("test-suite", ["loads-target"]),
+        )
+
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT_RUNNER),
+                "native",
+                "--suite",
+                str(suite_path),
+                "--target-lock",
+                str(lock_path),
+                "--policy",
+                str(policy_path),
+                "--adapter-executable",
+                str(self.temp / "adapter-must-not-run"),
+                "--dry-run",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        plan = json.loads(completed.stdout)
+        self.assertEqual(plan["mode"], "release")
+        self.assertEqual(plan["model_calls"], 0)
+        self.assertEqual(plan["planned_calls"], 1)
+        self.assertEqual(plan["max_calls"], 40)
+        self.assertEqual(plan["selected_case_ids"], ["loads-target"])
+
+    def test_native_wrappers_default_to_release(self):
+        powershell = (ROOT / "scripts" / "run_native_eval.ps1").read_text(
+            encoding="utf-8"
+        )
+        posix = (ROOT / "scripts" / "run_native_eval.sh").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("[string]$Mode = 'release'", powershell)
+        self.assertIn("DEFAULT_MODE=release", posix)
+        self.assertIn('set -- --mode "$DEFAULT_MODE" "$@"', posix)
+        self.assertIn('--mode "$DEFAULT_MODE"', posix)
 
     def test_release_pass_does_not_spend_retry_calls(self):
         suite_path = self.temp / "suite-adaptive-pass.json"
@@ -1341,6 +1398,7 @@ class RoutingEvalTests(unittest.TestCase):
 
         self.assertEqual(completed.returncode, 0, completed.stderr)
         plan = json.loads(completed.stdout)
+        self.assertEqual(plan["mode"], "exhaustive")
         self.assertEqual(len(plan["selected_case_ids"]), 102)
         self.assertEqual(plan["planned_calls"], 102)
         self.assertEqual(plan["initial_planned_calls"], 102)
@@ -1481,6 +1539,8 @@ class RoutingEvalTests(unittest.TestCase):
             str(suite_path),
             "--target-lock",
             str(lock_path),
+            "--mode",
+            "exhaustive",
             "--catalog",
             str(self.catalog_path),
             "--adapter-executable",
@@ -1573,6 +1633,8 @@ class RoutingEvalTests(unittest.TestCase):
             str(suite_path),
             "--target-lock",
             str(lock_path),
+            "--mode",
+            "exhaustive",
             "--catalog",
             str(self.catalog_path),
             "--adapter-executable",
@@ -1649,6 +1711,8 @@ class RoutingEvalTests(unittest.TestCase):
                 str(suite_path),
                 "--target-lock",
                 str(lock_path),
+                "--mode",
+                "exhaustive",
                 "--catalog",
                 str(self.catalog_path),
                 "--adapter-executable",
@@ -1705,6 +1769,8 @@ class RoutingEvalTests(unittest.TestCase):
                 str(suite_path),
                 "--target-lock",
                 str(lock_path),
+                "--mode",
+                "exhaustive",
                 "--catalog",
                 str(self.catalog_path),
                 "--adapter-executable",
@@ -1765,6 +1831,8 @@ class RoutingEvalTests(unittest.TestCase):
                 str(suite_path),
                 "--target-lock",
                 str(lock_path),
+                "--mode",
+                "exhaustive",
                 "--catalog",
                 str(self.catalog_path),
                 "--adapter-executable",
@@ -1803,6 +1871,8 @@ class RoutingEvalTests(unittest.TestCase):
             str(suite_path),
             "--target-lock",
             str(lock_path),
+            "--mode",
+            "exhaustive",
         ]
         unavailable = subprocess.run(
             [*base, "--catalog", str(self.temp / "missing-catalog.json")],

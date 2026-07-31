@@ -46,22 +46,28 @@ def build_release_index(release: dict[str, Any]) -> dict[str, Any]:
     distribution = release["distribution"]
     repository = distribution["repository"]
     tag = distribution["tag"]
+    # 根因：候选版提前生成远程 URL 会公开尚不存在的 404 资源；修复要点：仅 published 状态生成可访问链接。
+    published = distribution["releaseStatus"] == "published"
     download_root = f"{repository}/releases/download/{tag}"
     return {
         "schemaVersion": 1,
         "name": distribution["name"],
         "version": distribution["version"],
         "tag": tag,
+        "distributionChannel": distribution["distributionChannel"],
+        "marketplaceSource": distribution["marketplaceSource"],
         "releaseStatus": distribution["releaseStatus"],
         "directoryStatus": distribution["directoryStatus"],
         "directoryURL": distribution["directoryURL"],
         "repository": repository,
-        "releaseURL": f"{repository}/releases/tag/{tag}",
+        "releaseURL": f"{repository}/releases/tag/{tag}" if published else None,
         "marketplace": distribution["marketplace"],
         "installProfiles": distribution["installProfiles"],
         "manifest": distribution["releaseManifestAsset"],
         "manifestURL": (
             f"{download_root}/{distribution['releaseManifestAsset']}"
+            if published
+            else None
         ),
         "plugins": [
             {
@@ -72,9 +78,17 @@ def build_release_index(release: dict[str, Any]) -> dict[str, Any]:
                 "publicRole": plugin["publicRole"],
                 "skills": plugin["skills"],
                 "archive": plugin["archive"],
-                "archiveURL": f"{download_root}/{plugin['archive']}",
+                "archiveURL": (
+                    f"{download_root}/{plugin['archive']}"
+                    if published
+                    else None
+                ),
                 "checksum": plugin["checksum"],
-                "checksumURL": f"{download_root}/{plugin['checksum']}",
+                "checksumURL": (
+                    f"{download_root}/{plugin['checksum']}"
+                    if published
+                    else None
+                ),
             }
             for plugin in release["plugins"]
         ],
@@ -86,6 +100,8 @@ def build_website_release(release: dict[str, Any]) -> str:
     value = {
         "releaseVersion": distribution["version"],
         "releaseTag": distribution["tag"],
+        "distributionChannel": distribution["distributionChannel"],
+        "marketplaceSource": distribution["marketplaceSource"],
         "releaseStatus": distribution["releaseStatus"],
         "directoryStatus": distribution["directoryStatus"],
         "directoryURL": distribution["directoryURL"],

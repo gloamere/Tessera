@@ -1,5 +1,8 @@
 # Owner dogfood validation
 
+This is optional product-learning evidence for the Git marketplace release. It
+becomes a submission gate only if the official-directory channel is revived.
+
 This project currently has one real user, so the internal value gate uses
 transparent owner dogfooding instead of inventing external pilot
 participants. OpenAI's
@@ -13,7 +16,7 @@ included when their outcome can still be reconstructed honestly:
 | Task ID | Date | Skill | Language | Task outcome | Major rewrite required | Minutes of rework | Failure category |
 | --- | --- | --- | --- | --- | --- | ---: | --- |
 
-Acceptance:
+Suggested acceptance for a future directory submission:
 
 - one maintainer using the plugin for at least 10 completed real tasks;
 - at least two tasks for each of the three public Skills;

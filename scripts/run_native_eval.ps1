@@ -3,8 +3,9 @@ param(
     [string]$Suite,
     [Parameter(Mandatory = $true)]
     [string]$TargetLock,
+    # 根因：省略 -Mode 时会落入 102 例 exhaustive；修复要点：默认使用 release，完整覆盖必须显式选择。
     [ValidateSet('pr', 'release', 'exhaustive')]
-    [string]$Mode = 'exhaustive',
+    [string]$Mode = 'release',
     [string]$Policy,
     [ValidateRange(1, 100000)]
     [Nullable[int]]$MaxCalls,

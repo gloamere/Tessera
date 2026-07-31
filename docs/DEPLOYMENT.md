@@ -1,12 +1,15 @@
 # Deployment and release
 
-Gloamere `4.0.0` is an unpublished submission candidate for planned tag
-`v4.0.0`. The ordinary user product is the skills-only
-`gloamere-workflows@1.0.0` directory artifact. The Git marketplace also retains
-`gloamere-eval@gloamere` for maintainers; it is not submitted to the directory.
+Gloamere `4.0.0` is a release candidate for the repository Git marketplace at
+planned immutable tag `v4.0.0`. The tag does not exist yet and remote
+installation must not be described as available. The ordinary-user product is
+the skills-only `gloamere-workflows@1.0.0`; `gloamere-eval@gloamere` remains a
+separate maintainer tool.
 
-Do not publish an installation command, mark a GitHub release latest, or claim
-directory availability before external approval.
+The official plugin directory is an optional future distribution channel. Its
+review, country selection, recording, and approval do not block the Git tag or
+GitHub release. Do not claim directory availability unless a verified listing
+actually exists.
 
 ## Release source
 
@@ -23,11 +26,10 @@ manifest's version field. The release index and website mirror the Skill lists
 and install profiles from the same source; the remaining native manifest
 fields are validated against it.
 
-Directory state is fail-closed. Keep `directoryURL: null` while
-`directoryStatus` is `preparing` or `submitted`. Only after the verified
-listing is live, set `directoryStatus: approved` and store its HTTPS URL in
-`directoryURL`; the website will then expose that link. Set `releaseStatus:
-published` only after directory approval and the matching repository release.
+For this channel, use `distributionChannel: git-marketplace` and keep
+`directoryStatus: optional` with `directoryURL: null`. A future verified
+listing may change the directory fields independently; it must not rewrite the
+identity of the tagged Git release.
 
 Profiles are:
 
@@ -40,10 +42,23 @@ The wrappers expose the same selection contract: PowerShell uses
 `--profile workflows|maintainer|complete`, and `-All`/`--all` remains a
 compatibility alias for `complete`.
 
-The pinned Git selectors become valid only after tag publication:
+The pinned Git selectors become valid after tag publication:
 `gloamere-workflows@gloamere` and `gloamere-eval@gloamere` from
-`gloamere/codex-plugins`. Public Workflows installation should still point to
-the approved directory listing rather than the maintainer installer.
+`gloamere/codex-plugins`.
+
+Ordinary-user CLI installation after the tag is published:
+
+```bash
+codex plugin marketplace add gloamere/codex-plugins --ref v4.0.0
+codex plugin add gloamere-workflows@gloamere
+```
+
+The intended targets are Codex CLI and the ChatGPT desktop plugin surface.
+ChatGPT desktop compatibility is not yet verified and must pass a reproducible
+smoke test against the exact release candidate before publication. ChatGPT Work
+web is not part of the intended self-hosted installation surface. Before the
+tag exists, testing must use an explicit local checkout such as
+`./install.ps1 -Source .` or `sh install.sh --source .`.
 
 ## Static validation
 
@@ -55,7 +70,7 @@ the approved directory listing rather than the maintainer installer.
 sh scripts/check.sh
 ```
 
-The check includes generated-file drift, plugin and directory metadata,
+The check includes generated-file drift, plugin and marketplace metadata,
 102-case/policy/quality contracts, unit tests, self-contained runtime checks,
 and Eval inspect/lint. It makes no native model call.
 
@@ -79,14 +94,15 @@ Risk policy:
 - PR: four cases per changed Skill, maximum 12;
 - release: 16 base cases plus four per changed Skill, with two quality calls
   reserved per changed Skill;
-- exhaustive: first run all 102 unique cases once, then retry only anomalies;
-  the initial-coverage budget is 102 and the conservative hard cap is 120;
+- future-directory exhaustive: first run all 102 unique cases once, then retry
+  only anomalies; the initial-coverage budget is 102 and the conservative hard
+  cap is 120;
 - output quality: one English and one Chinese golden task per changed Skill.
 
 Routine release routing, semantic quality tasks, and targeted retries share
-one hard cap of 40 model calls. The one-time exhaustive path uses its separate
-120-call cap and never spends retry calls before all 102 initial cases exist in
-the journal.
+one hard cap of 40 model calls. The optional future-directory exhaustive path
+uses its separate 120-call cap and never spends retry calls before all 102
+initial cases exist in the journal.
 
 Runner usage is documented by `scripts/run_native_eval.ps1 -?` and
 `scripts/run_native_eval.sh --help`. Use `--dry-run` before spending calls,
@@ -159,16 +175,17 @@ Every ZIP contains `RELEASE-PROVENANCE.json`. Symlinks, submodules, untracked
 sentinels, dirty tracked files, and a commit mismatch fail closed for a real
 build.
 
-## Directory submission
+## Optional directory submission
 
-Run:
+This section is dormant for the `v4.0.0` Git marketplace release. If an
+official-directory submission is revived later, run:
 
 ```bash
 python scripts/validate_directory_submission.py
 python scripts/validate_directory_submission.py --require-complete
 ```
 
-The first command validates the local structure. The complete gate also
+The first command validates the retained material. The complete gate also
 requires:
 
 - an eligible report-v4 entry in `release-manifest.json`;
@@ -183,19 +200,40 @@ requires:
 - the final `gloamere-workflows-1.0.0.zip`.
 
 Upload only the Workflows ZIP and the materials under `docs/directory/`.
-There is no screenshot because the plugin has no UI.
+There is no screenshot because the plugin has no UI. None of these checks,
+records, portal fields, or external approval states authorize or block the Git
+marketplace release.
 
 ## Publish
 
-1. Complete all static, website, evidence, pilot, and directory gates.
-2. Commit the exact generated state on `main`.
-3. Confirm `main` is synchronized and push tag `v4.0.0`.
-4. Let release CI verify `GITHUB_SHA`, rebuild tracked-only artifacts, and
+1. Complete static, website, routine release evidence, and quality gates.
+2. Run and record a ChatGPT desktop smoke test against the exact tracked
+   release candidate: marketplace discovery, Workflows installation, all three
+   Skill identities, and a fresh-task load.
+3. Set `distribution.releaseStatus` in `release-manifest.json` from
+   `release-candidate` to `published`; keep `directoryStatus: optional` and
+   `directoryURL: null`.
+4. Run `python scripts/generate_release_files.py` and the complete checks, then
+   commit the exact promoted generated state on `main`.
+5. Confirm `main` is synchronized and push tag `v4.0.0`. Tag CI rejects any
+   commit that has not completed the `published` promotion.
+6. Let release CI verify `GITHUB_SHA`, rebuild tracked-only artifacts, and
    compare provenance.
-5. Upload the Workflows ZIP in the official submission portal.
-6. After approval, publish the directory listing and then mark the matching
-   GitHub release current; mark old Tessera releases legacy without deleting
-   their tags.
+7. Publish the matching GitHub release and its generated assets; mark old
+   Tessera releases legacy without deleting their tags.
+8. Verify installation from the immutable tag in Codex CLI and the ChatGPT
+   desktop plugin surface.
 
-Approval and publication are external states. Repository completion cannot
-claim them early.
+The website at `codex.gloamere.com` documents and supports the release but is
+not a plugin runtime dependency.
+
+## MCP boundary
+
+`v4.0.0` does not enable MCP. Product Decision, Visual Review, and Knowledge
+Capture work from user-provided evidence and host capabilities; they currently
+need no live service data, plugin-owned authentication, or controlled remote
+writes. If a validated need recurs and cannot be solved by host-native
+capabilities, evaluate it as a separate version candidate. Start with a
+read-only `search`/`fetch` experiment before considering authentication or
+write scope, then review permissions, privacy, failure modes, maintenance, and
+token cost explicitly.

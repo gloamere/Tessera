@@ -2134,7 +2134,11 @@ def assess(
             "exhaustive_metrics": exhaustive["metrics"],
         }
     )
-    statuses = {release["status"], exhaustive["status"]}
+    # 根因：可选目录的 exhaustive 证据会反向污染普通 Git 发布；修复要点：仅显式请求时才并入顶层门禁。
+    active_statuses = [release["status"]]
+    if require_exhaustive:
+        active_statuses.append(exhaustive["status"])
+    statuses = set(active_statuses)
     if "fail" in statuses:
         result["status"] = "fail"
     elif statuses == {"pass"}:
@@ -2142,8 +2146,8 @@ def assess(
     else:
         result["status"] = "pending"
 
-    invalid_configured_evidence = (
-        release["status"] == "fail" or exhaustive["status"] == "fail"
+    invalid_configured_evidence = release["status"] == "fail" or (
+        require_exhaustive and exhaustive["status"] == "fail"
     )
     missing_required = (
         require and release["status"] != "pass"

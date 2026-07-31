@@ -3,11 +3,13 @@
   "name": "gloamere-codex-plugins",
   "version": "4.0.0",
   "tag": "v4.0.0",
-  "releaseStatus": "submission-candidate",
-  "directoryStatus": "preparing",
+  "distributionChannel": "git-marketplace",
+  "marketplaceSource": "gloamere/codex-plugins",
+  "releaseStatus": "release-candidate",
+  "directoryStatus": "optional",
   "directoryURL": null,
   "repository": "https://github.com/gloamere/codex-plugins",
-  "releaseURL": "https://github.com/gloamere/codex-plugins/releases/tag/v4.0.0",
+  "releaseURL": null,
   "marketplace": "gloamere",
   "installProfiles": {
     "workflows": [
@@ -22,7 +24,7 @@
     ]
   },
   "manifest": "release-manifest.json",
-  "manifestURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0/release-manifest.json",
+  "manifestURL": null,
   "plugins": [
     {
       "id": "gloamere-eval",
@@ -34,25 +36,25 @@
         "gloamere-skill-eval"
       ],
       "archive": "gloamere-eval-1.0.0-beta.1.zip",
-      "archiveURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0/gloamere-eval-1.0.0-beta.1.zip",
+      "archiveURL": null,
       "checksum": "gloamere-eval-1.0.0-beta.1.zip.sha256",
-      "checksumURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0/gloamere-eval-1.0.0-beta.1.zip.sha256"
+      "checksumURL": null
     },
     {
       "id": "gloamere-workflows",
       "displayName": "Gloamere Workflows",
       "version": "1.0.0",
-      "maturity": "submission-candidate",
-      "publicRole": "directory",
+      "maturity": "stable",
+      "publicRole": "public",
       "skills": [
         "gloamere-knowledge-capture",
         "gloamere-product-decision",
         "gloamere-visual-review"
       ],
       "archive": "gloamere-workflows-1.0.0.zip",
-      "archiveURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0/gloamere-workflows-1.0.0.zip",
+      "archiveURL": null,
       "checksum": "gloamere-workflows-1.0.0.zip.sha256",
-      "checksumURL": "https://github.com/gloamere/codex-plugins/releases/download/v4.0.0/gloamere-workflows-1.0.0.zip.sha256"
+      "checksumURL": null
     }
   ]
 }

@@ -1,4 +1,4 @@
-"""Validate Gloamere's universal-directory and maintainer release surfaces."""
+"""Validate Gloamere's Git marketplace and maintainer release surfaces."""
 
 from __future__ import annotations
 
@@ -29,7 +29,11 @@ EXPECTED_INSTALL_PROFILES = {
 }
 EXPECTED_PLUGIN_MATURITY = {
     "gloamere-eval": "beta",
-    "gloamere-workflows": "submission-candidate",
+    "gloamere-workflows": "stable",
+}
+EXPECTED_PLUGIN_PUBLIC_ROLE = {
+    "gloamere-eval": "maintainer",
+    "gloamere-workflows": "public",
 }
 REQUIRED_TOP_LEVEL_FIELDS = {
     "name",
@@ -228,18 +232,31 @@ def validate_release_identity(
         errors.append(
             f"{relative(RELEASE_MANIFEST)}: marketplaceDisplayName 必须为 Gloamere"
         )
+    if distribution.get("distributionChannel") != "git-marketplace":
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: distributionChannel 必须为 git-marketplace"
+        )
+    repository = distribution.get("repository")
+    marketplace_source = distribution.get("marketplaceSource")
+    if (
+        not isinstance(repository, str)
+        or marketplace_source != repository.removeprefix("https://github.com/")
+    ):
+        errors.append(
+            f"{relative(RELEASE_MANIFEST)}: marketplaceSource 必须镜像 Git 仓库来源"
+        )
     release_status = distribution.get("releaseStatus")
     directory_status = distribution.get("directoryStatus")
     directory_url = distribution.get("directoryURL")
-    if release_status not in {"submission-candidate", "published"}:
+    if release_status not in {"release-candidate", "published"}:
         errors.append(
             f"{relative(RELEASE_MANIFEST)}: releaseStatus 必须为 "
-            "submission-candidate 或 published"
+            "release-candidate 或 published"
         )
-    if directory_status not in {"preparing", "submitted", "approved"}:
+    if directory_status not in {"optional", "preparing", "submitted", "approved"}:
         errors.append(
             f"{relative(RELEASE_MANIFEST)}: directoryStatus 必须为 "
-            "preparing、submitted 或 approved"
+            "optional、preparing、submitted 或 approved"
         )
     elif directory_status == "approved":
         require_https(
@@ -251,15 +268,9 @@ def validate_release_identity(
         errors.append(
             f"{relative(RELEASE_MANIFEST)}: 目录获批前 directoryURL 必须为 null"
         )
-    if release_status == "published" and directory_status != "approved":
+    if os.environ.get("GITHUB_REF_TYPE") == "tag" and release_status != "published":
         errors.append(
-            f"{relative(RELEASE_MANIFEST)}: 仓库发布前必须已有获批目录条目"
-        )
-    if os.environ.get("GITHUB_REF_TYPE") == "tag" and (
-        release_status != "published" or directory_status != "approved"
-    ):
-        errors.append(
-            f"{relative(RELEASE_MANIFEST)}: tag 发布仅允许 published + approved 状态"
+            f"{relative(RELEASE_MANIFEST)}: tag 发布仅允许 published 状态"
         )
     if distribution.get("releaseManifestAsset") != "release-manifest.json":
         errors.append(
@@ -269,7 +280,6 @@ def validate_release_identity(
         errors.append(
             f"{relative(RELEASE_MANIFEST)}: releaseIndex 必须为 release-index.json"
         )
-    repository = distribution.get("repository")
     if repository != "https://github.com/gloamere/codex-plugins":
         errors.append(
             f"{relative(RELEASE_MANIFEST)}: distribution.repository 与公开仓库不一致"
@@ -328,6 +338,11 @@ def validate_plugin(
     if release_entry.get("maturity") != expected_maturity:
         errors.append(
             f"{plugin_id}: maturity 必须为 {expected_maturity}"
+        )
+    expected_public_role = EXPECTED_PLUGIN_PUBLIC_ROLE[plugin_id]
+    if release_entry.get("publicRole") != expected_public_role:
+        errors.append(
+            f"{plugin_id}: publicRole 必须为 {expected_public_role}"
         )
 
     expected_path = f"plugins/{plugin_id}"
@@ -550,7 +565,7 @@ def validate_installers(
     errors: list[str],
 ) -> None:
     repository = distribution.get("repository", "")
-    shorthand = repository.removeprefix("https://github.com/")
+    shorthand = distribution.get("marketplaceSource", "")
     tag = distribution.get("tag", "")
     profiles = distribution.get("installProfiles")
     if not isinstance(profiles, dict):

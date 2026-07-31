@@ -2,8 +2,10 @@
 export const releaseData = {
   "releaseVersion": "4.0.0",
   "releaseTag": "v4.0.0",
-  "releaseStatus": "submission-candidate",
-  "directoryStatus": "preparing",
+  "distributionChannel": "git-marketplace",
+  "marketplaceSource": "gloamere/codex-plugins",
+  "releaseStatus": "release-candidate",
+  "directoryStatus": "optional",
   "directoryURL": null,
   "plugins": [
     {
@@ -20,8 +22,8 @@ export const releaseData = {
       "id": "gloamere-workflows",
       "displayName": "Gloamere Workflows",
       "version": "1.0.0",
-      "maturity": "submission-candidate",
-      "publicRole": "directory",
+      "maturity": "stable",
+      "publicRole": "public",
       "skills": [
         "gloamere-knowledge-capture",
         "gloamere-product-decision",

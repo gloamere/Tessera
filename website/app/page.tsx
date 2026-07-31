@@ -3,7 +3,7 @@ import Link from "next/link";
 import { releaseData } from "./generated-release";
 import { T } from "./i18n";
 import { l } from "./locale";
-import { DIRECTORY_APPROVED, DIRECTORY_STATUS } from "./release-state";
+import { MARKETPLACE_STATUS, RELEASE_PUBLISHED } from "./release-state";
 import {
   REPOSITORY_URL,
   SiteFrame,
@@ -37,12 +37,12 @@ const workflowSteps = [
   },
 ];
 
-const directoryPlugin = releaseData.plugins.find(
-  (plugin) => plugin.publicRole === "directory",
+const workflowPlugin = releaseData.plugins.find(
+  (plugin) => plugin.id === "gloamere-workflows",
 );
 
-if (!directoryPlugin) {
-  throw new Error("Generated release data must include a directory plugin.");
+if (!workflowPlugin) {
+  throw new Error("Generated release data must include the workflow plugin.");
 }
 
 export default function Home() {
@@ -52,8 +52,8 @@ export default function Home() {
         <section className="commercial-showcase" aria-labelledby="home-title">
           <div className="showcase-copy">
             <div className="showcase-edition">
-              <span>{directoryPlugin.displayName} / {directoryPlugin.version}</span>
-              <span><T value={DIRECTORY_STATUS} /></span>
+              <span>{workflowPlugin.displayName} / {workflowPlugin.version}</span>
+              <span><T value={MARKETPLACE_STATUS} /></span>
             </div>
 
             <div className="showcase-message">
@@ -76,13 +76,13 @@ export default function Home() {
               <Link className="button button-primary" href="/workflows">
                 <T value={l("Explore the three workflows", "了解三个工作流")} />
               </Link>
-              <Link className="button button-secondary" href="/support">
-                <T value={l("Check directory status", "查看目录状态")} />
+              <Link className="button button-secondary" href="/workflows#install">
+                <T value={l("Get the Git marketplace", "获取 Git marketplace")} />
               </Link>
             </div>
 
             <dl className="showcase-facts">
-              <div><dt><T value={l("Product", "产品")} /></dt><dd>{directoryPlugin.displayName}</dd></div>
+              <div><dt><T value={l("Product", "产品")} /></dt><dd>{workflowPlugin.displayName}</dd></div>
               <div><dt><T value={l("Format", "形态")} /></dt><dd>Skills only</dd></div>
               <div><dt><T value={l("Languages", "语言")} /></dt><dd>中文 + English</dd></div>
             </dl>
@@ -96,7 +96,7 @@ export default function Home() {
               </div>
               <span className="commercial-status">
                 <i aria-hidden="true" />
-                {directoryPlugin.skills.length} <T value={l("focused Skills", "个聚焦 Skill")} />
+                {workflowPlugin.skills.length} <T value={l("focused Skills", "个聚焦 Skill")} />
               </span>
             </header>
 
@@ -114,12 +114,12 @@ export default function Home() {
             </ol>
 
             <p className="commercial-boundary">
-              <span><T value={l("Directory status", "目录状态")} /></span>
-              <strong><T value={DIRECTORY_STATUS} /></strong>
+              <span><T value={l("Distribution", "分发方式")} /></span>
+              <strong><T value={MARKETPLACE_STATUS} /></strong>
               <small>
-                <T value={DIRECTORY_APPROVED
-                  ? l("Use the verified listing", "通过已验证条目使用")
-                  : l("Install after approval", "获批后开放安装")} />
+                <T value={RELEASE_PUBLISHED
+                  ? l("Install from the immutable tag", "从不可变标签安装")
+                  : l("Remote install after tag publication", "标签发布后开放远程安装")} />
               </small>
             </p>
 

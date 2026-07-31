@@ -31,7 +31,7 @@ const evidenceStates = [
   {
     state: "unavailable",
     meaning: l(
-      "Codex, the plugin directory, or an enabled target cannot currently be observed.",
+      "Codex, the installed marketplace, or an enabled target cannot currently be observed.",
       "当前无法观察 Codex、插件目录或已启用的目标。",
     ),
     verdict: "null",
@@ -68,7 +68,7 @@ export default function EvalPage() {
             )}
             aside={<EvidenceTrace compact />}
           >
-            <HeroActions primaryHref="#directory-status" primaryLabel={l("View maintainer status", "查看维护者状态")} />
+            <HeroActions primaryHref="#install" primaryLabel={l("View maintainer status", "查看维护者状态")} />
           </PageHero>
 
           <section className="method-section">
@@ -148,8 +148,8 @@ export default function EvalPage() {
             <aside className="not-result-note glass">
               <strong><T value={l("No admission claim.", "不作准入声明。")} /></strong>
               <p><T value={l(
-                "This page describes the public evaluation contract. It does not claim that Gloamere has passed an official native-admission or directory review.",
-                "本页描述公开评测契约，并不声称 Gloamere 已通过官方原生准入或目录审核。",
+                "This page describes the public evaluation contract. It does not claim that Gloamere has passed an official native-admission review or that the unpublished v4.0.0 tag is available.",
+                "本页描述公开评测契约，并不声称 Gloamere 已通过官方原生准入审核，也不声称尚未发布的 v4.0.0 标签可用。",
               )} /></p>
             </aside>
           </section>

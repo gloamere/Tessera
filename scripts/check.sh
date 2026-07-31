@@ -24,7 +24,6 @@ TARGET_LOCK="$CHECK_TMP/target-lock.json"
 "$PYTHON_BIN" scripts/generate_release_files.py --check
 "$PYTHON_BIN" scripts/validate_marketplace.py
 "$PYTHON_BIN" scripts/validate_release_evidence.py
-"$PYTHON_BIN" scripts/validate_directory_submission.py
 "$PYTHON_BIN" scripts/validate_quality_evidence.py
 "$PYTHON_BIN" -m unittest discover -s tests -p 'test_*.py'
 # Root cause: a stale user-global plugin can contaminate repository checks.

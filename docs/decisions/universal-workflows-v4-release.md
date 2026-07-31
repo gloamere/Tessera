@@ -1,5 +1,6 @@
 ---
-status: accepted
+status: superseded
+superseded_by: git-marketplace-v4-release
 date: 2026-07-31
 decision-makers: Gloamere maintainers
 ---
