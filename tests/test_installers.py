@@ -57,6 +57,8 @@ def find_usable_posix_shell() -> str | None:
 
 POSIX_SHELL = find_usable_posix_shell()
 POWERSHELL = shutil.which("pwsh") or shutil.which("powershell")
+# 根因：托管 runner 首次启动 pwsh 偶发超过 15 秒；修复要点：只放宽 PowerShell 进程预算，断言与安装器行为不变。
+POWERSHELL_PROCESS_TIMEOUT_SECONDS = 45
 
 
 class InstallerTests(unittest.TestCase):
@@ -355,7 +357,7 @@ class InstallerTests(unittest.TestCase):
             text=True,
             encoding="utf-8",
             errors="replace",
-            timeout=15,
+            timeout=POWERSHELL_PROCESS_TIMEOUT_SECONDS,
             check=False,
         )
         self.assertNotEqual(result.returncode, 0)
@@ -450,7 +452,7 @@ class InstallerTests(unittest.TestCase):
             text=True,
             encoding="utf-8",
             errors="replace",
-            timeout=15,
+            timeout=POWERSHELL_PROCESS_TIMEOUT_SECONDS,
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -577,7 +579,7 @@ class InstallerTests(unittest.TestCase):
             text=True,
             encoding="utf-8",
             errors="replace",
-            timeout=15,
+            timeout=POWERSHELL_PROCESS_TIMEOUT_SECONDS,
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
