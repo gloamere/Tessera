@@ -109,8 +109,10 @@ The following external prerequisites are intentionally still pending:
 
 - eligible report-v4 evidence for the final protected content identity;
 - six-case semantic output-quality evidence without critical regression;
-- five product/design pilot participants and ten real tasks;
-- publisher-confirmed country availability;
+- one maintainer's transparent dogfood evidence from ten real tasks, covering
+  every public Skill and reaching the 80% no-major-rewrite threshold;
+- submission-portal confirmation that the requested `CN` availability is
+  selectable and supportable;
 - an HTTPS demo recording;
 - directory review and approval.
 

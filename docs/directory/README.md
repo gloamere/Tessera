@@ -13,10 +13,13 @@ Before upload:
 3. Review all six bilingual quality outputs against `quality-v1.json`, register
    the hashed semantic report, and run
    `python scripts/validate_quality_evidence.py --require`.
-4. Complete the pilot record for at least five product/design leads and ten
-   real tasks.
-5. Replace the pending country availability and demo-recording values in
-   `submission.json`.
+4. Complete the transparent owner-dogfood record for ten real tasks, with at
+   least two tasks for each public Skill and at least 80% needing no major
+   rewrite. This is an internal value gate, not an OpenAI participant-count
+   requirement.
+5. Confirm that the requested `CN` availability is selectable in the
+   submission portal, then replace the pending availability and
+   demo-recording values in `submission.json`.
 6. Confirm the ZIP contains three Skills, no MCP/app configuration, and no
    screenshot declaration.
 

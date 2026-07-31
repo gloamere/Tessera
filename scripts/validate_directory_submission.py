@@ -116,36 +116,136 @@ def validate(require_complete: bool) -> tuple[list[str], list[str]]:
                     errors.append(f"fixture is missing: {fixture_path}")
 
     availability = submission.get("availability", {})
+    requested_countries = availability.get("requestedCountries", [])
+    # 用户意向与门户可选范围分开记录，避免在门户确认前提前宣称已覆盖该地区。
+    requested_codes_valid = (
+        isinstance(requested_countries, list)
+        and bool(requested_countries)
+        and all(
+            isinstance(country, str)
+            and len(country) == 2
+            and country == country.upper()
+            for country in requested_countries
+        )
+        and len(requested_countries) == len(set(requested_countries))
+    )
+    if not requested_codes_valid:
+        errors.append("requested country availability must use ISO alpha-2 codes")
+    confirmed_countries = availability.get("countries", [])
+    confirmed_codes_valid = (
+        isinstance(confirmed_countries, list)
+        and bool(confirmed_countries)
+        and all(
+            isinstance(country, str)
+            and len(country) == 2
+            and country == country.upper()
+            for country in confirmed_countries
+        )
+        and len(confirmed_countries) == len(set(confirmed_countries))
+    )
     if (
         availability.get("status") != "confirmed"
-        or not availability.get("countries")
+        or not confirmed_codes_valid
+        or (
+            requested_codes_valid
+            and set(requested_countries) != set(confirmed_countries)
+        )
     ):
-        pending.append("country availability requires publisher confirmation")
+        requested_label = (
+            ", ".join(requested_countries)
+            if requested_codes_valid
+            else "the requested countries"
+        )
+        pending.append(
+            f"country availability for {requested_label} requires "
+            "submission-portal confirmation"
+        )
     recording = submission.get("demoRecording", {})
     if recording.get("status") != "complete" or not is_https(recording.get("url")):
         pending.append("demo recording is not complete")
     pilot = submission.get("pilot", {})
     if not isinstance(pilot, dict):
         pilot = {}
+    validation_mode = pilot.get("validationMode")
+    # 官方门禁不要求外部试用人数；个人项目用透明 dogfood，避免伪造独立用户证据。
+    if validation_mode != "owner-dogfood":
+        errors.append("pilot validationMode must be owner-dogfood")
     participants = pilot.get("participants")
     completed_tasks = pilot.get("completedTasks")
+    major_rewrite_tasks = pilot.get("majorRewriteTasks")
     pilot_rate = pilot.get("readyWithoutMajorRewriteRate")
+    skill_task_counts = pilot.get("skillTaskCounts")
+    confirmed_high_risk = pilot.get("confirmedHighRiskFalseActivations")
+    skill_coverage_complete = (
+        isinstance(skill_task_counts, dict)
+        and set(skill_task_counts) == PUBLIC_SKILLS
+        and all(
+            isinstance(count, int)
+            and not isinstance(count, bool)
+            and count >= 2
+            for count in skill_task_counts.values()
+        )
+        and isinstance(completed_tasks, int)
+        and not isinstance(completed_tasks, bool)
+        and sum(skill_task_counts.values()) == completed_tasks
+    )
+    rewrite_rate_consistent = (
+        isinstance(completed_tasks, int)
+        and not isinstance(completed_tasks, bool)
+        and completed_tasks > 0
+        and isinstance(major_rewrite_tasks, int)
+        and not isinstance(major_rewrite_tasks, bool)
+        and 0 <= major_rewrite_tasks <= completed_tasks
+        and isinstance(pilot_rate, (int, float))
+        and not isinstance(pilot_rate, bool)
+        and abs(
+            pilot_rate
+            - ((completed_tasks - major_rewrite_tasks) / completed_tasks)
+        )
+        < 1e-9
+    )
+    high_risk_clear = (
+        isinstance(confirmed_high_risk, int)
+        and not isinstance(confirmed_high_risk, bool)
+        and confirmed_high_risk == 0
+    )
     if (
         pilot.get("status") != "complete"
         or not isinstance(participants, int)
         or isinstance(participants, bool)
-        or participants < 5
+        or participants != 1
         or not isinstance(completed_tasks, int)
         or isinstance(completed_tasks, bool)
         or completed_tasks < 10
         or not isinstance(pilot_rate, (int, float))
         or isinstance(pilot_rate, bool)
         or pilot_rate < 0.8
+        or pilot_rate > 1
+        or not rewrite_rate_consistent
+        or not skill_coverage_complete
+        or not high_risk_clear
     ):
         pending.append(
-            "pilot requires 5 product/design leads, 10 completed tasks, "
-            "and at least 80% without major rewrite"
+            f"{validation_mode or 'pilot'} requires exactly 1 maintainer, "
+            "10 completed tasks, at least 2 tasks per public Skill, zero "
+            "confirmed high-risk false activations, and at least 80% "
+            "without major rewrite with a consistent aggregate"
         )
+    pilot_report_value = pilot.get("report")
+    pilot_report = (
+        (ROOT / pilot_report_value).resolve()
+        if isinstance(pilot_report_value, str)
+        else None
+    )
+    report_is_local = False
+    if pilot_report is not None:
+        try:
+            pilot_report.relative_to(ROOT)
+            report_is_local = True
+        except ValueError:
+            pass
+    if not report_is_local or not pilot_report.is_file():
+        errors.append("owner-dogfood report is missing")
     if not workflows.get("admission", {}).get("reports"):
         pending.append("eligible report-v4 evidence has not been registered")
     if not workflows.get("admission", {}).get("exhaustive_reports"):

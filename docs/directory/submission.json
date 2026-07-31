@@ -38,7 +38,10 @@
   "testCases": "docs/directory/evaluation-cases.json",
   "releaseNotes": "docs/directory/RELEASE_NOTES.md",
   "availability": {
-    "status": "pending-owner-confirmation",
+    "status": "pending-portal-confirmation",
+    "requestedCountries": [
+      "CN"
+    ],
     "countries": []
   },
   "demoRecording": {
@@ -48,9 +51,17 @@
   },
   "pilot": {
     "status": "pending",
-    "participants": 0,
+    "validationMode": "owner-dogfood",
+    "participants": 1,
     "completedTasks": 0,
+    "majorRewriteTasks": null,
     "readyWithoutMajorRewriteRate": null,
+    "skillTaskCounts": {
+      "gloamere-product-decision": 0,
+      "gloamere-visual-review": 0,
+      "gloamere-knowledge-capture": 0
+    },
+    "confirmedHighRiskFalseActivations": null,
     "report": "docs/directory/PILOT.md"
   },
   "ui": false,

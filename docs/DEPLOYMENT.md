@@ -174,9 +174,11 @@ requires:
 - an eligible report-v4 entry in `release-manifest.json`;
 - first-directory exhaustive evidence covering all 102 public cases, including
   adaptive anomaly rechecks;
-- aggregate pilot evidence from at least five product/design leads and ten
-  tasks, with at least 80% needing no major rewrite;
-- publisher-confirmed country availability;
+- transparent owner-dogfood evidence from ten real tasks, with at least two
+  tasks per public Skill, no confirmed high-risk false activation, and at
+  least 80% needing no major rewrite;
+- submission-portal confirmation that the requested `CN` availability is
+  selectable and supportable;
 - an HTTPS demo recording;
 - the final `gloamere-workflows-1.0.0.zip`.
 
